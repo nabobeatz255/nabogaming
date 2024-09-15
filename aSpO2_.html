@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+   content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#ffffff"> 
+    <title>NaboGaming BetPlace</title>
+    <meta name="description" content="Unic – NFT Marketplace PWA Mobile Template">
+    <meta name="keywords"
+   content="bootstrap 5, mobile template, wallet, crypto, currency, about, blog, cordova, phonegap, mobile, html, nft, store, marketplace, pwa" />
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="images/favicon/icon-32x32.png" sizes="32x32">
+    <!-- IOS SUPPORT -->
+    <link rel="apple-touch-icon" href="images/favicon/icon-96x96.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="remixicon.min.css">
+    <style> 
+       .background {
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+            background-size: cover;
+            background-position: center;
+            border: 1px dotted black; /* Border for the background element */
+        }
+        /* Centering the file input */
+        .file-input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px; /* Adjust height as needed */
+            margin: 10px 0;
+        }
+        input[type="file"] {
+            display: block;
+            margin: auto;
+            top: 50;
+        }
+    </style>
+</head>
+<body>
+    <div class="headecard">
+        <div class="headecard-left">
+            <svg class="pl" viewBox="0 0 200 200" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<linearGradient id="pl-grad1" x1="1" y1="0.5" x2="0" y2="0.5">
+			<stop offset="0%" stop-color="black" />
+			<stop offset="100%" stop-color="black" />
+		</linearGradient>
+		<linearGradient id="pl-grad2" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0%" stop-color="black" />
+			<stop offset="100%" stop-color="black" />
+		</linearGradient>
+	</defs>
+	<circle class="pl__ring" cx="100" cy="100" r="82" fill="none" stroke="url(#pl-grad1)" stroke-width="36" stroke-dasharray="0 257 1 257" stroke-dashoffset="0.01" stroke-linecap="round" transform="rotate(-90,100,100)" />
+	<line class="pl__ball" stroke="url(#pl-grad2)" x1="100" y1="18" x2="100.01" y2="182" stroke-width="36" stroke-dasharray="1 165" stroke-linecap="round" />
+</svg>
+        </div>
+        <div class="headecard-right">
+            
+           <a href=""><i class="ri-shopping-cart-2-line" style="margin-right:3px;"></i></a>
+            <a href=""><i class="ri-line-chart-line" style="margin-right:3px;"></i></a>
+           <a href=""><i class="ri-menu-3-line" style="background: none;"></i></a>
+           
+        </div>
+    </div>
+    <div class="spacex"></div>
+<div class="bodecard">
+    <div class="bodecard-heade">
+        <img src="5.png" alt="Profile Picture">
+        <h1 class="bodecard-heade-head">MickieArts <span class="follow">Follow</span></h1>
+        <p class="bodecard-heade-descr"><span>code here</span></p>
+    </div>
+    <div class="bodecard-main">
+        <div class="background" id="background"></div>
+    </div>
+    <div class="file-input-container">
+        <input type="file" id="fileInput" accept="image/*">
+    </div>
+</div>
+<script>
+  const fileInput = document.getElementById('fileInput');
+    const backgroundDiv = document.getElementById('background');
+
+    fileInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                backgroundDiv.style.backgroundImage = `url(${e.target.result})`;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+    </body>
+    </html>
