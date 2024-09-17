@@ -9,6 +9,62 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="theme-color" content="white"> 
     <title>NaboGaming BetPlace</title>
+    <script>
+        // Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+    // Your Firebase config object
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+      authDomain: "register-71bde.firebaseapp.com",
+      databaseURL: "https://register-71bde-default-rtdb.firebaseio.com",
+      projectId: "register-71bde",
+      storageBucket: "register-71bde.appspot.com",
+      messagingSenderId: "412548441298",
+      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+      measurementId: "G-0FVNTD9W48"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Check if the user is already signed in and display the user's info
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, show their info
+        const displayName = user.displayName;
+        const email = user.email;
+        const photoURL = user.photoURL;
+
+        // Display user info using getElementById
+        document.getElementById("user-name").textContent = displayName;
+        document.getElementById("user-email").textContent = email;
+        document.getElementById("user-photo").src = photoURL;
+      } else {
+        // No user is signed in, redirect to sign-in page
+        window.location.href = "index.html";  // Redirect to sign-in page if not signed in
+      }
+    });
+
+    // Function to sign out
+    const googleSignOut = () => {
+      signOut(auth)
+        .then(() => {
+          console.log("User signed out");
+          window.location.href = "index.html";  // Redirect to sign-in page after sign out
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
+    };
+
+    // Add event listener for the sign-out button after the DOM is loaded
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('signout-button').addEventListener('click', googleSignOut);
+    });
+    </script>
     <meta name="description" content="Unic – NFT Marketplace PWA Mobile Template">
     <meta name="keywords"
    content="bootstrap 5, mobile template, wallet, crypto, currency, about, blog, cordova, phonegap, mobile, html, nft, store, marketplace, pwa" />
@@ -22,7 +78,7 @@
 <body>
     <div class="headecard">
         <div class="headecard-left">
-            <svg class="pl" viewBox="0 0 200 200" width="100" height="200" xmlns="http://www.w3.org/2000/svg">
+<svg class="pl" viewBox="0 0 200 200" width="100" height="200" xmlns="http://www.w3.org/2000/svg">
 	<defs>
 		<linearGradient id="pl-grad1" x1="1" y1="0.5" x2="0" y2="0.5">
 			<stop offset="0%" stop-color="black" />
@@ -33,8 +89,8 @@
 			<stop offset="100%" stop-color="black" />
 		</linearGradient>
 	</defs>
-	<circle class="pl__ring" cx="100" cy="100" r="82" fill="none" stroke="url(#pl-grad1)" stroke-width="36" stroke-dasharray="0 257 1 257" stroke-dashoffset="0.01" stroke-linecap="round" transform="rotate(-90,100,100)" />
-	<line class="pl__ball" stroke="url(#pl-grad2)" x1="100" y1="18" x2="100.01" y2="182" stroke-width="36" stroke-dasharray="1 165" stroke-linecap="round" />
+	<circle class="pl__ring" cx="100" cy="100" r="82" fill="none" stroke="url(#pl-grad1)" stroke-width="26" stroke-dasharray="0 257 1 257" stroke-dashoffset="0.01" stroke-linecap="round" transform="rotate(-90,100,100)" />
+	<line class="pl__ball" stroke="url(#pl-grad2)" x1="100" y1="18" x2="100.01" y2="182" stroke-width="26" stroke-dasharray="1 165" stroke-linecap="round" />
 </svg>
         </div>
         <div class="headecard-right">
@@ -46,7 +102,7 @@
         </div>
     </div>
     <div class="spacex"></div>
-    <p>Name: <span id="user-name"></span></p>
+   <p>Name: <span id="user-name"></span></p>
     <p>Email: <span id="user-email"></span></p>
     <p><img id="user-photo" alt="User Photo" style="width:100px; height:100px; border-radius:50%;"></p>
   </div>
@@ -173,6 +229,24 @@
 
         </div>
     </div>
+    
+    
+    
+     <div class="bodecard-main">
+       <div style="height: 170%;width: 94%;margin-left: 3%;border-radius: 14px;background-image:linear-gradient(to bottom,rgba(0,0,0,0.0), rgba(0,0,0,0.4), black 100%),url('');background-size: 170%;background-repeat: no-repeat;"></div>
+            <h1 class="bodecard-main-head">Mechi Pubg 1v1 <span class="tag">#pubgmobile</span> </h1>
+            <p class="bodecard-main-descr">Je, Unaweza Shindana Na Kushinda Mashindano?!</p>
+
+        </div>
+    
+    
+    
+    
+    
+    
+    
+    
+        <div class="spacestev"></div>
    <div id="modal" class="modal">
         <div class="modal-content">
             <!--span class="close"><i class="ri-close-fill"></i></span-->
@@ -286,3 +360,4 @@
 </body>
 </html>
 
+	
