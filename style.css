@@ -1,8 +1,7 @@
 body {
     background-color: white;
     font-family: Arial, sans-serif;
-    overflow-y: hidden; /* Disables both vertical and horizontal scrollbars */
-}
+    }
 /* preloader */
 
 :root {
