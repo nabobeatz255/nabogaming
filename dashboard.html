@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+   content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="white"> 
+    <title>NaboGaming BetPlace</title>
+    
+    <meta name="description" content="Unic – NFT Marketplace PWA Mobile Template">
+    <meta name="keywords"
+   content="bootstrap 5, mobile template, wallet, crypto, currency, about, blog, cordova, phonegap, mobile, html, nft, store, marketplace, pwa" />
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="images/favicon/icon-32x32.png" sizes="32x32">
+    <!-- IOS SUPPORT -->
+    <link rel="apple-touch-icon" href="images/favicon/icon-96x96.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="remixicon.min.css">
+</head>
+<body>
+    <div class="headecard">
+        <div class="headecard-left">
+<svg class="pl" viewBox="0 0 200 200" width="100" height="200" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<linearGradient id="pl-grad1" x1="1" y1="0.5" x2="0" y2="0.5">
+			<stop offset="0%" stop-color="black" />
+			<stop offset="100%" stop-color="black" />
+		</linearGradient>
+		<linearGradient id="pl-grad2" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0%" stop-color="black" />
+			<stop offset="100%" stop-color="black" />
+		</linearGradient>
+	</defs>
+	<circle class="pl__ring" cx="100" cy="100" r="82" fill="none" stroke="url(#pl-grad1)" stroke-width="26" stroke-dasharray="0 257 1 257" stroke-dashoffset="0.01" stroke-linecap="round" transform="rotate(-90,100,100)" />
+	<line class="pl__ball" stroke="url(#pl-grad2)" x1="100" y1="18" x2="100.01" y2="182" stroke-width="26" stroke-dasharray="1 165" stroke-linecap="round" />
+</svg>
+        </div>
+        <div class="headecard-right">
+   <a href=""><i class="ri-live-line" style="margin-right:3px;background:none"></i></a>
+  <a href=""><i class="ri-shopping-cart-2-line" style="margin-right:3px;"></i></a>
+   <a><i class="ri-line-chart-line" style="margin-right:3px;"></i></a>
+  <a class="toggle-btn"><i class="ri-menu-3-line" style="background: none;"></i></a>
+        </div>
+<div class="sidebar">
+  <nav class="menu">
+        <div class="bodecard-heade" style="background-color:white;margin-bottom:10px;padding:20px">
+   <img src="logo.png">
+   <h1 class="bodecard-heade-head">Habari Steven, </h1>
+   <p class="bodecard-heade-descr">Karibu NaboGaming BetPlace</p>
+        </div>
+    <a href="#home">Dashboard<span style="float:right"><i class="ri-arrow-right-s-line"></i></span></a>
+    <a href="#home">GameOn - LIVE<span style="float:right"><i class="ri-arrow-right-s-line"></i></span></a>
+    <a href="#home">Kuhusu NaboGaming<span style="float:right"><i class="ri-arrow-right-s-line"></i></span></a>
+    <a href="#home">Mtaa Kwa Mtaa<span style="float:right"><i class="ri-arrow-right-s-line"></i></span></a>
+    <a href="#home">Sheria Na Kanuni<span style="float:right"><i class="ri-arrow-right-s-line"></i></span></a>
+    <a href="#home">Matokeo<span style="float:right"><i class="ri-arrow-right-s-line"></i></span></a>
+    <a href="#home">Soko La Mauzo<span style="float:right"><i class="ri-arrow-right-s-line"></i></span></a>
+<br>
+ <div class="bodecard-adv" style="background:none;border:none">
+        <div class="bodecard-main" style="margin-bottom:110px">
+       <div style="height: 135%;width: 84%;border-radius: 10px;background-image:linear-gradient(to bottom,rgba(0,0,0,0.0), rgba(0,0,0,0.4), black 100%),url('mau.png');background-size: 100%;margin:0 45px 0 25px"></div>
+   <h1 class="bodecard-main-head">Karibu Soko La <span style="color:#ef6db0">Mauzo</span> </h1>
+   <p class="bodecard-main-descr">Uza Account Yako Ya Game Leo Kwa Urahisi Zaidi</p>
+        </div>
+        <div class="bodecard-heade">
+   <h1 class="bodecard-heade-head" style="margin-left:20.6px;color:#ef6db0">Free Entry</h1>
+   <p class="bodecard-heade-descr"  style="margin-left:20.6px"> <span>Net Entrance Fee</span></p>
+        <span class="bodecard-heade-right">
+  <button class="btn-first" style="background-color:#ef6db0">Jisajili Sasa</button>
+        </span>
+        </div>
+    </div>
+    <div class="bodecard-heade">
+ 
+  
+   <p class="bodecard-heade-descr">NaboGaming @2025 • All Rights Reserved</p>
+        </div>
+    
+  </nav>
+</div>
+    </div>
+    <div class="spacex"></div>
+   
+    <div class="bodecard-adv">
+        <div class="bodecard-heade">
+   <img src="5.png"><i class="ri-checkbox-circle-fill tick"></i>
+   <h1 class="bodecard-heade-head">Nabobeatz <span class="follow active">Follow</span></h1>
+<div id="toast" class="toast" style="display:none"></div> </h1>
+   <p class="bodecard-heade-descr"><span class="timeago" data-timestamp="2024-07-04T05:23:00"></span>&nbsp; • &nbsp;&nbsp;  <span style="font-size:11px;margin-left:-6px;color:black;font-weight:800">0</span></p>
+        <span class="bodecard-heade-right">
+   <a href=""><!--span style="font-size:13px;margin-top:-10px">1.2k</span--> <i class="ri-attachmwnt+line"></i></a>
+   <a id="openModalButton2"><i class="ri-chat-3-line"></i></a>
+   <a class="like">
+        <i class="ri-heart-3-line" style="color:black"></i>
+    </a>
+        </span>
+        </div>
+        <div class="bodecard-main" style="margin-bottom:110px">
+       <div style="height: 135%;width: 84%;border-radius: 10px;background-image:linear-gradient(to bottom,rgba(0,0,0,0.0), rgba(0,0,0,0.4), black 100%),url('a.png');background-size: 100%;margin:0 45px 0 25px"></div>
+   <h1 class="bodecard-main-head">NaboGaming Tournament <span class="tag">2025</span> </h1>
+   <p class="bodecard-main-descr">Kaa Mkao Wa Ushindi Kwako Wewe Na Timu Yako</p>
+        </div>
+        <div class="bodecard-heade">
+   <h1 class="bodecard-heade-head" style="margin-left:10.6px">Tshs 2,000</h1>
+   <p class="bodecard-heade-descr"  style="margin-left:10.6px"> <span>Net Entrance Fee</span></p>
+        <span class="bodecard-heade-right">
+  <button class="btn-first">Jisajili Sasa</button>
+        </span>
+        </div>
+    </div>
+    
+   
+        <div class="slider">
+    <div class="bodecard-2">
+        <div class="bodecard-heade" style="margin-bottom:40px">
+   <img src="pubg.png" style="border: 1px solid #f0f0f0">
+     <h1 class="bodecard-heade-head" style="color: black;">PUBGM •<span class="follow active" style="color: black;">Follow</span></h1>
+   <p class="bodecard-heade-descr" style="color: black;">25k Net Followers</p>
+        <span class="bodecard-heade-right">
+        </span>
+        </div>
+      
+        <div class="bodecard-main">
+   <h1 class="bodecard-main-head-2">Mtaa Wa Pubg Gamers </h1>
+   <p class="bodecard-main-descr-2">Karibu Mtaa Huu Wa Pubg Mobile, Hapa Utapata Taarifa Zote Zinazohusiana Na Gemu Hili. Michezo, Matukio Na Habari Mbalimbali. Jiunge Na Mtaa Huu Sasa Uweze Kupata Nafasi Ya Kucheza Mashindano Ya Pubg Mobile. Usikose fursa ya kuboresha ujuzi wako na kushindana na wachezaji wengine.</p>
+
+        </div>
+    </div>
+ <div class="bodecard-2">
+        <div class="bodecard-heade" style="margin-bottom:40px">
+   <img src="cod.png" style="border: 1px solid #f0f0f0">
+   <h1 class="bodecard-heade-head" style="color: black;">CODM •<span class="follow active" style="color: black;">Follow</span></h1>
+   <p class="bodecard-heade-descr" style="color: black;">25k Net Followers</p>
+        <span class="bodecard-heade-right">
+        </span>
+        </div>
+      
+        <div class="bodecard-main">
+   <h1 class="bodecard-main-head-2">Mtaa Wa COD Gamers </h1>
+   <p class="bodecard-main-descr-2">Karibu Mtaa Huu Wa Call Of Duty Mobile, Hapa Utapata Taarifa Zote Zinazohusiana Na Gemu Hili. Michezo, Matukio Na Habari Mbalimbali. Jiunge Na Mtaa Huu Sasa Uweze Kupata Nafasi Ya Kucheza Mashindano Ya COD Mobile. Usikose fursa ya kuboresha ujuzi wako na kushindana na wachezaji wengine.</p>
+
+        </div>
+    </div>
+    <div class="bodecard-2">
+        <div class="bodecard-heade" style="margin-bottom:40px">
+   <img src="pes.png" style="border: 1px solid #f0f0f0">
+   <h1 class="bodecard-heade-head" style="color: black;">PES2024 •<span class="follow active" style="color: black;">Follow</span></h1>
+   <p class="bodecard-heade-descr" style="color: black;">0 Net Followers</p>
+        <span class="bodecard-heade-right">
+        </span>
+        </div>
+      
+        <div class="bodecard-main">
+   <h1 class="bodecard-main-head-2">Mtaa Wa PES2024 Gamers </h1>
+   <p class="bodecard-main-descr-2">Karibu Mtaa Huu Wa eFOOTBALL PES2024, Hapa Utapata Taarifa Zote Zinazohusiana Na Gemu Hili. Michezo, Matukio Na Habari Mbalimbali. Jiunge Na Mtaa Huu Sasa Uweze Kupata Nafasi Ya Kucheza Mashindano Ya eFOOTBALL. Usikose fursa ya kuboresha ujuzi wako na kushindana na wachezaji wengine.</p>
+
+        </div>
+    </div>
+    <div class="bodecard-2">
+        <div class="bodecard-heade" style="margin-bottom:40px">
+   <img src="bussid.png" style="border: 1px solid #f0f0f0">
+   <h1 class="bodecard-heade-head" style="color: black;">BUSSID •<span class="follow active" style="color: black;">Follow</span></h1>
+   <p class="bodecard-heade-descr" style="color: black;">25k Net Followers</p>
+        <span class="bodecard-heade-right">
+        </span>
+        </div>
+      
+        <div class="bodecard-main">
+   <h1 class="bodecard-main-head-2">Mtaa Wa BUSSID Gamers </h1>
+   <p class="bodecard-main-descr-2">Karibu Mtaa Huu Wa Bus Simulator Indonesia, Hapa Utapata Taarifa Zote Zinazohusiana Na Gemu Hili. Michezo, Matukio Na Habari Mbalimbali. Jiunge Na Mtaa Huu Sasa Uweze Kupata Nafasi Ya Kucheza Mashindano Ya BUSSID Mobile.Usikose fursa ya kuboresha ujuzi wako na kushindana na wachezaji wengine.</p>
+
+        </div>
+    </div>
+     <div class="bodecard-3">
+        <div class="bodecard-heade" style="margin-bottom:40px">
+   <img src="freefire.png" style="border: 1px solid #f0f0f0">
+   <h1 class="bodecard-heade-head" style="color: black;">FreeFire Max •<span class="follow active" style="color: black;">Follow</span></h1>
+   <p class="bodecard-heade-descr" style="color: black;">25k Net Followers</p>
+        <a href="" class="bodecard-heade-right" style="font-size:10px">
+        
+        </a>
+        </div>
+      
+        <div class="bodecard-main">
+   <h1 class="bodecard-main-head-2">Mtaa Wa FreeFire Gamers </h1>
+   <p class="bodecard-main-descr-2">Karibu Mtaa Huu Wa Free Fire Mobile! Hapa utapata taarifa zote zinazohusiana na mchezo huu maarufu wa kupambana. Kutakuwa na michezo, matukio, na habari mbalimbali zinazohusiana na Free Fire. Jiunge na mtaa huu sasa ili uweze kupata nafasi ya kushiriki mashindano ya Free Fire. Usikose fursa ya kuboresha ujuzi wako na kushindana na wachezaji wengine kutoka hapahapa nchini!   </p>
+
+        </div>
+    </div>
+ </div>      
+
+   
+    
+    <div class="bodecard">
+        <div class="bodecard-heade">
+   <img src="mick.png"><i class="ri-checkbox-circle-fill tick"></i>
+   <h1 class="bodecard-heade-head">MickieArts <span class="follow active">Follow</span></h1>
+   <p class="bodecard-heade-descr">
+       <span class="timeago" data-timestamp="2024-10-19T10:06:00"></span>&nbsp; • &nbsp;&nbsp;  <span style="font-size:11px;margin-left:-6px;color:black;font-weight:800">0</span>
+   </p>
+        <span class="bodecard-heade-right">
+   <a href=""><!--span style="font-size:13px;margin-top:-10px">1.2k</span--> <i class="ri-dashboard-line"></i></a>
+   <a id="openModalButton2"><i class="ri-chat-3-line"></i></a>
+   <a href="" class="like"> <i class="ri-heart-3-line" style="color:black"></i></a>
+        </span>
+        </div>
+
+<div class="bodecard-main">
+<div style="height: 110%;width: 94%;margin-left: 3%;border-radius: 10px;background-image:linear-gradient(to bottom,rgba(0,0,0,0.0), rgba(0,0,0,0.4), black 100%),url('pubg.jpg');background-size: 100%;"></div>
+   <h1 class="bodecard-main-head">Mechi Pubg 1v1 <span class="tag">#pubgmobile</span> </h1>
+   <p class="bodecard-main-descr">Je, Unaweza Shindana Na Kushinda Mashindano?!</p>
+
+        </div>
+    </div>
+
+
+        <div class="bodecard-adv" style="background-color:white;height:270px;margin-bottom:40px">
+        <div class="bodecard-heade">
+   <h1 class="bodecard-heade-head"  style="margin-top:10px;margin-left:23px">Administrator 2.0 </h1>
+   <p class="bodecard-heade-descr" style="margin-left:23px"><span class="timeago" data-timestamp="2024-07-04T05:23:00"></span> • <span>20 likes</span></p>
+        <span class="bodecard-heade-right">
+   <a href=""><!--span style="font-size:13px;margin-top:-10px">1.2k</span--> <i class="ri-dashboard-line"></i></a>
+   <a id="openModalButton2"><i class="ri-chat-3-line"></i></a>
+   <a class="like">
+        <i class="ri-heart-3-line" style="color:black"></i>
+    </a>
+        </span>
+        </div>
+        
+        <div class="bodecard-main" style="margin-bottom:110px">
+       <div style="height: 135%;width: 84%;border-radius: 10px;background-image:linear-gradient(to bottom,rgba(0,0,0,0.0), rgba(0,0,0,0.4), black 100%),url('a.png');background-size: 100%;margin:0 45px 0 25px"></div>
+   <h1 class="bodecard-main-head">NaboGaming Tournament <span class="tag">2025</span> </h1>
+   <p class="bodecard-main-descr">Kaa Mkao Wa Ushindi Kwako Wewe Na Timu Yako</p>
+        </div>
+    </div>
+    
+
+
+   <div id="modal" class="modal">
+        <div class="modal-content">
+   <!--span class="close"><i class="ri-close-fill"></i></span-->
+    <div class="bodecard-4">
+<div class="icon-container">
+    <i class="ri-home-6-line"></i>
+    <i id="openModalButton4" class="ri-account-circle-line"></i>
+    <i class="ri-tv-2-line"></i>
+    <i class="ri-gamepad-line"></i>
+</div>
+    </div>
+   <div class="bodecard-3" style="height: 50px">
+        <div class="bodecard-heade" style="margin-bottom:40px">
+   <img src="notification.gif" style="border: 1px solid #f0f0f0;border:none;">
+   <h1 class="bodecard-heade-head" style="color: black;">Notifications</h1>
+   <p class="bodecard-heade-descr" style="color: black;">See 0 New Notifications</p>
+   <a class="bodecard-heade-right" style="font-size:10px">See More</a>
+        </div>
+        
+    </div>
+      <div class="bodecard-3" style="height: 50px;">
+        <div class="bodecard-heade" style="margin-bottom:40px">
+   <img src="fb.png" style="border: 1px solid #f0f0f0;border:none;">
+   <h1 class="bodecard-heade-head" style="color: black;">Facebook Page</h1>
+   <p class="bodecard-heade-descr" style="color: black;">Follow Page Yetu Facebook Sasa</p>
+ 
+        </div>
+    </div>
+      <div class="bodecard-3" >
+        <div class="bodecard-heade" style="margin-bottom:40px">
+   <img src="5.png" style="border: 1px solid #f0f0f0;border:none;">
+   <h1 class="bodecard-heade-head" style="color: black;">Nabobeatz</h1>
+   <p class="bodecard-heade-descr" style="color: black;">Imetumwa 2w Ago</p>
+   <a href="" class="bodecard-heade-right" style="font-size:10px">See More</a>
+        </div>
+      
+        <div class="bodecard-main">
+   <p class="bodecard-main-descr-2">Karibu Mtaa Huu Wa Free Fire Mobile! Hapa utapata taarifa zote zinazohusiana na mchezo huu maarufu wa kupambana. Kutakuwa na michezo, matukio, na habari mbalimbali zinazohusiana na Free Fire. Jiunge na mtaa huu sasa ili uweze kupata nafasi ya kushiriki mashindano ya Free Fire.  </p>
+
+        </div>
+    </div>
+        </div>
+    </div>
+
+<div id="modal2" class="modal" >
+        <div class="modal-content-2" style="height: auto">
+   <span class="close" style="margin-top:-10px;color:black"><i class="ri-close-fill"></i></span>
+        <div class="bodecard-heade">
+   <img src="5.png">
+   <h1 class="bodecard-heade-head">Nabobeatz </h1>
+     <p class="bodecard-heade-descr"><span class="timeago" data-timestamp="2024-10-08T05:23:00"></span></p>
+        <span class="bodecard-heade-right">
+   <a href=""></a>
+
+        </span>
+        </div>
+        <div class="bodecard-main">
+       <div style="height: 110%;width: 94%;margin-left: 3%;border-radius: 10px;background-image:linear-gradient(to bottom,rgba(0,0,0,0.0), rgba(0,0,0,0.4), black 100%),url('main.jpg');background-size: 100%;"></div>
+   <h1 class="bodecard-main-head">Mechi Pubg 1v1  </h1>
+   <p class="bodecard-main-descr">Je, Unaweza Shindana Na Kushinda Mashindano?!</p>
+
+        </div>
+        <br>
+    <div class="comment-sec">
+    <div class="comment">
+        <img src="pubg.png" alt="User Profile Picture" class="profile-pic">
+        <div class="comment-content">
+   <span class="username">Steven David <span class="<ri-reply-all-fill></ri-reply-all-fill> reply" style="font-size: 15px"></span></span>
+   <p class="comment-text">This is a sample comment text. It can be any content that the user wants to share.</p>
+        </div>
+    </div>
+     <div class="comment">
+        <img src="fb.png" alt="User Profile Picture" class="profile-pic">
+        <div class="comment-content">
+   <span class="username">Username</span>
+   <p class="comment-text">This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.</p>
+        </div>
+    </div>
+     <div class="comment">
+        <img src="pubg.png" alt="User Profile Picture" class="profile-pic">
+        <div class="comment-content">
+   <span class="username">Steven David <span class="<ri-reply-all-fill></ri-reply-all-fill> reply" style="font-size: 15px"></span></span>
+   <p class="comment-text">This is a sample comment text. It can be any content that the user wants to share.</p>
+        </div>
+    </div>
+     <div class="comment">
+        <img src="fb.png" alt="User Profile Picture" class="profile-pic">
+        <div class="comment-content">
+   <span class="username">Username</span>
+   <p class="comment-text">This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.</p>
+        </div>
+    </div>
+     <div class="comment">
+        <img src="pubg.png" alt="User Profile Picture" class="profile-pic">
+        <div class="comment-content">
+   <span class="username">Steven David <span class="<ri-reply-all-fill></ri-reply-all-fill> reply" style="font-size: 15px"></span></span>
+   <p class="comment-text">This is a sample comment text. It can be any content that the user wants to share.</p>
+        </div>
+    </div>
+     <div class="comment">
+        <img src="fb.png" alt="User Profile Picture" class="profile-pic">
+        <div class="comment-content">
+   <span class="username">Username</span>
+   <p class="comment-text">This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.This is a sample comment text. It can be any content that the user wants to share.</p>
+        </div>
+    </div>
+</div>
+    
+        <nav class="bottom-nav">
+      <textarea id="messageInput" placeholder="Weka Comment Yako..."></textarea>
+   <button id="sendButton"><i class="ri-send-plane-2-line ri-xl"></i></button>
+        </nav>
+
+    
+    </div>
+</div>
+ <div id="modal4" class="modal">
+        <div class="modal-content" style="background-color:transparent;border:none">
+   <div class="bodecard-3" style="height: 120px;background-color:white">
+        <div class="bodecard-heade" style="margin-bottom:0;">
+   <img src="fb.png" style="border: 1px solid #f0f0f0;border:none;" id="user-photo">
+   <h1 class="bodecard-heade-head" style="color: black;" id="user-name">Steven David</h1>
+   <p class="bodecard-heade-descr" style="color: black;" id="user-email">officialNabobeatz@gmail.com</p>
+   <a href="" class="bodecard-heade-right" style="font-size:10px;color:red;font-weight:700">Log Out</a>
+        </div>
+    <div class="grid-container" style="margin-top:6px">
+        <div class="grid-item" style="border:1px solid #f1f1f1;background-color:#f1f1f1;font-weight:bold;">Basic<br><span>Account</span></div>
+        <div class="grid-item"  style="border:1px solid #f1f1f1;background-color:#f1f1f1">Level<br><span>0 ApprxL</span></div>
+ <button id="signout-button">Sign out</button>
+    </div>
+    </div>
+    
+       </div>
+    </div>
+<script>const toggleBtn = document.querySelector('.toggle-btn');const sidebar = document.querySelector('.sidebar');toggleBtn.addEventListener('click', () => {sidebar.classList.toggle('open');});</script>
+<script>const heartIcons = document.querySelectorAll('.like'); heartIcons.forEach(heart => {heart.addEventListener('click', function(event) { event.preventDefault(); const icon = heart.querySelector('i');if (icon.classList.contains('ri-heart-3-line')) { icon.classList.remove('ri-heart-3-line'); icon.classList.add('ri-heart-3-fill'); heart.classList.add('liked'); } else {icon.classList.remove('ri-heart-3-fill'); icon.classList.add('ri-heart-3-line');heart.classList.remove('liked');}});});</script>
+<script>let isProcessing = false; let toastTimeout; function showToast(message) {var toast = document.getElementById('toast');toast.textContent = message; toast.className = 'toast show';clearTimeout(toastTimeout); toastTimeout = setTimeout(function() {  toast.className = toast.className.replace('show', '');  }, 3000);}document.querySelectorAll('.active').forEach(function(element) {element.addEventListener('click', function() { if (isProcessing) return;isProcessing = true;  setTimeout(() => {  if (this.classList.contains('follow')) { this.classList.remove('follow'); this.classList.add('following'); this.textContent = 'Following'; showToast('Mtaa Followed');  } else { this.classList.remove('following');this.classList.add('follow');  this.textContent = 'Follow'; showToast('Mtaa Unfollowed'); }isProcessing = false;}, 100);});});</script>
+<script>function timeAgo(date) {const seconds = Math.floor((new Date() - date) / 1000);const intervals = {year: 31536000,month: 2592000,week: 604800,day: 86400,hour: 3600,minute: 60,second: 1,};for (const [unit, secondsInUnit] of Object.entries(intervals)) {const interval = Math.floor(seconds / secondsInUnit);if (interval > 1) {return `${interval} ${unit}s ago`; } else if (interval === 1) {  return `1 ${unit} ago`;}}return 'Just now';}function updateAndDisplayTimeAgo() {const timeagoElements = document.querySelectorAll('.timeago');timeagoElements.forEach(timeagoElement => {const timestamp = new Date(timeagoElement.dataset.timestamp);const displaySeconds = Math.random() < 0.5;const timeString = displaySeconds ? timeAgo(timestamp) : timeAgo(timestamp).replace(/\d+ seconds? ago/g, '');timeagoElement.textContent = timeString;});}updateAndDisplayTimeAgo();setInterval(updateAndDisplayTimeAgo, 1000);</script>
+<script>var modals = document.querySelectorAll('.modal');var openModalButtons = document.querySelectorAll('[id^="openModalButton"]'); var closeButtons = document.querySelectorAll('.close');function showModal(modal) {modal.classList.add("show");}function closeModal(modal) { modal.classList.remove("show");}openModalButtons.forEach(button => {button.onclick = function() {var modalId = this.id.replace('openModalButton', 'modal');var modal = document.getElementById(modalId);showModal(modal);};});closeButtons.forEach(button => {button.onclick = function() {var modal = this.closest('.modal');closeModal(modal);};});window.onclick = function(event) {modals.forEach(modal => {if (event.target === modal) {closeModal(modal);}});}</script>
+<script>document.getElementById('sendButton').addEventListener('click', function() {const message = document.getElementById('messageInput').value;if (!message) {alert('Tafadhali Weka Comment Kabla Ya Kutuma.'); return; }  console.log(`Sending SMS: ${message}`);document.getElementById('messageInput').value = '';});
+</script>
+</body>
+		    </html>
