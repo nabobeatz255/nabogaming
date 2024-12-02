@@ -279,15 +279,13 @@
     }
   </style>
      <!-- Firebase SDK -->
-<script defer type="module">
+  <script defer type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
     authDomain: "register-71bde.firebaseapp.com",
-    databaseURL: "https://register-71bde-default-rtdb.firebaseio.com",
     projectId: "register-71bde",
     storageBucket: "register-71bde.appspot.com",
     messagingSenderId: "412548441298",
@@ -298,39 +296,20 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
-  const db = getDatabase(app);
 
-  // Function to save user to Realtime Database
-  const saveUserToDatabase = (user) => {
-    const userRef = ref(db, `users/${user.uid}`);
-    set(userRef, {
-      name: user.displayName,
-      email: user.email,
-      profilePictureUrl: user.photoURL,
-      code: generateRandomCode(),
-      approved: false, // Default approval status
-    })
-      .then(() => {
-        console.log("User stored in database.");
-      })
-      .catch((error) => {
-        console.error("Error storing user in database:", error);
-      });
-  };
-
-  // Generate random code for users
-  const generateRandomCode = () => {
-    return Math.random().toString(36).substring(2, 8).toUpperCase();
-  };
+  // Check if user is already signed in
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, redirect to dashboard
+      window.location.href = "dashboard.html";
+    }
+  });
 
   // Google Sign-In Button Click Event
   document.getElementById("google-sign-in").addEventListener("click", () => {
     signInWithPopup(auth, provider)
       .then((result) => {
-        const user = result.user;
-        // Store user in database
-        saveUserToDatabase(user);
-        // Redirect to dashboard
+        // User successfully signed in, redirect to dashboard
         window.location.href = "dashboard.html";
       })
       .catch((error) => {
