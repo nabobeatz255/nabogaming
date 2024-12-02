@@ -7,131 +7,95 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
- <script defer type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+<script defer type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-  authDomain: "register-71bde.firebaseapp.com",
-  projectId: "register-71bde",
-  storageBucket: "register-71bde.appspot.com",
-  messagingSenderId: "412548441298",
-  appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const storage = getStorage();
-
-// Function to show a custom alert modal
-const showCustomModal = (title, message, callback) => {
-  const modal = document.getElementById("custom-modal");
-  const modalTitle = modal.querySelector(".modal-title");
-  const modalMessage = modal.querySelector(".modal-message");
-  const modalOkBtn = modal.querySelector("#modal-ok-btn");
-
-  // Set title and message
-  modalTitle.textContent = title || "Alert";
-  modalMessage.textContent = message;
-
-  // Show the modal
-  modal.classList.remove("hidden");
-
-  // Handle "OK" button click
-  modalOkBtn.onclick = () => {
-    modal.classList.add("hidden");
-    if (callback) callback(); // Optional callback
+  const firebaseConfig = {
+    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+    authDomain: "register-71bde.firebaseapp.com",
+    databaseURL: "https://register-71bde-default-rtdb.firebaseio.com",
+    projectId: "register-71bde",
+    storageBucket: "register-71bde.appspot.com",
+    messagingSenderId: "412548441298",
+    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
   };
-};
 
-// Override the default alert function globally
-window.alert = (message) => {
-  showCustomModal("Alert", message);
-};
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getDatabase(app);
 
-// Monitor authentication state
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    const fullName = user.displayName;
-    const firstName = fullName ? fullName.split(" ")[0] : "";
-    const email = user.email;
-    const profilePicture = user.photoURL;
+  // Monitor authentication state
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Display user profile info
+      const fullName = user.displayName;
+      const firstName = fullName ? fullName.split(" ")[0] : "";
+      const email = user.email;
+      const profilePicture = user.photoURL;
 
-    document.querySelectorAll(".user-name").forEach((element) => {
-element.textContent = firstName;
-    });
-    document.querySelectorAll(".user-email").forEach((element) => {
-element.textContent = email;
-    });
-    document.querySelectorAll(".profile-picture").forEach((element) => {
-element.src = profilePicture || "default-profile.png";
-    });
+      document.querySelectorAll(".user-name").forEach((element) => {
+        element.textContent = firstName;
+      });
+      document.querySelectorAll(".user-email").forEach((element) => {
+        element.textContent = email;
+      });
+      document.querySelectorAll(".profile-picture").forEach((element) => {
+        element.src = profilePicture || "default-profile.png";
+      });
 
-    console.log("User Data:", { firstName, email, profilePicture });
-  } else {
-    alert("You are not signed in. Redirecting to login...");
-    window.location.href = "index.html";
-  }
-});
+      console.log("Logged-in User Data:", { firstName, email, profilePicture });
 
-// Handle profile update
-const updateProfileData = async () => {
-  const user = auth.currentUser;
-  const usernameInput = document.querySelector("#username-input").value;
-  const profilePicInput = document.querySelector("#profile-pic-input").files[0];
-  const progressBar = document.querySelector("#upload-progress");
-  const progressBarContainer = document.querySelector("#upload-progress-bar");
-
-  if (!user) {
-    alert("No user is signed in.");
-    return;
-  }
-
-  try {
-    // Update username if provided
-    if (usernameInput) {
-await updateProfile(user, { displayName: usernameInput });
-console.log("Username updated successfully!");
+      // Fetch all users from Realtime Database
+      fetchAllUsers();
+    } else {
+      alert("You are not signed in. Redirecting to login...");
+      window.location.href = "index.html";
     }
+  });
 
-    // Update profile picture if a file is selected
-    if (profilePicInput) {
-if (profilePicInput.size > 1.5 * 1024 * 1024) {
-  alert("File size must be less than 1.5MB.");
-  return;
-}
+  // Fetch all users from Realtime Database
+  const fetchAllUsers = async () => {
+    try {
+      const usersRef = ref(db, "users");
+      const snapshot = await get(usersRef);
 
-const storageRef = ref(storage, `profile_pictures/${user.uid}`);
-const uploadTask = uploadBytes(storageRef, profilePicInput);
-
-progressBarContainer.style.display = "block";
-
-// Monitor upload progress
-uploadTask.then((snapshot) => {
-  const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  progressBar.style.width = `${progress}%`;
-});
-
-const downloadURL = await getDownloadURL((await uploadTask).ref);
-await updateProfile(user, { photoURL: downloadURL });
-console.log("Profile picture updated successfully!");
+      if (snapshot.exists()) {
+        const usersData = snapshot.val();
+        renderUserList(usersData);
+      } else {
+        console.log("No users found in the database.");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
     }
+  };
 
-    alert("Profile updated successfully!");
-    location.reload();
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    alert("Failed to update profile.");
-  } finally {
-    progressBarContainer.style.display = "none";
-  }
-};
+  // Render the user list dynamically
+  const renderUserList = (users) => {
+    const userList = document.getElementById("user-list");
+    userList.innerHTML = ""; // Clear the list
 
-document.querySelector("#update-profile-btn").addEventListener("click", updateProfileData);
-    </script>
-  </head>
+    Object.entries(users).forEach(([userId, user]) => {
+      const userCard = document.createElement("div");
+      userCard.classList.add("user-card");
+
+      userCard.innerHTML = `
+        <img src="${user.profilePictureUrl || 'default-profile.png'}" alt="Profile Picture" class="user-avatar">
+        <div class="user-details">
+          <h3>${user.name}</h3>
+          <p>Email: ${user.email}</p>
+          <p>Code: ${user.code}</p>
+          <p>Status: ${user.approved ? "Approved" : "Pending Approval"}</p>
+        </div>
+      `;
+
+      userList.appendChild(userCard);
+    });
+  };
+</script>
+</head>
   <body>
     <div class=dashboard>
     <nav class="sidebar desktop-sidebar">
@@ -558,7 +522,8 @@ Please Wait.....
          <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
         </div>
     </header>
-
+<h2>Approve Users</h2>
+       <div id="user-list"></div>
 
 <!-- Modal 1 -->
 <div id="modal1" class="modal">
