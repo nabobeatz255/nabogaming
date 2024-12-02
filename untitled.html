@@ -1,31 +1,277 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gaming Dashboard</title><link rel="stylesheet" href="app.css"><link rel="stylesheet" href="2.css"><link rel="stylesheet" href="remixicon.min.css"></head><body>
-<script>// Function to render the dashboard
-  function renderDashboard() {
-    const main = document.createElement('main');
+<!doctype html>
+<html lang="en">
 
-    // Header
-    const header = document.createElement('header');
-    header.classList.add('page-header');
-    header.innerHTML = `
-      <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
-      <h1>Administrator</h1>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gaming Dashboard</title>
+  <link rel="stylesheet" href="remixicon.min.css">
+  <style>
+    /* General Styling */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    h1, h2, h3 {
+      color: #555;
+    }
+
+    header {
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    .header-icons i {
+      font-size: 1.5em;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    /* Profile Section */
+    .profile-container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .profile-photo img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+    }
+
+    .profile-details {
+      margin-left: 20px;
+      flex: 1;
+    }
+
+    .profile-details h2 {
+      margin: 0;
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .profile-stats div {
+      text-align: center;
+    }
+
+    /* Approval Section */
+    .approval-section {
+      margin-bottom: 30px;
+    }
+
+    .approval-section h2 {
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .card img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+
+    .card-content {
+      flex: 1;
+    }
+
+    .card h3 {
+      margin: 0;
+    }
+
+    .card p {
+      margin: 5px 0;
+      color: #777;
+    }
+
+    .card label {
+      display: flex;
+      align-items: center;
+    }
+
+    .approve-btn {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .approve-btn:hover {
+      background-color: #45a049;
+    }
+
+    @media (max-width: 768px) {
+      .profile-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .profile-details {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+
+      .card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .card img {
+        margin-bottom: 10px;
+      }
+
+      .approve-btn {
+        margin-top: 10px;
+      }
+    }
+  </style>
+<script defer type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+    authDomain: "register-71bde.firebaseapp.com",
+    databaseURL: "https://register-71bde-default-rtdb.firebaseio.com",
+    projectId: "register-71bde",
+    storageBucket: "register-71bde.appspot.com",
+    messagingSenderId: "412548441298",
+    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getDatabase(app);
+
+  // Monitor authentication state
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Display user profile info
+      const fullName = user.displayName;
+      const firstName = fullName ? fullName.split(" ")[0] : "";
+      const email = user.email;
+      const profilePicture = user.photoURL;
+
+      document.querySelectorAll(".user-name").forEach((element) => {
+        element.textContent = firstName;
+      });
+      document.querySelectorAll(".user-email").forEach((element) => {
+        element.textContent = email;
+      });
+      document.querySelectorAll(".profile-picture").forEach((element) => {
+        element.src = profilePicture || "default-profile.png";
+      });
+
+      console.log("Logged-in User Data:", { firstName, email, profilePicture });
+
+      // Fetch all users from Realtime Database
+      fetchAllUsers();
+    } else {
+      alert("You are not signed in. Redirecting to login...");
+      window.location.href = "index.html";
+    }
+  });
+
+  // Fetch all users from Realtime Database
+  const fetchAllUsers = async () => {
+    try {
+      const usersRef = ref(db, "users");
+      const snapshot = await get(usersRef);
+
+      if (snapshot.exists()) {
+        const usersData = snapshot.val();
+        renderUserList(usersData);
+      } else {
+        console.log("No users found in the database.");
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  // Render the user list dynamically
+  const renderUserList = (users) => {
+    const userList = document.getElementById("user-list");
+    userList.innerHTML = ""; // Clear the list
+
+    Object.entries(users).forEach(([userId, user]) => {
+      const userCard = document.createElement("div");
+      userCard.classList.add("user-card");
+
+      userCard.innerHTML = `
+        <img src="${user.profilePictureUrl || 'default-profile.png'}" alt="Profile Picture" class="user-avatar">
+        <div class="user-details">
+          <h3>${user.name}</h3>
+          <p>Email: ${user.email}</p>
+          <p>Code: ${user.code}</p>
+          <p>Status: ${user.approved ? "Approved" : "Pending Approval"}</p>
+        </div>
+      `;
+
+      userList.appendChild(userCard);
+    });
+  };
+</script>
+</head>
+
+<body>
+  <main>
+    <!-- Header -->
+    <header>
+      <i class="ri-arrow-left-line" onclick="navigateTo('home')"></i>
+      <h1>Administrator Dashboard</h1>
       <div class="header-icons">
-        <i class="ri-gamepad-line" onclick='navigateTo("games")'></i>
+        <i class="ri-gamepad-line" onclick="navigateTo('games')"></i>
+        <i class="ri-settings-2-line" onclick="navigateTo('settings')"></i>
       </div>
-    `;
-    main.appendChild(header);
+    </header>
 
-    // Profile Container
-    const profileContainer = document.createElement('div');
-    profileContainer.classList.add('profile-container');
-
-    // Profile Overview
-    const profileOverview = document.createElement('div');
-    profileOverview.classList.add('profile-overview');
-    profileOverview.innerHTML = `
+    <!-- Profile Section -->
+    <div class="profile-container">
       <div class="profile-photo">
-        <img src="5.png" alt="User Profile Picture">
-        <img src="logo.png" style="border:1px solid #f0f0f0;margin-left:-60px" alt="User Profile Picture">
+        <img src="5.png" alt="User Profile">
       </div>
       <div class="profile-details">
         <h2>John Doe</h2>
@@ -39,122 +285,78 @@
             <h3>1.5k</h3>
             <p>Followers</p>
           </div>
-                    <div>
-            <h3>1.5k</h3>
-            <p>Followers</p>
-          </div>
           <div>
             <h3>300</h3>
             <p>Following</p>
           </div>
         </div>
       </div>
-    `;
-    profileContainer.appendChild(profileOverview);
+    </div>
 
-    // Profile Settings
-    const profileSettings = document.createElement('section');
-    profileSettings.classList.add('profile-settings');
-    profileSettings.innerHTML = `
-      <div class="settings-card">
-        <h2> Update Post Version 01</h2>
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="john.doe@example.com">
-        </div>
-        <button class="save-btn">Update Changes</button>
-      </div>
-      <div class="settings-card">
-        <h2> Update Post Version 02</h2>
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="john.doe@example.com">
-        </div>
-        <button class="save-btn">Update Changes</button>
-      </div>
-      <div class="settings-card">
-        <h2> Update Post Version 03</h2>
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="john.doe@example.com">
-        </div>
-        <button class="save-btn">Update Changes</button>
-      </div>
-      <div class="settings-card">
-        <h2>Change Password</h2>
-        <div class="form-group">
-          <label for="current-password">Current Password</label>
-          <input type="password" id="current-password" placeholder="Enter current password">
-        </div>
-        <div class="form-group">
-          <label for="new-password">New Password</label>
-          <input type="password" id="new-password" placeholder="Enter new password">
-        </div>
-        <div class="form-group">
-          <label for="confirm-password">Confirm Password</label>
-          <input type="password" id="confirm-password" placeholder="Confirm new password">
-        </div>
-        <button class="save-btn">Update Password</button>
-      </div>
-    `;
-    profileContainer.appendChild(profileSettings);
+    <!-- User Approval Section -->
+    <section class="approval-section">
+      <h2>Approve Users</h2>
+       <div id="user-list"></div>
+    </section>
 
-    main.appendChild(profileContainer);
-    document.body.appendChild(main);
+    <!-- Seller Approval Section -->
+    <section class="approval-section">
+      <h2>Approve Sellers</h2>
+      <div class="card">
+        <img src="seller1.png" alt="Seller">
+        <div class="card-content">
+          <h3>Seller A</h3>
+          <p>Email: sellerA@example.com</p>
+        </div>
+        <button class="approve-btn" onclick="approveAction('Seller', 'Seller A', this)">Approve</button>
+      </div>
+      <div class="card">
+        <img src="seller2.png" alt="Seller">
+        <div class="card-content">
+          <h3>Seller B</h3>
+          <p>Email: sellerB@example.com</p>
+        </div>
+        <button class="approve-btn" onclick="approveAction('Seller', 'Seller B', this)">Approve</button>
+      </div>
+    </section>
+
+    <!-- Admin Approval Section -->
+    <section class="approval-section">
+      <h2>Approve New Admins</h2>
+      <div class="card">
+        <img src="admin1.png" alt="Admin">
+        <div class="card-content">
+          <h3>Admin X</h3>
+          <p>Email: adminX@example.com</p>
+        </div>
+        <button class="approve-btn" onclick="approveAction('User', 'John Doe', this)">Approve</button>
+      </div>
+      <div class="card">
+        <img src="admin2.png" alt="Admin">
+        <div class="card-content">
+          <h3>Admin Y</h3>
+          <p>Email: adminY@example.com</p>
+        </div>
+       <button class="approve-btn" onclick="approveAction('User', 'John Doe', this)">Approve</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function approveAction(type, name, btn) {
+  if (btn.innerText === "Approve") {
+    btn.innerText = "Unapprove";
+    btn.style.backgroundColor = "#f44336"; // Red color for Unapprove
+    btn.style.color = "#fff";
+    alert(`${type} ${name} approved successfully!`);
+  } else {
+    btn.innerText = "Approve";
+    btn.style.backgroundColor = "#4CAF50"; // Green color for Approve
+    btn.style.color = "#fff";
+    alert(`${type} ${name} unapproved successfully!`);
   }
+}
+  </script>
+</body>
 
-  // Dummy navigation function
-  function navigateTo(page) {
-    alert(`Navigating to ${page} page...`);
-  }
-
-  // Initialize the dashboard on page load
-  renderDashboard();</script></body></html>
+</html>
