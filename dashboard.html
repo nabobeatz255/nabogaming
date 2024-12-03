@@ -118,172 +118,83 @@ const updateProfileData = async () => {
 };
 
 document.querySelector("#update-profile-btn").addEventListener("click", updateProfileData);
+</script>
+<script>
+    import { getDatabase, ref, onValue, push, update } from "firebase/database";
 
-// Handle post creation when user clicks the "Post" button
-document.querySelector("#submit-post-btn").addEventListener("click", async () => {
-  const user = auth.currentUser;
-  if (!user) {
-    alert("You must be signed in to create a post.");
-    return;
-  }
+// Firebase database setup
+const db = getDatabase();
+const postId = "post1"; // ID of the post to fetch
 
-  const caption = document.querySelector("#post-caption").value;
-  const postImage = document.querySelector("#post-image").files[0];
+// Fetch and render the post
+function renderPost() {
+  const postRef = ref(db, `posts/${postId}`);
 
-  if (!caption || !postImage) {
-    alert("Please add a caption and an image.");
-    return;
-  }
+  onValue(postRef, (snapshot) => {
+    const post = snapshot.val();
+    if (!post) {
+      console.error("Post not found!");
+      return;
+    }
 
-  // Upload the image to Firebase Storage
-  const storageRefPath = storageRef(storage, `posts/${Date.now()}-${postImage.name}`);
-  const uploadTask = uploadBytes(storageRefPath, postImage);
-  const snapshot = await uploadTask;
-  const imageUrl = await getDownloadURL(snapshot.ref);
+    // Update post content dynamically
+    document.querySelector(".profile-name").textContent = post.profileName;
+    document.querySelector(".profile-picture img").src = post.profilePicture;
+    document.querySelector(".post-time").textContent = new Date(post.timestamp).toLocaleString();
+    document.querySelector(".post-image img").src = post.image;
+    document.querySelector(".caption").innerHTML = `
+      <span class="username">${post.profileName}</span> ${post.caption}
+    `;
+    document.querySelector(".like-counter span:first-child").textContent = `${post.likes} likes`;
 
-  // Save post data to Firebase Database
-  const postRef = push(ref(db, "posts"));
-  await set(postRef, {
-    username: user.displayName,
-    caption: caption,
-    imageUrl: imageUrl,
-    likeCount: 0,
-    commentCount: 0,
-    likes: {},
-    comments: {},
+    // Render comments
+    const commentsContainer = document.querySelector(".comments-container");
+    commentsContainer.innerHTML = "";
+    for (const [commentId, comment] of Object.entries(post.comments || {})) {
+      commentsContainer.innerHTML += `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span>: ${comment.message}
+        </div>
+      `;
+    }
   });
+}
 
-  // Render the newly created post in the post-container
-  renderPost(postRef.key, {
-    username: user.displayName,
-    caption: caption,
-    imageUrl: imageUrl,
-    likeCount: 0,
-    commentCount: 0,
-  });
+// Handle like button functionality
+document.querySelector(".like-button").addEventListener("click", () => {
+  const postRef = ref(db, `posts/${postId}`);
 
-  // Clear the form
-  document.querySelector("#post-caption").value = "";
-  document.querySelector("#post-image").value = "";
+  onValue(postRef, (snapshot) => {
+    const post = snapshot.val();
+    if (!post) return;
+
+    const updatedLikes = (post.likes || 0) + 1;
+    update(postRef, { likes: updatedLikes });
+  }, { onlyOnce: true });
 });
 
-// Render a post dynamically in the container
-const renderPost = (postId, postData) => {
-  const postContainer = document.querySelector("#post-container");
-  const postTemplate = document.createElement("div");
-  postTemplate.classList.add("instagram-post");
-  postTemplate.id = `post-${postId}`;
+// Handle comment submission
+document.querySelector(".submit-comment").addEventListener("click", () => {
+  const commentInput = document.querySelector(".comment-input");
+  const commentText = commentInput.value.trim();
 
-  postTemplate.innerHTML = `
-    <div class="post-header">
-      <div class="profile-picture">
-        <img src="${postData.profilePic || 'default-profile.png'}" alt="User profile picture">
-      </div>
-      <div class="profile-details">
-        <div class="profile-name">${postData.username}</div>
-        <div class="post-time">${new Date().toLocaleString()}</div>
-      </div>
-    </div>
-    <div class="post-image">
-      <img src="${postData.imageUrl}" alt="Post content">
-    </div>
-    <div class="post-actions">
-      <i class="ri-heart-line like-btn" onclick="likePost('${postId}')"></i>
-      <i class="ri-share-line share-btn" onclick="sharePost('${postId}')"></i>
-    </div>
-    <div class="like-counter">
-      <span class="like-count">${postData.likeCount} likes</span> | <span class="comment-count">${postData.commentCount} comments</span>
-    </div>
-    <div class="caption">${postData.username}: ${postData.caption}</div>
-    <div class="post-comments">
-      <button class="toggle-comments" onclick="toggleComments('${postId}')">View Comments</button>
-      <div class="comments-container" id="comments-${postId}"></div>
-      <div class="comment-input-container">
-        <input class="comment-input" id="comment-input-${postId}" placeholder="Write a comment...">
-        <button class="submit-comment" onclick="submitComment('${postId}')">Send</button>
-      </div>
-    </div>
-  `;
-
-  postContainer.appendChild(postTemplate);
-};
-
-// Handle liking a post
-const likePost = async (postId) => {
-  const user = auth.currentUser;
-  if (!user) {
-    alert("You must be signed in to like a post.");
-    return;
-  }
-
-  const postRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-  const snapshot = await get(postRef);
-  if (snapshot.exists()) {
-    alert("You have already liked this post.");
-    return;
-  }
-
-  await set(postRef, true);
-
-  const likeCountRef = ref(db, `posts/${postId}/likeCount`);
-  await update(likeCountRef, (currentLikeCount) => (currentLikeCount || 0) + 1);
-
-  // Update like count in the UI
-  const likeCountElement = document.querySelector(`#post-${postId} .like-count`);
-  const newLikeCount = parseInt(likeCountElement.textContent.split(" ")[0]) + 1;
-  likeCountElement.textContent = `${newLikeCount} likes`;
-};
-
-// Handle submitting a comment
-const submitComment = async (postId) => {
-  const user = auth.currentUser;
-  if (!user) {
-    alert("You must be signed in to comment.");
-    return;
-  }
-
-  const commentText = document.querySelector(`#comment-input-${postId}`).value;
-  if (!commentText) {
-    alert("Please write a comment before submitting.");
-    return;
-  }
+  if (!commentText) return;
 
   const commentRef = push(ref(db, `posts/${postId}/comments`));
-  await set(commentRef, {
-    username: user.displayName,
-    text: commentText,
+  const newComment = {
+    username: "CurrentUser", // Replace this with a dynamic username if available
+    message: commentText,
+    timestamp: new Date().toISOString(),
+  };
+
+  commentRef.set(newComment).then(() => {
+    commentInput.value = ""; // Clear input after submission
+    console.log("Comment added!");
   });
+});
 
-  const commentCountRef = ref(db, `posts/${postId}/commentCount`);
-  await update(commentCountRef, (currentCommentCount) => (currentCommentCount || 0) + 1);
-
-  // Update comment count in the UI
-  const commentCountElement = document.querySelector(`#post-${postId} .comment-count`);
-  const newCommentCount = parseInt(commentCountElement.textContent.split(" ")[0]) + 1;
-  commentCountElement.textContent = `${newCommentCount} comments`;
-
-  // Clear comment input
-  document.querySelector(`#comment-input-${postId}`).value = "";
-
-  // Optionally render the new comment
-  renderComment(postId, commentRef.key, commentText);
-};
-
-// Render a comment dynamically
-const renderComment = (postId, commentId, commentText) => {
-  const commentsContainer = document.querySelector(`#comments-${postId}`);
-  const commentElement = document.createElement("div");
-  commentElement.classList.add("comment");
-  commentElement.innerHTML = `<strong>User</strong>: ${commentText}`;
-  commentsContainer.appendChild(commentElement);
-};
-
-// Toggle comments visibility
-const toggleComments = (postId) => {
-  const commentsContainer = document.querySelector(`#comments-${postId}`);
-  commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-};
-
+// Call renderPost to load the post initially
+renderPost();
 </script>
  </head>
   <body>
@@ -376,18 +287,36 @@ const toggleComments = (postId) => {
 </div>
     </section>
   </div>
-  <!-- Container for dynamic posts -->
-<div id="post-container">
-  <!-- Posts will be dynamically appended here by JavaScript -->
+  <div class=post-grid>
+   <div class="instagram-post" id="post1">
+  <div class="post-header">
+    <div class="profile-picture">
+      <img src="" alt="User profile picture">
+    </div>
+    <div class="profile-details">
+      <div class="profile-name"></div>
+      <div class="post-time"></div>
+    </div>
+  </div>
+  <div class="post-image">
+    <img src="" alt="Post content">
+  </div>
+  <div class="caption"></div>
+  <div class="like-counter">
+    <span>0 likes</span>
+  </div>
+  <div class="post-actions">
+    <button class="like-button">Like</button>
+  </div>
+  <div class="post-comments">
+    <div class="comments-container"></div>
+    <div class="comment-input-container">
+      <input class="comment-input" placeholder="Write a comment...">
+      <button class="submit-comment">Send</button>
+    </div>
+  </div>
 </div>
-
-<!-- Post creation form -->
-<div id="post-creation-form">
-  <textarea id="post-caption" placeholder="Write your caption..."></textarea>
-  <input type="file" id="post-image" accept="image/*">
-  <button id="submit-post-btn">Post</button>
-</div>
-
+  </div>
   <section class=tabs>
     <div class=tab-header>
 <button onclick='showTab("trending")'>Trending</button>
