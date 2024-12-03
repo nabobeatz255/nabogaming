@@ -3,7 +3,21 @@
   <head>
     <meta charset=UTF-8>
     <meta name=viewport content="width=device-width,initial-scale=1">
-    <title>Gaming Dashboard</title>
+    <meta name="description" content="Nabogaming Betplace - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming, Betplace, Kubashiri Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+    <meta name="author" content="Nabogaming">
+    <meta property="og:title" content="Nabogaming Betplace">
+    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming Betplace. Usikose nafasi yako ya ushindi!">
+    <meta property="og:image" content="https://nabogaming.com/logo.png">
+    <meta property="og:url" content="https://nabogaming.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nabogaming Betplace">
+    <meta name="twitter:description" content="Jiunge na Nabogaming Betplace kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:image" content="https://nabogaming.com/logo.png">
+    <link rel="canonical" href="https://nabogaming.com">
+    <link rel="icon" href="logo.png" type="image/x-icon">
+  <title>Nabogaming Betplace 2.5</title>
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
@@ -112,8 +126,9 @@ document.querySelector("#update-profile-btn").addEventListener("click", updatePr
 <h2>Dashboard</h2>
 <ul>
   <li><a onclick='navigateTo("home")'>Home <i class=ri-home-line></i></a></li>
-  <li><a onclick='navigateTo("games")'>Games</a></li>
-  <li><a onclick='navigateTo("leaderboard")'>Leaderboard</a></li>
+  <li><a onclick='navigateTo("games")'>Events</a></li>
+  <li><a onclick='navigateTo("shop")'>Shop</a></li>
+  <li><a onclick='navigateTo("policy")'>Sheria</a></li>
   <li><a onclick='navigateTo("profile")'>Profile</a></li>
 </ul>
     </nav>
@@ -134,13 +149,13 @@ document.querySelector("#update-profile-btn").addEventListener("click", updatePr
   <nav class="sidebar mobile-sidebar">
     <ul>
 <li>
-  <a onclick='navigateTo("leaderboard")'>
+  <a onclick='navigateTo("games")'>
   <i class=ri-gamepad-fill></i>
-  <span>Games</span>
+  <span>Events</span>
   </a>
 </li>
 <li>
-  <a onclick='navigateTo("games")'>
+  <a onclick='navigateTo("shop")'>
   <i class=ri-shopping-cart-fill></i>
   <span>Shop</span>
   </a>
@@ -480,31 +495,25 @@ Please Wait.....
 </div>
 
 
-<div id="games" class="hidden">
-  <header class=header>
-    <div class=logo>
-<img src=logo.png alt=Logo>
-    </div>
-    <div class=search-bar>
-<input placeholder="Search games, players...">
-    </div>
-    <div class=icons>
-<i class=ri-notification-line id="toggleNotify"></i>
-<i class="ri-bookmark-fill mark"></i>
-    </div>
-  </header>
+<div id="shop" class="hidden">
+        <header class="header headec">
+        <div class="logo"><h1>ShopMall</h1></div>
+        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
+         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
+        </div>
+    </header>
   <nav class="sidebar mobile-sidebar">
     <ul>
 <li>
-  <a onclick='navigateTo("leaderboard")'>
+  <a onclick='navigateTo("games")'>
   <i class=ri-gamepad-fill></i>
-  <span>Games</span>
+  <span>Events</span>
   </a>
 </li>
 <li>
-  <a onclick='navigateTo("games")'>
+  <a onclick='navigateTo("shop")'>
   <i class=ri-shopping-cart-fill></i>
-  <span>Shop</span>
+  <span>In-Shop</span>
   </a>
 </li>
 <li>
@@ -526,12 +535,6 @@ Please Wait.....
 </li>
     </ul>
   </nav>
-    <header class="header headec">
-        <div class="logo"><h1>ShopMall</h1></div>
-        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
-         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
-        </div>
-    </header>
 
 
 <!-- Modal 1 -->
@@ -791,29 +794,109 @@ Please Wait.....
     </div>
   </div>
 </div>
+
+
 <div id="policy" class="hidden">
-  <header class=header>
-    <div class=logo>
-<img src=logo.png alt=Logo>
-    </div>
-    <div class=search-bar>
-<input placeholder="Search games, players...">
-    </div>
-    <div class=icons>
-<i class=ri-notification-line id="toggleNotify"></i>
-<i class="ri-bookmark-fill mark"></i>
-    </div>
-  </header>
+      <header class="header headec">
+        <div class="logo"><h1>Sheria</h1></div>
+        <div class="btn-primary riri" style="font-weight:500">&nbsp; 
+         <i class="ri-phone-line ri-xl"></i>&nbsp; <i class="ri-whatsapp-line ri-xl"></i>&nbsp;
+        </div>
+    </header>
   <nav class="sidebar mobile-sidebar">
     <ul>
 <li>
-  <a onclick='navigateTo("leaderboard")'>
+  <a onclick='navigateTo("games")'>
   <i class=ri-gamepad-fill></i>
-  <span>Games</span>
+  <span>Events</span>
   </a>
 </li>
 <li>
+  <a onclick='navigateTo("shop")'>
+  <i class=ri-shopping-cart-fill></i>
+  <span>Shop</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("home")'>
+  <i class="ri-home-6-fill add"></i>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("policy")'>
+  <i class=ri-file-fill></i>
+  <span>In-Sheria</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("profile")'>
+  <i class=ri-user-4-fill></i>
+  <span>Akaunti</span>
+  </a>
+</li>
+    </ul>
+  </nav>
+ <main class="fanq">
+    <h2>1. Masharti ya Jumla</h2>
+    <ul>
+      <li>Kwa kutumia NaboGaming, unakubali kufuata sheria na masharti yaliyowekwa.</li>
+      <li>Watumiaji lazima wawe na utii wa sheria zaidi ili kujiandikisha na kutumia huduma zetu.</li>
+      <li>Ni marufuku kutumia lugha chafu, matusi, au vitendo vyovyote vya udanganyifu, Hii Itapelekea akaunti yako kufungiwa.</li>
+    </ul>
+
+    <h2>2. Faragha</h2>
+    <ul>
+      <li>Habari zako za kibinafsi zitalindwa kulingana na sera yetu ya faragha.</li>
+      <li>Tunatumia auto enabled cookies (AEC) kuboresha uzoefu wako mtandaoni.</li>
+      <li>Tunza Namba Siri (OTP) na Namba ziada zozote utazopewa, Usimpe Mtu yeyote kwa maana muhusika ni wewe pekee.</li>
+    </ul>
+
+    <h2>3. Matumizi ya Akaunti</h2>
+    <ul>
+      <li>Unawajibika kwa usalama wa akaunti yako na nywila.</li>
+      <li>Akaunti yoyote itakayobainika ikivunja sheria zetu itafungwa mara moja.</li>
+    </ul>
+     <h2>4. Wauzaji ShopMall</h2>
+    <ul>
+      <li>Weka Taarifa Kamilifu Kuhusu Unachouza, Unaruhusa ya Kupost mauzo ya akaunti, mauzo ya skin(maleo e.t.c) na si vinginevyo.</li>
+      <li>Tumia OTP yako Mara Moja Kwa Siku Hakikisha Unaitunza Maana OTP yako Ndiyo Soko Lako</li>
+      <li>Akaunti yoyote itakayobainika ikikiuka maagizo haya itazuiliwa mara moja.</li>
+    </ul>
+
+    <h2>FAQs (Maswali Yanayoulizwa Mara kwa Mara)</h2>
+    <div class="faq">
+      <h3>1. Je, NaboGaming ni nini?</h3>
+      <p>NaboGaming ni jukwaa la michezo ya mtandaoni linalowapa watumiaji fursa ya kushindana na kushirikiana na wachezaji wengine duniani kote.</p>
+    </div>
+    <div class="faq">
+      <h3>2. Ninawezaje kufungua akaunti?</h3>
+      <p>Bofya kitufe cha "Jiandikishe" na ujaze taarifa zako. Kumbuka kuwa lazima uwe na umri wa miaka 18 au zaidi.</p>
+    </div>
+    <div class="faq">
+      <h3>3. Nifanye nini ikiwa nimesahau nenosiri langu?</h3>
+      <p>Bonyeza "Umesahau Nenosiri?" kwenye ukurasa wa kuingia na ufuate maelekezo ya kurejesha akaunti yako.</p>
+    </div>
+  </main>
+</div>
+
+
+<div id="games" class="hidden">
+    <header class="header headec">
+        <div class="logo"><h1>Events</h1></div>
+        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
+         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
+        </div>
+    </header>
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+<li>
   <a onclick='navigateTo("games")'>
+  <i class=ri-gamepad-fill></i>
+  <span>In-Events</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("shop")'>
   <i class=ri-shopping-cart-fill></i>
   <span>Shop</span>
   </a>
@@ -837,111 +920,182 @@ Please Wait.....
 </li>
     </ul>
   </nav>
-  <h2>Explore Games</h2>
-  <p>Browse through a wide variety of games. Whether you're into action, strategy, or simulation, we have it all!</p>
-  <section class="game-grid">
-    <div class="game-card">
-<img src="action-game.jpg" alt="Action Game">
-<h3>Action Game</h3>
-<p>Experience the thrill of fast-paced adventures.</p>
+   <div class=post-grid>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
-    <div class="game-card">
-<img src="strategy-game.jpg" alt="Strategy Game">
-<h3>Strategy Game</h3>
-<p>Challenge your mind with tactical gameplay.</p>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
     </div>
-    <div class="game-card">
-<img src="rpg-game.jpg" alt="RPG Game">
-<h3>RPG Game</h3>
-<p>Immerse yourself in epic storylines and worlds.</p>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
     </div>
-    <div class="game-card">
-<img src="sports-game.jpg" alt="Sports Game">
-<h3>Sports Game</h3>
-<p>Compete and win in exciting sports arenas.</p>
-    </div>
-  </section>
+  </div>
 </div>
-<div id="leaderboard" class="hidden">
-  <header class=header>
-    <div class=logo>
-<img src=logo.png alt=Logo>
-    </div>
-    <div class=search-bar>
-<input placeholder="Search games, players...">
-    </div>
-    <div class=icons>
-<i class=ri-notification-line  id="toggleNotify"></i>
-<i class="ri-bookmark-fill mark"></i>
-    </div>
-  </header>
-  <nav class="sidebar mobile-sidebar">
-    <ul>
-<li>
-  <a onclick='navigateTo("leaderboard")'>
-  <i class=ri-gamepad-fill></i>
-  <span>Games</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("games")'>
-  <i class=ri-shopping-cart-fill></i>
-  <span>Shop</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("home")'>
-  <i class="ri-home-6-fill add"></i>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("policy")'>
-  <i class=ri-file-fill></i>
-  <span>Sheria</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("profile")'>
-  <i class=ri-user-4-fill></i>
-  <span>Akaunti</span>
-  </a>
-</li>
-    </ul>
-  </nav>
-  <h2>Leaderboard</h2>
-  <p>Check out the top players leading the charge in the gaming arena.</p>
-  <table class="leaderboard-table">
-    <thead>
-<tr>
-  <th>Rank</th>
-  <th>Player</th>
-  <th>Points</th>
-</tr>
-    </thead>
-    <tbody>
-<tr>
-  <td>1</td>
-  <td>Player123</td>
-  <td>5000</td>
-</tr>
-<tr>
-  <td>2</td>
-  <td>GameMaster99</td>
-  <td>4800</td>
-</tr>
-<tr>
-  <td>3</td>
-  <td>ProGamerX</td>
-  <td>4600</td>
-</tr>
-<tr>
-  <td>4</td>
-  <td>NoobSlayer</td>
-  <td>4400</td>
-</tr>
-    </tbody>
-  </table>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
 </div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Save</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">New</span>
+  </div>
+  <div class="bottom-left-icon">
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Like</button>
+  <button class="cta-btn secondary">Comment</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">New</span>
+  </div>
+  <div class="bottom-left-icon">
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Like</button>
+  <button class="cta-btn secondary">Comment</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">New</span>
+  </div>
+  <div class="bottom-left-icon">
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Like</button>
+  <button class="cta-btn secondary">Comment</button>
+</div>
+    </div>
+  </div>
+</div>
+
+
 <div id="profile" class="hidden">
   <header class="page-header">
     <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
