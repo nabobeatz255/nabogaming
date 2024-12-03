@@ -983,7 +983,7 @@ a:focus {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #121212; /* Black background for dark theme */
+  background: #fff; /* Black background for dark theme */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -992,8 +992,8 @@ a:focus {
 
 /* Loader Animation */
 .loader {
-  border: 4px solid #ffffff; /* White outer circle */
-  border-top: 4px solid #000000; /* Black spinning part */
+  border: 4px solid none; /* White outer circle */
+  border-top: 4px solid #000; /* Black spinning part */
   border-radius: 50%;
   width: 50px;
   height: 50px;
