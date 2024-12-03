@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Nabogaming Betplace - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
-    <meta name="keywords" content="Nabogaming, Betplace, Kubashiri Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+    <meta name="description" content="Nabogaming - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming,, Kubashiri Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
     <meta name="author" content="Nabogaming">
-    <meta property="og:title" content="Nabogaming Betplace">
-    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming Betplace. Usikose nafasi yako ya ushindi!">
+    <meta property="og:title" content="Nabogaming">
+    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
     <meta property="og:image" content="https://nabogaming.com/logo.png">
     <meta property="og:url" content="https://nabogaming.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Nabogaming Betplace">
-    <meta name="twitter:description" content="Jiunge na Nabogaming Betplace kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:title" content="Nabogaming">
+    <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
     <meta name="twitter:image" content="https://nabogaming.com/logo.png">
     <link rel="canonical" href="https://nabogaming.com">
     <link rel="icon" href="logo.png" type="image/x-icon">
-  <title>Nabogaming Betplace 2.5</title>
+  <title>Nabogaming 2.5</title>
     <link rel=stylesheet href=remixicon.min.css>
   <style>
     * {
@@ -29,8 +29,8 @@
     body {
       font-family: 'Arial', sans-serif;
       line-height: 1;
-      background-color: #fff;
-      color: #121212;
+      background-color: #121212;
+      color: #fff;
       outline: none;
       max-width: 700px;
       margin: 0 auto;
@@ -41,7 +41,8 @@
       position: fixed;
       top: 0;
       left: 0;
-       background-color: white;
+       background-color: #121212;
+       color: white;
       width: 100%;
       padding: .6rem 1.23rem;
       z-index: 1000;
@@ -60,7 +61,7 @@
     }
 
     header .nav a {
-      color: #121212;
+      color: #fff;
       text-decoration: none;
       font-weight: bold;
       transition: color 0.3s;
@@ -91,37 +92,85 @@
       margin: 1rem 0;
       font-size: 1rem;
     }
-
- .hero .btn {
-  background:  #121212;
-  color: white;
+.hero .btn {
+  background: linear-gradient(90deg, #121212, #1c1c1c); /* Dark gradient background */
+  color: #000; /* White text */
   padding: 0.8rem 1.5rem;
-  border: none;
+  border: 2px solid transparent; /* Placeholder for border */
   border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 1rem;
   display: inline-flex;
-  align-items: center; /* Aligns icon and text vertically */
-  justify-content: center; /* Ensures both text and icon are horizontally aligned */
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease-in-out, background 0.3s ease-in-out;
 }
 
+.hero .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2));
+  z-index: -1;
+  transform: skewX(-45deg);
+  transition: all 0.5s ease-in-out;
+}
+
+.hero .btn:hover::before {
+  left: 150%;
+}
+
+.hero .btn:hover {
+  background: linear-gradient(90deg, #1c1c1c, #2a2a2a); /* Slightly lighter background on hover */
+  color: #000; /* Light gray text on hover */
+}
+
+.hero .btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #ffffff,  #D9B08C, #ffffff);
+  background-size: 300% 300%;
+  animation: borderGlow 2s infinite linear;
+  z-index: -1;
+  border: 2px solid transparent; /* Ensure proper display */
+  mask: border-box;
+}
+
+.hero .btn:hover::after {
+  animation: borderGlow 1s infinite linear; /* Speed up on hover */
+}
+
+@keyframes borderGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
 .hero .btn i {
   margin-left: 0.3rem; /* Space between icon and text */
-  font-size: 1.2rem;
+  font-size: 1.2rem;font-weight: 800;
 }
 
-    .hero .btn:hover {
-      background: none;
-      color: white;
-    }
 
 /* Features Section */
 .features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Flexible grid for responsiveness */
-  gap: 2rem;
-  padding: 2rem 2rem 1rem;
+  padding: .7rem;
   text-align: center;
   color: #fff;
   box-sizing: border-box;
@@ -137,21 +186,19 @@
 
 .feature:hover {
   transform: translateZ(-10px);
-  background-color: #fff;
-  color: black;
 }
 
 /* Icon Styling */
 .feature i {
   font-size: 4rem;  /* Larger icon size */
-  color: white;
+  color: #121212;
   margin-bottom: 1rem;
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .feature:hover i {
   transform: scale(1.1);  /* Slightly enlarge icon on hover */
-  color: black;  /* Color change on hover */
+  color: #fff;  /* Color change on hover */
 }
 
 /* Feature Title */
@@ -209,29 +256,11 @@
   }
 }
 
-    /* Testimonials Section */
-    .testimonials {
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .testimonial {
-      margin: 1rem 0;
-      font-style: italic;
-      color: #ccc;
-    }
-
-    .testimonial span {
-      display: block;
-      margin-top: 0.5rem;
-      font-weight: bold;
-      color: #D9B08C;
-    }
 
     /* FAQ Section */
     .faq {
       padding: 2rem;
-      background: #1e1e1e;text-align: center;
+      background: #1e1e1e;text-align: left;
     }
 
     .faq-item {
@@ -334,13 +363,13 @@
       <a href="#hero">Home</a>
       <a href="#features">About</a>
       <a href="#faq">FAQ</a>
-      <a href="#sign-in">Help</a>
+      <a href="dashboard.html">Ingia</a>
     </nav>
   </header>
 
  <!-- Hero Section -->
 <section class="hero" id="hero">
-  <h1>Karibu Ulimwenguni<span class="super"> Nabogaming Betplace </span> 2.5</h1>
+  <h1>Karibu Ulimwenguni <span class="super"> Nabogaming </span><sup> version 2.5</sup></h1>
   <p>Ungana Na Wachezaji Wa Simu Wa Tanzania, Shindana Na Ushinde Zawadi Kibao. Tumia Akaunti Yako Ya Google Kujiunga Na Kuanzisha Safari Yako Ya Michezo.</p>
   <button class="btn" id="google-sign-in">Tumia Akaunti Ya Google <i class="ri-google-line"></i></button>
 </section>
@@ -383,17 +412,17 @@
 
   <div class="faq-item">
     <div class="faq-question">Je, NaboGaming inatumiaje salama data yangu?</div>
-    <div class="faq-answer">NaboGaming inahakikisha usalama wa taarifa zako kwa kutumia teknolojia ya kisasa ya usalama. Data yako inahifadhiwa salama na inatumika tu kwa madhumuni ya kuboresha uzoefu wako wa michezo.</div>
+    <div class="faq-answer">NaboGaming inahakikisha usalama wa taarifa zako kwa kutumia teknolojia ya kisasa ya usalama (AEC). Data yako inahifadhiwa salama na inatumika tu kwa madhumuni ya kuboresha uzoefu wako wa michezo.</div>
   </div>
 
   <div class="faq-item">
     <div class="faq-question">Jinsi ya kushinda zawadi?</div>
-    <div class="faq-answer">Unaposhiriki kwenye mashindano ya NaboGaming, zawadi hutolewa kwa washindi wa nafasi za juu. Zawadi ni pamoja na pesa, vifaa vya michezo, na zawadi nyingine za kipekee.</div>
+    <div class="faq-answer">Unaposhiriki kwenye mashindano ya NaboGaming, zawadi hutolewa kwa washindi wenye skills (ujuzi) wa mchezo husika na sio bahati nasibu (lucky gambling). Zawadi ni pamoja na pesa, vifaa vya michezo, na zawadi nyingine za kipekee.</div>
   </div>
 
   <div class="faq-item">
     <div class="faq-question">NaboGaming inapatikana wapi?</div>
-    <div class="faq-answer">NaboGaming inapatikana kwa wachezaji wote nchini Tanzania kupitia kivinjari cha simu au kwa kupakua programu kutoka kwenye Play Store (Android) au App Store (iOS).</div>
+    <div class="faq-answer">NaboGaming inapatikana kwa wachezaji wote nchini Tanzania kupitia kivinjari cha simu hapa nabogaming.com</div>
   </div>
 </section>
 
