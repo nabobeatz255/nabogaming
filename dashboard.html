@@ -119,83 +119,6 @@ const updateProfileData = async () => {
 
 document.querySelector("#update-profile-btn").addEventListener("click", updateProfileData);
 </script>
-<script>
-    import { getDatabase, ref, onValue, push, update } from "firebase/database";
-
-// Firebase database setup
-const db = getDatabase();
-const postId = "post1"; // ID of the post to fetch
-
-// Fetch and render the post
-function renderPost() {
-  const postRef = ref(db, `posts/${postId}`);
-
-  onValue(postRef, (snapshot) => {
-    const post = snapshot.val();
-    if (!post) {
-      console.error("Post not found!");
-      return;
-    }
-
-    // Update post content dynamically
-    document.querySelector(".profile-name").textContent = post.profileName;
-    document.querySelector(".profile-picture img").src = post.profilePicture;
-    document.querySelector(".post-time").textContent = new Date(post.timestamp).toLocaleString();
-    document.querySelector(".post-image img").src = post.image;
-    document.querySelector(".caption").innerHTML = `
-      <span class="username">${post.profileName}</span> ${post.caption}
-    `;
-    document.querySelector(".like-counter span:first-child").textContent = `${post.likes} likes`;
-
-    // Render comments
-    const commentsContainer = document.querySelector(".comments-container");
-    commentsContainer.innerHTML = "";
-    for (const [commentId, comment] of Object.entries(post.comments || {})) {
-      commentsContainer.innerHTML += `
-        <div class="comment">
-          <span class="comment-username">${comment.username}</span>: ${comment.message}
-        </div>
-      `;
-    }
-  });
-}
-
-// Handle like button functionality
-document.querySelector(".like-button").addEventListener("click", () => {
-  const postRef = ref(db, `posts/${postId}`);
-
-  onValue(postRef, (snapshot) => {
-    const post = snapshot.val();
-    if (!post) return;
-
-    const updatedLikes = (post.likes || 0) + 1;
-    update(postRef, { likes: updatedLikes });
-  }, { onlyOnce: true });
-});
-
-// Handle comment submission
-document.querySelector(".submit-comment").addEventListener("click", () => {
-  const commentInput = document.querySelector(".comment-input");
-  const commentText = commentInput.value.trim();
-
-  if (!commentText) return;
-
-  const commentRef = push(ref(db, `posts/${postId}/comments`));
-  const newComment = {
-    username: "CurrentUser", // Replace this with a dynamic username if available
-    message: commentText,
-    timestamp: new Date().toISOString(),
-  };
-
-  commentRef.set(newComment).then(() => {
-    commentInput.value = ""; // Clear input after submission
-    console.log("Comment added!");
-  });
-});
-
-// Call renderPost to load the post initially
-renderPost();
-</script>
  </head>
   <body>
     <div class=dashboard>
@@ -288,34 +211,270 @@ renderPost();
     </section>
   </div>
   <div class=post-grid>
-   <div class="instagram-post" id="post1">
-  <div class="post-header">
-    <div class="profile-picture">
-      <img src="" alt="User profile picture">
+    <div class=instagram-post>
+<div class=post-header>
+  <div class=profile-picture>
+    <img src=logo.png alt="User profile picture">
+  </div>
+  <div class=profile-details>
+    <div class=profile-name>
+Nabobeatz
+<span class="badge premium"><i class=ri-vip-crown-fill></i></span>
     </div>
-    <div class="profile-details">
-      <div class="profile-name"></div>
-      <div class="post-time"></div>
+    <div class=post-time data-timestamp=2024-11-22T11:48:00>
+Please Wait.....
     </div>
   </div>
-  <div class="post-image">
-    <img src="" alt="Post content">
-  </div>
-  <div class="caption"></div>
-  <div class="like-counter">
-    <span>0 likes</span>
-  </div>
-  <div class="post-actions">
-    <button class="like-button">Like</button>
-  </div>
-  <div class="post-comments">
-    <div class="comments-container"></div>
-    <div class="comment-input-container">
-      <input class="comment-input" placeholder="Write a comment...">
-      <button class="submit-comment">Send</button>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
     </div>
   </div>
 </div>
+<div class=post-image>
+  <img src=post1.png alt="Post content">
+  <div class=post-badges>
+    <span class="badge new">New</span>
+  </div>
+  <div class=bottom-left-icon>
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class=post-actions>
+  <div class=actions-left>
+    <i class=ri-heart-line></i>
+    <i class=ri-notification-line></i>
+    <i class=ri-share-line></i>
+  </div>
+  <div class=actions-right>
+    <i class=ri-bookmark-line></i>
+  </div>
+</div>
+<div class=like-counter>
+  <span>0 likes</span>&nbsp;|&nbsp;<span>999k comments</span>
+</div>
+<div class=caption>
+  <span class=username>User_Name</span> This is an example caption for the Instagram post.
+</div>
+<div class=post-comments>
+  <button class=toggle-comments data-target=comments-container-1>
+  <i class=ri-arrow-down-s-line></i> View Comments
+  </button>
+  <div class=comments-container id=comments-container-1>
+    <div class=comment>
+<span class=comment-username>Commenter1</span><br><span class=comment-sms>Awesome post!</span>
+    </div>
+  </div>
+  <div class=comment-input-container>
+    <input class=comment-input placeholder="Write a comment...">
+    <button class=submit-comment>Send</button>
+  </div>
+</div>
+    </div>
+    <div class=instagram-post>
+<div class=post-header>
+  <div class=profile-picture>
+    <img src=logo.png alt="User profile picture">
+  </div>
+  <div class=profile-details>
+    <div class=profile-name>
+Nabobeatz
+<span class="badge premium"><i class=ri-vip-crown-fill></i></span>
+    </div>
+    <div class=post-time data-timestamp=2024-11-22T11:48:00>
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class=post-image>
+  <img src=post1.png alt="Post content">
+  <div class=post-badges>
+    <span class="badge new">New</span>
+  </div>
+  <div class=bottom-left-icon>
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class=post-actions>
+  <div class=actions-left>
+    <i class=ri-heart-line></i>
+    <i class=ri-notification-line></i>
+    <i class=ri-share-line></i>
+  </div>
+  <div class=actions-right>
+    <i class=ri-bookmark-line></i>
+  </div>
+</div>
+<div class=like-counter>
+  <span>0 likes</span>&nbsp;|&nbsp;<span>999k comments</span>
+</div>
+<div class=caption>
+  <span class=username>User_Name</span> This is an example caption for the Instagram post.
+</div>
+<div class=post-comments>
+  <button class=toggle-comments data-target=comments-container-1>
+  <i class=ri-arrow-down-s-line></i> View Comments
+  </button>
+  <div class=comments-container id=comments-container-1>
+    <div class=comment>
+<span class=comment-username>Commenter1</span><br><span class=comment-sms>Awesome post!</span>
+    </div>
+  </div>
+  <div class=comment-input-container>
+    <input class=comment-input placeholder="Write a comment...">
+    <button class=submit-comment>Send</button>
+  </div>
+</div>
+    </div>
+    <div class=instagram-post>
+<div class=post-header>
+  <div class=profile-picture>
+    <img src=logo.png alt="User profile picture">
+  </div>
+  <div class=profile-details>
+    <div class=profile-name>
+Nabobeatz
+<span class="badge premium"><i class=ri-vip-crown-fill></i></span>
+    </div>
+    <div class=post-time data-timestamp=2024-11-22T11:48:00>
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class=post-image>
+  <img src=post1.png alt="Post content">
+  <div class=post-badges>
+    <span class="badge new">New</span>
+  </div>
+  <div class=bottom-left-icon>
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class=post-actions>
+  <div class=actions-left>
+    <i class=ri-heart-line></i>
+    <i class=ri-notification-line></i>
+    <i class=ri-share-line></i>
+  </div>
+  <div class=actions-right>
+    <i class=ri-bookmark-line></i>
+  </div>
+</div>
+<div class=like-counter>
+  <span>0 likes</span>&nbsp;|&nbsp;<span>999k comments</span>
+</div>
+<div class=caption>
+  <span class=username>User_Name</span> This is an example caption for the Instagram post.
+</div>
+<div class=post-comments>
+  <button class=toggle-comments data-target=comments-container-1>
+  <i class=ri-arrow-down-s-line></i> View Comments
+  </button>
+  <div class=comments-container id=comments-container-1>
+    <div class=comment>
+<span class=comment-username>Commenter1</span><br><span class=comment-sms>Awesome post!</span>
+    </div>
+  </div>
+  <div class=comment-input-container>
+    <input class=comment-input placeholder="Write a comment...">
+    <button class=submit-comment>Send</button>
+  </div>
+</div>
+    </div>
+    <div class=instagram-post>
+<div class=post-header>
+  <div class=profile-picture>
+    <img src=logo.png alt="User profile picture">
+  </div>
+  <div class=profile-details>
+    <div class=profile-name>
+Nabobeatz
+<span class="badge premium"><i class=ri-vip-crown-fill></i></span>
+    </div>
+    <div class=post-time data-timestamp=2024-11-22T11:48:00>
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class=post-image>
+  <img src=post1.png alt="Post content">
+  <div class=post-badges>
+    <span class="badge new">New</span>
+  </div>
+  <div class=bottom-left-icon>
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class=post-actions>
+  <div class=actions-left>
+    <i class=ri-heart-line></i>
+    <i class=ri-notification-line></i>
+    <i class=ri-share-line></i>
+  </div>
+  <div class=actions-right>
+    <i class=ri-bookmark-line></i>
+  </div>
+</div>
+<div class=like-counter>
+  <span>0 likes</span>&nbsp;|&nbsp;<span>999k comments</span>
+</div>
+<div class=caption>
+  <span class=username>User_Name</span> This is an example caption for the Instagram post.
+</div>
+<div class=post-comments>
+  <button class=toggle-comments data-target=comments-container-1>
+  <i class=ri-arrow-down-s-line></i> View Comments
+  </button>
+  <div class=comments-container id=comments-container-1>
+    <div class=comment>
+<span class=comment-username>Commenter1</span><br><span class=comment-sms>Awesome post!</span>
+    </div>
+  </div>
+  <div class=comment-input-container>
+    <input class=comment-input placeholder="Write a comment...">
+    <button class=submit-comment>Send</button>
+  </div>
+</div>
+    </div>
   </div>
   <section class=tabs>
     <div class=tab-header>
