@@ -118,6 +118,97 @@ const updateProfileData = async () => {
 };
 
 document.querySelector("#update-profile-btn").addEventListener("click", updateProfileData);
+
+// Toggle Like Function
+function toggleLike(postId, userId) {
+  const likesRef = ref(db, `posts/${postId}/likes/${userId}`);
+  get(likesRef).then((snapshot) => {
+    if (snapshot.exists()) {
+      set(likesRef, null); // Unlike the post
+      console.log(`User ${userId} unliked post ${postId}`);
+    } else {
+      set(likesRef, true); // Like the post
+      console.log(`User ${userId} liked post ${postId}`);
+    }
+  });
+}
+
+// Add Comment Function
+function addComment(postId, userId, commentText) {
+  const commentId = `comment${Date.now()}`; // Unique comment ID
+  const commentRef = ref(db, `posts/${postId}/comments/${commentId}`);
+  const commentData = { author: userId, text: commentText };
+
+  set(commentRef, commentData).then(() => {
+    console.log(`Comment added by ${userId} on post ${postId}`);
+  });
+}
+
+// Event Listeners for Like Button
+document.querySelectorAll('.actions-left button[aria-label="Like this post"]').forEach((button) => {
+  button.addEventListener('click', (event) => {
+    const postElement = event.target.closest('.instagram-post');
+    const postId = postElement.dataset.postId; // Get post ID from data attribute
+    const userId = "currentUser"; // Replace with logged-in user ID
+
+    toggleLike(postId, userId);
+  });
+});
+
+// Event Listeners for Toggle Comments Button
+document.querySelectorAll('.toggle-comments').forEach((button) => {
+  button.addEventListener('click', (event) => {
+    const targetId = button.dataset.target;
+    const commentsContainer = document.getElementById(targetId);
+    commentsContainer.classList.toggle('hidden');
+  });
+});
+
+// Event Listeners for Submit Comment Button
+document.querySelectorAll('.submit-comment').forEach((button) => {
+  button.addEventListener('click', (event) => {
+    const postElement = event.target.closest('.instagram-post');
+    const postId = postElement.dataset.postId;
+    const userId = "currentUser"; // Replace with logged-in user ID
+    const commentInput = postElement.querySelector('.comment-input');
+
+    if (commentInput.value.trim() !== "") {
+      addComment(postId, userId, commentInput.value.trim());
+      commentInput.value = ""; // Clear the input field
+    }
+  });
+});
+
+// Event Listeners for Post Options Toggle
+document.querySelectorAll('.options-toggle').forEach((button) => {
+  button.addEventListener('click', (event) => {
+    const optionsMenu = event.target.closest('.post-options').querySelector('.options-menu');
+    optionsMenu.classList.toggle('hidden');
+  });
+});
+
+// Realtime Updates for Posts
+function fetchPost(postId) {
+  const postRef = ref(db, `posts/${postId}`);
+  onValue(postRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const postData = snapshot.val();
+      console.log(`Realtime update for post ${postId}:`, postData);
+
+      // Example: Update like count in the DOM
+      const postElement = document.querySelector(`.instagram-post[data-post-id="${postId}"]`);
+      const likeCounter = postElement.querySelector('.like-counter span:first-child');
+      const likeCount = postData.likes ? Object.keys(postData.likes).length : 0;
+      likeCounter.textContent = `${likeCount} likes`;
+    }
+  });
+}
+
+// Fetch and listen for changes for all posts
+document.querySelectorAll('.instagram-post').forEach((postElement) => {
+  const postId = postElement.dataset.postId;
+  fetchPost(postId);
+});
 </script>
  </head>
   <body>
@@ -211,7 +302,7 @@ document.querySelector("#update-profile-btn").addEventListener("click", updatePr
     </section>
   </div>
   <div class=post-grid>
-    <div class=instagram-post>
+    <div class=instagram-post data-post-id="post1">
 <div class=post-header>
   <div class=profile-picture>
     <img src=logo.png alt="User profile picture">
@@ -277,7 +368,7 @@ Please Wait.....
   </div>
 </div>
     </div>
-    <div class=instagram-post>
+    <div class=instagram-post data-post-id="post2">
 <div class=post-header>
   <div class=profile-picture>
     <img src=logo.png alt="User profile picture">
@@ -343,7 +434,7 @@ Please Wait.....
   </div>
 </div>
     </div>
-    <div class=instagram-post>
+    <div class=instagram-post data-post-id="post3">
 <div class=post-header>
   <div class=profile-picture>
     <img src=logo.png alt="User profile picture">
