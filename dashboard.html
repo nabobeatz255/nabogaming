@@ -3,21 +3,21 @@
   <head>
     <meta charset=UTF-8>
     <meta name=viewport content="width=device-width,initial-scale=1">
-    <meta name="description" content="Nabogaming Betplace - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
-    <meta name="keywords" content="Nabogaming, Betplace, Kubashiri Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+    <meta name="description" content="Nabogaming  - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming, , Kubashiri Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
     <meta name="author" content="Nabogaming">
-    <meta property="og:title" content="Nabogaming Betplace">
-    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming Betplace. Usikose nafasi yako ya ushindi!">
+    <meta property="og:title" content="Nabogaming ">
+    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming . Usikose nafasi yako ya ushindi!">
     <meta property="og:image" content="https://nabogaming.com/logo.png">
     <meta property="og:url" content="https://nabogaming.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Nabogaming Betplace">
-    <meta name="twitter:description" content="Jiunge na Nabogaming Betplace kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:title" content="Nabogaming ">
+    <meta name="twitter:description" content="Jiunge na Nabogaming  kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
     <meta name="twitter:image" content="https://nabogaming.com/logo.png">
     <link rel="canonical" href="https://nabogaming.com">
     <link rel="icon" href="logo.png" type="image/x-icon">
-  <title>Nabogaming Betplace 2.5</title>
+  <title>Nabogaming  2.5</title>
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
@@ -121,6 +121,10 @@ document.querySelector("#update-profile-btn").addEventListener("click", updatePr
 </script>
  </head>
   <body>
+<div id="preloader">
+  <div class="loader"></div>
+</div>
+<div id="content" style="display: none;">
     <div class=dashboard>
     <nav class="sidebar desktop-sidebar">
 <h2>Dashboard</h2>
@@ -190,7 +194,7 @@ document.querySelector("#update-profile-btn").addEventListener("click", updatePr
     <section class=carousel>
 <div class=carousel-slide>
   <img src=1.png alt="Featured Game 1">
-  <h3>Nabogaming Tumerudi Kivingine..!</h3>
+  <h3>Nabogaming Kivingine..!</h3>
   <p>Mechi Zaidi, Ushindani Na Wachezaji Kibao</p>
 </div>
 <div class=carousel-slide>
@@ -1320,7 +1324,32 @@ Please Wait.....
     </ul>
   </section>
 </div>
-    </div>
+    </div></div>
+</div>
+
+
+
+
+
+
+<script>
+    // Start the preloader timeout as soon as the script runs
+document.addEventListener("DOMContentLoaded", function () {
+  const preloader = document.getElementById("preloader");
+  const content = document.getElementById("content");
+
+  // Ensure the preloader disappears after 4.8 seconds
+  setTimeout(() => {
+    preloader.classList.add("fade-out"); // Apply fade-out effect
+
+    // Once the fade-out is complete, hide the preloader and show the content
+    preloader.addEventListener("transitionend", () => {
+      preloader.style.display = "none";  // Hide preloader completely
+      content.style.display = "block";   // Show the main content
+    });
+  }, 4800); // 4.8 seconds in milliseconds
+});
+</script>
     <script>
 // Function to navigate to a specific section
 function navigateTo(pageId) {
