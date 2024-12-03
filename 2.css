@@ -170,8 +170,7 @@
 
 .headec {
     height: 70px;
-    width: 107%;
-   /* box-shadow: 0 6px 5px rgba(0, 0, 0, 0.1);*/
+    width: 107%;   /* box-shadow: 0 6px 5px rgba(0, 0, 0, 0.1);*/
     margin-bottom: 10px;
 }
 .headec-nav {
@@ -179,7 +178,7 @@
 	border-radius: 10px;
 	text-decoration: none;
 	background-color: black;
-	font-weight: 500
+	font-weight: 500;margin-right: 2vh;
 }
 .headec-nav a {
     font-size: 13px;
@@ -317,3 +316,35 @@
   background-color: white;
   color: black;
 }
+  main {
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    .fanq ul {
+      padding-left: 20px;
+      list-style-type: none;
+    }
+    .fanq ul li {
+      margin-bottom: 10px;
+    }
+    .faq {
+      margin-top: 30px;
+      padding: 10px;
+      background: #f1f1f1;
+      border-left: 4px solid #0077cc;
+      border-radius: 5px;
+    }
+    .riri {
+        display: flex;margin:0;
+        padding: 5px;
+        margin-right: 2vh;
+    }
+    .riri i {
+       padding: 7px;
+       border-radius: 10%;
+       border: 1px solid #e0e0e0;;
+    }
