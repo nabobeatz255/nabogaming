@@ -17,7 +17,7 @@
     <meta name="twitter:image" content="https://nabogaming.com/logo.png">
     <link rel="canonical" href="https://nabogaming.com">
     <link rel="icon" href="logo.png" type="image/x-icon">
-  <title>Nabogaming  2.5</title>
+  <title>Nabogaming 2.5</title>
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
@@ -122,8 +122,14 @@ document.querySelector("#update-profile-btn").addEventListener("click", updatePr
  </head>
   <body>
 <div id="preloader">
-  <div class="loader"></div>
+  <div class="loader">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
 </div>
+
 <div id="content" style="display: none;">
     <div class=dashboard>
     <nav class="sidebar desktop-sidebar">
@@ -1333,7 +1339,7 @@ Please Wait.....
 
 
 <script>
-    // Start the preloader timeout as soon as the script runs
+   // Start the preloader timeout as soon as the script runs
 document.addEventListener("DOMContentLoaded", function () {
   const preloader = document.getElementById("preloader");
   const content = document.getElementById("content");
