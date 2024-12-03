@@ -38,9 +38,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const storage = getStorage();
-</script>
-<script type="module">
-    // Monitor authentication state
+
+// Monitor authentication state
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const fullName = user.displayName;
@@ -64,9 +63,8 @@ onAuthStateChanged(auth, (user) => {
     window.location.href = "index.html";
   }
 });
-</script>
-<script type="module">
-   // Handle profile update
+
+// Handle profile update
 const updateProfileData = async () => {
   const user = auth.currentUser;
   const usernameInput = document.querySelector("#username-input").value;
@@ -121,7 +119,6 @@ const updateProfileData = async () => {
 
 document.querySelector("#update-profile-btn").addEventListener("click", updateProfileData);
 </script>
-
  </head>
   <body>
     <div class=dashboard>
