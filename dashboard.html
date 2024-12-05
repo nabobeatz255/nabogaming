@@ -161,7 +161,11 @@ button {
       if (!user) return;
 
       const postRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-      await update(postRef, true);
+      const likeSnapshot = await postRef.get();
+      
+      if (!likeSnapshot.exists()) {
+        await update(postRef, true);  // User can like the post once
+      }
     };
 
     // Function to share a post
@@ -169,8 +173,28 @@ button {
       const user = auth.currentUser;
       if (!user) return;
 
-      const postRef = ref(db, `posts/${postId}/shares/${user.uid}`);
-      await update(postRef, true);
+      const postRef = ref(db, `posts/${postId}`);
+      const postSnapshot = await postRef.get();
+      const post = postSnapshot.val();
+      const postLink = `${window.location.origin}/post/${postId}`;
+
+      const shareData = {
+        title: post.content,
+        text: `Check out this post by ${user.displayName}: ${post.content}`,
+        url: postLink,
+      };
+
+      try {
+        navigator.clipboard.writeText(postLink); // Copy the link to clipboard
+        alert("Post link copied to clipboard!");
+
+        if (navigator.share) {
+          await navigator.share(shareData);
+        }
+      } catch (err) {
+        alert("Failed to share the post.");
+        console.error("Error sharing post: ", err);
+      }
     };
 
     // Function to add a comment
