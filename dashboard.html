@@ -25,7 +25,7 @@
 	color: #888;
 	font-size: 13px;
 	color: #888;
-	margin-top: 4px;
+	margin-top: 6px;
 }
 </style>
 <script type="module">
@@ -50,10 +50,31 @@
 
   const postsContainer = document.getElementById("posts-container");
 
-  // Format timestamp for displaying
+  // Time ago format function
   const formatTimestamp = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString();
+    const now = new Date();
+    const timeDiff = now - new Date(timestamp); // Difference in milliseconds
+
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+
+    if (seconds < 60) {
+      return `${seconds} seconds ago`;
+    } else if (minutes < 60) {
+      return `${minutes} minutes ago`;
+    } else if (hours < 24) {
+      return `${hours} hours ago`;
+    } else if (days < 30) {
+      return `${days} days ago`;
+    } else if (months < 12) {
+      return `${months} months ago`;
+    } else {
+      return `${years} years ago`;
+    }
   };
 
   // Load posts from the database
@@ -155,13 +176,17 @@
 
     if (postLikesSnapshot.exists()) {
       // Remove like
-      await update(postLikesRef, null);
-      likeCountElement.innerText = `${Object.keys(post.likes || {}).length - 1} likes`;
+      await set(postLikesRef, null); // Null removes the like
     } else {
       // Add like
-      await update(postLikesRef, true);
-      likeCountElement.innerText = `${Object.keys(post.likes || {}).length + 1} likes`;
+      await set(postLikesRef, true); // Set like to true
     }
+
+    // Update like count locally
+    const updatedPostSnapshot = await ref(db, `posts/${postId}`).get();
+    const updatedPost = updatedPostSnapshot.val();
+    const updatedLikeCount = Object.keys(updatedPost.likes || {}).length;
+    likeCountElement.innerText = `${updatedLikeCount} likes`;
   };
 
   // Render comments for a post
@@ -237,43 +262,34 @@
         imageUrl = await getDownloadURL(snapshot.ref);
       }
 
-      // Save post to Firebase Realtime Database
+      // Save post data to Firebase Database
       const newPostRef = push(ref(db, "posts"));
       await set(newPostRef, {
-        authorName: user.displayName || "Anonymous",
-        authorPhoto: user.photoURL || "default-profile.png",
+        authorName: user.displayName,
+        authorPhoto: user.photoURL || "default-photo-url",  // Use default photo if no user photo
+        timestamp: serverTimestamp(),
         content: caption,
         imageUrl: imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},  // Initially, no likes
-        comments: {},  // Initially, no comments
+        likes: {},
+        comments: {},
       });
 
-      alert("Post created successfully!");
-      document.getElementById("new-post-caption").value = "";
-      fileInput.value = "";
-      loadPosts();
+      alert("Post created!");
+      loadPosts();  // Refresh posts
     } catch (error) {
-      console.error("Error creating post:", error);
-      alert("Failed to create post.");
+      console.error("Error creating post", error);
     }
   };
 
-  // Event listener for creating a post
-  document.getElementById("create-post-btn").addEventListener("click", createNewPost);
+  // Initialize posts on page load
+  window.onload = () => {
+    loadPosts();
 
-  // Monitor authentication state
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      console.log("Logged in as", user.displayName);
-    } else {
-      console.log("Not logged in");
-    }
-  });
-
-  // Load posts on page load
-  loadPosts();
+    // Add event listener for creating new post
+    document.getElementById("create-post-button").addEventListener("click", createNewPost);
+  };
 </script>
+
 
  </head>
   <body>
