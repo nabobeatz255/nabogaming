@@ -114,6 +114,7 @@
       <div class="post-actions">
         <div class="actions-left">
           <i class="ri-heart-line like-btn" data-id="${postId}"></i> <!-- Like button -->
+          <i class="ri-notification-line"></i>
           <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
         </div>
         <div class="actions-right">
@@ -164,7 +165,7 @@
     });
   };
 
-  // Like post functionality (Updated)
+  // Like post functionality
   const likePost = async (postId, postElement) => {
     const user = auth.currentUser;
     if (!user) return; // User must be logged in
@@ -174,17 +175,18 @@
     const likeCountElement = postElement.querySelector(".like-count");
 
     if (postLikesSnapshot.exists()) {
-      // User already liked the post, do nothing
-      alert("You've already liked this post!");
+      // Remove like
+      await set(postLikesRef, null); // Null removes the like
     } else {
       // Add like
       await set(postLikesRef, true); // Set like to true
-      // Update like count locally
-      const updatedPostSnapshot = await ref(db, `posts/${postId}`).get();
-      const updatedPost = updatedPostSnapshot.val();
-      const updatedLikeCount = Object.keys(updatedPost.likes || {}).length;
-      likeCountElement.innerText = `${updatedLikeCount} likes`;
     }
+
+    // Update like count locally
+    const updatedPostSnapshot = await ref(db, `posts/${postId}`).get();
+    const updatedPost = updatedPostSnapshot.val();
+    const updatedLikeCount = Object.keys(updatedPost.likes || {}).length;
+    likeCountElement.innerText = `${updatedLikeCount} likes`;
   };
 
   // Render comments for a post
