@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang=en>
   <head>
@@ -259,24 +258,47 @@
         const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
         const uploadTask = uploadBytes(storageReference, file);
 
-        const snapshot = await uploadTask;
-        imageUrl = await getDownloadURL(snapshot.ref);
+        // Get the total file size in kilobytes
+        const fileSizeKB = file.size / 1024; // Convert bytes to KB
+
+        // Get the button element and update its text during the upload
+        const button = document.getElementById("create-post-button");
+        button.disabled = true; // Disable button to prevent multiple clicks
+
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            // Get progress percentage and display it
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            const uploadedKB = snapshot.bytesTransferred / 1024;
+            const remainingKB = fileSizeKB - uploadedKB;
+            button.innerHTML = `Uploading: ${Math.round(progress)}% (${Math.round(uploadedKB)}KB / ${Math.round(fileSizeKB)}KB)`;
+          },
+          (error) => {
+            console.error("Error uploading image:", error);
+            button.disabled = false;
+            button.innerHTML = "Tuma Post Hii";
+          },
+          async () => {
+            // Get download URL after upload is complete
+            imageUrl = await getDownloadURL(snapshot.ref);
+
+            // Save post data to Firebase Database
+            const newPostRef = push(ref(db, "posts"));
+            await set(newPostRef, {
+              authorName: user.displayName,
+              authorPhoto: user.photoURL || "default-photo-url",  // Use default photo if no user photo
+              timestamp: serverTimestamp(),
+              content: caption,
+              imageUrl: imageUrl,
+              likes: {},
+              comments: {},
+            });
+
+            button.innerHTML = "Post Created!";
+            loadPosts();  // Refresh posts
+          }
+        );
       }
-
-      // Save post data to Firebase Database
-      const newPostRef = push(ref(db, "posts"));
-      await set(newPostRef, {
-        authorName: user.displayName,
-        authorPhoto: user.photoURL || "default-photo-url",  // Use default photo if no user photo
-        timestamp: serverTimestamp(),
-        content: caption,
-        imageUrl: imageUrl,
-        likes: {},
-        comments: {},
-      });
-
-      alert("Post created!");
-      loadPosts();  // Refresh posts
     } catch (error) {
       console.error("Error creating post", error);
     }
@@ -290,6 +312,9 @@
     document.getElementById("create-post-button").addEventListener("click", createNewPost);
   };
 </script>
+
+
+
 
 
  </head>
@@ -1024,21 +1049,21 @@ Please Wait.....
 
 </div>
     </div>
-    <!-- Profile Settings -->
-    <section class="profile-settings">
-<div class="settings-card">
-  <h2>Badilisha Details Zako</h2>
-   <div class="form-group">
-    <label for="name">Weka UserName Mpya</label>
-    <input type="text" id="new-post-caption" placeholder="Enter new username">
+   <!-- Profile Settings -->
+<section class="profile-settings">
+  <div class="settings-card">
+    <h2>Tengeneza Post Mpya</h2>
+    <div class="form-group">
+      <label for="name">Weka Caption Mpya</label>
+      <input type="text" id="new-post-caption" placeholder="Enter new username">
     </div>
-     <div class="form-group">
-     <label for="name">Chagua profile mpya (size less than 1Mb)</label>
-    <input type="file"  id="new-post-image" accept="image/*">
+    <div class="form-group">
+      <label for="name">Chagua picha mpya (landscape preferred)</label>
+      <input type="file" id="new-post-image" accept="image/*">
     </div>
-  <button class="save-btn" id="create-post-button">Save Changes</button>
-</div>
-    </section>
+    <button class="save-btn" id="create-post-button">Tuma Post Hii</button>
+  </div>
+</section>
   </div>
 </div>
 
