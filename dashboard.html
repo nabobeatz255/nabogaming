@@ -155,141 +155,138 @@
     <div id="posts-container"></div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-    import { getDatabase, ref, push, update, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  <script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getDatabase, ref, push, update, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-      authDomain: "register-71bde.firebaseapp.com",
-      projectId: "register-71bde",
-      storageBucket: "register-71bde.appspot.com",
-      messagingSenderId: "412548441298",
-      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+  authDomain: "register-71bde.firebaseapp.com",
+  projectId: "register-71bde",
+  storageBucket: "register-71bde.appspot.com",
+  messagingSenderId: "412548441298",
+  appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+};
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const db = getDatabase(app);
-    const storage = getStorage(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getDatabase(app);
+const storage = getStorage(app);
 
-    const postsContainer = document.getElementById("posts-container");
+const postsContainer = document.getElementById("posts-container");
 
-    const formatTimestamp = (timestamp) => {
-      const date = new Date(timestamp);
-      return date.toLocaleString();
-    };
+// Format timestamp for displaying
+const formatTimestamp = (timestamp) => {
+  const date = new Date(timestamp);
+  return date.toLocaleString();
+};
 
-    const loadPosts = () => {
-      const postsRef = ref(db, "posts");
-      onValue(postsRef, (snapshot) => {
-        postsContainer.innerHTML = "";
-        snapshot.forEach((childSnapshot) => {
-          const postId = childSnapshot.key;
-          const post = childSnapshot.val();
-          displayPost(postId, post);
-        });
-      });
-    };
-
-    const displayPost = (postId, post) => {
-      const postElement = document.createElement("div");
-      postElement.className = "instagram-post";
-      postElement.innerHTML = `
-        <div class="post-header">
-          <div class="profile-picture">
-            <img src="${post.authorPhoto}" alt="User profile picture">
-          </div>
-          <div class="profile-details">
-            <div class="profile-name">
-              ${post.authorName}
-              ${post.authorName === 'Nabobeatz' ? '<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>' : ''}
-            </div>
-            <div class="post-time" data-timestamp="${post.timestamp}">
-              ${post.timestamp ? formatTimestamp(post.timestamp) : "Please Wait..."}
-            </div>
-          </div>
-        </div>
-
-        <div class="post-image">
-          <img src="${post.imageUrl}" alt="Post content">
-          <div class="post-badges">
-            <span class="badge new">New</span>
-          </div>
-        </div>
-
-        <div class="like-counter">
-          <span>${Object.keys(post.likes || {}).length} likes</span>&nbsp;|&nbsp;<span>999k comments</span>
-        </div>
-
-        <div class="caption">
-          <span class="username">${post.authorName}</span> ${post.content}
-        </div>
-      `;
-
-      postsContainer.appendChild(postElement);
-    };
-
-    const createNewPost = async () => {
-      const user = auth.currentUser;
-      if (!user) {
-        alert("Please log in to post.");
-        return;
-      }
-
-      const caption = document.getElementById("new-post-caption").value;
-      const fileInput = document.getElementById("new-post-image");
-      const file = fileInput.files[0];
-
-      if (!caption && !file) {
-        alert("Please provide a caption or an image.");
-        return;
-      }
-
-      try {
-        let imageUrl = "";
-
-        if (file) {
-          // Upload image to Firebase Storage
-          const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
-          const uploadTask = uploadBytes(storageReference, file);
-          
-          const snapshot = await uploadTask;
-          imageUrl = await getDownloadURL(snapshot.ref);
-        }
-
-        // Save post to Firebase Realtime Database
-        const newPostRef = push(ref(db, "posts"));
-        await set(newPostRef, {
-          authorName: user.displayName || "Anonymous",
-          authorPhoto: user.photoURL || "default-profile.png",
-          content: caption,
-          imageUrl: imageUrl,
-          timestamp: serverTimestamp(),
-          likes: {},
-        });
-
-        alert("Post created successfully!");
-        document.getElementById("new-post-caption").value = "";
-        fileInput.value = "";
-        loadPosts();
-      } catch (error) {
-        console.error("Error creating post:", error);
-        alert("Failed to create post.");
-      }
-    };
-
-    document.getElementById("create-post-btn").addEventListener("click", createNewPost);
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        loadPosts();
-      } else {
-        alert("Please log in to view posts.");
-      }
+// Load posts from the database
+const loadPosts = () => {
+  const postsRef = ref(db, "posts");
+  onValue(postsRef, (snapshot) => {
+    postsContainer.innerHTML = "";
+    snapshot.forEach((childSnapshot) => {
+      const postId = childSnapshot.key;
+      const post = childSnapshot.val();
+      displayPost(postId, post);
     });
-  </script>
+  });
+};
+
+// Display each post
+const displayPost = (postId, post) => {
+  const postElement = document.createElement("div");
+  postElement.className = "instagram-post";
+  postElement.innerHTML = `
+    <div class="post-header">
+      <div class="profile-picture">
+        <img src="${post.authorPhoto}" alt="User profile picture">
+      </div>
+      <div class="profile-details">
+        <div class="profile-name">
+          ${post.authorName}
+        </div>
+        <div class="post-time">
+          ${formatTimestamp(post.timestamp)}
+        </div>
+      </div>
+    </div>
+    <div class="post-image">
+      <img src="${post.imageUrl}" alt="Post content">
+    </div>
+    <div class="like-counter">
+      <span>${Object.keys(post.likes || {}).length} likes</span>&nbsp;|&nbsp;<span>999k comments</span>
+    </div>
+    <div class="caption">
+      <span class="username">${post.authorName}</span> ${post.content}
+    </div>
+  `;
+  postsContainer.appendChild(postElement);
+};
+
+// Create a new post with caption and image
+const createNewPost = async () => {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Please log in to post.");
+    return;
+  }
+
+  const caption = document.getElementById("new-post-caption").value;
+  const fileInput = document.getElementById("new-post-image");
+  const file = fileInput.files[0];
+
+  if (!caption && !file) {
+    alert("Please provide a caption or an image.");
+    return;
+  }
+
+  try {
+    let imageUrl = "";
+
+    if (file) {
+      // Upload image to Firebase Storage
+      const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
+      const uploadTask = uploadBytes(storageReference, file);
+      
+      const snapshot = await uploadTask;
+      imageUrl = await getDownloadURL(snapshot.ref);
+    }
+
+    // Save post to Firebase Realtime Database
+    const newPostRef = push(ref(db, "posts"));
+    await set(newPostRef, {
+      authorName: user.displayName || "Anonymous",
+      authorPhoto: user.photoURL || "default-profile.png",
+      content: caption,
+      imageUrl: imageUrl,
+      timestamp: serverTimestamp(),
+      likes: {},  // Initially, no likes
+      comments: {},  // Initially, no comments
+    });
+
+    alert("Post created successfully!");
+    document.getElementById("new-post-caption").value = "";
+    fileInput.value = "";
+    loadPosts();
+  } catch (error) {
+    console.error("Error creating post:", error);
+    alert("Failed to create post.");
+  }
+};
+
+// Event listener for creating a post
+document.getElementById("create-post-btn").addEventListener("click", createNewPost);
+
+// Monitor authentication state
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loadPosts();
+  } else {
+    alert("Please log in to view posts.");
+  }
+});</script>
 </body>
 </html>
