@@ -21,51 +21,38 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
-
-<script defer type="module">
+    <script defer type="module">
+// Firebase Initialization
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getDatabase, ref, set, get, child, update, push, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
   authDomain: "register-71bde.firebaseapp.com",
+  databaseURL: "https://register-71bde.firebaseio.com",
   projectId: "register-71bde",
   storageBucket: "register-71bde.appspot.com",
   messagingSenderId: "412548441298",
   appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const database = getDatabase();
-const storage = getStorage();
 
-// Monitor authentication state
+// User Authentication State
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    const fullName = user.displayName;
-    const firstName = fullName ? fullName.split(" ")[0] : "";
-    const email = user.email;
-    const profilePicture = user.photoURL || "default-profile.png";
-
-    document.querySelectorAll(".user-name").forEach((element) => {
-      element.textContent = firstName;
-    });
-    document.querySelectorAll(".user-email").forEach((element) => {
-      element.textContent = email;
-    });
-    document.querySelectorAll(".profile-picture").forEach((element) => {
-      element.src = profilePicture;
-    });
+    console.log('User signed in:', user.displayName);
   } else {
-    alert("You are not signed in. Redirecting to login...");
-    window.location.href = "index.html";
+    console.log('User not signed in');
   }
 });
 
-// Handle like button click
+// Handle Like on Post
 const likePost = async (postId) => {
   const user = auth.currentUser;
   if (!user) {
@@ -75,30 +62,26 @@ const likePost = async (postId) => {
 
   const userId = user.uid;
   const postRef = ref(database, `posts/${postId}/likes/${userId}`);
+  const likesCountRef = ref(database, `posts/${postId}/likesCount`);
 
-  get(postRef).then((snapshot) => {
-    if (snapshot.exists()) {
-      alert("You already liked this post.");
-      return;
-    }
+  // Check if the user already liked the post
+  const snapshot = await get(postRef);
+  if (snapshot.exists()) {
+    alert("You already liked this post.");
+    return;
+  }
 
-    // Add the user's like to the post
-    set(postRef, true).then(() => {
-      // Update the like count
-      const postLikesRef = ref(database, `posts/${postId}/likesCount`);
-      get(postLikesRef).then((likeSnapshot) => {
-        const currentLikesCount = likeSnapshot.val() || 0;
-        update(postLikesRef, { likesCount: currentLikesCount + 1 });
-      }).catch((error) => {
-        console.error("Error updating likes count:", error);
-      });
-    }).catch((error) => {
-      console.error("Error liking the post:", error);
-    });
-  });
+  // Like the post
+  await set(postRef, true);
+  const likesSnapshot = await get(likesCountRef);
+  const likesCount = likesSnapshot.val() || 0;
+  await update(likesCountRef, { likesCount: likesCount + 1 });
+
+  // Update UI
+  updatePostCounters(postId);
 };
 
-// Handle comment submission
+// Handle Comment on Post
 const commentOnPost = async (postId) => {
   const user = auth.currentUser;
   if (!user) {
@@ -106,50 +89,96 @@ const commentOnPost = async (postId) => {
     return;
   }
 
-  const commentText = document.querySelector(".comment-input").value;
+  const commentText = document.querySelector(`#${postId} .comment-input`).value;
   if (!commentText.trim()) {
     alert("Please enter a comment.");
     return;
   }
 
-  const commentRef = ref(database, `posts/${postId}/comments`);
-  const newCommentId = (await get(commentRef)).val() ? Object.keys(await get(commentRef)).length + 1 : 1;
+  const commentsRef = ref(database, `posts/${postId}/comments`);
+  const commentId = push(commentsRef).key;  // Get a new ID for the comment
 
-  set(ref(database, `posts/${postId}/comments/${newCommentId}`), {
+  await set(ref(database, `posts/${postId}/comments/${commentId}`), {
     userID: user.uid,
     text: commentText,
-    timestamp: new Date().toISOString()
-  }).then(() => {
-    // Update the comment count
-    update(ref(database, `posts/${postId}`), {
-      commentsCount: (await get(ref(database, `posts/${postId}/comments`))).val().length
-    }).then(() => {
-      alert("Comment added!");
-      document.querySelector(".comment-input").value = "";
-    }).catch((error) => {
-      console.error("Error updating comments count:", error);
-    });
-  }).catch((error) => {
-    console.error("Error commenting on the post:", error);
+    timestamp: new Date().toISOString(),
+  });
+
+  // Update the comment count
+  const commentsCountRef = ref(database, `posts/${postId}/commentsCount`);
+  const commentsSnapshot = await get(commentsCountRef);
+  const commentsCount = commentsSnapshot.val() || 0;
+  await update(commentsCountRef, { commentsCount: commentsCount + 1 });
+
+  // Clear input field
+  document.querySelector(`#${postId} .comment-input`).value = "";
+
+  // Update UI
+  updatePostCounters(postId);
+};
+
+// Update Like and Comment Counters in UI
+const updatePostCounters = async (postId) => {
+  const likesCountRef = ref(database, `posts/${postId}/likesCount`);
+  const commentsCountRef = ref(database, `posts/${postId}/commentsCount`);
+
+  const likesSnapshot = await get(likesCountRef);
+  const commentsSnapshot = await get(commentsCountRef);
+
+  document.querySelector(`#${postId} .likes-count`).textContent = `${likesSnapshot.val() || 0} likes`;
+  document.querySelector(`#${postId} .comments-count`).textContent = `${commentsSnapshot.val() || 0} comments`;
+
+  // Fetch and display comments
+  const commentsRef = ref(database, `posts/${postId}/comments`);
+  const commentsSnapshot = await get(commentsRef);
+  const commentsContainer = document.querySelector(`#${postId} .comments-container`);
+  commentsContainer.innerHTML = ""; // Clear previous comments
+  commentsSnapshot.forEach((childSnapshot) => {
+    const comment = childSnapshot.val();
+    const commentDiv = document.createElement('div');
+    commentDiv.className = 'comment';
+    commentDiv.innerHTML = `<span class="comment-username">${comment.userID}</span><br><span class="comment-sms">${comment.text}</span>`;
+    commentsContainer.appendChild(commentDiv);
   });
 };
 
-// Add event listeners for like and comment actions
-document.querySelectorAll(".like-btn").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    const postId = e.target.dataset.postId;
+// Event Listeners for Like and Comment Buttons
+document.querySelectorAll('.like-btn').forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    const postId = e.target.getAttribute('data-post-id');
     likePost(postId);
   });
 });
 
-document.querySelectorAll(".submit-comment").forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    const postId = e.target.dataset.postId;
+document.querySelectorAll('.submit-comment').forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    const postId = e.target.getAttribute('data-post-id');
     commentOnPost(postId);
   });
 });
-</script>
 
+// Monitor Authentication State and Update UI
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    const firstName = user.displayName ? user.displayName.split(" ")[0] : "";
+    const email = user.email;
+    const profilePicture = user.photoURL;
+
+    document.querySelectorAll(".user-name").forEach((element) => {
+      element.textContent = firstName;
+    });
+    document.querySelectorAll(".user-email").forEach((element) => {
+      element.textContent = email;
+    });
+    document.querySelectorAll(".profile-picture").forEach((element) => {
+      element.src = profilePicture || "default-profile.png";
+    });
+  } else {
+    alert("You are not signed in. Redirecting to login...");
+    window.location.href = "index.html";
+  }
+});
+</script>
  </head>
   <body>
     <div class=dashboard>
@@ -242,7 +271,8 @@ document.querySelectorAll(".submit-comment").forEach((btn) => {
     </section>
   </div>
   <div class=post-grid>
- <div class="instagram-post" id="postID">
+
+  <div class="instagram-post" id="post1">
   <div class="post-header">
     <div class="profile-picture">
       <img src="logo.png" alt="User profile picture">
@@ -252,9 +282,7 @@ document.querySelectorAll(".submit-comment").forEach((btn) => {
         Nabobeatz
         <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
       </div>
-      <div class="post-time" data-timestamp="2024-11-22T11:48:00">
-        Please Wait.....
-      </div>
+      <div class="post-time" data-timestamp="2024-11-22T11:48:00">Please Wait.....</div>
     </div>
     <div class="post-options">
       <i class="ri-more-fill"></i>
@@ -279,7 +307,7 @@ document.querySelectorAll(".submit-comment").forEach((btn) => {
   </div>
   <div class="post-actions">
     <div class="actions-left">
-      <i class="ri-heart-line like-btn" data-post-id="postID"></i>
+      <i class="ri-heart-line like-btn" data-post-id="post1"></i>
       <i class="ri-notification-line"></i>
       <i class="ri-share-line"></i>
     </div>
@@ -288,7 +316,7 @@ document.querySelectorAll(".submit-comment").forEach((btn) => {
     </div>
   </div>
   <div class="like-counter">
-    <span class="likes-count">0 likes</span>&nbsp;|&nbsp;<span class="comments-count">999k comments</span>
+    <span class="likes-count">0 likes</span>&nbsp;|&nbsp;<span class="comments-count">0 comments</span>
   </div>
   <div class="caption">
     <span class="username">User_Name</span> This is an example caption for the Instagram post.
@@ -297,17 +325,14 @@ document.querySelectorAll(".submit-comment").forEach((btn) => {
     <button class="toggle-comments" data-target="comments-container-1">
       <i class="ri-arrow-down-s-line"></i> View Comments
     </button>
-    <div class="comments-container" id="comments-container-1">
-      <div class="comment">
-        <span class="comment-username">Commenter1</span><br><span class="comment-sms">Awesome post!</span>
-      </div>
-    </div>
+    <div class="comments-container" id="comments-container-1"></div>
     <div class="comment-input-container">
       <input class="comment-input" placeholder="Write a comment...">
-      <button class="submit-comment" data-post-id="postID">Send</button>
+      <button class="submit-comment" data-post-id="post1">Send</button>
     </div>
   </div>
 </div>
+
 
     <div class=instagram-post>
 <div class=post-header>
