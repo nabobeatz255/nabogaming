@@ -23,7 +23,7 @@
     <link rel=stylesheet href=remixicon.min.css>
 <script defer type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import { getDatabase, ref, set, push, update, get, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
 const firebaseConfig = {
@@ -40,6 +40,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getDatabase();
 
+// Monitor user authentication
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     alert("You are not logged in. Redirecting...");
@@ -48,6 +49,21 @@ onAuthStateChanged(auth, (user) => {
   }
 
   const userId = user.uid;
+  const fullName = user.displayName;
+  const firstName = fullName ? fullName.split(" ")[0] : "";
+  const email = user.email;
+  const profilePicture = user.photoURL;
+
+  // Profile data display
+  document.querySelectorAll(".user-name").forEach((element) => {
+    element.textContent = firstName;
+  });
+  document.querySelectorAll(".user-email").forEach((element) => {
+    element.textContent = email;
+  });
+  document.querySelectorAll(".profile-picture").forEach((element) => {
+    element.src = profilePicture || "default-profile.png";
+  });
 
   // Handle Likes
   document.querySelectorAll("[id^='like-icon-']").forEach((likeButton) => {
@@ -127,12 +143,68 @@ onAuthStateChanged(auth, (user) => {
     const postId = shareButton.closest(".instagram-post").dataset.postId;
 
     shareButton.addEventListener("click", () => {
-      const postUrl = `${window.location.origin}/post.html?postId=${postId}`;
+      const postUrl = `${window.location.origin}/dashboard.html?postId=${postId}`;
       navigator.clipboard.writeText(postUrl).then(() => {
         alert("Post link copied to clipboard!");
       });
     });
   });
+
+  // Profile Update Functionality
+  const updateProfileData = async () => {
+    const user = auth.currentUser;
+    const usernameInput = document.querySelector("#username-input").value;
+    const profilePicInput = document.querySelector("#profile-pic-input").files[0];
+    const progressBar = document.querySelector("#upload-progress");
+    const progressBarContainer = document.querySelector("#upload-progress-bar");
+
+    if (!user) {
+      alert("No user is signed in.");
+      return;
+    }
+
+    try {
+      // Update username if provided
+      if (usernameInput) {
+        await updateProfile(user, { displayName: usernameInput });
+        console.log("Username updated successfully!");
+      }
+
+      // Update profile picture if a file is selected
+      if (profilePicInput) {
+        if (profilePicInput.size > 1.5 * 1024 * 1024) {
+          alert("File size must be less than 1.5MB.");
+          return;
+        }
+
+        const storageRef = ref(storage, `profile_pictures/${user.uid}`);
+        const uploadTask = uploadBytes(storageRef, profilePicInput);
+
+        progressBarContainer.style.display = "block";
+
+        // Monitor upload progress
+        uploadTask.then((snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          progressBar.style.width = `${progress}%`;
+        });
+
+        const downloadURL = await getDownloadURL((await uploadTask).ref);
+        await updateProfile(user, { photoURL: downloadURL });
+        console.log("Profile picture updated successfully!");
+      }
+
+      alert("Profile updated successfully!");
+      location.reload();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile.");
+    } finally {
+      progressBarContainer.style.display = "none";
+    }
+  };
+
+  document.querySelector("#update-profile-btn").addEventListener("click", updateProfileData);
+
 });
 </script>
 </head>
