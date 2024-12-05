@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang=en>
   <head>
@@ -293,7 +294,7 @@
 
  </head>
   <body>
-    <div class=dashboard>
+    <div class=dashboard  id="app">
     <nav class="sidebar desktop-sidebar">
 <h2>Dashboard</h2>
 <ul>
@@ -362,7 +363,7 @@
     <section class=carousel>
 <div class=carousel-slide>
   <img src=1.png alt="Featured Game 1">
-  <h3>Nabogaming Tumerudi Kivingine..!</h3>
+  <h3>Nabogaming Kivingine..!</h3>
   <p>Mechi Zaidi, Ushindani Na Wachezaji Kibao</p>
 </div>
 <div class=carousel-slide>
@@ -382,17 +383,9 @@
 </div>
     </section>
   </div>
-   <div id="app">
-    <!-- New Post Form -->
-    <div class="new-post-form">
-      <h3>Create a New Post</h3>
-      <textarea id="new-post-caption" placeholder="Write your caption..."></textarea>
-      <input type="file" id="new-post-image" accept="image/*">
-    <button id="create-post-button">Post</button>
 
-    </div>
   <div class=post-grid id="posts-container"></div>
-</div>
+
   <section class=tabs>
     <div class=tab-header>
 <button onclick='showTab("trending")'>Trending</button>
@@ -1018,6 +1011,7 @@ Please Wait.....
     <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
     <h1>Profile (<span class="user-name"> No data </span>)</h1>
   </header>
+
   <div class="profile-container">
     <!-- Top Card: Profile Overview -->
     <div class="profile-overview">
@@ -1036,16 +1030,13 @@ Please Wait.....
   <h2>Badilisha Details Zako</h2>
    <div class="form-group">
     <label for="name">Weka UserName Mpya</label>
-    <input type="text" id="username-input" placeholder="Enter new username">
+    <input type="text" id="new-post-caption" placeholder="Enter new username">
     </div>
      <div class="form-group">
      <label for="name">Chagua profile mpya (size less than 1Mb)</label>
-    <input type="file" id="profile-pic-input" accept="image/*">
+    <input type="file"  id="new-post-image" accept="image/*">
     </div>
-    <div class="progress-bar" id="upload-progress-bar">
-<span id="upload-progress"></span>
-    </div>
-  <button class="save-btn" id="update-profile-btn">Save Changes</button>
+  <button class="save-btn" id="create-post-button">Save Changes</button>
 </div>
     </section>
   </div>
