@@ -21,163 +21,163 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
-  <script defer type="module">
-// Firebase Initialization
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+<script defer type="module">
+  // Firebase Initialization
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-// Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-  authDomain: "register-71bde.firebaseapp.com",
-  databaseURL: "https://register-71bde.firebaseio.com",
-  projectId: "register-71bde",
-  storageBucket: "register-71bde.appspot.com",
-  messagingSenderId: "412548441298",
-  appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-};
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+    authDomain: "register-71bde.firebaseapp.com",
+    databaseURL: "https://register-71bde.firebaseio.com",
+    projectId: "register-71bde",
+    storageBucket: "register-71bde.appspot.com",
+    messagingSenderId: "412548441298",
+    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+  };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const database = getDatabase();
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const database = getDatabase();
 
-// User Authentication State
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log('User signed in:', user.displayName);
-  } else {
-    console.log('User not signed in');
-  }
-});
-
-// Handle Like on Post
-const likePost = async (postId) => {
-  const user = auth.currentUser;
-  if (!user) {
-    alert("You need to be signed in to like a post.");
-    return;
-  }
-
-  const userId = user.uid;
-  const postRef = ref(database, `posts/${postId}/likes/${userId}`);
-  const likesCountRef = ref(database, `posts/${postId}/likesCount`);
-
-  // Check if the user already liked the post
-  const snapshot = await get(postRef);
-  if (snapshot.exists()) {
-    alert("You already liked this post.");
-    return;
-  }
-
-  // Like the post
-  await set(postRef, true);
-  const likesSnapshot = await get(likesCountRef);
-  const likesCount = likesSnapshot.val() || 0;
-  await update(likesCountRef, { likesCount: likesCount + 1 });
-
-  // Update UI
-  updatePostCounters(postId);
-};
-
-// Handle Comment on Post
-const commentOnPost = async (postId) => {
-  const user = auth.currentUser;
-  if (!user) {
-    alert("You need to be signed in to comment.");
-    return;
-  }
-
-  const commentText = document.querySelector(`#${postId} .comment-input`).value;
-  if (!commentText.trim()) {
-    alert("Please enter a comment.");
-    return;
-  }
-
-  const commentsRef = ref(database, `posts/${postId}/comments`);
-  const commentId = push(commentsRef).key;  // Get a new ID for the comment
-
-  await set(ref(database, `posts/${postId}/comments/${commentId}`), {
-    userID: user.uid,
-    text: commentText,
-    timestamp: new Date().toISOString(),
+  // User Authentication State
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log('User signed in:', user.displayName);
+    } else {
+      console.log('User not signed in');
+    }
   });
 
-  // Update the comment count
-  const commentsCountRef = ref(database, `posts/${postId}/commentsCount`);
-  const commentsSnapshot = await get(commentsCountRef);
-  const commentsCount = commentsSnapshot.val() || 0;
-  await update(commentsCountRef, { commentsCount: commentsCount + 1 });
+  // Handle Like on Post
+  const likePost = async (postId) => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You need to be signed in to like a post.");
+      return;
+    }
 
-  // Clear input field
-  document.querySelector(`#${postId} .comment-input`).value = "";
+    const userId = user.uid;
+    const postRef = ref(database, `posts/${postId}/likes/${userId}`);
+    const likesCountRef = ref(database, `posts/${postId}/likesCount`);
 
-  // Update UI
-  updatePostCounters(postId);
-};
+    // Check if the user already liked the post
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      alert("You already liked this post.");
+      return;
+    }
 
-// Update Like and Comment Counters in UI
-const updatePostCounters = async (postId) => {
-  const likesCountRef = ref(database, `posts/${postId}/likesCount`);
-  const commentsCountRef = ref(database, `posts/${postId}/commentsCount`);
+    // Like the post
+    await set(postRef, true);
+    const likesSnapshot = await get(likesCountRef);
+    const likesCount = likesSnapshot.val() || 0;
+    await update(likesCountRef, { likesCount: likesCount + 1 });
 
-  const likesSnapshot = await get(likesCountRef);
-  const commentsSnapshot = await get(commentsCountRef);
+    // Update UI
+    updatePostCounters(postId);
+  };
 
-  document.querySelector(`#${postId} .likes-count`).textContent = `${likesSnapshot.val() || 0} likes`;
-  document.querySelector(`#${postId} .comments-count`).textContent = `${commentsSnapshot.val() || 0} comments`;
+  // Handle Comment on Post
+  const commentOnPost = async (postId) => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You need to be signed in to comment.");
+      return;
+    }
 
-  // Fetch and display comments
-  const commentsRef = ref(database, `posts/${postId}/comments`);
-  const commentsSnapshotData = await get(commentsRef);
-  const commentsContainer = document.querySelector(`#${postId} .comments-container`);
-  commentsContainer.innerHTML = ""; // Clear previous comments
-  commentsSnapshotData.forEach((childSnapshot) => {
-    const comment = childSnapshot.val();
-    const commentDiv = document.createElement('div');
-    commentDiv.className = 'comment';
-    commentDiv.innerHTML = `<span class="comment-username">${comment.userID}</span><br><span class="comment-sms">${comment.text}</span>`;
-    commentsContainer.appendChild(commentDiv);
-  });
-};
+    const commentText = document.querySelector(`#${postId} .comment-input`).value;
+    if (!commentText.trim()) {
+      alert("Please enter a comment.");
+      return;
+    }
 
-// Event Listeners for Like and Comment Buttons
-document.querySelectorAll('.like-btn').forEach((btn) => {
-  btn.addEventListener('click', (e) => {
-    const postId = e.target.getAttribute('data-post-id');
-    likePost(postId); // Like post function
-  });
-});
+    const commentsRef = ref(database, `posts/${postId}/comments`);
+    const commentId = push(commentsRef).key;  // Get a new ID for the comment
 
-document.querySelectorAll('.submit-comment').forEach((btn) => {
-  btn.addEventListener('click', (e) => {
-    const postId = e.target.getAttribute('data-post-id');
-    commentOnPost(postId); // Comment post function
-  });
-});
-
-// Monitor Authentication State and Update UI
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    const firstName = user.displayName ? user.displayName.split(" ")[0] : "";
-    const email = user.email;
-    const profilePicture = user.photoURL;
-
-    document.querySelectorAll(".user-name").forEach((element) => {
-      element.textContent = firstName;
+    await set(ref(database, `posts/${postId}/comments/${commentId}`), {
+      userID: user.uid,
+      text: commentText,
+      timestamp: new Date().toISOString(),
     });
-    document.querySelectorAll(".user-email").forEach((element) => {
-      element.textContent = email;
+
+    // Update the comment count
+    const commentsCountRef = ref(database, `posts/${postId}/commentsCount`);
+    const commentsSnapshot = await get(commentsCountRef);
+    const commentsCount = commentsSnapshot.val() || 0;
+    await update(commentsCountRef, { commentsCount: commentsCount + 1 });
+
+    // Clear input field
+    document.querySelector(`#${postId} .comment-input`).value = "";
+
+    // Update UI
+    updatePostCounters(postId);
+  };
+
+  // Update Like and Comment Counters in UI
+  const updatePostCounters = async (postId) => {
+    const likesCountRef = ref(database, `posts/${postId}/likesCount`);
+    const commentsCountRef = ref(database, `posts/${postId}/commentsCount`);
+
+    const likesSnapshot = await get(likesCountRef);
+    const commentsSnapshot = await get(commentsCountRef);
+
+    document.querySelector(`#${postId} .likes-count`).textContent = `${likesSnapshot.val() || 0} likes`;
+    document.querySelector(`#${postId} .comments-count`).textContent = `${commentsSnapshot.val() || 0} comments`;
+
+    // Fetch and display comments
+    const commentsRef = ref(database, `posts/${postId}/comments`);
+    const commentsSnapshotData = await get(commentsRef);
+    const commentsContainer = document.querySelector(`#${postId} .comments-container`);
+    commentsContainer.innerHTML = ""; // Clear previous comments
+    commentsSnapshotData.forEach((childSnapshot) => {
+      const comment = childSnapshot.val();
+      const commentDiv = document.createElement('div');
+      commentDiv.className = 'comment';
+      commentDiv.innerHTML = `<span class="comment-username">${comment.userID}</span><br><span class="comment-sms">${comment.text}</span>`;
+      commentsContainer.appendChild(commentDiv);
     });
-    document.querySelectorAll(".profile-picture").forEach((element) => {
-      element.src = profilePicture || "logo.png";
+  };
+
+  // Event Listeners for Like and Comment Buttons
+  document.querySelectorAll('.like-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const postId = e.target.getAttribute('data-post-id');
+      likePost(postId); // Like post function
     });
-  } else {
-    alert("You are not signed in. Redirecting to login...");
-    window.location.href = "index.html";
-  }
-});
+  });
+
+  document.querySelectorAll('.submit-comment').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const postId = e.target.getAttribute('data-post-id');
+      commentOnPost(postId); // Comment post function
+    });
+  });
+
+  // Monitor Authentication State and Update UI
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const firstName = user.displayName ? user.displayName.split(" ")[0] : "";
+      const email = user.email;
+      const profilePicture = user.photoURL;
+
+      document.querySelectorAll(".user-name").forEach((element) => {
+        element.textContent = firstName;
+      });
+      document.querySelectorAll(".user-email").forEach((element) => {
+        element.textContent = email;
+      });
+      document.querySelectorAll(".profile-picture").forEach((element) => {
+        element.src = profilePicture || "logo.png";
+      });
+    } else {
+      alert("You are not signed in. Redirecting to login...");
+      window.location.href = "index.html";
+    }
+  });
 </script>
 
  </head>
@@ -271,11 +271,12 @@ onAuthStateChanged(auth, (user) => {
 </div>
     </section>
   </div>
+  
   <div class=post-grid>
 <div class="instagram-post" id="post-1">
   <div class="post-header">
     <div class="profile-picture">
-      <img src="logo.png" alt="User profile picture">
+      <img src="logo.png" alt="User profile picture" class="profile-picture">
     </div>
     <div class="profile-details">
       <div class="profile-name">
@@ -321,7 +322,7 @@ onAuthStateChanged(auth, (user) => {
   </div>
 
   <div class="like-counter">
-    <span class="likes-count">0 likes</span>&nbsp;|&nbsp;<span class="comments-count">999k comments</span>
+    <span class="likes-count">0 likes</span>&nbsp;|&nbsp;<span class="comments-count">0 comments</span>
   </div>
 
   <div class="caption">
@@ -333,10 +334,7 @@ onAuthStateChanged(auth, (user) => {
       <i class="ri-arrow-down-s-line"></i> View Comments
     </button>
     <div class="comments-container" id="comments-container-1">
-      <div class="comment">
-        <span class="comment-username">Commenter1</span><br>
-        <span class="comment-sms">Awesome post!</span>
-      </div>
+      <!-- Comments will be dynamically populated here -->
     </div>
 
     <div class="comment-input-container">
