@@ -22,12 +22,10 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <script defer type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getDatabase, ref, set, push, update, get, child } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getDatabase, ref, set, push, update, get, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
   authDomain: "register-71bde.firebaseapp.com",
@@ -41,7 +39,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getDatabase();
-const storage = getStorage();
 
 onAuthStateChanged(auth, (user) => {
   if (!user) {
@@ -52,73 +49,35 @@ onAuthStateChanged(auth, (user) => {
 
   const userId = user.uid;
 
-  // Populate User Information
-  const fullName = user.displayName;
-  const email = user.email;
-  const profilePicture = user.photoURL;
-
-  document.querySelectorAll(".user-name").forEach((element) => {
-    element.textContent = fullName?.split(" ")[0] || "User";
-  });
-  document.querySelectorAll(".user-email").forEach((element) => {
-    element.textContent = email;
-  });
-  document.querySelectorAll(".profile-picture img").forEach((element) => {
-    element.src = profilePicture || "default-profile.png";
-  });
-
-  // Handle Profile Update
-  document.querySelector("#update-profile-btn")?.addEventListener("click", async () => {
-    const usernameInput = document.querySelector("#username-input").value;
-    const profilePicInput = document.querySelector("#profile-pic-input").files[0];
-    const progressBar = document.querySelector("#upload-progress");
-    const progressBarContainer = document.querySelector("#upload-progress-bar");
-
-    try {
-      if (usernameInput) {
-        await updateProfile(user, { displayName: usernameInput });
-        console.log("Username updated!");
-      }
-
-      if (profilePicInput) {
-        if (profilePicInput.size > 1.5 * 1024 * 1024) {
-          alert("File size must be less than 1.5MB.");
-          return;
-        }
-
-        const uploadRef = storageRef(storage, `profile_pictures/${userId}`);
-        const uploadTask = await uploadBytes(uploadRef, profilePicInput);
-        const downloadURL = await getDownloadURL(uploadTask.ref);
-
-        await updateProfile(user, { photoURL: downloadURL });
-        console.log("Profile picture updated!");
-      }
-
-      alert("Profile updated successfully!");
-      location.reload();
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Profile update failed.");
-    }
-  });
-
   // Handle Likes
   document.querySelectorAll("[id^='like-icon-']").forEach((likeButton) => {
     const postId = likeButton.closest(".instagram-post").dataset.postId;
 
     likeButton.addEventListener("click", async () => {
       const likesRef = ref(db, `posts/${postId}/likes/${userId}`);
+      const postLikesRef = ref(db, `posts/${postId}/likeCount`);
+
       const currentLike = (await get(likesRef)).val();
 
       if (currentLike) {
+        // Unlike
         set(likesRef, null);
+        update(postLikesRef, { value: (await get(postLikesRef)).val() - 1 });
         likeButton.classList.remove("ri-heart-fill");
         likeButton.classList.add("ri-heart-line");
       } else {
+        // Like
         set(likesRef, true);
+        update(postLikesRef, { value: (await get(postLikesRef)).val() + 1 });
         likeButton.classList.remove("ri-heart-line");
         likeButton.classList.add("ri-heart-fill");
       }
+    });
+
+    // Real-time Like Count Update
+    onValue(ref(db, `posts/${postId}/likeCount`), (snapshot) => {
+      const likeCount = snapshot.val();
+      document.querySelector(`#like-counter-${postId}`).textContent = `${likeCount || 0} likes`;
     });
   });
 
@@ -127,28 +86,43 @@ onAuthStateChanged(auth, (user) => {
     const postId = submitButton.closest(".instagram-post").dataset.postId;
     const commentInput = document.querySelector(`#comment-input-${postId.split("-")[1]}`);
     const commentsContainer = document.querySelector(`#comments-container-${postId.split("-")[1]}`);
+    const postCommentsRef = ref(db, `posts/${postId}/comments`);
 
     submitButton.addEventListener("click", () => {
       const commentText = commentInput.value.trim();
       if (!commentText) return alert("Comment cannot be empty.");
 
-      const newCommentRef = push(ref(db, `posts/${postId}/comments`));
+      const newCommentRef = push(postCommentsRef);
       set(newCommentRef, {
         userId,
         text: commentText,
         timestamp: Date.now(),
       }).then(() => {
-        const newCommentDiv = document.createElement("div");
-        newCommentDiv.classList.add("comment");
-        newCommentDiv.innerHTML = `<span class="comment-username">${user.displayName || "User"}</span><br>
-                                   <span class="comment-sms">${commentText}</span>`;
-        commentsContainer.appendChild(newCommentDiv);
         commentInput.value = "";
       });
     });
+
+    // Real-time Comment Updates
+    onValue(postCommentsRef, (snapshot) => {
+      commentsContainer.innerHTML = ""; // Clear existing comments
+      let commentCount = 0;
+
+      snapshot.forEach((comment) => {
+        commentCount++;
+        const { text, userId: commentUserId } = comment.val();
+        const commentDiv = document.createElement("div");
+        commentDiv.classList.add("comment");
+        commentDiv.innerHTML = `<span class="comment-username">${commentUserId}</span><br>
+                                 <span class="comment-sms">${text}</span>`;
+        commentsContainer.appendChild(commentDiv);
+      });
+
+      // Update Comment Count
+      document.querySelector(`#comment-counter-${postId}`).textContent = `${commentCount} comments`;
+    });
   });
 
-  // Handle Share
+  // Handle Share (Copy URL to Clipboard)
   document.querySelectorAll("[id^='share-icon-']").forEach((shareButton) => {
     const postId = shareButton.closest(".instagram-post").dataset.postId;
 
@@ -254,72 +228,79 @@ onAuthStateChanged(auth, (user) => {
   </div>
   <div class=post-grid>
      <!-- Example Post Card -->
-    <div id="post-card-1" class="instagram-post" data-post-id="post1">
-      <!-- Header -->
-      <div id="post-header-1" class="post-header">
-        <div id="profile-picture-1" class="profile-picture">
-          <img src="logo.png" alt="User profile picture" style="width: 50px; height: 50px; border-radius: 50%;">
-        </div>
-        <div id="profile-details-1" class="profile-details">
-          <div id="profile-name-1" class="profile-name">
-            Nabobeatz
-            <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-          </div>
-          <div id="post-time-1" class="post-time" data-timestamp="2024-11-22T11:48:00">
-            1d ago
-          </div>
-        </div>
-        <div id="post-options-1" class="post-options">
-          <i class="ri-more-fill"></i>
-        </div>
+<div id="post-card-1" class="instagram-post" data-post-id="post1">
+  <!-- Header -->
+  <div id="post-header-1" class="post-header">
+    <div id="profile-picture-1" class="profile-picture">
+      <img src="logo.png" alt="User profile picture" style="width: 50px; height: 50px; border-radius: 50%;">
+    </div>
+    <div id="profile-details-1" class="profile-details">
+      <div id="profile-name-1" class="profile-name">
+        Nabobeatz
+        <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
       </div>
-
-      <!-- Post Content -->
-      <div id="post-image-1" class="post-image">
-        <img src="post1.png" alt="Post content" style="width: 100%;">
-        <div id="post-badges-1" class="post-badges">
-          <span class="badge new">New</span>
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div id="post-actions-1" class="post-actions">
-        <div id="actions-left-1" class="actions-left">
-          <i id="like-icon-1" class="ri-heart-line"></i>
-          <i id="notification-icon-1" class="ri-notification-line"></i>
-          <i id="share-icon-1" class="ri-share-line"></i>
-        </div>
-        <div id="actions-right-1" class="actions-right">
-          <i id="bookmark-icon-1" class="ri-bookmark-line"></i>
-        </div>
-      </div>
-
-      <!-- Like Counter -->
-      <div id="like-counter-1" class="like-counter">
-        <span>0 likes</span>&nbsp;|&nbsp;<span>999k comments</span>
-      </div>
-
-      <!-- Caption -->
-      <div id="caption-1" class="caption">
-        <span class="username">User_Name</span> This is an example caption for the Instagram post.
-      </div>
-
-      <!-- Comments -->
-      <div id="post-comments-1" class="post-comments">
-        <button id="toggle-comments-1" class="toggle-comments" data-target="comments-container-post1">
-          <i class="ri-arrow-down-s-line"></i> View Comments
-        </button>
-        <div id="comments-container-1" class="comments-container">
-          <div id="comment-1-1" class="comment">
-            <span class="comment-username">Commenter1</span><br><span class="comment-sms">Awesome post!</span>
-          </div>
-        </div>
-        <div id="comment-input-container-1" class="comment-input-container">
-          <input id="comment-input-1" class="comment-input" placeholder="Write a comment...">
-          <button id="submit-comment-1" class="submit-comment">Send</button>
-        </div>
+      <div id="post-time-1" class="post-time" data-timestamp="2024-11-22T11:48:00">
+        1d ago
       </div>
     </div>
+    <div id="post-options-1" class="post-options">
+      <i class="ri-more-fill"></i>
+    </div>
+  </div>
+
+  <!-- Post Content -->
+  <div id="post-image-1" class="post-image">
+    <img src="post1.png" alt="Post content" style="width: 100%;">
+    <div id="post-badges-1" class="post-badges">
+      <span class="badge new">New</span>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div id="post-actions-1" class="post-actions">
+    <div id="actions-left-1" class="actions-left">
+      <!-- Like Button -->
+      <i id="like-icon-post1" class="ri-heart-line"></i>
+      <!-- Share Button -->
+      <i id="share-icon-post1" class="ri-share-line"></i>
+    </div>
+    <div id="actions-right-1" class="actions-right">
+      <!-- Bookmark Button -->
+      <i id="bookmark-icon-post1" class="ri-bookmark-line"></i>
+    </div>
+  </div>
+
+  <!-- Like and Comment Counter -->
+  <div id="like-counter-post1" class="like-counter">
+    <span>0 likes</span>&nbsp;|&nbsp;<span id="comment-counter-post1">0 comments</span>
+  </div>
+
+  <!-- Caption -->
+  <div id="caption-post1" class="caption">
+    <span class="username">User_Name</span> This is an example caption for the Instagram post.
+  </div>
+
+  <!-- Comments Section -->
+  <div id="post-comments-post1" class="post-comments">
+    <!-- Toggle Comments Button -->
+    <button id="toggle-comments-post1" class="toggle-comments" data-target="comments-container-post1">
+      <i class="ri-arrow-down-s-line"></i> View Comments
+    </button>
+    <!-- Comments Container -->
+    <div id="comments-container-post1" class="comments-container">
+      <!-- Example Comment -->
+      <div id="comment-1-post1" class="comment">
+        <span class="comment-username">Commenter1</span><br>
+        <span class="comment-sms">Awesome post!</span>
+      </div>
+    </div>
+    <!-- Comment Input -->
+    <div id="comment-input-container-post1" class="comment-input-container">
+      <input id="comment-input-post1" class="comment-input" placeholder="Write a comment...">
+      <button id="submit-comment-post1" class="submit-comment">Send Now</button>
+    </div>
+  </div>
+</div>
     <div class=instagram-post>
 <div class=post-header>
   <div class=profile-picture>
