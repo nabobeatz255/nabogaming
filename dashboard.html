@@ -21,11 +21,11 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
-    <script defer type="module">
+  <script defer type="module">
 // Firebase Initialization
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getDatabase, ref, set, get, child, update, push, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -130,10 +130,10 @@ const updatePostCounters = async (postId) => {
 
   // Fetch and display comments
   const commentsRef = ref(database, `posts/${postId}/comments`);
-  const commentsSnapshot = await get(commentsRef);
+  const commentsSnapshotData = await get(commentsRef);
   const commentsContainer = document.querySelector(`#${postId} .comments-container`);
   commentsContainer.innerHTML = ""; // Clear previous comments
-  commentsSnapshot.forEach((childSnapshot) => {
+  commentsSnapshotData.forEach((childSnapshot) => {
     const comment = childSnapshot.val();
     const commentDiv = document.createElement('div');
     commentDiv.className = 'comment';
@@ -146,14 +146,14 @@ const updatePostCounters = async (postId) => {
 document.querySelectorAll('.like-btn').forEach((btn) => {
   btn.addEventListener('click', (e) => {
     const postId = e.target.getAttribute('data-post-id');
-    likePost(postId);
+    likePost(postId); // Like post function
   });
 });
 
 document.querySelectorAll('.submit-comment').forEach((btn) => {
   btn.addEventListener('click', (e) => {
     const postId = e.target.getAttribute('data-post-id');
-    commentOnPost(postId);
+    commentOnPost(postId); // Comment post function
   });
 });
 
@@ -171,7 +171,7 @@ onAuthStateChanged(auth, (user) => {
       element.textContent = email;
     });
     document.querySelectorAll(".profile-picture").forEach((element) => {
-      element.src = profilePicture || "default-profile.png";
+      element.src = profilePicture || "logo.png";
     });
   } else {
     alert("You are not signed in. Redirecting to login...");
@@ -179,6 +179,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 </script>
+
  </head>
   <body>
     <div class=dashboard>
@@ -271,8 +272,7 @@ onAuthStateChanged(auth, (user) => {
     </section>
   </div>
   <div class=post-grid>
-
-  <div class="instagram-post" id="post1">
+<div class="instagram-post" id="post-1">
   <div class="post-header">
     <div class="profile-picture">
       <img src="logo.png" alt="User profile picture">
@@ -282,7 +282,9 @@ onAuthStateChanged(auth, (user) => {
         Nabobeatz
         <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
       </div>
-      <div class="post-time" data-timestamp="2024-11-22T11:48:00">Please Wait.....</div>
+      <div class="post-time" data-timestamp="2024-11-22T11:48:00">
+        Please Wait.....
+      </div>
     </div>
     <div class="post-options">
       <i class="ri-more-fill"></i>
@@ -296,6 +298,7 @@ onAuthStateChanged(auth, (user) => {
       </div>
     </div>
   </div>
+
   <div class="post-image">
     <img src="post1.png" alt="Post content">
     <div class="post-badges">
@@ -305,9 +308,10 @@ onAuthStateChanged(auth, (user) => {
       01d 12hrs 02min 43sec
     </div>
   </div>
+
   <div class="post-actions">
     <div class="actions-left">
-      <i class="ri-heart-line like-btn" data-post-id="post1"></i>
+      <i class="ri-heart-line like-btn" data-post-id="post-1"></i>
       <i class="ri-notification-line"></i>
       <i class="ri-share-line"></i>
     </div>
@@ -315,24 +319,32 @@ onAuthStateChanged(auth, (user) => {
       <i class="ri-bookmark-line"></i>
     </div>
   </div>
+
   <div class="like-counter">
-    <span class="likes-count">0 likes</span>&nbsp;|&nbsp;<span class="comments-count">0 comments</span>
+    <span class="likes-count">0 likes</span>&nbsp;|&nbsp;<span class="comments-count">999k comments</span>
   </div>
+
   <div class="caption">
     <span class="username">User_Name</span> This is an example caption for the Instagram post.
   </div>
+
   <div class="post-comments">
     <button class="toggle-comments" data-target="comments-container-1">
       <i class="ri-arrow-down-s-line"></i> View Comments
     </button>
-    <div class="comments-container" id="comments-container-1"></div>
+    <div class="comments-container" id="comments-container-1">
+      <div class="comment">
+        <span class="comment-username">Commenter1</span><br>
+        <span class="comment-sms">Awesome post!</span>
+      </div>
+    </div>
+
     <div class="comment-input-container">
       <input class="comment-input" placeholder="Write a comment...">
-      <button class="submit-comment" data-post-id="post1">Send</button>
+      <button class="submit-comment" data-post-id="post-1">Send</button>
     </div>
   </div>
 </div>
-
 
     <div class=instagram-post>
 <div class=post-header>
