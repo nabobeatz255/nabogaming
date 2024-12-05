@@ -22,12 +22,10 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <script defer type="module">
-  // Firebase Initialization
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, set, get, child, update, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getDatabase, ref, set, get, child, update, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-  // Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
     authDomain: "register-71bde.firebaseapp.com",
@@ -43,7 +41,7 @@
   const auth = getAuth();
   const database = getDatabase();
 
-  // User Authentication State
+  // Listen for authentication state change
   onAuthStateChanged(auth, (user) => {
     if (user) {
       console.log('User signed in:', user.displayName);
@@ -52,7 +50,43 @@
     }
   });
 
-  // Handle Like on Post
+  // Fetch post data from Firebase
+  const fetchPostData = async (postId) => {
+    const postRef = ref(database, `posts/${postId}`);
+    const postSnapshot = await get(postRef);
+    if (postSnapshot.exists()) {
+      const post = postSnapshot.val();
+      updatePostUI(postId, post);
+    } else {
+      console.log("Post not found!");
+    }
+  };
+
+  // Update UI with post data
+  const updatePostUI = (postId, post) => {
+    const postElement = document.getElementById(postId);
+
+    // Update likes count
+    const likesCountElement = postElement.querySelector(".likes-count");
+    likesCountElement.textContent = `${post.likesCount || 0} likes`;
+
+    // Update comments count
+    const commentsCountElement = postElement.querySelector(".comments-count");
+    commentsCountElement.textContent = `${post.commentsCount || 0} comments`;
+
+    // Update comments section
+    const commentsContainer = postElement.querySelector(".comments-container");
+    commentsContainer.innerHTML = ""; // Clear existing comments
+    for (const commentId in post.comments) {
+      const comment = post.comments[commentId];
+      const commentDiv = document.createElement("div");
+      commentDiv.className = "comment";
+      commentDiv.innerHTML = `<span class="comment-username">${comment.userID}</span><br><span class="comment-sms">${comment.text}</span>`;
+      commentsContainer.appendChild(commentDiv);
+    }
+  };
+
+  // Like post functionality
   const likePost = async (postId) => {
     const user = auth.currentUser;
     if (!user) {
@@ -71,17 +105,17 @@
       return;
     }
 
-    // Like the post
+    // Add like to post
     await set(postRef, true);
     const likesSnapshot = await get(likesCountRef);
     const likesCount = likesSnapshot.val() || 0;
     await update(likesCountRef, { likesCount: likesCount + 1 });
 
-    // Update UI
-    updatePostCounters(postId);
+    // Refresh the post UI
+    fetchPostData(postId);
   };
 
-  // Handle Comment on Post
+  // Comment on post functionality
   const commentOnPost = async (postId) => {
     const user = auth.currentUser;
     if (!user) {
@@ -95,16 +129,18 @@
       return;
     }
 
-    const commentsRef = ref(database, `posts/${postId}/comments`);
-    const commentId = push(commentsRef).key;  // Get a new ID for the comment
-
-    await set(ref(database, `posts/${postId}/comments/${commentId}`), {
+    const commentRef = ref(database, `posts/${postId}/comments`);
+    const newCommentId = push(commentRef).key;
+    const newComment = {
       userID: user.uid,
       text: commentText,
       timestamp: new Date().toISOString(),
-    });
+    };
 
-    // Update the comment count
+    // Push new comment to Firebase
+    await set(ref(database, `posts/${postId}/comments/${newCommentId}`), newComment);
+
+    // Update comments count
     const commentsCountRef = ref(database, `posts/${postId}/commentsCount`);
     const commentsSnapshot = await get(commentsCountRef);
     const commentsCount = commentsSnapshot.val() || 0;
@@ -113,71 +149,27 @@
     // Clear input field
     document.querySelector(`#${postId} .comment-input`).value = "";
 
-    // Update UI
-    updatePostCounters(postId);
+    // Refresh the post UI
+    fetchPostData(postId);
   };
 
-  // Update Like and Comment Counters in UI
-  const updatePostCounters = async (postId) => {
-    const likesCountRef = ref(database, `posts/${postId}/likesCount`);
-    const commentsCountRef = ref(database, `posts/${postId}/commentsCount`);
-
-    const likesSnapshot = await get(likesCountRef);
-    const commentsSnapshot = await get(commentsCountRef);
-
-    document.querySelector(`#${postId} .likes-count`).textContent = `${likesSnapshot.val() || 0} likes`;
-    document.querySelector(`#${postId} .comments-count`).textContent = `${commentsSnapshot.val() || 0} comments`;
-
-    // Fetch and display comments
-    const commentsRef = ref(database, `posts/${postId}/comments`);
-    const commentsSnapshotData = await get(commentsRef);
-    const commentsContainer = document.querySelector(`#${postId} .comments-container`);
-    commentsContainer.innerHTML = ""; // Clear previous comments
-    commentsSnapshotData.forEach((childSnapshot) => {
-      const comment = childSnapshot.val();
-      const commentDiv = document.createElement('div');
-      commentDiv.className = 'comment';
-      commentDiv.innerHTML = `<span class="comment-username">${comment.userID}</span><br><span class="comment-sms">${comment.text}</span>`;
-      commentsContainer.appendChild(commentDiv);
-    });
-  };
-
-  // Event Listeners for Like and Comment Buttons
+  // Event listeners for Like and Comment Buttons
   document.querySelectorAll('.like-btn').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const postId = e.target.getAttribute('data-post-id');
-      likePost(postId); // Like post function
+      likePost(postId);
     });
   });
 
   document.querySelectorAll('.submit-comment').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const postId = e.target.getAttribute('data-post-id');
-      commentOnPost(postId); // Comment post function
+      commentOnPost(postId);
     });
   });
 
-  // Monitor Authentication State and Update UI
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const firstName = user.displayName ? user.displayName.split(" ")[0] : "";
-      const email = user.email;
-      const profilePicture = user.photoURL;
-
-      document.querySelectorAll(".user-name").forEach((element) => {
-        element.textContent = firstName;
-      });
-      document.querySelectorAll(".user-email").forEach((element) => {
-        element.textContent = email;
-      });
-      document.querySelectorAll(".profile-picture").forEach((element) => {
-        element.src = profilePicture || "logo.png";
-      });
-    } else {
-      alert("You are not signed in. Redirecting to login...");
-      window.location.href = "index.html";
-    }
-  });
+  // Example for initializing a post
+  fetchPostData('post-id-1');
 </script>
 
  </head>
@@ -273,7 +265,7 @@
   </div>
   
   <div class=post-grid>
-<div class="instagram-post" id="post-1">
+<div class="instagram-post" id="post-id-1">
   <div class="post-header">
     <div class="profile-picture">
       <img src="logo.png" alt="User profile picture" class="profile-picture">
@@ -283,19 +275,8 @@
         Nabobeatz
         <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
       </div>
-      <div class="post-time" data-timestamp="2024-11-22T11:48:00">
+      <div class="post-time">
         Please Wait.....
-      </div>
-    </div>
-    <div class="post-options">
-      <i class="ri-more-fill"></i>
-      <div class="options-menu">
-        <ul>
-          <li>Save Post</li>
-          <li>Report Nabobeatz Post</li>
-          <li>Share The Post</li>
-          <li>Message Nabobeatz</li>
-        </ul>
       </div>
     </div>
   </div>
@@ -305,19 +286,13 @@
     <div class="post-badges">
       <span class="badge new">New</span>
     </div>
-    <div class="bottom-left-icon">
-      01d 12hrs 02min 43sec
-    </div>
   </div>
 
   <div class="post-actions">
     <div class="actions-left">
-      <i class="ri-heart-line like-btn" data-post-id="post-1"></i>
+      <i class="ri-heart-line like-btn" data-post-id="post-id-1"></i>
       <i class="ri-notification-line"></i>
       <i class="ri-share-line"></i>
-    </div>
-    <div class="actions-right">
-      <i class="ri-bookmark-line"></i>
     </div>
   </div>
 
@@ -339,10 +314,11 @@
 
     <div class="comment-input-container">
       <input class="comment-input" placeholder="Write a comment...">
-      <button class="submit-comment" data-post-id="post-1">Send</button>
+      <button class="submit-comment" data-post-id="post-id-1">Send</button>
     </div>
   </div>
 </div>
+
 
     <div class=instagram-post>
 <div class=post-header>
