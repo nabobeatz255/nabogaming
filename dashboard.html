@@ -113,16 +113,12 @@
       </div>
       <div class="post-actions">
         <div class="actions-left">
-          <i class="ri-heart-line like-btn" data-id="${postId}"></i> <!-- Like button -->
           <i class="ri-notification-line"></i>
           <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
         </div>
         <div class="actions-right">
           <i class="ri-bookmark-line"></i>
         </div>
-      </div>
-      <div class="like-counter">
-        <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>&nbsp;|&nbsp;<span>999k comments</span>
       </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
@@ -165,30 +161,6 @@
     });
   };
 
-  // Like post functionality
-  const likePost = async (postId, postElement) => {
-    const user = auth.currentUser;
-    if (!user) return; // User must be logged in
-
-    const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-    const postLikesSnapshot = await postLikesRef.get();
-    const likeCountElement = postElement.querySelector(".like-count");
-
-    if (postLikesSnapshot.exists()) {
-      // Remove like
-      await set(postLikesRef, null); // Null removes the like
-    } else {
-      // Add like
-      await set(postLikesRef, true); // Set like to true
-    }
-
-    // Update like count locally
-    const updatedPostSnapshot = await ref(db, `posts/${postId}`).get();
-    const updatedPost = updatedPostSnapshot.val();
-    const updatedLikeCount = Object.keys(updatedPost.likes || {}).length;
-    likeCountElement.innerText = `${updatedLikeCount} likes`;
-  };
-
   // Render comments for a post
   const renderComments = (comments) => {
     if (!comments) return "";
@@ -224,7 +196,6 @@
       navigator.share({
         title: post.authorName + "'s Post",
         text: post.content,
-        url: post.imageUrl,
       })
       .then(() => console.log("Post shared successfully"))
       .catch((error) => console.error("Error sharing post", error));
