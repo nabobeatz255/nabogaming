@@ -82,13 +82,7 @@ const displayPost = (postId, post) => {
     <div class="post-image">
       <img src="${post.imageUrl}" alt="Post content">
     </div>
-    <div class="like-counter">
-      <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>&nbsp;|&nbsp;<span>999k comments</span>
-    </div>
-    <div class="caption">
-      <span class="username">${post.authorName}</span> ${post.content}
-    </div>
-    <div class="post-actions">
+     <div class="post-actions">
       <div class="actions-left">
         <i class="ri-heart-line like-btn" data-id="${postId}"></i>
         <i class="ri-notification-line"></i>
@@ -97,6 +91,12 @@ const displayPost = (postId, post) => {
       <div class="actions-right">
         <i class="ri-bookmark-line"></i>
       </div>
+    </div>
+    <div class="like-counter">
+      <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>&nbsp;|&nbsp;<span>999k comments</span>
+    </div>
+    <div class="caption">
+      <span class="username">${post.authorName}</span> ${post.content}
     </div>
     <div class="post-comments">
       <button class="toggle-comments" data-target="comments-container-${postId}">
