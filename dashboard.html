@@ -4,43 +4,56 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Instagram-Like Post</title>
-<style>
+  <style>
     body {
-  font-family: Arial, sans-serif;
-}
+      font-family: Arial, sans-serif;
+    }
 
-#app {
-  width: 600px;
-  margin: auto;
-}
+    #app {
+      width: 600px;
+      margin: auto;
+    }
 
-.post {
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin: 10px 0;
-}
+    .post {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin: 10px 0;
+    }
 
-.post img {
-  max-width: 100%;
-  height: auto;
-}
+    .post img {
+      max-width: 100%;
+      height: auto;
+    }
 
-button {
-  margin: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
 
-.comment-section {
-  margin-top: 10px;
-}
+    .post-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
 
-.comment {
-  margin: 5px 0;
-  padding-left: 10px;
-  border-left: 2px solid #ddd;
-}
-</style>
+    .comment-section {
+      margin-top: 10px;
+    }
+
+    .comment {
+      margin: 5px 0;
+      padding-left: 10px;
+      border-left: 2px solid #ddd;
+    }
+
+    button {
+      margin: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <div id="app">
@@ -53,95 +66,163 @@ button {
     <div id="posts-container"></div>
   </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getDatabase, ref, push, update, onValue, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-    authDomain: "register-71bde.firebaseapp.com",
-    projectId: "register-71bde",
-    storageBucket: "register-71bde.appspot.com",
-    messagingSenderId: "412548441298",
-    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+      authDomain: "register-71bde.firebaseapp.com",
+      projectId: "register-71bde",
+      storageBucket: "register-71bde.appspot.com",
+      messagingSenderId: "412548441298",
+      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getDatabase(app);
+    const storage = getStorage(app);
 
-  const postsContainer = document.getElementById("posts-container");
+    const postsContainer = document.getElementById("posts-container");
+    const createPostBtn = document.getElementById("create-post-btn");
+    const postContentInput = document.getElementById("post-content");
+    const postImageInput = document.getElementById("post-image");
 
-  // Load posts and display them
-  const loadPosts = () => {
-    const postsRef = ref(db, "posts");
-    onValue(postsRef, (snapshot) => {
-      postsContainer.innerHTML = "";
-      snapshot.forEach((childSnapshot) => {
-        const postId = childSnapshot.key;
-        const post = childSnapshot.val();
-        displayPost(postId, post);
+    const formatTimestamp = (timestamp) => {
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    };
+
+    const createPost = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Please sign in to create a post.");
+        return;
+      }
+
+      const content = postContentInput.value;
+      const imageFile = postImageInput.files[0];
+      let imageUrl = "";
+
+      if (imageFile) {
+        const imageStorageRef = storageRef(storage, `post_images/${Date.now()}_${imageFile.name}`);
+        const snapshot = await uploadBytes(imageStorageRef, imageFile);
+        imageUrl = await getDownloadURL(snapshot.ref);
+      }
+
+      const postRef = push(ref(db, "posts"));
+      await update(postRef, {
+        authorId: user.uid,
+        authorName: user.displayName || "Anonymous",
+        authorPhoto: user.photoURL || "default-profile.png",
+        content,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
       });
+
+      postContentInput.value = "";
+      postImageInput.value = "";
+      alert("Post created!");
+    };
+
+    const loadPosts = () => {
+      const postsRef = ref(db, "posts");
+      onValue(postsRef, (snapshot) => {
+        postsContainer.innerHTML = "";
+        snapshot.forEach((childSnapshot) => {
+          const postId = childSnapshot.key;
+          const post = childSnapshot.val();
+          displayPost(postId, post);
+        });
+      });
+    };
+
+    const displayPost = (postId, post) => {
+      const postElement = document.createElement("div");
+      postElement.className = "post";
+      postElement.innerHTML = `
+        <div class="post-header">
+          <img src="${post.authorPhoto}" alt="${post.authorName}">
+          <div>
+            <strong>${post.authorName}</strong><br>
+            <small>${post.timestamp ? formatTimestamp(post.timestamp) : "Just now"}</small>
+          </div>
+        </div>
+        <p>${post.content}</p>
+        ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image">` : ""}
+        <div>
+          <button class="like-btn" data-id="${postId}">Like (${Object.keys(post.likes || {}).length})</button>
+          <button class="share-btn" data-id="${postId}">Share</button>
+        </div>
+        <div class="comment-section">
+          <input type="text" class="comment-input" placeholder="Add a comment...">
+          <button class="comment-btn" data-id="${postId}">Comment</button>
+          <div class="comments-container">
+            ${Object.values(post.comments || {}).map(comment => `<p class="comment"><strong>${comment.authorName}:</strong> ${comment.text}</p>`).join('')}
+          </div>
+        </div>
+      `;
+
+      postsContainer.appendChild(postElement);
+
+      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId, postElement));
+      postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(postId));
+      postElement.querySelector(".comment-btn").addEventListener("click", (e) => addComment(postId, e));
+    };
+
+    const likePost = async (postId, postElement) => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
+      const postLikesSnapshot = await postLikesRef.get();
+      if (postLikesSnapshot.exists()) {
+        await update(postLikesRef, null); // Remove like
+        postElement.querySelector(".like-btn").innerText = `Like (${Object.keys(post.likes || {}).length - 1})`;
+      } else {
+        await update(postLikesRef, true); // Add like
+        postElement.querySelector(".like-btn").innerText = `Like (${Object.keys(post.likes || {}).length + 1})`;
+      }
+    };
+
+    const sharePost = async (postId) => {
+      const postLink = `${window.location.origin}/post/${postId}`;
+      navigator.clipboard.writeText(postLink);
+      alert("Post link copied to clipboard!");
+    };
+
+    const addComment = async (postId, event) => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const commentInput = event.target.previousElementSibling;
+      const commentText = commentInput.value.trim();
+      if (!commentText) return;
+
+      const commentRef = push(ref(db, `posts/${postId}/comments`));
+      await update(commentRef, {
+        authorName: user.displayName || "Anonymous",
+        text: commentText,
+        timestamp: serverTimestamp(),
+      });
+
+      commentInput.value = "";
+    };
+
+    createPostBtn.addEventListener("click", createPost);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadPosts();
+      } else {
+        alert("Please log in to view posts.");
+      }
     });
-  };
-
-  // Display a single post
-  const displayPost = (postId, post) => {
-    const postElement = document.createElement("div");
-    postElement.className = "post";
-
-    // Get the current user's ID
-    const user = auth.currentUser;
-    const userId = user ? user.uid : null;
-
-    const isLiked = post.likes && userId in post.likes;
-
-    postElement.innerHTML = `
-      <p>${post.content}</p>
-      ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image">` : ""}
-      <div>
-        <button class="like-btn" data-id="${postId}">
-          ${isLiked ? "Unlike" : "Like"} (${Object.keys(post.likes || {}).length})
-        </button>
-      </div>
-    `;
-
-    postsContainer.appendChild(postElement);
-
-    // Add event listener to the like button
-    postElement.querySelector(".like-btn").addEventListener("click", () => toggleLike(postId));
-  };
-
-  // Toggle like functionality
-  const toggleLike = async (postId) => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Please log in to like a post.");
-      return;
-    }
-
-    const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-
-    // Check if the user has already liked the post
-    const likeSnapshot = await (await postLikesRef).get();
-    if (likeSnapshot.exists()) {
-      // If already liked, remove the like
-      await set(postLikesRef, null);
-    } else {
-      // Otherwise, add the like
-      await set(postLikesRef, true);
-    }
-  };
-
-  // Monitor auth state
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      loadPosts();
-    } else {
-      alert("Please log in to view posts.");
-    }
-  });
-</script>
+  </script>
 </body>
 </html>
