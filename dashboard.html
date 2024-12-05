@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang=en>
   <head>
@@ -21,7 +20,14 @@
   <title>Nabogaming Betplace 2.5</title>
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
-    <link rel=stylesheet href=remixicon.min.css>
+    <link rel=stylesheet href=remixicon.min.css><style>.post-time-2 {
+	font-size: 13px;
+	color: #888;
+	font-size: 13px;
+	color: #888;
+	margin-top: 4px;
+}
+</style>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -75,8 +81,8 @@
         <div class="profile-details">
           <div class="profile-name">
             ${post.authorName}
-          </div><br>
-          <div class="post-time">
+          </div>
+          <div class="post-time-2">
             ${formatTimestamp(post.timestamp)}
           </div>
         </div>
