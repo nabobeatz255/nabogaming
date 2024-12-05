@@ -4,43 +4,56 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Instagram-Like Post</title>
-<style>
+  <style>
     body {
-  font-family: Arial, sans-serif;
-}
+      font-family: Arial, sans-serif;
+    }
 
-#app {
-  width: 600px;
-  margin: auto;
-}
+    #app {
+      width: 600px;
+      margin: auto;
+    }
 
-.post {
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin: 10px 0;
-}
+    .post {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin: 10px 0;
+    }
 
-.post img {
-  max-width: 100%;
-  height: auto;
-}
+    .post img {
+      max-width: 100%;
+      height: auto;
+    }
 
-button {
-  margin: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
 
-.comment-section {
-  margin-top: 10px;
-}
+    .post-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
 
-.comment {
-  margin: 5px 0;
-  padding-left: 10px;
-  border-left: 2px solid #ddd;
-}
-</style>
+    .comment-section {
+      margin-top: 10px;
+    }
+
+    .comment {
+      margin: 5px 0;
+      padding-left: 10px;
+      border-left: 2px solid #ddd;
+    }
+
+    button {
+      margin: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <div id="app">
@@ -78,7 +91,11 @@ button {
     const postContentInput = document.getElementById("post-content");
     const postImageInput = document.getElementById("post-image");
 
-    // Function to create a post
+    const formatTimestamp = (timestamp) => {
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    };
+
     const createPost = async () => {
       const user = auth.currentUser;
       if (!user) {
@@ -99,11 +116,12 @@ button {
       const postRef = push(ref(db, "posts"));
       await update(postRef, {
         authorId: user.uid,
+        authorName: user.displayName || "Anonymous",
+        authorPhoto: user.photoURL || "default-profile.png",
         content,
         imageUrl,
         timestamp: serverTimestamp(),
         likes: {},
-        shares: {},
         comments: {},
       });
 
@@ -112,7 +130,6 @@ button {
       alert("Post created!");
     };
 
-    // Function to load posts
     const loadPosts = () => {
       const postsRef = ref(db, "posts");
       onValue(postsRef, (snapshot) => {
@@ -125,16 +142,22 @@ button {
       });
     };
 
-    // Function to display a post
     const displayPost = (postId, post) => {
       const postElement = document.createElement("div");
       postElement.className = "post";
       postElement.innerHTML = `
+        <div class="post-header">
+          <img src="${post.authorPhoto}" alt="${post.authorName}">
+          <div>
+            <strong>${post.authorName}</strong><br>
+            <small>${post.timestamp ? formatTimestamp(post.timestamp) : "Just now"}</small>
+          </div>
+        </div>
         <p>${post.content}</p>
         ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image">` : ""}
         <div>
           <button class="like-btn" data-id="${postId}">Like (${Object.keys(post.likes || {}).length})</button>
-          <button class="share-btn" data-id="${postId}">Share (${Object.keys(post.shares || {}).length})</button>
+          <button class="share-btn" data-id="${postId}">Share</button>
         </div>
         <div class="comment-section">
           <input type="text" class="comment-input" placeholder="Add a comment...">
@@ -147,57 +170,30 @@ button {
 
       postsContainer.appendChild(postElement);
 
-      // Like button functionality
       postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId));
-      // Share button functionality
       postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(postId));
-      // Comment button functionality
       postElement.querySelector(".comment-btn").addEventListener("click", (e) => addComment(postId, e));
     };
 
-    // Function to like a post
     const likePost = async (postId) => {
       const user = auth.currentUser;
       if (!user) return;
 
-      const postRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-      const likeSnapshot = await postRef.get();
-      
-      if (!likeSnapshot.exists()) {
-        await update(postRef, true);  // User can like the post once
+      const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
+      const postLikesSnapshot = await postLikesRef.get();
+      if (postLikesSnapshot.exists()) {
+        await update(postLikesRef, null); // Remove like
+      } else {
+        await update(postLikesRef, true); // Add like
       }
     };
 
-    // Function to share a post
     const sharePost = async (postId) => {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const postRef = ref(db, `posts/${postId}`);
-      const postSnapshot = await postRef.get();
-      const post = postSnapshot.val();
       const postLink = `${window.location.origin}/post/${postId}`;
-
-      const shareData = {
-        title: post.content,
-        text: `Check out this post by ${user.displayName}: ${post.content}`,
-        url: postLink,
-      };
-
-      try {
-        navigator.clipboard.writeText(postLink); // Copy the link to clipboard
-        alert("Post link copied to clipboard!");
-
-        if (navigator.share) {
-          await navigator.share(shareData);
-        }
-      } catch (err) {
-        alert("Failed to share the post.");
-        console.error("Error sharing post: ", err);
-      }
+      navigator.clipboard.writeText(postLink);
+      alert("Post link copied to clipboard!");
     };
 
-    // Function to add a comment
     const addComment = async (postId, event) => {
       const user = auth.currentUser;
       if (!user) return;
@@ -216,10 +212,8 @@ button {
       commentInput.value = "";
     };
 
-    // Event Listeners
     createPostBtn.addEventListener("click", createPost);
 
-    // Monitor auth state and load posts
     onAuthStateChanged(auth, (user) => {
       if (user) {
         loadPosts();
