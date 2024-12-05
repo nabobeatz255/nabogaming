@@ -54,7 +54,7 @@ onAuthStateChanged(auth, (user) => {
   const email = user.email;
   const profilePicture = user.photoURL;
 
-  // Profile data display
+  // Display Profile Data
   document.querySelectorAll(".user-name").forEach((element) => {
     element.textContent = firstName;
   });
@@ -114,7 +114,7 @@ onAuthStateChanged(auth, (user) => {
         text: commentText,
         timestamp: Date.now(),
       }).then(() => {
-        commentInput.value = "";
+        commentInput.value = ""; // Clear the input field
       });
     });
 
@@ -143,7 +143,7 @@ onAuthStateChanged(auth, (user) => {
     const postId = shareButton.closest(".instagram-post").dataset.postId;
 
     shareButton.addEventListener("click", () => {
-      const postUrl = `${window.location.origin}/dashboard.html?postId=${postId}`;
+      const postUrl = `${window.location.origin}/post.html?postId=${postId}`;
       navigator.clipboard.writeText(postUrl).then(() => {
         alert("Post link copied to clipboard!");
       });
