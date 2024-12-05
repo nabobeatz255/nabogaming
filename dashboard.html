@@ -21,10 +21,11 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
-<script defer type="module">
+<script defer type="module" >
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import { getDatabase, ref, set, push, update, get, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";  // Added import for Firebase Storage
 
 const firebaseConfig = {
   apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -39,6 +40,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getDatabase();
+const storage = getStorage();  // Initialize Firebase Storage
 
 // Monitor user authentication
 onAuthStateChanged(auth, (user) => {
@@ -77,14 +79,16 @@ onAuthStateChanged(auth, (user) => {
 
       if (currentLike) {
         // Unlike
-        set(likesRef, null);
-        update(postLikesRef, { value: (await get(postLikesRef)).val() - 1 });
+        update(likesRef, null);
+        const likeCount = (await get(postLikesRef)).val() || 0;
+        update(postLikesRef, { likeCount: likeCount - 1 });
         likeButton.classList.remove("ri-heart-fill");
         likeButton.classList.add("ri-heart-line");
       } else {
         // Like
         set(likesRef, true);
-        update(postLikesRef, { value: (await get(postLikesRef)).val() + 1 });
+        const likeCount = (await get(postLikesRef)).val() || 0;
+        update(postLikesRef, { likeCount: likeCount + 1 });
         likeButton.classList.remove("ri-heart-line");
         likeButton.classList.add("ri-heart-fill");
       }
@@ -92,16 +96,16 @@ onAuthStateChanged(auth, (user) => {
 
     // Real-time Like Count Update
     onValue(ref(db, `posts/${postId}/likeCount`), (snapshot) => {
-      const likeCount = snapshot.val();
-      document.querySelector(`#like-counter-${postId}`).textContent = `${likeCount || 0} likes`;
+      const likeCount = snapshot.val() || 0;
+      document.querySelector(`#like-counter-${postId}`).textContent = `${likeCount} likes`;
     });
   });
 
   // Handle Comments
   document.querySelectorAll("[id^='submit-comment-']").forEach((submitButton) => {
     const postId = submitButton.closest(".instagram-post").dataset.postId;
-    const commentInput = document.querySelector(`#comment-input-${postId.split("-")[1]}`);
-    const commentsContainer = document.querySelector(`#comments-container-${postId.split("-")[1]}`);
+    const commentInput = document.querySelector(`#comment-input-${postId}`);
+    const commentsContainer = document.querySelector(`#comments-container-${postId}`);
     const postCommentsRef = ref(db, `posts/${postId}/comments`);
 
     submitButton.addEventListener("click", () => {
@@ -144,68 +148,8 @@ onAuthStateChanged(auth, (user) => {
 
     shareButton.addEventListener("click", () => {
       const postUrl = `${window.location.origin}/post.html?postId=${postId}`;
-      navigator.clipboard.writeText(postUrl).then(() => {
-        alert("Post link copied to clipboard!");
-      });
-    });
-  });
+      navigator.clipboard
 
-  // Profile Update Functionality
-  const updateProfileData = async () => {
-    const user = auth.currentUser;
-    const usernameInput = document.querySelector("#username-input").value;
-    const profilePicInput = document.querySelector("#profile-pic-input").files[0];
-    const progressBar = document.querySelector("#upload-progress");
-    const progressBarContainer = document.querySelector("#upload-progress-bar");
-
-    if (!user) {
-      alert("No user is signed in.");
-      return;
-    }
-
-    try {
-      // Update username if provided
-      if (usernameInput) {
-        await updateProfile(user, { displayName: usernameInput });
-        console.log("Username updated successfully!");
-      }
-
-      // Update profile picture if a file is selected
-      if (profilePicInput) {
-        if (profilePicInput.size > 1.5 * 1024 * 1024) {
-          alert("File size must be less than 1.5MB.");
-          return;
-        }
-
-        const storageRef = ref(storage, `profile_pictures/${user.uid}`);
-        const uploadTask = uploadBytes(storageRef, profilePicInput);
-
-        progressBarContainer.style.display = "block";
-
-        // Monitor upload progress
-        uploadTask.then((snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressBar.style.width = `${progress}%`;
-        });
-
-        const downloadURL = await getDownloadURL((await uploadTask).ref);
-        await updateProfile(user, { photoURL: downloadURL });
-        console.log("Profile picture updated successfully!");
-      }
-
-      alert("Profile updated successfully!");
-      location.reload();
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Failed to update profile.");
-    } finally {
-      progressBarContainer.style.display = "none";
-    }
-  };
-
-  document.querySelector("#update-profile-btn").addEventListener("click", updateProfileData);
-
-});
 </script>
 </head>
   <body>
@@ -299,7 +243,6 @@ onAuthStateChanged(auth, (user) => {
     </section>
   </div>
   <div class=post-grid>
-     <!-- Example Post Card -->
 <div id="post-card-post1" class="instagram-post" data-post-id="post1">
   <!-- Header -->
   <div id="post-header-post1" class="post-header">
@@ -324,7 +267,7 @@ onAuthStateChanged(auth, (user) => {
   <div id="post-image-post1" class="post-image">
     <img src="post1.png" alt="Post content" style="width: 100%;">
     <div id="post-badges-post1" class="post-badges">
-      <span class="badge new">Now</span>
+      <span class="badge new">New</span>
     </div>
   </div>
 
@@ -369,10 +312,11 @@ onAuthStateChanged(auth, (user) => {
     <!-- Comment Input -->
     <div id="comment-input-container-post1" class="comment-input-container">
       <input id="comment-input-post1" class="comment-input" placeholder="Write a comment...">
-      <button id="submit-comment-post1" class="submit-comment">Send Now</button>
+      <button id="submit-comment-post1" class="submit-comment">Send Me Now</button>
     </div>
   </div>
 </div>
+
     <div class=instagram-post>
 <div class=post-header>
   <div class=profile-picture>
