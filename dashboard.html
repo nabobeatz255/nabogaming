@@ -195,7 +195,7 @@ const loadPosts = () => {
   });
 };
 
-// Display each post
+// Display each post with like and comment functionality
 const displayPost = (postId, post) => {
   const postElement = document.createElement("div");
   postElement.className = "instagram-post";
@@ -217,13 +217,99 @@ const displayPost = (postId, post) => {
       <img src="${post.imageUrl}" alt="Post content">
     </div>
     <div class="like-counter">
-      <span>${Object.keys(post.likes || {}).length} likes</span>&nbsp;|&nbsp;<span>999k comments</span>
+      <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>&nbsp;|&nbsp;<span>999k comments</span>
     </div>
     <div class="caption">
       <span class="username">${post.authorName}</span> ${post.content}
     </div>
+    <div class="post-actions">
+      <div class="actions-left">
+        <i class="ri-heart-line like-btn" data-id="${postId}"></i>
+        <i class="ri-notification-line"></i>
+        <i class="ri-share-line"></i>
+      </div>
+      <div class="actions-right">
+        <i class="ri-bookmark-line"></i>
+      </div>
+    </div>
+    <div class="post-comments">
+      <button class="toggle-comments" data-target="comments-container-${postId}">
+        <i class="ri-arrow-down-s-line"></i> View Comments
+      </button>
+      <div class="comments-container" id="comments-container-${postId}">
+        ${renderComments(post.comments)}
+      </div>
+      <div class="comment-input-container">
+        <input class="comment-input" placeholder="Write a comment...">
+        <button class="submit-comment" data-post-id="${postId}">Send</button>
+      </div>
+    </div>
   `;
   postsContainer.appendChild(postElement);
+
+  // Like button functionality
+  postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId, postElement));
+
+  // Toggle comments visibility
+  postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+    const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+    commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+  });
+
+  // Handle comment submission
+  postElement.querySelector(".submit-comment").addEventListener("click", (event) => {
+    const postId = event.target.dataset.postId;
+    const commentInput = postElement.querySelector(".comment-input");
+    if (commentInput.value.trim() !== "") {
+      submitComment(postId, commentInput.value.trim());
+      commentInput.value = "";
+    }
+  });
+};
+
+// Like post functionality
+const likePost = async (postId, postElement) => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
+  const postLikesSnapshot = await postLikesRef.get();
+  if (postLikesSnapshot.exists()) {
+    await update(postLikesRef, null); // Remove like
+    postElement.querySelector(".like-count").innerText = `${Object.keys(post.likes || {}).length - 1} likes`;
+  } else {
+    await update(postLikesRef, true); // Add like
+    postElement.querySelector(".like-count").innerText = `${Object.keys(post.likes || {}).length + 1} likes`;
+  }
+};
+
+// Render comments for a post
+const renderComments = (comments) => {
+  if (!comments) return "";
+  return Object.keys(comments).map((commentId) => {
+    const comment = comments[commentId];
+    return `
+      <div class="comment">
+        <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+      </div>
+    `;
+  }).join("");
+};
+
+// Submit a new comment for a post
+const submitComment = async (postId, message) => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+  await set(ref(db, `posts/${postId}/comments/${commentId}`), {
+    username: user.displayName || "Anonymous",
+    message: message,
+    timestamp: serverTimestamp(),
+  });
+
+  alert("Comment added!");
+  loadPosts();  // Refresh posts to show the new comment
 };
 
 // Create a new post with caption and image
