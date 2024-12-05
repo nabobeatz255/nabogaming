@@ -4,13 +4,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Instagram-Like Post</title>
-  <link rel="stylesheet" href="styles.css">
+<style>
+    body {
+  font-family: Arial, sans-serif;
+}
+
+#app {
+  width: 600px;
+  margin: auto;
+}
+
+.post {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.post img {
+  max-width: 100%;
+  height: auto;
+}
+
+button {
+  margin: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+</style>
 </head>
 <body>
-      <script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  <div id="app">
+    <div id="create-post">
+      <input type="text" id="post-content" placeholder="Write your post...">
+      <input type="file" id="post-image">
+      <button id="create-post-btn">Create Post</button>
+    </div>
+
+    <div id="posts-container"></div>
+  </div>
+
+  <script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, increment, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+import { getDatabase, ref, push, update, onValue, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -23,7 +59,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
-const db = getFirestore(app);
+const db = getDatabase(app);
 const storage = getStorage(app);
 
 const postsContainer = document.getElementById("posts-container");
@@ -44,18 +80,18 @@ const createPost = async () => {
   let imageUrl = "";
 
   if (imageFile) {
-    const storageRef = ref(storage, `post_images/${Date.now()}_${imageFile.name}`);
-    const snapshot = await uploadBytes(storageRef, imageFile);
+    const imageStorageRef = storageRef(storage, `post_images/${Date.now()}_${imageFile.name}`);
+    const snapshot = await uploadBytes(imageStorageRef, imageFile);
     imageUrl = await getDownloadURL(snapshot.ref);
   }
 
-  await addDoc(collection(db, "posts"), {
+  const postRef = push(ref(db, "posts"));
+  await update(postRef, {
     authorId: user.uid,
     content,
     imageUrl,
-    timestamp: new Date(),
+    timestamp: serverTimestamp(),
     likesCount: 0,
-    commentsCount: 0,
     sharesCount: 0,
   });
 
@@ -66,12 +102,13 @@ const createPost = async () => {
 
 // Function to load posts
 const loadPosts = () => {
-  const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-  onSnapshot(postsQuery, (snapshot) => {
+  const postsRef = ref(db, "posts");
+  onValue(postsRef, (snapshot) => {
     postsContainer.innerHTML = "";
-    snapshot.forEach((doc) => {
-      const post = doc.data();
-      displayPost(doc.id, post);
+    snapshot.forEach((childSnapshot) => {
+      const postId = childSnapshot.key;
+      const post = childSnapshot.val();
+      displayPost(postId, post);
     });
   });
 };
@@ -84,11 +121,9 @@ const displayPost = (postId, post) => {
     <p>${post.content}</p>
     ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image">` : ""}
     <div>
-      <button class="like-btn" data-id="${postId}">Like (${post.likesCount})</button>
-      <button class="comment-btn" data-id="${postId}">Comment</button>
-      <button class="share-btn" data-id="${postId}">Share (${post.sharesCount})</button>
+      <button class="like-btn" data-id="${postId}">Like (${post.likesCount || 0})</button>
+      <button class="share-btn" data-id="${postId}">Share (${post.sharesCount || 0})</button>
     </div>
-    <div class="comments-container" id="comments-${postId}"></div>
   `;
 
   postsContainer.appendChild(postElement);
@@ -101,14 +136,14 @@ const displayPost = (postId, post) => {
 
 // Function to like a post
 const likePost = async (postId) => {
-  const postRef = doc(db, "posts", postId);
-  await updateDoc(postRef, { likesCount: increment(1) });
+  const postRef = ref(db, `posts/${postId}`);
+  await update(postRef, { likesCount: increment(1) });
 };
 
 // Function to share a post
 const sharePost = async (postId) => {
-  const postRef = doc(db, "posts", postId);
-  await updateDoc(postRef, { sharesCount: increment(1) });
+  const postRef = ref(db, `posts/${postId}`);
+  await update(postRef, { sharesCount: increment(1) });
 };
 
 // Event Listeners
@@ -122,16 +157,5 @@ onAuthStateChanged(auth, (user) => {
     alert("Please log in to view posts.");
   }
 });</script>
-  <div id="app">
-    <div id="create-post">
-      <input type="text" id="post-content" placeholder="Write your post...">
-      <input type="file" id="post-image">
-      <button id="create-post-btn">Create Post</button>
-    </div>
-
-    <div id="posts-container"></div>
-  </div>
-
-
 </body>
 </html>
