@@ -1,26 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Instagram-Like Post</title>
-  <link rel="stylesheet" href="app.css"><link rel="stylesheet" href="2.css">
-</head>
-<body>
-  <div id="app">
-    <!-- New Post Form -->
-    <div class="new-post-form">
-      <h3>Create a New Post</h3>
-      <textarea id="new-post-caption" placeholder="Write your caption..."></textarea>
-      <input type="file" id="new-post-image" accept="image/*">
-      <button id="create-post-btn">Post</button>
-    </div>
-
-    <!-- Posts Container -->
-    <div id="posts-container" class="post-grid"></div>
-  </div>
-
-  <script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+<!doctype html>
+<html lang=en>
+  <head>
+    <meta charset=UTF-8>
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <meta name="description" content="Nabogaming Betplace - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming, Betplace, Kubashiri Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+    <meta name="author" content="Nabogaming">
+    <meta property="og:title" content="Nabogaming Betplace">
+    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming Betplace. Usikose nafasi yako ya ushindi!">
+    <meta property="og:image" content="https://nabogaming.com/logo.png">
+    <meta property="og:url" content="https://nabogaming.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nabogaming Betplace">
+    <meta name="twitter:description" content="Jiunge na Nabogaming Betplace kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:image" content="https://nabogaming.com/logo.png">
+    <link rel="canonical" href="https://nabogaming.com">
+    <link rel="icon" href="logo.png" type="image/x-icon">
+  <title>Nabogaming Betplace 2.5</title>
+    <link rel=stylesheet href=app.css>
+    <link rel=stylesheet href=2.css>
+    <link rel=stylesheet href=remixicon.min.css>
+ <script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 import { getDatabase, ref, push, update, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
@@ -239,5 +240,1136 @@ onAuthStateChanged(auth, (user) => {
     alert("Please log in to view posts.");
   }
 });</script>
-</body>
+ </head>
+  <body>
+    <div class=dashboard>
+    <nav class="sidebar desktop-sidebar">
+<h2>Dashboard</h2>
+<ul>
+  <li><a onclick='navigateTo("home")'>Home <i class=ri-home-line></i></a></li>
+  <li><a onclick='navigateTo("games")'>Events</a></li>
+  <li><a onclick='navigateTo("shop")'>Shop</a></li>
+  <li><a onclick='navigateTo("policy")'>Sheria</a></li>
+  <li><a onclick='navigateTo("profile")'>Profile</a></li>
+</ul>
+    </nav>
+    <div class=main-content>
+<div id=home class=visible>
+  <header class=header>
+    <div class=logo>
+<img src=logo.png alt=Logo>
+    </div>
+    <div class=search-bar>
+<input placeholder="Search games, players...">
+    </div>
+    <div class=icons>
+<i class=ri-notification-line  id="toggleNotify"></i>
+<i class="ri-bookmark-fill mark"></i>
+    </div>
+  </header>
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+<li>
+  <a onclick='navigateTo("games")'>
+  <i class=ri-gamepad-fill></i>
+  <span>Events</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("shop")'>
+  <i class=ri-shopping-cart-fill></i>
+  <span>Shop</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("home")'>
+  <i class="ri-home-6-fill add"></i>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("policy")'>
+  <i class=ri-file-fill></i>
+  <span>Sheria</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("profile")'>
+  <i class=ri-user-4-fill></i>
+  <span>Akaunti</span>
+  </a>
+</li>
+    </ul>
+  </nav>
+  <div class=post-base>
+    <section class=hero>
+<div class=hero-content>
+  <h1>Nabogaming Tournament 2025</h1>
+  <p> Habari <span class="user-name"></span>, Jiandae Kikamilimifu Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
+  <a href=#games class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
+</div>
+    </section>
+    <section class=carousel>
+<div class=carousel-slide>
+  <img src=1.png alt="Featured Game 1">
+  <h3>Nabogaming Tumerudi Kivingine..!</h3>
+  <p>Mechi Zaidi, Ushindani Na Wachezaji Kibao</p>
+</div>
+<div class=carousel-slide>
+  <img src=2.png alt="Featured Game 2">
+  <h3>Featured Game 2</h3>
+  <p>Embark on an epic adventure today.</p>
+</div>
+<div class=carousel-slide>
+  <img src=3.png alt="Featured Game 3">
+  <h3>Featured Game 3</h3>
+  <p>Experience the thrill of the battle arena.</p>
+</div>
+<div class=carousel-slide>
+  <img src=4.png alt="Featured Game 3">
+  <h3>Featured Game 3</h3>
+  <p>Experience the thrill of the battle arena.</p>
+</div>
+    </section>
+  </div>
+   <div id="app">
+    <!-- New Post Form -->
+    <div class="new-post-form">
+      <h3>Create a New Post</h3>
+      <textarea id="new-post-caption" placeholder="Write your caption..."></textarea>
+      <input type="file" id="new-post-image" accept="image/*">
+      <button id="create-post-btn">Post</button>
+    </div>
+  <div class=post-grid id="post-container">
+
+  </div>
+  <section class=tabs>
+    <div class=tab-header>
+<button onclick='showTab("trending")'>Trending</button>
+<button onclick='showTab("latest")'>Latest</button>
+<button onclick='showTab("popular")'>Popular</button>
+    </div>
+    <div class=tab-content id=trending>
+<p>Trending games will appear here.</p>
+    </div>
+    <div class="tab-content hidden" id=latest>
+<p>Latest games will appear here.</p>
+    </div>
+    <div class="tab-content hidden" id=popular>
+<p>Popular games will appear here.</p>
+    </div>
+  </section>
+</div>
+
+
+<div id="shop" class="hidden">
+        <header class="header headec">
+        <div class="logo"><h1>ShopMall</h1></div>
+        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
+         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
+        </div>
+    </header>
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+<li>
+  <a onclick='navigateTo("games")'>
+  <i class=ri-gamepad-fill></i>
+  <span>Events</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("shop")'>
+  <i class=ri-shopping-cart-fill></i>
+  <span>In-Shop</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("home")'>
+  <i class="ri-home-6-fill add"></i>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("policy")'>
+  <i class=ri-file-fill></i>
+  <span>Sheria</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("profile")'>
+  <i class=ri-user-4-fill></i>
+  <span>Akaunti</span>
+  </a>
+</li>
+    </ul>
+  </nav>
+
+
+<!-- Modal 1 -->
+<div id="modal1" class="modal">
+  <div class="modal-content">
+       <div class="btn-primary headec-nav">&nbsp; 
+         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Selling Experience&nbsp; </a>
+        </div>
+    <h3 class="modal-title"></h3>
+    <p class="modal-body">Pata Uwanja Wako Wa Mauzo Yako Yote Hapahapa. Hakikisha Umesoma Vizuri <a href=""> Sheria, Taratibu Na Kanuni</a> Za Muuzaji Hapa Nabogaming Kabla Ya Ku upgrade Experience Yako. Uko Tayari Kuendelea?</p>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel-btn">Hapana</button>
+      <button class="modal-btn ok-btn open-modal" data-modal="modal3">Ndiyo</button>
+    </div>
+  </div>
+</div>
+<!-- Modal 3 -->
+<div id="modal3" class="modal" style="background-color:white">
+  <div class="modal-content">
+    <h3 class="modal-title">Verify Your Identity</h3>
+    <p class="modal-body">
+      Tafadhali Ingiza OTP (One-Time Password) Yako Ili Kuendelea. Kama Hukupokea OTP, Tafadhali <a href="#">Bonyeza Hapa Kuomba OTP</a> Ama Kamilisha Malipo Ili Uweze Kupata OTP Yako.
+    </p>
+    <div class="otp-container" style="display: flex; justify-content: center; gap: 10px;">
+      <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none" />
+      <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none" />
+      <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none" />
+      <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none;padding:7px" />
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel-btn">Cancel</button>
+      <button class="modal-btn ok-btn" onclick="navigateTo('sell')">Endelea</button>
+    </div>
+  </div>
+</div>
+
+ <div class=post-grid>
+    <div class="shop">
+        <img src="shopmall.png">
+    </div>
+    
+       <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Save</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
+</div>
+
+  <div class=post-grid>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Save</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">New</span>
+  </div>
+  <div class="bottom-left-icon">
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Like</button>
+  <button class="cta-btn secondary">Comment</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">New</span>
+  </div>
+  <div class="bottom-left-icon">
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Like</button>
+  <button class="cta-btn secondary">Comment</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">New</span>
+  </div>
+  <div class="bottom-left-icon">
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Like</button>
+  <button class="cta-btn secondary">Comment</button>
+</div>
+    </div>
+  </div>
+</div>
+
+
+<div id="policy" class="hidden">
+      <header class="header headec">
+        <div class="logo"><h1>Sheria</h1></div>
+        <div class="btn-primary riri" style="font-weight:500">&nbsp; 
+         <i class="ri-phone-line ri-xl"></i>&nbsp; <i class="ri-whatsapp-line ri-xl"></i>&nbsp;
+        </div>
+    </header>
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+<li>
+  <a onclick='navigateTo("games")'>
+  <i class=ri-gamepad-fill></i>
+  <span>Events</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("shop")'>
+  <i class=ri-shopping-cart-fill></i>
+  <span>Shop</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("home")'>
+  <i class="ri-home-6-fill add"></i>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("policy")'>
+  <i class=ri-file-fill></i>
+  <span>In-Sheria</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("profile")'>
+  <i class=ri-user-4-fill></i>
+  <span>Akaunti</span>
+  </a>
+</li>
+    </ul>
+  </nav>
+ <main class="fanq">
+    <h2>1. Masharti ya Jumla</h2>
+    <ul>
+      <li>Kwa kutumia NaboGaming, unakubali kufuata sheria na masharti yaliyowekwa.</li>
+      <li>Watumiaji lazima wawe na utii wa sheria zaidi ili kujiandikisha na kutumia huduma zetu.</li>
+      <li>Ni marufuku kutumia lugha chafu, matusi, au vitendo vyovyote vya udanganyifu, Hii Itapelekea akaunti yako kufungiwa.</li>
+    </ul>
+
+    <h2>2. Faragha</h2>
+    <ul>
+      <li>Habari zako za kibinafsi zitalindwa kulingana na sera yetu ya faragha.</li>
+      <li>Tunatumia auto enabled cookies (AEC) kuboresha uzoefu wako mtandaoni.</li>
+      <li>Tunza Namba Siri (OTP) na Namba ziada zozote utazopewa, Usimpe Mtu yeyote kwa maana muhusika ni wewe pekee.</li>
+    </ul>
+
+    <h2>3. Matumizi ya Akaunti</h2>
+    <ul>
+      <li>Unawajibika kwa usalama wa akaunti yako na nywila.</li>
+      <li>Akaunti yoyote itakayobainika ikivunja sheria zetu itafungwa mara moja.</li>
+    </ul>
+     <h2>4. Wauzaji ShopMall</h2>
+    <ul>
+      <li>Weka Taarifa Kamilifu Kuhusu Unachouza, Unaruhusa ya Kupost mauzo ya akaunti, mauzo ya skin(maleo e.t.c) na si vinginevyo.</li>
+      <li>Tumia OTP yako Mara Moja Kwa Siku Hakikisha Unaitunza Maana OTP yako Ndiyo Soko Lako</li>
+      <li>Akaunti yoyote itakayobainika ikikiuka maagizo haya itazuiliwa mara moja.</li>
+    </ul>
+
+    <h2>FAQs (Maswali Yanayoulizwa Mara kwa Mara)</h2>
+    <div class="faq">
+      <h3>1. Je, NaboGaming ni nini?</h3>
+      <p>NaboGaming ni jukwaa la michezo ya mtandaoni linalowapa watumiaji fursa ya kushindana na kushirikiana na wachezaji wengine duniani kote.</p>
+    </div>
+    <div class="faq">
+      <h3>2. Ninawezaje kufungua akaunti?</h3>
+      <p>Bofya kitufe cha "Jiandikishe" na ujaze taarifa zako. Kumbuka kuwa lazima uwe na umri wa miaka 18 au zaidi.</p>
+    </div>
+    <div class="faq">
+      <h3>3. Nifanye nini ikiwa nimesahau nenosiri langu?</h3>
+      <p>Bonyeza "Umesahau Nenosiri?" kwenye ukurasa wa kuingia na ufuate maelekezo ya kurejesha akaunti yako.</p>
+    </div>
+  </main>
+</div>
+
+
+<div id="games" class="hidden">
+    <header class="header headec">
+        <div class="logo"><h1>Events</h1></div>
+        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
+         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
+        </div>
+    </header>
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+<li>
+  <a onclick='navigateTo("games")'>
+  <i class=ri-gamepad-fill></i>
+  <span>In-Events</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("shop")'>
+  <i class=ri-shopping-cart-fill></i>
+  <span>Shop</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("home")'>
+  <i class="ri-home-6-fill add"></i>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("policy")'>
+  <i class=ri-file-fill></i>
+  <span>Sheria</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("profile")'>
+  <i class=ri-user-4-fill></i>
+  <span>Akaunti</span>
+  </a>
+</li>
+    </ul>
+  </nav>
+   <div class=post-grid>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Save</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">New</span>
+  </div>
+  <div class="bottom-left-icon">
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Like</button>
+  <button class="cta-btn secondary">Comment</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">New</span>
+  </div>
+  <div class="bottom-left-icon">
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Like</button>
+  <button class="cta-btn secondary">Comment</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">New</span>
+  </div>
+  <div class="bottom-left-icon">
+    01d 12hrs 02min 43sec
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Like</button>
+  <button class="cta-btn secondary">Comment</button>
+</div>
+    </div>
+  </div>
+</div>
+
+
+<div id="profile" class="hidden">
+  <header class="page-header">
+    <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
+    <h1>Profile (<span class="user-name"> No data </span>)</h1>
+  </header>
+  <div class="profile-container">
+    <!-- Top Card: Profile Overview -->
+    <div class="profile-overview">
+<div class="profile-photo">
+  <img src="5.png" alt="User Profile Picture" class="profile-picture">
+</div>
+<div class="profile-details">
+  <h2 class="user-name">No User Found</h2>
+  <p class="user-email">Email Not Registered | <a href="index.html">Jiunge Sasa</a></p>
+
+</div>
+    </div>
+    <!-- Profile Settings -->
+    <section class="profile-settings">
+<div class="settings-card">
+  <h2>Badilisha Details Zako</h2>
+   <div class="form-group">
+    <label for="name">Weka UserName Mpya</label>
+    <input type="text" id="username-input" placeholder="Enter new username">
+    </div>
+     <div class="form-group">
+     <label for="name">Chagua profile mpya (size less than 1Mb)</label>
+    <input type="file" id="profile-pic-input" accept="image/*">
+    </div>
+    <div class="progress-bar" id="upload-progress-bar">
+<span id="upload-progress"></span>
+    </div>
+  <button class="save-btn" id="update-profile-btn">Save Changes</button>
+</div>
+    </section>
+  </div>
+</div>
+
+
+
+
+<div id="sell" class="hidden">
+  <header class=header>
+    <div class=logo>
+<img src=logo.png alt=Logo>
+<img class="profile-picture" src=5.png alt=Logo>
+    </div>
+    <div class=search-bar>
+<span style="background-color:#121212;padding:5px 6px;border-radius:10px;color:white;font-size:13px">
+Create New Post
+</span>
+    </div>
+    <div class=icons>
+<span class=" open-modal" data-modal="modal2" style="color:red">Log Out</span>
+    </div>
+  </header>
+
+    <header class="header headec">
+        <div class="logo"><h1>Seller <span class="user-name">nabogaming</span>, </h1>
+        </div>
+    </header>
+<!-- Modal 2 -->
+<div id="modal2" class="modal">
+  <div class="modal-content">
+       <div class="btn-primary headec-nav" style="background-color: white;">&nbsp; 
+         <i class="ri-vip-crown-fill" style=" color: black;"></i>&nbsp;   <a href="#" style=" color: black;"> Upgraded Selling Experience&nbsp; </a>
+        </div>
+    <h3 class="modal-title"></h3>
+    <p class="modal-body">Habari <span class="user-name">nabogaming</span>, Ungependelea Kuswitch Back Kwenye Normal ShopMall?</p>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel-btn">Hapana</button>
+      <button class="modal-btn ok-btn"  onclick="navigateTo('games')">Ndiyo</button>
+    </div>
+  </div>
+</div>
+
+
+ <div class=post-grid>
+       <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img class="profile-picture" src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name user-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+<!--<span class="badge" style="color: red">NOT APPROVED</span>-->
+<span class="badge" style="color: green">APPROVED</span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Delete My Post</li>
+  <li>Share My Post</li>
+  <li>Create New Post</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
+</div>
+<div class="caption">
+  <span class="username user-name">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Save</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
+</div>
+
+</div>
+
+
+
+<!-- Notification -->
+<div class="hidden" id="notifyPopup">
+  <div class="header-2">
+    <div class="logo">
+<i class="ri-notification-fill"></i>
+    </div>
+    <div class="title-center">
+<h2>Notifications</h2>
+    </div>
+  </div>
+  <section class="notify">
+    <ul class="notify-list">
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-message-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>New Message <span class="notify-time"  data-timestamp=2024-11-06T11:48:00></span></h3>
+    <p>You have a new message from </p>
+  </div>
+</li>
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-calendar-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>Event Reminder <span class="notify-time"   data-timestamp=2024-11-26T11:48:00></span></h3>
+    <p>Meeting scheduled at 3:00 PM.</p>
+  </div>
+</li>
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-user-follow-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>New Follower <span class="notify-time"   data-timestamp=2024-11-12T15:48:00></span></h3>
+    <p>Alice started following you.</p>
+  </div>
+</li>
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-message-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>New Message <span class="notify-time"  data-timestamp=2024-11-06T11:48:00></span></h3>
+    <p>You have a new message from </p>
+  </div>
+</li>
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-calendar-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>Event Reminder <span class="notify-time"   data-timestamp=2024-11-26T11:48:00></span></h3>
+    <p>Meeting scheduled at 3:00 PM.</p>
+  </div>
+</li>
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-user-follow-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>New Follower <span class="notify-time"   data-timestamp=2024-11-12T15:48:00></span></h3>
+    <p>Alice started following you.</p>
+  </div>
+</li>
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-message-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>New Message <span class="notify-time"  data-timestamp=2024-11-06T11:48:00></span></h3>
+    <p>You have a new message from </p>
+  </div>
+</li>
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-calendar-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>Event Reminder <span class="notify-time"   data-timestamp=2024-11-26T11:48:00></span></h3>
+    <p>Meeting scheduled at 3:00 PM.</p>
+  </div>
+</li>
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-user-follow-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>New Follower <span class="notify-time"   data-timestamp=2024-11-12T15:48:00></span></h3>
+    <p>Alice started following you.</p>
+  </div>
+</li>
+    </ul>
+  </section>
+</div>
+    </div>
+    <script>
+// Function to navigate to a specific section
+function navigateTo(pageId) {
+  // Hide all sections
+  document.querySelectorAll(".main-content > div").forEach((div) => {
+    div.classList.add("hidden");
+    div.classList.remove("visible");
+  });
+
+  // Show the target section
+  const target = document.getElementById(pageId);
+  if (target) {
+    target.classList.remove("hidden");
+    target.classList.add("visible");
+    
+    // Reset scroll position to the top of the section
+    window.scrollTo({
+top: 0,
+behavior: "smooth", // Optional: Adds smooth scrolling effect
+    });
+  }
+}
+
+// Optional: Function to handle mobile navigation by listening to links
+document.querySelectorAll('.sidebar a').forEach(link => {
+  link.addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default link behavior
+    const targetId = this.getAttribute('onclick').match(/navigateTo\("(\w+)"\)/)[1];
+    navigateTo(targetId);
+  });
+});
+
+    </script>
+    <script>let currentSlide=0;function showNextSlide(){const e=document.querySelectorAll(".carousel-slide");e[currentSlide].style.display="none",currentSlide=(currentSlide+1)%e.length,e[currentSlide].style.display="block"}document.querySelectorAll(".carousel-slide").forEach(((e,l)=>{e.style.display=0===l?"block":"none"})),setInterval(showNextSlide,3e3)</script>
+    <script>function showTab(e){document.querySelectorAll(".tab-content").forEach((e=>{e.classList.add("hidden"),e.classList.remove("visible")})),document.getElementById(e).classList.add("visible")}</script>
+    <script>const toggleCommentsButtons=document.querySelectorAll(".toggle-comments");toggleCommentsButtons.forEach((t=>{t.addEventListener("click",(function(){const t=this.getAttribute("data-target"),e=document.getElementById(t);"flex"===e.style.display?(e.style.display="none",this.innerHTML='<i class="ri-arrow-down-s-line"></i> View Comments'):(e.style.display="flex",this.innerHTML='<i class="ri-arrow-up-s-line"></i> Hide Comments')}))}))</script>
+    <script>
+function updateTimeAgo() {
+  // Find all elements with a data-timestamp attribute
+  document.querySelectorAll("[data-timestamp]").forEach((element) => {
+    const timestamp = element.getAttribute("data-timestamp");
+    if (timestamp) {
+const timeAgo = getTimeAgo(new Date(timestamp));
+element.textContent = timeAgo;
+    }
+  });
+}
+
+function getTimeAgo(date) {
+  const now = new Date();
+  const secondsElapsed = Math.floor((now - date) / 1000);
+
+  if (secondsElapsed < 60) {
+    return `${secondsElapsed}s ago`; // Seconds
+  }
+
+  const minutesElapsed = Math.floor(secondsElapsed / 60);
+  if (minutesElapsed < 60) {
+    return `${minutesElapsed}m ago`; // Minutes
+  }
+
+  const hoursElapsed = Math.floor(minutesElapsed / 60);
+  if (hoursElapsed < 24) {
+    return `${hoursElapsed}h ago`; // Hours
+  }
+
+  const daysElapsed = Math.floor(hoursElapsed / 24);
+  if (daysElapsed < 30) {
+    return `${daysElapsed}d ago`; // Days
+  }
+
+  const monthsElapsed = Math.floor(daysElapsed / 30);
+  if (monthsElapsed < 12) {
+    return `${monthsElapsed}mo ago`; // Months
+  }
+
+  const yearsElapsed = Math.floor(monthsElapsed / 12);
+  return `${yearsElapsed}y ago`; // Years
+}
+
+// Update all timestamps every 10 seconds
+setInterval(updateTimeAgo, 10000);
+
+// Initial update when the DOM is loaded
+document.addEventListener("DOMContentLoaded", updateTimeAgo);
+    </script>
+    <script>
+// Select the notification icon and popup
+const toggleNotify = document.getElementById("toggleNotify");
+const notifyPopup = document.getElementById("notifyPopup");
+
+// Toggle visibility of the notification popup
+toggleNotify.addEventListener("click", () => {
+notifyPopup.classList.toggle("hidden");
+});
+
+// Close the popup when clicking outside
+document.addEventListener("click", (event) => {
+if (!toggleNotify.contains(event.target) && !notifyPopup.contains(event.target)) {
+notifyPopup.classList.add("hidden");
+}
+});
+    </script>
+     <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const captions = document.querySelectorAll(".caption span");
+
+      captions.forEach((caption) => {
+        const fullText = caption.textContent.trim();
+        const words = fullText.split(" ");
+        const maxWords = 10;
+
+        if (words.length > maxWords) {
+          const shortText = words.slice(0, maxWords).join(" ");
+          const fullCaption = document.createElement("span");
+          const ellipsis = document.createElement("span");
+          const toggleButton = document.createElement("button");
+
+          // Set up elements
+          fullCaption.textContent = fullText;
+          ellipsis.textContent = "...";
+          toggleButton.textContent = "More";
+
+          fullCaption.className = "full-caption";
+          ellipsis.className = "ellipsis";
+          toggleButton.className = "toggle-button";
+
+          // Clear and rebuild the caption container
+          caption.textContent = shortText;
+          caption.parentNode.appendChild(ellipsis);
+          caption.parentNode.appendChild(fullCaption);
+          caption.parentNode.appendChild(toggleButton);
+
+          // Add toggle functionality
+          toggleButton.addEventListener("click", () => {
+            const isExpanded = fullCaption.style.display === "inline";
+            fullCaption.style.display = isExpanded ? "none" : "inline";
+            ellipsis.style.display = isExpanded ? "inline" : "none";
+            toggleButton.textContent = isExpanded ? "More" : "Less";
+          });
+        }
+      });
+    });
+  </script>
+  <script>
+      // Function to initialize modals
+function initializeModals() {
+  // Add event listeners to all modal trigger buttons
+  document.querySelectorAll('.open-modal').forEach((button) => {
+    button.addEventListener('click', (e) => {
+      const modalId = button.dataset.modal;
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        openModal(modal);
+      }
+    });
+  });
+
+  // Add event listeners to all modal buttons (Cancel/OK)
+  document.querySelectorAll('.modal .modal-btn').forEach((button) => {
+    button.addEventListener('click', (e) => {
+      const modal = button.closest('.modal');
+      if (modal) {
+        closeModal(modal);
+      }
+    });
+  });
+}
+
+// Function to open a modal
+function openModal(modal) {
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('show'), 10); // Smooth animation
+}
+
+// Function to close a modal
+function closeModal(modal) {
+  modal.classList.remove('show');
+  setTimeout(() => (modal.style.display = 'none'), 300); // Wait for animation to complete
+}
+
+// Initialize modals on page load
+initializeModals();
+  </script>
+  </body>
 </html>
