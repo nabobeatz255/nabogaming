@@ -47,9 +47,33 @@
   const auth = getAuth();
   const db = getDatabase(app);
   const storage = getStorage(app);
+// Monitor authentication state
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    const fullName = user.displayName;
+    const firstName = fullName ? fullName.split(" ")[0] : "";
+    const email = user.email;
+    const profilePicture = user.photoURL;
+
+    document.querySelectorAll(".user-name").forEach((element) => {
+      element.textContent = firstName;
+    });
+    document.querySelectorAll(".user-email").forEach((element) => {
+      element.textContent = email;
+    });
+    document.querySelectorAll(".profile-picture").forEach((element) => {
+      element.src = profilePicture || "default-profile.png";
+    });
+
+    console.log("User Data:", { firstName, email, profilePicture });
+  } else {
+    alert("You are not signed in. Redirecting to login...");
+    window.location.href = "index.html";
+  }
+});
 
   const postsContainer = document.getElementById("posts-container");
-
+const postsContainer = document.getElementById("posts-container2");
   // Time ago format function
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -1046,6 +1070,9 @@ Please Wait.....
     <button class="save-btn" id="create-post-button">Tuma Post Hii</button>
   </div>
 </section>
+
+  <div class=post-grid id="posts-container"></div>
+
   </div>
 </div>
 
