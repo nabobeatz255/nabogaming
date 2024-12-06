@@ -28,6 +28,7 @@
 	margin-top: 6px;
 }
 </style>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -73,9 +74,6 @@
     }
   });
 
-  // Correct the posts container definition
-  const postsContainer = document.getElementById("posts-container");
-
   // Time ago format function
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -104,6 +102,8 @@
   };
 
   // Load posts from the database
+  const postsContainer = document.getElementById("posts-container");
+
   const loadPosts = () => {
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -116,7 +116,7 @@
     });
   };
 
-  // Display each post with like, share, and comment functionality
+  // Display each post with like and share functionality
   const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
@@ -140,30 +140,14 @@
       <div class="post-actions">
         <div class="actions-left">
           <i class="ri-heart-line like-btn" data-id="${postId}"></i> <!-- Like button -->
-          <i class="ri-notification-line"></i>
           <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
-        </div>
-        <div class="actions-right">
-          <i class="ri-bookmark-line"></i>
         </div>
       </div>
       <div class="like-counter">
-        <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>&nbsp;|&nbsp;<span>999k comments</span>
+        <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
       </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
-      </div>
-      <div class="post-comments">
-        <button class="toggle-comments" data-target="comments-container-${postId}">
-          <i class="ri-arrow-down-s-line"></i> View Comments
-        </button>
-        <div class="comments-container" id="comments-container-${postId}">
-          ${renderComments(post.comments)}
-        </div>
-        <div class="comment-input-container">
-          <input class="comment-input" placeholder="Write a comment...">
-          <button class="submit-comment" data-post-id="${postId}">Send</button>
-        </div>
       </div>
     `;
     postsContainer.appendChild(postElement);
@@ -174,21 +158,6 @@
     // Share button functionality
     postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
 
-    // Toggle comments visibility
-    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-    });
-
-    // Handle comment submission
-    postElement.querySelector(".submit-comment").addEventListener("click", (event) => {
-      const postId = event.target.dataset.postId;
-      const commentInput = postElement.querySelector(".comment-input");
-      if (commentInput.value.trim() !== "") {
-        submitComment(postId, commentInput.value.trim());
-        commentInput.value = "";
-      }
-    });
   };
 
   // Like post functionality
@@ -213,35 +182,6 @@
     const updatedPost = updatedPostSnapshot.val();
     const updatedLikeCount = Object.keys(updatedPost.likes || {}).length;
     likeCountElement.innerText = `${updatedLikeCount} likes`;
-  };
-
-  // Render comments for a post
-  const renderComments = (comments) => {
-    if (!comments) return "";
-    return Object.keys(comments).map((commentId) => {
-      const comment = comments[commentId];
-      return `
-        <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
-        </div>
-      `;
-    }).join("");
-  };
-
-  // Submit a new comment for a post
-  const submitComment = async (postId, message) => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), {
-      username: user.displayName || "Anonymous",
-      message: message,
-      timestamp: serverTimestamp(),
-    });
-
-    alert("Comment added!");
-    loadPosts();  // Refresh posts to show the new comment
   };
 
   // Share post functionality
@@ -306,8 +246,6 @@
   // Attach create new post functionality to form submission
   document.getElementById("create-post-form").addEventListener("submit", createNewPost);
 </script>
-
-
 
 
 
@@ -405,8 +343,14 @@
     </section>
   </div>
 
+  <!-- Posts Section -->
+  <section id="posts-section">
+    <div id="posts-container">
+      Loading please wait...
+    </div>
+  </section>
 
-  <section class=tabs>
+ <!-- <section class=tabs>
     <div class=tab-header>
 <button onclick='showTab("trending")'>Trending</button>
 <button onclick='showTab("latest")'>Latest</button>
@@ -421,7 +365,7 @@
     <div class="tab-content hidden" id=popular>
 <p>Popular games will appear here.</p>
     </div>
-  </section>
+  </section>-->
 </div>
 
 
@@ -1046,14 +990,6 @@ Please Wait.....
     </div>
    <!-- Profile Settings -->
 <section class="profile-settings">
-  <!-- Header with user details -->
-  <header>
-    <div class="user-info">
-      <img class="profile-picture" src="" alt="User Profile Picture">
-      <span class="user-name"></span>
-      <span class="user-email"></span>
-    </div>
-  </header>
 
   <!-- Form to create a new post -->
   <section id="create-post">
@@ -1068,15 +1004,8 @@ Please Wait.....
     </form>
   </section>
 
-  <!-- Posts Section -->
-  <section id="posts-section">
-    <div id="posts-container">
-      <!-- Posts will be dynamically inserted here -->
-    </div>
-  </section>
-
   <!-- Comments template (for dynamic usage) -->
-  <div id="comments-template" style="display: none;">
+  <div id="comments-template" style="display: none;border:none">
     <div class="comment">
       <span class="comment-username"></span><br>
       <span class="comment-sms"></span>
