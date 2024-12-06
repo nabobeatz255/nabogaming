@@ -47,33 +47,35 @@
   const auth = getAuth();
   const db = getDatabase(app);
   const storage = getStorage(app);
-// Monitor authentication state
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    const fullName = user.displayName;
-    const firstName = fullName ? fullName.split(" ")[0] : "";
-    const email = user.email;
-    const profilePicture = user.photoURL;
 
-    document.querySelectorAll(".user-name").forEach((element) => {
-      element.textContent = firstName;
-    });
-    document.querySelectorAll(".user-email").forEach((element) => {
-      element.textContent = email;
-    });
-    document.querySelectorAll(".profile-picture").forEach((element) => {
-      element.src = profilePicture || "default-profile.png";
-    });
+  // Monitor authentication state
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const fullName = user.displayName;
+      const firstName = fullName ? fullName.split(" ")[0] : "";
+      const email = user.email;
+      const profilePicture = user.photoURL;
 
-    console.log("User Data:", { firstName, email, profilePicture });
-  } else {
-    alert("You are not signed in. Redirecting to login...");
-    window.location.href = "index.html";
-  }
-});
+      document.querySelectorAll(".user-name").forEach((element) => {
+        element.textContent = firstName;
+      });
+      document.querySelectorAll(".user-email").forEach((element) => {
+        element.textContent = email;
+      });
+      document.querySelectorAll(".profile-picture").forEach((element) => {
+        element.src = profilePicture || "default-profile.png";
+      });
 
+      console.log("User Data:", { firstName, email, profilePicture });
+    } else {
+      alert("You are not signed in. Redirecting to login...");
+      window.location.href = "index.html";
+    }
+  });
+
+  // Correct the posts container definition
   const postsContainer = document.getElementById("posts-container");
-const postsContainer = document.getElementById("posts-container2");
+
   // Time ago format function
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -253,70 +255,58 @@ const postsContainer = document.getElementById("posts-container2");
       .then(() => console.log("Post shared successfully"))
       .catch((error) => console.error("Error sharing post", error));
     } else {
-      alert("Sharing not supported in this browser.");
+      alert("Share functionality not available on this device.");
     }
   };
 
-  // Create a new post with caption and image
-  const createNewPost = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Please log in to post.");
-      return;
-    }
+  // Handle new post creation
+  const createNewPost = async (event) => {
+    event.preventDefault();
 
-    const caption = document.getElementById("new-post-caption").value;
-    const fileInput = document.getElementById("new-post-image");
+    const caption = document.getElementById("caption").value.trim();
+    const fileInput = document.getElementById("fileInput");
     const file = fileInput.files[0];
 
-    if (!caption && !file) {
-      alert("Please provide a caption or an image.");
+    if (!caption || !file) {
+      alert("Please provide a caption and an image.");
       return;
     }
 
-    try {
-      let imageUrl = "";
-
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
-        const uploadTask = uploadBytes(storageReference, file);
-
-        // Get the total file size in kilobytes
-        const fileSizeKB = (file.size / 1024).toFixed(2);
-        console.log(`File size: ${fileSizeKB} KB`);
-
-        await uploadTask;
-        imageUrl = await getDownloadURL(storageReference);
-      }
-
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: user.displayName || "Anonymous",
-        authorPhoto: user.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-      });
-
-      loadPosts(); // Reload posts
-    } catch (error) {
-      console.error("Error creating post:", error);
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You must be logged in to post.");
+      return;
     }
+
+    // Upload image to Firebase Storage
+    const storagePath = `posts/${user.uid}/${Date.now()}_${file.name}`;
+    const fileRef = storageRef(storage, storagePath);
+    const snapshot = await uploadBytes(fileRef, file);
+    const imageUrl = await getDownloadURL(snapshot.ref);
+
+    // Create new post in Firebase Realtime Database
+    const newPostRef = push(ref(db, "posts"));
+    await set(newPostRef, {
+      content: caption,
+      imageUrl: imageUrl,
+      timestamp: serverTimestamp(),
+      authorName: user.displayName,
+      authorPhoto: user.photoURL || "default-profile.png",
+      likes: {},
+      comments: {},
+    });
+
+    alert("Post created successfully!");
+    loadPosts();  // Refresh posts after creating a new one
   };
 
-  // Auth state listener
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      document.getElementById("create-post-button").addEventListener("click", createNewPost);
-      loadPosts();
-    } else {
-      alert("Please log in to see posts.");
-    }
-  });
+  // Load posts on page load
+  loadPosts();
+
+  // Attach create new post functionality to form submission
+  document.getElementById("create-post-form").addEventListener("submit", createNewPost);
 </script>
+
 
 
 
@@ -1059,7 +1049,7 @@ Please Wait.....
 <section class="profile-settings">
   <div class="settings-card">
     <h2>Tengeneza Post Mpya</h2>
-    <div class="form-group">
+    <div class="form-group" id="new-post">
       <label for="name">Weka Caption Mpya</label>
       <input type="text" id="new-post-caption" placeholder="Enter new username">
     </div>
