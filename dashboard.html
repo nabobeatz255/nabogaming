@@ -116,7 +116,7 @@
     });
   };
 
-  // Display each post with like and share functionality
+  // Display each post with like, share, and comment functionality
   const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
@@ -149,6 +149,18 @@
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
       </div>
+      <div class="post-comments">
+        <button class="toggle-comments" data-target="comments-container-${postId}">
+          <i class="ri-arrow-down-s-line"></i> View Comments
+        </button>
+        <div class="comments-container" id="comments-container-${postId}">
+          ${renderComments(post.comments)}
+        </div>
+        <div class="comment-input-container">
+          <input class="comment-input" placeholder="Write a comment...">
+          <button class="submit-comment" data-post-id="${postId}">Send</button>
+        </div>
+      </div>
     `;
     postsContainer.appendChild(postElement);
 
@@ -158,6 +170,21 @@
     // Share button functionality
     postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
 
+    // Toggle comments visibility
+    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+    });
+
+    // Handle comment submission
+    postElement.querySelector(".submit-comment").addEventListener("click", (event) => {
+      const postId = event.target.dataset.postId;
+      const commentInput = postElement.querySelector(".comment-input");
+      if (commentInput.value.trim() !== "") {
+        submitComment(postId, commentInput.value.trim());
+        commentInput.value = "";
+      }
+    });
   };
 
   // Like post functionality
@@ -184,71 +211,101 @@
     likeCountElement.innerText = `${updatedLikeCount} likes`;
   };
 
-  // Share post functionality
+  // Render comments for a post
+  const renderComments = (comments) => {
+    if (!comments) return "";
+    return Object.keys(comments).map((commentId) => {
+      const comment = comments[commentId];
+      return `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+        </div>
+      `;
+    }).join("");
+  };
+
+  // Submit comment
+  const submitComment = async (postId, commentText) => {
+    const user = auth.currentUser;
+    if (!user) return; // User must be logged in
+
+    const commentData = {
+      username: user.displayName,
+      message: commentText,
+    };
+
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+
+    loadPosts(); // Reload posts to show the new comment
+  };
+
+  // Share post functionality (native share)
   const sharePost = (post) => {
     if (navigator.share) {
       navigator.share({
-        title: post.authorName + "'s Post",
+        title: "Post Share",
         text: post.content,
-        url: post.imageUrl,
+        url: window.location.href,
       })
-      .then(() => console.log("Post shared successfully"))
-      .catch((error) => console.error("Error sharing post", error));
+        .then(() => console.log("Post shared"))
+        .catch((error) => console.error("Error sharing post:", error));
     } else {
-      alert("Share functionality not available on this device.");
+      alert("Sharing not supported in this browser.");
     }
   };
 
-  // Handle new post creation
-  const createNewPost = async (event) => {
-    event.preventDefault();
-
-    const caption = document.getElementById("caption").value.trim();
-    const fileInput = document.getElementById("fileInput");
-    const file = fileInput.files[0];
-
-    if (!caption || !file) {
-      alert("Please provide a caption and an image.");
-      return;
-    }
-
+  // Create a new post
+  const createNewPost = async () => {
     const user = auth.currentUser;
     if (!user) {
-      alert("You must be logged in to post.");
+      alert("Please log in to post.");
       return;
     }
 
-    // Upload image to Firebase Storage
-    const storagePath = `posts/${user.uid}/${Date.now()}_${file.name}`;
-    const fileRef = storageRef(storage, storagePath);
-    const snapshot = await uploadBytes(fileRef, file);
-    const imageUrl = await getDownloadURL(snapshot.ref);
+    const caption = document.getElementById("new-post-caption").value;
+    const fileInput = document.getElementById("new-post-image");
+    const file = fileInput.files[0];
 
-    // Create new post in Firebase Realtime Database
-    const newPostRef = push(ref(db, "posts"));
-    await set(newPostRef, {
-      content: caption,
-      imageUrl: imageUrl,
-      timestamp: serverTimestamp(),
-      authorName: user.displayName,
-      authorPhoto: user.photoURL || "default-profile.png",
-      likes: {},
-      comments: {},
-    });
+    if (!caption && !file) {
+      alert("Please provide a caption or an image.");
+      return;
+    }
 
-    alert("Post created successfully!");
-    loadPosts();  // Refresh posts after creating a new one
+    try {
+      let imageUrl = "";
+
+      if (file) {
+        // Upload image to Firebase Storage
+        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
+        const uploadTask = uploadBytes(storageReference, file);
+
+        await uploadTask;
+        imageUrl = await getDownloadURL(storageReference);
+      }
+
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: user.displayName || "Anonymous",
+        authorPhoto: user.photoURL || "default.jpg",
+        content: caption,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
+      });
+
+      loadPosts(); // Reload posts
+    } catch (error) {
+      console.error("Error creating post:", error);
+    }
   };
 
-  // Load posts on page load
-  loadPosts();
+  // Bind create post button
+  document.getElementById("create-post-button").addEventListener("click", createNewPost);
 
-  // Attach create new post functionality to form submission
-  document.getElementById("create-post-form").addEventListener("submit", createNewPost);
+  loadPosts(); // Load posts on page load
 </script>
-
-
-
 
 
  </head>
@@ -344,7 +401,7 @@
   </div>
 
   <!-- Posts Section -->
-  <section id="posts-section">
+  <section id="posts-section" class="post-grid">
     <div id="posts-container">
       Loading please wait...
     </div>
