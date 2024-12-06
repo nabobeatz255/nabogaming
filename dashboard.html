@@ -116,7 +116,7 @@
     });
   };
 
-  // Display each post with like, share, and comment functionality
+  // Display each post with like, share, comment, and rate functionality
   const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
@@ -141,10 +141,14 @@
         <div class="actions-left">
           <i class="ri-heart-line like-btn" data-id="${postId}"></i> <!-- Like button -->
           <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
+          <button class="rate-post-btn" data-id="${postId}">Rate 5 Stars</button> <!-- Rate 5 Stars button -->
         </div>
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
+      </div>
+      <div class="post-rating">
+        <span class="rating-count">Rating: ${post.rating || "No rating yet"}</span> <!-- Rating display -->
       </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
@@ -170,6 +174,9 @@
     // Share button functionality
     postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
 
+    // Rate post functionality
+    postElement.querySelector(".rate-post-btn").addEventListener("click", () => ratePost(postId));
+
     // Toggle comments visibility
     postElement.querySelector(".toggle-comments").addEventListener("click", () => {
       const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
@@ -187,28 +194,15 @@
     });
   };
 
-  // Like post functionality
-  const likePost = async (postId, postElement) => {
+  // Rate post functionality (rate with 5 stars)
+  const ratePost = async (postId) => {
     const user = auth.currentUser;
     if (!user) return; // User must be logged in
 
-    const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-    const postLikesSnapshot = await postLikesRef.get();
-    const likeCountElement = postElement.querySelector(".like-count");
+    const postRatingRef = ref(db, `posts/${postId}/rating`);
+    await set(postRatingRef, 5); // Set rating to 5 stars
 
-    if (postLikesSnapshot.exists()) {
-      // Remove like
-      await set(postLikesRef, null); // Null removes the like
-    } else {
-      // Add like
-      await set(postLikesRef, true); // Set like to true
-    }
-
-    // Update like count locally
-    const updatedPostSnapshot = await ref(db, `posts/${postId}`).get();
-    const updatedPost = updatedPostSnapshot.val();
-    const updatedLikeCount = Object.keys(updatedPost.likes || {}).length;
-    likeCountElement.innerText = `${updatedLikeCount} likes`;
+    loadPosts(); // Reload posts to show updated rating
   };
 
   // Render comments for a post
@@ -293,6 +287,7 @@
         timestamp: serverTimestamp(),
         likes: {},
         comments: {},
+        rating: null, // Rating field added
       });
 
       loadPosts(); // Reload posts
