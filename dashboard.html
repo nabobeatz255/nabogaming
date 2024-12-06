@@ -28,11 +28,13 @@
 	margin-top: 6px;
 }
 </style>
+
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, update, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { getDatabase, ref, push, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getStorage } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -79,30 +81,26 @@
 
   const postsContainer = document.getElementById("posts-container");
 
-  // Time ago format function
-  const formatTimestamp = (timestamp) => {
-    const now = new Date();
-    const timeDiff = now - new Date(timestamp); // Difference in milliseconds
-
-    const seconds = Math.floor(timeDiff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(months / 12);
-
-    if (seconds < 60) {
-      return `${seconds}s ago`;
-    } else if (minutes < 60) {
-      return `${minutes}m ago`;
-    } else if (hours < 24) {
-      return `${hours}hr ago`;
-    } else if (days < 30) {
-      return `${days}d ago`;
-    } else if (months < 12) {
-      return `${months}mo ago`;
+  // Create new post functionality
+  const createNewPost = () => {
+    const newPostContent = document.getElementById("new-post-content").value;
+    if (newPostContent.trim()) {
+      const newPostRef = push(ref(db, "posts"));
+      set(newPostRef, {
+        authorName: auth.currentUser.displayName || "Anonymous",
+        authorPhoto: auth.currentUser.photoURL || "default-profile.png",
+        content: newPostContent,
+        imageUrl: "default-image.png",  // Replace this with actual image upload logic if needed
+        timestamp: serverTimestamp(),
+      }).then(() => {
+        alert("Post created successfully!");
+        loadPosts();  // Refresh posts to show the new post
+        document.getElementById("new-post-content").value = ""; // Clear the input field
+      }).catch((error) => {
+        console.log("Error creating post:", error);
+      });
     } else {
-      return `${years}yr ago`;
+      alert("Please enter some content for your post!");
     }
   };
 
@@ -194,28 +192,31 @@
     });
   };
 
-  // Like post functionality
-  const likePost = async (postId, postElement) => {
-    const user = auth.currentUser;
-    if (!user) return; // User must be logged in
+  // Format timestamp
+  const formatTimestamp = (timestamp) => {
+    const now = new Date();
+    const timeDiff = now - new Date(timestamp); // Difference in milliseconds
 
-    const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-    const postLikesSnapshot = await postLikesRef.get();
-    const likeCountElement = postElement.querySelector(".like-count");
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
 
-    if (postLikesSnapshot.exists()) {
-      // Remove like
-      await set(postLikesRef, null); // Null removes the like
+    if (seconds < 60) {
+      return `${seconds}s ago`;
+    } else if (minutes < 60) {
+      return `${minutes}m ago`;
+    } else if (hours < 24) {
+      return `${hours}hr ago`;
+    } else if (days < 30) {
+      return `${days}d ago`;
+    } else if (months < 12) {
+      return `${months}mo ago`;
     } else {
-      // Add like
-      await set(postLikesRef, true); // Set like to true
+      return `${years}yr ago`;
     }
-
-    // Update like count locally
-    const updatedPostSnapshot = await ref(db, `posts/${postId}`).get();
-    const updatedPost = updatedPostSnapshot.val();
-    const updatedLikeCount = Object.keys(updatedPost.likes || {}).length;
-    likeCountElement.innerText = `${updatedLikeCount} likes`;
   };
 
   // Render comments for a post
@@ -233,59 +234,44 @@
 
   // Submit a new comment for a post
   const submitComment = async (postId, message) => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), {
-      username: user.displayName || "Anonymous",
+    const commentsRef = ref(db, `posts/${postId}/comments`);
+    const newCommentRef = push(commentsRef);
+    await set(newCommentRef, {
+      username: auth.currentUser.displayName,
       message: message,
-      timestamp: serverTimestamp(),
     });
-
     alert("Comment added!");
-    loadPosts();  // Refresh posts to show the new comment
+    loadPosts(); // Reload posts to show new comment
+  };
+
+  // Handle like functionality
+  const likePost = (postId, postElement) => {
+    const likeButton = postElement.querySelector(".like-btn");
+    const likesRef = ref(db, `posts/${postId}/likes`);
+    const currentUserId = auth.currentUser.uid;
+
+    // Toggle like status for the user
+    const updates = {};
+    updates[`posts/${postId}/likes/${currentUserId}`] = likeButton.classList.contains("liked") ? null : true;
+    set(ref(db), updates);
+
+    likeButton.classList.toggle("liked");
   };
 
   // Share post functionality
   const sharePost = (post) => {
     if (navigator.share) {
       navigator.share({
-        title: post.authorName + "'s Post",
+        title: "Check out this post",
         text: post.content,
         url: window.location.href,
-      })
-      .then(() => console.log("Shared successfully"))
-      .catch((error) => console.log("Share failed:", error));
+      }).then(() => console.log("Post shared successfully"))
+        .catch((error) => console.log("Post share failed:", error));
     } else {
       alert("Sharing is not supported on this device.");
     }
   };
-
-  // Create new post functionality
-  const createNewPost = () => {
-    const newPostContent = document.getElementById("new-post-content").value;
-    if (newPostContent.trim()) {
-      const newPostRef = push(ref(db, "posts"));
-      set(newPostRef, {
-        authorName: auth.currentUser.displayName || "Anonymous",
-        authorPhoto: auth.currentUser.photoURL || "default-profile.png",
-        content: newPostContent,
-        imageUrl: "default-image.png",  // Replace this with actual image upload logic
-        timestamp: serverTimestamp(),
-      }).then(() => {
-        alert("Post created successfully!");
-        loadPosts();
-      }).catch((error) => {
-        console.log("Error creating post:", error);
-      });
-    } else {
-      alert("Please enter some content for your post!");
-    }
-  };
 </script>
-
-
 
  </head>
   <body>
