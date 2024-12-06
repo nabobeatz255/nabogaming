@@ -43,7 +43,6 @@
     appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
   const db = getDatabase(app);
@@ -69,7 +68,7 @@
 
       console.log("User Data:", { firstName, email, profilePicture });
 
-      // Enable post creation
+      // Enable post creation functionality
       document.getElementById("create-post-button").addEventListener("click", createNewPost);
       loadPosts(); // Load posts when user is authenticated
     } else {
@@ -78,13 +77,12 @@
     }
   });
 
-  // Container for posts
   const postsContainer = document.getElementById("posts-container");
 
   // Time ago format function
   const formatTimestamp = (timestamp) => {
     const now = new Date();
-    const timeDiff = now - new Date(timestamp);
+    const timeDiff = now - new Date(timestamp); // Difference in milliseconds
 
     const seconds = Math.floor(timeDiff / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -131,8 +129,12 @@
           <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
+          <div class="profile-name">
+            ${post.authorName}
+          </div>
+          <div class="post-time-2">
+            ${formatTimestamp(post.timestamp)}
+          </div>
         </div>
       </div>
       <div class="post-image">
@@ -195,10 +197,7 @@
   // Like post functionality
   const likePost = async (postId, postElement) => {
     const user = auth.currentUser;
-    if (!user) {
-      alert("Please log in to like the post.");
-      return; // User must be logged in
-    }
+    if (!user) return; // User must be logged in
 
     const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
     const postLikesSnapshot = await postLikesRef.get();
@@ -222,79 +221,66 @@
   // Render comments for a post
   const renderComments = (comments) => {
     if (!comments) return "";
-    return Object.values(comments).map((comment) => `
-      <div class="comment">
-        <span class="username">${comment.username}</span>: ${comment.text}
-      </div>
-    `).join("");
+    return Object.keys(comments).map((commentId) => {
+      const comment = comments[commentId];
+      return `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+        </div>
+      `;
+    }).join("");
   };
 
-  // Submit a comment
-  const submitComment = (postId, commentText) => {
+  // Submit a new comment for a post
+  const submitComment = async (postId, message) => {
     const user = auth.currentUser;
-    if (!user) {
-      alert("You need to log in to comment.");
-      return;
-    }
+    if (!user) return;
 
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    set(ref(db, `posts/${postId}/comments/${commentId}`), {
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), {
       username: user.displayName || "Anonymous",
-      text: commentText,
-    }).then(() => {
-      console.log("Comment added!");
-      loadPosts(); // Refresh the posts after submitting a comment
-    }).catch((error) => {
-      console.error("Error adding comment:", error);
+      message: message,
+      timestamp: serverTimestamp(),
     });
+
+    alert("Comment added!");
+    loadPosts();  // Refresh posts to show the new comment
   };
 
-  // Create a new post
-  const createNewPost = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Please log in to post.");
-      return;
+  // Share post functionality
+  const sharePost = (post) => {
+    if (navigator.share) {
+      navigator.share({
+        title: post.authorName + "'s Post",
+        text: post.content,
+        url: window.location.href,
+      })
+      .then(() => console.log("Shared successfully"))
+      .catch((error) => console.log("Share failed:", error));
+    } else {
+      alert("Sharing is not supported on this device.");
     }
+  };
 
-    const caption = document.getElementById("new-post-caption").value;
-    const fileInput = document.getElementById("new-post-image");
-    const file = fileInput.files[0];
-
-    if (!caption && !file) {
-      alert("Please provide a caption or an image.");
-      return;
-    }
-
-    try {
-      let imageUrl = "";
-
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
-        const uploadTask = await uploadBytes(storageReference, file);
-
-        // Get the total file size in kilobytes
-        const fileSizeKB = (file.size / 1024).toFixed(2);
-        console.log(`File size: ${fileSizeKB} KB`);
-
-        imageUrl = await getDownloadURL(storageReference); // Retrieve image URL after upload
-      }
-
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: user.displayName || "Anonymous",
-        authorPhoto: user.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
+  // Create new post functionality
+  const createNewPost = () => {
+    const newPostContent = document.getElementById("new-post-content").value;
+    if (newPostContent.trim()) {
+      const newPostRef = push(ref(db, "posts"));
+      set(newPostRef, {
+        authorName: auth.currentUser.displayName || "Anonymous",
+        authorPhoto: auth.currentUser.photoURL || "default-profile.png",
+        content: newPostContent,
+        imageUrl: "default-image.png",  // Replace this with actual image upload logic
         timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
+      }).then(() => {
+        alert("Post created successfully!");
+        loadPosts();
+      }).catch((error) => {
+        console.log("Error creating post:", error);
       });
-
-      loadPosts(); // Reload posts after creation
-    } catch (error) {
-      console.error("Error creating post:", error);
+    } else {
+      alert("Please enter some content for your post!");
     }
   };
 </script>
