@@ -28,12 +28,11 @@
 	margin-top: 6px;
 }
 </style>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, set, serverTimestamp, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-  import { getStorage } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { getDatabase, ref, push, update, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -48,58 +47,57 @@
   const auth = getAuth();
   const db = getDatabase(app);
   const storage = getStorage(app);
+// Monitor authentication state
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    const fullName = user.displayName;
+    const firstName = fullName ? fullName.split(" ")[0] : "";
+    const email = user.email;
+    const profilePicture = user.photoURL;
 
-  // Monitor authentication state
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const fullName = user.displayName;
-      const firstName = fullName ? fullName.split(" ")[0] : "";
-      const email = user.email;
-      const profilePicture = user.photoURL;
+    document.querySelectorAll(".user-name").forEach((element) => {
+      element.textContent = firstName;
+    });
+    document.querySelectorAll(".user-email").forEach((element) => {
+      element.textContent = email;
+    });
+    document.querySelectorAll(".profile-picture").forEach((element) => {
+      element.src = profilePicture || "default-profile.png";
+    });
 
-      document.querySelectorAll(".user-name").forEach((element) => {
-        element.textContent = firstName;
-      });
-      document.querySelectorAll(".user-email").forEach((element) => {
-        element.textContent = email;
-      });
-      document.querySelectorAll(".profile-picture").forEach((element) => {
-        element.src = profilePicture || "default-profile.png";
-      });
-
-      console.log("User Data:", { firstName, email, profilePicture });
-
-      // Enable post creation functionality
-      document.getElementById("create-post-button").addEventListener("click", createNewPost);
-      loadPosts(); // Load posts when user is authenticated
-    } else {
-      alert("You are not signed in. Redirecting to login...");
-      window.location.href = "index.html";
-    }
-  });
+    console.log("User Data:", { firstName, email, profilePicture });
+  } else {
+    alert("You are not signed in. Redirecting to login...");
+    window.location.href = "index.html";
+  }
+});
 
   const postsContainer = document.getElementById("posts-container");
+const postsContainer = document.getElementById("posts-container2");
+  // Time ago format function
+  const formatTimestamp = (timestamp) => {
+    const now = new Date();
+    const timeDiff = now - new Date(timestamp); // Difference in milliseconds
 
-  // Create new post functionality
-  const createNewPost = () => {
-    const newPostContent = document.getElementById("new-post-content").value;
-    if (newPostContent.trim()) {
-      const newPostRef = push(ref(db, "posts"));
-      set(newPostRef, {
-        authorName: auth.currentUser.displayName || "Anonymous",
-        authorPhoto: auth.currentUser.photoURL || "default-profile.png",
-        content: newPostContent,
-        imageUrl: "default-image.png",  // Replace this with actual image upload logic if needed
-        timestamp: serverTimestamp(),
-      }).then(() => {
-        alert("Post created successfully!");
-        loadPosts();  // Refresh posts to show the new post
-        document.getElementById("new-post-content").value = ""; // Clear the input field
-      }).catch((error) => {
-        console.log("Error creating post:", error);
-      });
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+
+    if (seconds < 60) {
+      return `${seconds}s ago`;
+    } else if (minutes < 60) {
+      return `${minutes}m ago`;
+    } else if (hours < 24) {
+      return `${hours}hr ago`;
+    } else if (days < 30) {
+      return `${days}d ago`;
+    } else if (months < 12) {
+      return `${months}mo ago`;
     } else {
-      alert("Please enter some content for your post!");
+      return `${years}yr ago`;
     }
   };
 
@@ -191,31 +189,28 @@
     });
   };
 
-  // Format timestamp
-  const formatTimestamp = (timestamp) => {
-    const now = new Date();
-    const timeDiff = now - new Date(timestamp); // Difference in milliseconds
+  // Like post functionality
+  const likePost = async (postId, postElement) => {
+    const user = auth.currentUser;
+    if (!user) return; // User must be logged in
 
-    const seconds = Math.floor(timeDiff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(months / 12);
+    const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
+    const postLikesSnapshot = await postLikesRef.get();
+    const likeCountElement = postElement.querySelector(".like-count");
 
-    if (seconds < 60) {
-      return `${seconds}s ago`;
-    } else if (minutes < 60) {
-      return `${minutes}m ago`;
-    } else if (hours < 24) {
-      return `${hours}hr ago`;
-    } else if (days < 30) {
-      return `${days}d ago`;
-    } else if (months < 12) {
-      return `${months}mo ago`;
+    if (postLikesSnapshot.exists()) {
+      // Remove like
+      await set(postLikesRef, null); // Null removes the like
     } else {
-      return `${years}yr ago`;
+      // Add like
+      await set(postLikesRef, true); // Set like to true
     }
+
+    // Update like count locally
+    const updatedPostSnapshot = await ref(db, `posts/${postId}`).get();
+    const updatedPost = updatedPostSnapshot.val();
+    const updatedLikeCount = Object.keys(updatedPost.likes || {}).length;
+    likeCountElement.innerText = `${updatedLikeCount} likes`;
   };
 
   // Render comments for a post
@@ -233,43 +228,99 @@
 
   // Submit a new comment for a post
   const submitComment = async (postId, message) => {
-    const commentsRef = ref(db, `posts/${postId}/comments`);
-    const newCommentRef = push(commentsRef);
-    await set(newCommentRef, {
-      username: auth.currentUser.displayName,
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), {
+      username: user.displayName || "Anonymous",
       message: message,
+      timestamp: serverTimestamp(),
     });
-    loadPosts(); // Reload posts to show new comment
-  };
 
-  // Handle like functionality
-  const likePost = (postId, postElement) => {
-    const likeButton = postElement.querySelector(".like-btn");
-    const likesRef = ref(db, `posts/${postId}/likes`);
-    const currentUserId = auth.currentUser.uid;
-
-    const updates = {};
-    updates[`posts/${postId}/likes/${currentUserId}`] = likeButton.classList.contains("liked") ? null : true;
-    set(ref(db), updates);
-
-    likeButton.classList.toggle("liked");
+    alert("Comment added!");
+    loadPosts();  // Refresh posts to show the new comment
   };
 
   // Share post functionality
   const sharePost = (post) => {
     if (navigator.share) {
       navigator.share({
-        title: "Check out this post",
+        title: post.authorName + "'s Post",
         text: post.content,
-        url: window.location.href,
-      }).then(() => console.log("Post shared successfully"))
-        .catch((error) => console.log("Post share failed:", error));
+        url: post.imageUrl,
+      })
+      .then(() => console.log("Post shared successfully"))
+      .catch((error) => console.error("Error sharing post", error));
     } else {
-      alert("Sharing is not supported on this device.");
+      alert("Sharing not supported in this browser.");
     }
   };
 
+  // Create a new post with caption and image
+  const createNewPost = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Please log in to post.");
+      return;
+    }
+
+    const caption = document.getElementById("new-post-caption").value;
+    const fileInput = document.getElementById("new-post-image");
+    const file = fileInput.files[0];
+
+    if (!caption && !file) {
+      alert("Please provide a caption or an image.");
+      return;
+    }
+
+    try {
+      let imageUrl = "";
+
+      if (file) {
+        // Upload image to Firebase Storage
+        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
+        const uploadTask = uploadBytes(storageReference, file);
+
+        // Get the total file size in kilobytes
+        const fileSizeKB = (file.size / 1024).toFixed(2);
+        console.log(`File size: ${fileSizeKB} KB`);
+
+        await uploadTask;
+        imageUrl = await getDownloadURL(storageReference);
+      }
+
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: user.displayName || "Anonymous",
+        authorPhoto: user.photoURL || "default.jpg",
+        content: caption,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
+      });
+
+      loadPosts(); // Reload posts
+    } catch (error) {
+      console.error("Error creating post:", error);
+    }
+  };
+
+  // Auth state listener
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById("create-post-button").addEventListener("click", createNewPost);
+      loadPosts();
+    } else {
+      alert("Please log in to see posts.");
+    }
+  });
 </script>
+
+
+
+
 
 
  </head>
@@ -1020,7 +1071,7 @@ Please Wait.....
   </div>
 </section>
 
-  <div class=post-grid id="posts-container2"></div>
+  <div class=post-grid id="posts-container"></div>
 
   </div>
 </div>
