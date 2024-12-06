@@ -29,11 +29,10 @@
 }
 </style>
 
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getDatabase, ref, push, set, serverTimestamp, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
   import { getStorage } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
@@ -240,7 +239,6 @@
       username: auth.currentUser.displayName,
       message: message,
     });
-    alert("Comment added!");
     loadPosts(); // Reload posts to show new comment
   };
 
@@ -250,7 +248,6 @@
     const likesRef = ref(db, `posts/${postId}/likes`);
     const currentUserId = auth.currentUser.uid;
 
-    // Toggle like status for the user
     const updates = {};
     updates[`posts/${postId}/likes/${currentUserId}`] = likeButton.classList.contains("liked") ? null : true;
     set(ref(db), updates);
@@ -271,7 +268,9 @@
       alert("Sharing is not supported on this device.");
     }
   };
+
 </script>
+
 
  </head>
   <body>
