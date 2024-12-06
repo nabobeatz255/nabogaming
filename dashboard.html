@@ -405,7 +405,6 @@
     </section>
   </div>
 
-  <div class=post-grid id="posts-container"></div>
 
   <section class=tabs>
     <div class=tab-header>
@@ -1047,18 +1046,43 @@ Please Wait.....
     </div>
    <!-- Profile Settings -->
 <section class="profile-settings">
-  <div class="settings-card">
-    <h2>Tengeneza Post Mpya</h2>
-    <div class="form-group" id="new-post">
-      <label for="name">Weka Caption Mpya</label>
-      <input type="text" id="new-post-caption" placeholder="Enter new username">
+  <!-- Header with user details -->
+  <header>
+    <div class="user-info">
+      <img class="profile-picture" src="" alt="User Profile Picture">
+      <span class="user-name"></span>
+      <span class="user-email"></span>
     </div>
-    <div class="form-group">
-      <label for="name">Chagua picha mpya (landscape preferred)</label>
-      <input type="file" id="new-post-image" accept="image/*">
+  </header>
+
+  <!-- Form to create a new post -->
+  <section id="create-post">
+    <form id="create-post-form">
+      <label for="fileInput">Choose an image to upload:</label>
+      <input type="file" id="fileInput" accept="image/*" required>
+      <br>
+      <label for="caption">Enter caption:</label>
+      <textarea id="caption" placeholder="Write something..." rows="4" required></textarea>
+      <br>
+      <button type="submit">Post</button>
+    </form>
+  </section>
+
+  <!-- Posts Section -->
+  <section id="posts-section">
+    <div id="posts-container">
+      <!-- Posts will be dynamically inserted here -->
     </div>
-    <button class="save-btn" id="create-post-button">Tuma Post Hii</button>
+  </section>
+
+  <!-- Comments template (for dynamic usage) -->
+  <div id="comments-template" style="display: none;">
+    <div class="comment">
+      <span class="comment-username"></span><br>
+      <span class="comment-sms"></span>
+    </div>
   </div>
+
 </section>
 
   <div class=post-grid id="posts-container"></div>
