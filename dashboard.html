@@ -43,41 +43,48 @@
     appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
   };
 
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
   const db = getDatabase(app);
   const storage = getStorage(app);
-// Monitor authentication state
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    const fullName = user.displayName;
-    const firstName = fullName ? fullName.split(" ")[0] : "";
-    const email = user.email;
-    const profilePicture = user.photoURL;
 
-    document.querySelectorAll(".user-name").forEach((element) => {
-      element.textContent = firstName;
-    });
-    document.querySelectorAll(".user-email").forEach((element) => {
-      element.textContent = email;
-    });
-    document.querySelectorAll(".profile-picture").forEach((element) => {
-      element.src = profilePicture || "default-profile.png";
-    });
+  // Monitor authentication state
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const fullName = user.displayName;
+      const firstName = fullName ? fullName.split(" ")[0] : "";
+      const email = user.email;
+      const profilePicture = user.photoURL;
 
-    console.log("User Data:", { firstName, email, profilePicture });
-  } else {
-    alert("You are not signed in. Redirecting to login...");
-    window.location.href = "index.html";
-  }
-});
+      document.querySelectorAll(".user-name").forEach((element) => {
+        element.textContent = firstName;
+      });
+      document.querySelectorAll(".user-email").forEach((element) => {
+        element.textContent = email;
+      });
+      document.querySelectorAll(".profile-picture").forEach((element) => {
+        element.src = profilePicture || "default-profile.png";
+      });
 
+      console.log("User Data:", { firstName, email, profilePicture });
+
+      // Enable post creation
+      document.getElementById("create-post-button").addEventListener("click", createNewPost);
+      loadPosts(); // Load posts when user is authenticated
+    } else {
+      alert("You are not signed in. Redirecting to login...");
+      window.location.href = "index.html";
+    }
+  });
+
+  // Container for posts
   const postsContainer = document.getElementById("posts-container");
-const postsContainer = document.getElementById("posts-container2");
+
   // Time ago format function
   const formatTimestamp = (timestamp) => {
     const now = new Date();
-    const timeDiff = now - new Date(timestamp); // Difference in milliseconds
+    const timeDiff = now - new Date(timestamp);
 
     const seconds = Math.floor(timeDiff / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -124,12 +131,8 @@ const postsContainer = document.getElementById("posts-container2");
           <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
-          <div class="profile-name">
-            ${post.authorName}
-          </div>
-          <div class="post-time-2">
-            ${formatTimestamp(post.timestamp)}
-          </div>
+          <div class="profile-name">${post.authorName}</div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
         </div>
       </div>
       <div class="post-image">
@@ -192,7 +195,10 @@ const postsContainer = document.getElementById("posts-container2");
   // Like post functionality
   const likePost = async (postId, postElement) => {
     const user = auth.currentUser;
-    if (!user) return; // User must be logged in
+    if (!user) {
+      alert("Please log in to like the post.");
+      return; // User must be logged in
+    }
 
     const postLikesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
     const postLikesSnapshot = await postLikesRef.get();
@@ -216,48 +222,34 @@ const postsContainer = document.getElementById("posts-container2");
   // Render comments for a post
   const renderComments = (comments) => {
     if (!comments) return "";
-    return Object.keys(comments).map((commentId) => {
-      const comment = comments[commentId];
-      return `
-        <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
-        </div>
-      `;
-    }).join("");
+    return Object.values(comments).map((comment) => `
+      <div class="comment">
+        <span class="username">${comment.username}</span>: ${comment.text}
+      </div>
+    `).join("");
   };
 
-  // Submit a new comment for a post
-  const submitComment = async (postId, message) => {
+  // Submit a comment
+  const submitComment = (postId, commentText) => {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+      alert("You need to log in to comment.");
+      return;
+    }
 
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), {
+    set(ref(db, `posts/${postId}/comments/${commentId}`), {
       username: user.displayName || "Anonymous",
-      message: message,
-      timestamp: serverTimestamp(),
+      text: commentText,
+    }).then(() => {
+      console.log("Comment added!");
+      loadPosts(); // Refresh the posts after submitting a comment
+    }).catch((error) => {
+      console.error("Error adding comment:", error);
     });
-
-    alert("Comment added!");
-    loadPosts();  // Refresh posts to show the new comment
   };
 
-  // Share post functionality
-  const sharePost = (post) => {
-    if (navigator.share) {
-      navigator.share({
-        title: post.authorName + "'s Post",
-        text: post.content,
-        url: post.imageUrl,
-      })
-      .then(() => console.log("Post shared successfully"))
-      .catch((error) => console.error("Error sharing post", error));
-    } else {
-      alert("Sharing not supported in this browser.");
-    }
-  };
-
-  // Create a new post with caption and image
+  // Create a new post
   const createNewPost = async () => {
     const user = auth.currentUser;
     if (!user) {
@@ -280,14 +272,13 @@ const postsContainer = document.getElementById("posts-container2");
       if (file) {
         // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
-        const uploadTask = uploadBytes(storageReference, file);
+        const uploadTask = await uploadBytes(storageReference, file);
 
         // Get the total file size in kilobytes
         const fileSizeKB = (file.size / 1024).toFixed(2);
         console.log(`File size: ${fileSizeKB} KB`);
 
-        await uploadTask;
-        imageUrl = await getDownloadURL(storageReference);
+        imageUrl = await getDownloadURL(storageReference); // Retrieve image URL after upload
       }
 
       const postId = push(ref(db, "posts")).key;
@@ -301,25 +292,12 @@ const postsContainer = document.getElementById("posts-container2");
         comments: {},
       });
 
-      loadPosts(); // Reload posts
+      loadPosts(); // Reload posts after creation
     } catch (error) {
       console.error("Error creating post:", error);
     }
   };
-
-  // Auth state listener
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      document.getElementById("create-post-button").addEventListener("click", createNewPost);
-      loadPosts();
-    } else {
-      alert("Please log in to see posts.");
-    }
-  });
 </script>
-
-
-
 
 
 
