@@ -1043,20 +1043,12 @@ Please Wait.....
     </div>
    <!-- Profile Settings -->
 <section class="profile-settings">
-
-  <!-- Form to create a new post -->
-  <section id="create-post">
-    <form id="create-post-form">
-      <label for="fileInput">Choose an image to upload:</label>
-      <input type="file" id="fileInput" accept="image/*" required>
-      <br>
-      <label for="caption">Enter caption:</label>
-      <textarea id="caption" placeholder="Write something..." rows="4" required></textarea>
-      <br>
-      <button type="submit">Post</button>
-    </form>
-  </section>
-
+ <section id="create-post">
+      <h2>Create a New Post</h2>
+      <input type="text" id="new-post-caption" placeholder="Write a caption...">
+      <input type="file" id="new-post-image">
+      <button id="create-post-button">Post</button>
+    </section>
   <!-- Comments template (for dynamic usage) -->
   <div id="comments-template" style="display: none;border:none">
     <div class="comment">
