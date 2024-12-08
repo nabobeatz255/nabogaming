@@ -71,38 +71,38 @@
 </style>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getDatabase, ref, push, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
     authDomain: "register-71bde.firebaseapp.com",
     projectId: "register-71bde",
     storageBucket: "register-71bde.appspot.com",
     messagingSenderId: "412548441298",
     appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-  };
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getDatabase(app);
-  const storage = getStorage(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getDatabase(app);
+const storage = getStorage(app);
 
-  let currentUser = null;
-  onAuthStateChanged(auth, (user) => {
+let currentUser = null;
+onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
-      loadPosts();  // Load posts after successful login
-      displayUserDetails();  // Display user details
+        loadPosts();  // Load posts after successful login
+        displayUserDetails();  // Display user details
     } else {
-      alert("You are not signed in. Redirecting to login...");
-      window.location.href = "index.html";
+        alert("You are not signed in. Redirecting to login...");
+        window.location.href = "index.html";
     }
-  });
+});
 
-  const formatTimestamp = (timestamp) => {
+const formatTimestamp = (timestamp) => {
     const now = new Date();
     const timeDiff = now - new Date(timestamp);
     const seconds = Math.floor(timeDiff / 1000);
@@ -118,9 +118,9 @@
     if (days < 30) return `${days}d ago`;
     if (months < 12) return `${months}mo ago`;
     return `${years}yr ago`;
-  };
+};
 
-  const loadPosts = () => {
+const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
     allPostsContainer.innerHTML = "";
@@ -128,196 +128,149 @@
 
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
-      const posts = [];
-      snapshot.forEach((childSnapshot) => {
-        const post = childSnapshot.val();
-        const postId = childSnapshot.key;
-        posts.push({ postId, ...post });
-      });
+        const posts = [];
+        snapshot.forEach((childSnapshot) => {
+            const post = childSnapshot.val();
+            const postId = childSnapshot.key;
+            posts.push({ postId, ...post });
+        });
 
-      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts;
+        const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+        const allPosts = posts;
 
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+        myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+        allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
     });
-  };
+};
 
-  const displayPost = (post, container, isMyPost) => {
-    const postElement = document.createElement("div");
-    postElement.className = "instagram-post-2";
-    postElement.innerHTML = `
-      <div class="post-header">
-        <div class="profile-picture">
-          <img src="${post.authorPhoto}" alt="User profile picture">
-        </div>
-        <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
-        </div>
-      </div>
-      <div class="post-image">
-        <img src="${post.imageUrl}" alt="Post content">
-      </div>
-      <div class="post-actions">
-        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-        <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
-      </div>
-      <div class="like-counter">
-        <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
-      </div>
-      <div class="caption">
-        <span class="username">${post.authorName}</span> ${post.content}
-      </div>
-      <div class="post-comments">
-        <button class="toggle-comments" data-target="comments-container-${post.postId}">
-          <i class="ri-arrow-down-s-line"></i> View Comments
-        </button>
-        <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
-          ${renderComments(post.comments)}
-        </div>
-        <div class="comment-input-container">
-          <input class="comment-input" placeholder="Write a comment...">
-          <button class="submit-comment" data-post-id="${post.postId}">Send</button>
-        </div>
-      </div>
-      ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Delete Post</button>` : ""}
-    `;
+const displayPost = (post, container, isMyPost) => {
+    const postTemplate = document.getElementById(isMyPost ? "mypost-template" : "allpost-template");
+    const postElement = postTemplate.content.cloneNode(true);
 
-    container.appendChild(postElement);
+    // Populate the post data
+    postElement.querySelector(".profile-picture img").src = post.authorPhoto;
+    postElement.querySelector(".profile-name").textContent = post.authorName;
+    postElement.querySelector(".post-time-2").textContent = formatTimestamp(post.timestamp);
+    postElement.querySelector(".post-image img").src = post.imageUrl;
+    postElement.querySelector(".like-count").textContent = `${Object.keys(post.likes || {}).length} likes`;
+    postElement.querySelector(".username").textContent = post.authorName;
+    postElement.querySelector(".content").textContent = post.content;
 
+    // Set up event listeners for actions (like, share, etc.)
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
     postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post, postElement));
-    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-    });
-
-    postElement.querySelector(".submit-comment").addEventListener("click", () => {
-      const commentInput = postElement.querySelector(".comment-input");
-      const commentText = commentInput.value.trim();
-      if (commentText !== "") {
-        submitComment(post.postId, commentText);
-        commentInput.value = "";
-      }
-    });
+    postElement.querySelector(".toggle-comments").addEventListener("click", () => toggleComments(postElement));
 
     if (isMyPost) {
-      postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
+        postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
     }
-  };
 
-  const renderComments = (comments) => {
-    if (!comments) return "";
-    return Object.keys(comments).map(commentId => {
-      const comment = comments[commentId];
-      return `
-        <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
-        </div>
-      `;
-    }).join("");
-  };
+    container.appendChild(postElement);
+};
 
-  const likePost = async (postId) => {
+const toggleComments = (postElement) => {
+    const commentsContainer = postElement.querySelector(".comments-container");
+    commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+};
+
+const likePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
     const snapshot = await get(postRef);
     if (snapshot.exists()) {
-      await remove(postRef);  // Remove like
-      alert("You unliked the post");
+        await remove(postRef);  // Remove like
+        alert("You unliked the post");
     } else {
-      await set(postRef, true);  // Add like
-      alert("You liked the post");
+        await set(postRef, true);  // Add like
+        alert("You liked the post");
     }
     loadPosts();  // Reload to reflect the changes
-  };
+};
 
-  const sharePost = (post, postElement) => {
+const sharePost = (post, postElement) => {
     if (navigator.share) {
-      navigator.share({
-        title: `${post.authorName}'s post`,
-        text: post.content,
-        url: post.imageUrl,
-      })
-        .then(() => console.log("Post shared"))
-        .catch((error) => console.error("Error sharing post:", error));
+        navigator.share({
+            title: `${post.authorName}'s post`,
+            text: post.content,
+            url: post.imageUrl,
+        })
+            .then(() => console.log("Post shared"))
+            .catch((error) => console.error("Error sharing post:", error));
     } else {
-      alert("Sharing not supported in this browser.");
+        alert("Sharing not supported in this browser.");
     }
-  };
+};
 
-  const submitComment = async (postId, commentText) => {
+const submitComment = async (postId, commentText) => {
     const commentData = {
-      username: currentUser.displayName,
-      message: commentText,
+        username: currentUser.displayName,
+        message: commentText,
     };
 
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
     alert("Comment added successfully");
     loadPosts();  // Reload posts to show the new comment
-  };
+};
 
-  const deletePost = async (postId) => {
+const deletePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
     loadPosts();  // Reload posts to remove the deleted post
     alert("Post deleted");
-  };
+};
 
-  const createNewPost = async () => {
+const createNewPost = async () => {
     const caption = document.getElementById("new-post-caption").value;
     const fileInput = document.getElementById("new-post-image");
     const file = fileInput.files[0];
 
     if (!caption && !file) {
-      alert("Please provide a caption or an image.");
-      return;
+        alert("Please provide a caption or an image.");
+        return;
     }
 
     try {
-      let imageUrl = "";
-      alert("Uploading post...");
+        let imageUrl = "";
+        alert("Uploading post...");
 
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        await uploadBytes(storageReference, file);
-        imageUrl = await getDownloadURL(storageReference);
-        alert("Image uploaded successfully");
-      }
+        if (file) {
+            // Upload image to Firebase Storage
+            const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+            await uploadBytes(storageReference, file);
+            imageUrl = await getDownloadURL(storageReference);
+            alert("Image uploaded successfully");
+        }
 
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-      });
+        const postId = push(ref(db, "posts")).key;
+        await set(ref(db, `posts/${postId}`), {
+            authorName: currentUser.displayName || "Anonymous",
+            authorPhoto: currentUser.photoURL || "default.jpg",
+            content: caption,
+            imageUrl,
+            timestamp: serverTimestamp(),
+            likes: {},
+            comments: {},
+        });
 
-      alert("Post created successfully");
-      window.location.reload();  
-// Reload the page after successful upload
+        alert("Post created successfully");
+        window.location.reload();  // Reload the page after successful upload
     } catch (error) {
-      console.error("Error creating post:", error);
+        console.error("Error creating post:", error);
     }
-  };
+};
 
-  // Display user details using class selectors
-  const displayUserDetails = () => {
+const displayUserDetails = () => {
     if (currentUser) {
-      document.querySelectorAll(".user-name").forEach(el => el.textContent = currentUser.displayName);
-      document.querySelectorAll(".user-email").forEach(el => el.textContent = currentUser.email);
-      document.querySelectorAll(".profile-picture").forEach(el => {
-        el.src = currentUser.photoURL || "default-profile-pic.jpg"; // Use default image if no photo is available
-      });
+        document.querySelectorAll(".user-name").forEach(el => el.textContent = currentUser.displayName);
+        document.querySelectorAll(".user-email").forEach(el => el.textContent = currentUser.email);
+        document.querySelectorAll(".profile-picture").forEach(el => {
+            el.src = currentUser.photoURL || "default-profile-pic.jpg";  // Use default image if no photo is available
+        });
     }
-  };
+};
 
-  document.getElementById("create-post-button").addEventListener("click", createNewPost);
+document.getElementById("create-post-button").addEventListener("click", createNewPost);
+
 </script>
 
 
@@ -1188,6 +1141,83 @@ Please Wait.....
     </ul>
   </section>
 </div>
+
+    <!-- Instagram Post Template for All Posts -->
+    <template id="allpost-template">
+        <div class="instagram-post-2">
+            <div class="post-header">
+                <div class="profile-picture">
+                    <img src="" alt="User profile picture">
+                </div>
+                <div class="profile-details">
+                    <div class="profile-name"></div>
+                    <div class="post-time-2"></div>
+                </div>
+            </div>
+            <div class="post-image">
+                <img src="" alt="Post content">
+            </div>
+            <div class="post-actions">
+                <i class="ri-heart-line like-btn"></i>
+                <i class="ri-share-line share-btn"></i>
+            </div>
+            <div class="like-counter">
+                <span class="like-count">0 likes</span>
+            </div>
+            <div class="caption">
+                <span class="username"></span> <span class="content"></span>
+            </div>
+            <div class="post-comments">
+                <button class="toggle-comments">
+                    <i class="ri-arrow-down-s-line"></i> View Comments
+                </button>
+                <div class="comments-container" style="display: none;"></div>
+                <div class="comment-input-container">
+                    <input class="comment-input" placeholder="Write a comment...">
+                    <button class="submit-comment">Send</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Instagram Post Template for My Posts (with delete button) -->
+    <template id="mypost-template">
+        <div class="instagram-post-2">
+            <div class="post-header">
+                <div class="profile-picture">
+                    <img src="" alt="User profile picture">
+                </div>
+                <div class="profile-details">
+                    <div class="profile-name"></div>
+                    <div class="post-time-2"></div>
+                </div>
+            </div>
+            <div class="post-image">
+                <img src="" alt="Post content">
+            </div>
+            <div class="post-actions">
+                <i class="ri-heart-line like-btn"></i>
+                <i class="ri-share-line share-btn"></i>
+            </div>
+            <div class="like-counter">
+                <span class="like-count">0 likes</span>
+            </div>
+            <div class="caption">
+                <span class="username"></span> <span class="content"></span>
+            </div>
+            <div class="post-comments">
+                <button class="toggle-comments">
+                    <i class="ri-arrow-down-s-line"></i> View Comments
+                </button>
+                <div class="comments-container" style="display: none;"></div>
+                <div class="comment-input-container">
+                    <input class="comment-input" placeholder="Write a comment...">
+                    <button class="submit-comment">Send</button>
+                </div>
+            </div>
+            <button class="delete-post-btn">Delete Post</button>
+        </div>
+    </template>
     </div>
     <script>
 // Function to navigate to a specific section
