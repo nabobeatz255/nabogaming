@@ -79,7 +79,6 @@
   const db = getDatabase(app);
   const storage = getStorage(app);
 
-  // Monitor authentication state
   let currentUser = null;
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
@@ -124,17 +123,15 @@
         posts.push({ postId, ...post });
       });
 
-      // Separate posts into 'myPosts' (logged-in user's posts) and 'allPosts' (all users' posts)
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts; // Show all posts, including the logged-in user's posts
+      const allPosts = posts;
 
-      // Display the posts
-      myPosts.forEach(post => displayPost(post, myPostsContainer));
-      allPosts.forEach(post => displayPost(post, allPostsContainer));
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
     });
   };
 
-  const displayPost = (post, container) => {
+  const displayPost = (post, container, isMyPost) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
     postElement.innerHTML = `
@@ -164,7 +161,7 @@
         <button class="toggle-comments" data-target="comments-container-${post.postId}">
           <i class="ri-arrow-down-s-line"></i> View Comments
         </button>
-        <div class="comments-container" id="comments-container-${post.postId}">
+        <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
           ${renderComments(post.comments)}
         </div>
         <div class="comment-input-container">
@@ -172,24 +169,18 @@
           <button class="submit-comment" data-post-id="${post.postId}">Send</button>
         </div>
       </div>
+      ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Delete Post</button>` : ""}
     `;
 
-    // Add post to the correct container
     container.appendChild(postElement);
 
-    // Handle like button
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-
-    // Handle share button
     postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
-
-    // Handle comment toggle
     postElement.querySelector(".toggle-comments").addEventListener("click", () => {
       const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
       commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
     });
 
-    // Handle comment submission
     postElement.querySelector(".submit-comment").addEventListener("click", () => {
       const commentInput = postElement.querySelector(".comment-input");
       const commentText = commentInput.value.trim();
@@ -198,6 +189,10 @@
         commentInput.value = "";
       }
     });
+
+    if (isMyPost) {
+      postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
+    }
   };
 
   const renderComments = (comments) => {
@@ -248,7 +243,12 @@
     loadPosts();  // Reload posts to show the new comment
   };
 
-  // Add post functionality
+  const deletePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}`);
+    await remove(postRef);  // Delete the post
+    loadPosts();  // Reload posts to remove the deleted post
+  };
+
   const createNewPost = async () => {
     const caption = document.getElementById("new-post-caption").value;
     const fileInput = document.getElementById("new-post-image");
@@ -263,7 +263,6 @@
       let imageUrl = "";
 
       if (file) {
-        // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
