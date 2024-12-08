@@ -32,7 +32,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, set, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getDatabase, ref, push, set, onValue, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
@@ -49,26 +49,34 @@
   const db = getDatabase(app);
   const storage = getStorage(app);
 
-  const postsContainer = document.getElementById("posts-container");
-
-  // Display the authenticated user's profile
+  // Monitor authentication state
   onAuthStateChanged(auth, (user) => {
-    if (!user) {
+    if (user) {
+      const fullName = user.displayName;
+      const firstName = fullName ? fullName.split(" ")[0] : "";
+      const email = user.email;
+      const profilePicture = user.photoURL;
+
+      document.querySelectorAll(".user-name").forEach((element) => {
+        element.textContent = firstName;
+      });
+      document.querySelectorAll(".user-email").forEach((element) => {
+        element.textContent = email;
+      });
+      document.querySelectorAll(".profile-picture").forEach((element) => {
+        element.src = profilePicture || "default-profile.png";
+      });
+
+      console.log("User Data:", { firstName, email, profilePicture });
+    } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
-    } else {
-      document.getElementById("user-profile").innerHTML = `
-        <img src="${user.photoURL || 'default.jpg'}" alt="Profile Picture">
-        <div>
-          <p><strong>${user.displayName || "Anonymous"}</strong></p>
-          <p>${user.email}</p>
-          <p>ID: ${user.uid}</p>
-        </div>
-      `;
     }
   });
 
   // Load posts from the database
+  const postsContainer = document.getElementById("posts-container");
+
   const loadPosts = () => {
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -81,7 +89,7 @@
     });
   };
 
-  // Display a single post
+  // Display each post with like, share, comment, and rate functionality
   const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
@@ -91,8 +99,12 @@
           <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${new Date(post.timestamp).toLocaleString()}</div>
+          <div class="profile-name">
+            ${post.authorName}
+          </div>
+          <div class="post-time-2">
+            ${formatTimestamp(post.timestamp)}
+          </div>
         </div>
       </div>
       <div class="post-image">
@@ -100,21 +112,27 @@
       </div>
       <div class="post-actions">
         <div class="actions-left">
-          <i class="ri-heart-line like-btn" data-id="${postId}"></i>
-          <i class="ri-share-line share-btn"></i>
-        </div>
-        <div class="actions-right">
-          <button class="view-comments-btn" data-id="${postId}">View Comments</button>
+          <i class="ri-heart-line like-btn" data-id="${postId}"></i> <!-- Like button -->
+          <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
+          <i class="ri-heart-line rate-post-btn" data-id="${postId}"></i> <!-- Rate button -->
         </div>
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
       </div>
+      <div class="post-rating">
+        <span class="rating-count">Rating: ${post.rating || "No rating yet"}</span>
+      </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
       </div>
-      <div class="post-comments hidden" id="comments-${postId}">
-        <div class="comments-container"></div>
+      <div class="post-comments">
+        <button class="toggle-comments" data-target="comments-container-${postId}">
+          <i class="ri-arrow-down-s-line"></i> View Comments
+        </button>
+        <div class="comments-container" id="comments-container-${postId}" style="display: none;">
+          ${renderComments(post.comments)}
+        </div>
         <div class="comment-input-container">
           <input class="comment-input" placeholder="Write a comment...">
           <button class="submit-comment" data-post-id="${postId}">Send</button>
@@ -123,119 +141,116 @@
     `;
     postsContainer.appendChild(postElement);
 
-    // Like button
-    postElement.querySelector(".like-btn").addEventListener("click", () => ratePost(postId));
+    // Like button functionality
+    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId, postElement));
 
-    // Share button
-    postElement.querySelector(".share-btn").addEventListener("click", () => {
-      alert("Post shared successfully!");
+    // Share button functionality
+    postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
+
+    // Rate button functionality
+    postElement.querySelector(".rate-post-btn").addEventListener("click", () => ratePost(postId));
+
+    // Toggle comments visibility
+    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
     });
 
-    // View comments button
-    postElement.querySelector(".view-comments-btn").addEventListener("click", () => {
-      const commentsSection = document.getElementById(`comments-${postId}`);
-      commentsSection.classList.toggle("hidden");
-      loadComments(postId);
-    });
-
-    // Submit comment
-    postElement.querySelector(".submit-comment").addEventListener("click", () => {
+    // Handle comment submission
+    postElement.querySelector(".submit-comment").addEventListener("click", (event) => {
+      const postId = event.target.dataset.postId;
       const commentInput = postElement.querySelector(".comment-input");
       if (commentInput.value.trim() !== "") {
         submitComment(postId, commentInput.value.trim());
-        alert("Comment posted successfully!");
         commentInput.value = "";
+        alert("Comment posted successfully!");
       }
     });
   };
 
-  // Like a post
+  // Rate post functionality (rate with 1 point)
   const ratePost = async (postId) => {
     const user = auth.currentUser;
-    if (!user) return;
-    const likesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-    await set(likesRef, true); // Each user can only like once
-    alert("You liked the post!");
-    loadPosts(); // Reload posts to update the like count
+    if (!user) return; // User must be logged in
+
+    const postRatingRef = ref(db, `posts/${postId}/rating`);
+    const ratingData = {};
+    ratingData[user.uid] = 1; // Set rating to 1 for the user
+
+    await update(postRatingRef, ratingData);
+    alert("You rated this post!");
+    loadPosts(); // Reload posts to show updated rating
   };
 
-  // Load comments for a post
-  const loadComments = (postId) => {
-    const commentsRef = ref(db, `posts/${postId}/comments`);
-    const commentsContainer = document.getElementById(`comments-${postId} .comments-container`);
-    onValue(commentsRef, (snapshot) => {
-      commentsContainer.innerHTML = "";
-      snapshot.forEach((childSnapshot) => {
-        const comment = childSnapshot.val();
-        const commentElement = document.createElement("div");
-        commentElement.className = "comment";
-        commentElement.textContent = `${comment.username}: ${comment.message}`;
-        commentsContainer.appendChild(commentElement);
-      });
-    });
-  };
-
-  // Submit a comment
-  const submitComment = async (postId, commentText) => {
+  // Create a new post with progress tracking
+  const createNewPost = async () => {
     const user = auth.currentUser;
-    if (!user) return;
-    const commentData = { username: user.displayName, message: commentText };
-    await push(ref(db, `posts/${postId}/comments`), commentData);
-    loadComments(postId);
-  };
-
-  // Create a new post with upload progress
-  const createNewPost = () => {
-    const user = auth.currentUser;
-    if (!user) return alert("Please log in to post.");
+    if (!user) {
+      alert("Please log in to post.");
+      return;
+    }
 
     const caption = document.getElementById("new-post-caption").value;
     const fileInput = document.getElementById("new-post-image");
     const file = fileInput.files[0];
-    if (!caption && !file) return alert("Please provide a caption or an image.");
 
-    const uploadProgress = document.getElementById("upload-progress");
-    const uploadPercentage = document.getElementById("upload-percentage");
+    if (!caption && !file) {
+      alert("Please provide a caption or an image.");
+      return;
+    }
 
-    const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageReference, file);
+    try {
+      let imageUrl = "";
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        uploadProgress.style.display = "block";
-        uploadPercentage.textContent = progress.toFixed(2);
-      },
-      (error) => {
-        console.error(error);
-        alert("Failed to upload image. Try again.");
-        uploadProgress.style.display = "none";
-      },
-      async () => {
-        const imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-        const postId = push(ref(db, "posts")).key;
-        await set(ref(db, `posts/${postId}`), {
-          authorName: user.displayName || "Anonymous",
-          authorPhoto: user.photoURL || "default.jpg",
-          content: caption,
-          imageUrl,
-          timestamp: serverTimestamp(),
-          likes: {},
-        });
-        alert("Post uploaded successfully!");
-        uploadProgress.style.display = "none";
-        loadPosts();
+      if (file) {
+        // Upload image to Firebase Storage with progress tracking
+        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageReference, file);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log("Upload is " + progress + "% done");
+            alert(`Uploading: ${Math.round(progress)}% completed`);
+          },
+          (error) => {
+            console.error("Upload failed:", error);
+            alert("Error uploading image. Please try again.");
+          },
+          async () => {
+            imageUrl = await getDownloadURL(storageReference);
+          }
+        );
+
+        await uploadTask;
       }
-    );
+
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: user.displayName || "Anonymous",
+        authorPhoto: user.photoURL || "default.jpg",
+        content: caption,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
+        rating: null,
+      });
+
+      alert("Post uploaded successfully!");
+      loadPosts(); // Reload posts
+    } catch (error) {
+      console.error("Error creating post:", error);
+      alert("Error creating post. Please try again.");
+    }
   };
 
+  // Bind create post button
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 
-  // Load posts on page load
-  loadPosts();
+  loadPosts(); // Load posts on page load
 </script>
-
  </head>
   <body>
     <div class=dashboard  id="app">
