@@ -57,6 +57,17 @@
     transform: rotate(360deg);
   }
 }
+.delete-post-btn {
+    padding: 8px 16px;
+	font-size: 14px;
+	font-weight: bold;
+	color: white;background: red;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	outline: none;
+	transition: background-color 0.3s, transform 0.2s;
+}
 </style>
 
 <script type="module">
@@ -175,7 +186,7 @@
     container.appendChild(postElement);
 
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-    postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
+    postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post, postElement));
     postElement.querySelector(".toggle-comments").addEventListener("click", () => {
       const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
       commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
@@ -212,18 +223,20 @@
     const snapshot = await get(postRef);
     if (snapshot.exists()) {
       await remove(postRef);  // Remove like
+      alert("Post unliked");
     } else {
       await set(postRef, true);  // Add like
+      alert("Post liked");
     }
     loadPosts();  // Reload to reflect the changes
   };
 
-  const sharePost = (post) => {
+  const sharePost = (post, postElement) => {
     if (navigator.share) {
       navigator.share({
-        title: "Post Share",
+        title: `${post.authorName}'s post`,
         text: post.content,
-        url: window.location.href,
+        url: post.imageUrl,
       })
         .then(() => console.log("Post shared"))
         .catch((error) => console.error("Error sharing post:", error));
@@ -240,6 +253,7 @@
 
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    alert("Comment added successfully");
     loadPosts();  // Reload posts to show the new comment
   };
 
@@ -247,6 +261,7 @@
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
     loadPosts();  // Reload posts to remove the deleted post
+    alert("Post deleted");
   };
 
   const createNewPost = async () => {
@@ -261,11 +276,14 @@
 
     try {
       let imageUrl = "";
+      alert("Uploading post...");
 
       if (file) {
+        // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
+        alert("Image uploaded successfully");
       }
 
       const postId = push(ref(db, "posts")).key;
@@ -279,15 +297,16 @@
         comments: {},
       });
 
-      loadPosts();  // Reload posts
+      alert("Post created successfully");
+      window.location.reload();  // Reload the page after successful upload
     } catch (error) {
       console.error("Error creating post:", error);
     }
   };
 
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
-
 </script>
+
 
 
 
