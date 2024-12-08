@@ -51,35 +51,20 @@
   const storage = getStorage(app);
 
   // Monitor authentication state
+  let currentUser = null;
   onAuthStateChanged(auth, (user) => {
+    currentUser = user;
     if (user) {
-      const fullName = user.displayName;
-      const firstName = fullName ? fullName.split(" ")[0] : "";
-      const email = user.email;
-      const profilePicture = user.photoURL;
-
-      document.querySelectorAll(".user-name").forEach((element) => {
-        element.textContent = firstName;
-      });
-      document.querySelectorAll(".user-email").forEach((element) => {
-        element.textContent = email;
-      });
-      document.querySelectorAll(".profile-picture").forEach((element) => {
-        element.src = profilePicture || "default-profile.png";
-      });
-
-      console.log("User Data:", { firstName, email, profilePicture });
+      loadPosts();
     } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
     }
   });
 
-  // Time ago format function
   const formatTimestamp = (timestamp) => {
     const now = new Date();
-    const timeDiff = now - new Date(timestamp); // Difference in milliseconds
-
+    const timeDiff = now - new Date(timestamp);
     const seconds = Math.floor(timeDiff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
@@ -87,40 +72,40 @@
     const months = Math.floor(days / 30);
     const years = Math.floor(months / 12);
 
-    if (seconds < 60) {
-      return `${seconds}s ago`;
-    } else if (minutes < 60) {
-      return `${minutes}m ago`;
-    } else if (hours < 24) {
-      return `${hours}hr ago`;
-    } else if (days < 30) {
-      return `${days}d ago`;
-    } else if (months < 12) {
-      return `${months}mo ago`;
-    } else {
-      return `${years}yr ago`;
-    }
+    if (seconds < 60) return `${seconds}s ago`;
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}hr ago`;
+    if (days < 30) return `${days}d ago`;
+    if (months < 12) return `${months}mo ago`;
+    return `${years}yr ago`;
   };
 
-  // Load posts from the database
-  const allPostsContainer = document.getElementById("allposts");
-  const myPostsContainer = document.getElementById("myposts");
-
   const loadPosts = () => {
+    const allPostsContainer = document.getElementById("allposts");
+    const myPostsContainer = document.getElementById("myposts");
+    allPostsContainer.innerHTML = "";
+    myPostsContainer.innerHTML = "";
+
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
-      allPostsContainer.innerHTML = "";
-      myPostsContainer.innerHTML = "";
+      const posts = [];
       snapshot.forEach((childSnapshot) => {
-        const postId = childSnapshot.key;
         const post = childSnapshot.val();
-        displayPost(postId, post);
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
       });
+
+      // Filter posts into myposts and allposts
+      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+      const allPosts = posts.filter(post => post.authorName !== currentUser.displayName);
+
+      // Display the posts
+      myPosts.forEach(post => displayPost(post, myPostsContainer));
+      allPosts.forEach(post => displayPost(post, allPostsContainer));
     });
   };
 
-  // Display each post with like, share, comment, and rate functionality
-  const displayPost = (postId, post) => {
+  const displayPost = (post, container) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
     postElement.innerHTML = `
@@ -129,108 +114,66 @@
           <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
-          <div class="profile-name">
-            ${post.authorName}
-          </div>
-          <div class="post-time-2">
-            ${formatTimestamp(post.timestamp)}
-          </div>
+          <div class="profile-name">${post.authorName}</div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
         </div>
       </div>
       <div class="post-image">
         <img src="${post.imageUrl}" alt="Post content">
       </div>
       <div class="post-actions">
-        <div class="actions-left">
-          <i class="ri-heart-line like-btn" data-id="${postId}"></i> <!-- Like button -->
-          <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
-          <button class="rate-post-btn" data-id="${postId}">Rate 5 Stars</button> <!-- Rate 5 Stars button -->
-        </div>
+        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+        <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
-      </div>
-      <div class="post-rating">
-        <span class="rating-count">Rating: ${post.rating || "No rating yet"}</span> <!-- Rating display -->
       </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
       </div>
       <div class="post-comments">
-        <button class="toggle-comments" data-target="comments-container-${postId}">
+        <button class="toggle-comments" data-target="comments-container-${post.postId}">
           <i class="ri-arrow-down-s-line"></i> View Comments
         </button>
-        <div class="comments-container" id="comments-container-${postId}">
+        <div class="comments-container" id="comments-container-${post.postId}">
           ${renderComments(post.comments)}
         </div>
         <div class="comment-input-container">
           <input class="comment-input" placeholder="Write a comment...">
-          <button class="submit-comment" data-post-id="${postId}">Send</button>
+          <button class="submit-comment" data-post-id="${post.postId}">Send</button>
         </div>
       </div>
     `;
 
-    const user = auth.currentUser;
-    if (user) {
-      // If post is by the logged-in user, show in myposts
-      if (post.authorName === user.displayName) {
-        postElement.innerHTML += `<button class="delete-post-btn" data-id="${postId}">Delete</button>`;
-        postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(postId));
-        myPostsContainer.appendChild(postElement);
-      } else {
-        // If post is not by the logged-in user, show in allposts
-        allPostsContainer.appendChild(postElement);
+    // Add post to the correct container
+    container.appendChild(postElement);
+
+    // Handle like button
+    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+
+    // Handle share button
+    postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
+
+    // Handle comment toggle
+    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+    });
+
+    // Handle comment submission
+    postElement.querySelector(".submit-comment").addEventListener("click", () => {
+      const commentInput = postElement.querySelector(".comment-input");
+      const commentText = commentInput.value.trim();
+      if (commentText !== "") {
+        submitComment(post.postId, commentText);
+        commentInput.value = "";
       }
-
-      // Like button functionality
-      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId, postElement));
-
-      // Share button functionality
-      postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
-
-      // Rate post functionality
-      postElement.querySelector(".rate-post-btn").addEventListener("click", () => ratePost(postId));
-
-      // Toggle comments visibility
-      postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-        const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-        commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-      });
-
-      // Handle comment submission
-      postElement.querySelector(".submit-comment").addEventListener("click", (event) => {
-        const postId = event.target.dataset.postId;
-        const commentInput = postElement.querySelector(".comment-input");
-        if (commentInput.value.trim() !== "") {
-          submitComment(postId, commentInput.value.trim());
-          commentInput.value = "";
-        }
-      });
-    }
+    });
   };
 
-  // Delete post functionality
-  const deletePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}`);
-    await remove(postRef);
-    loadPosts(); // Reload posts to reflect the deletion
-  };
-
-  // Rate post functionality (rate with 5 stars)
-  const ratePost = async (postId) => {
-    const user = auth.currentUser;
-    if (!user) return; // User must be logged in
-
-    const postRatingRef = ref(db, `posts/${postId}/rating`);
-    await set(postRatingRef, 5); // Set rating to 5 stars
-
-    loadPosts(); // Reload posts to show updated rating
-  };
-
-  // Render comments for a post
   const renderComments = (comments) => {
     if (!comments) return "";
-    return Object.keys(comments).map((commentId) => {
+    return Object.keys(comments).map(commentId => {
       const comment = comments[commentId];
       return `
         <div class="comment">
@@ -240,23 +183,17 @@
     }).join("");
   };
 
-  // Submit comment
-  const submitComment = async (postId, commentText) => {
-    const user = auth.currentUser;
-    if (!user) return; // User must be logged in
-
-    const commentData = {
-      username: user.displayName,
-      message: commentText,
-    };
-
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-
-    loadPosts(); // Reload posts to show the new comment
+  const likePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await remove(postRef);  // Remove like
+    } else {
+      await set(postRef, true);  // Add like
+    }
+    loadPosts();  // Reload to reflect the changes
   };
 
-  // Share post functionality (native share)
   const sharePost = (post) => {
     if (navigator.share) {
       navigator.share({
@@ -271,14 +208,19 @@
     }
   };
 
-  // Create a new post
-  const createNewPost = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Please log in to post.");
-      return;
-    }
+  const submitComment = async (postId, commentText) => {
+    const commentData = {
+      username: currentUser.displayName,
+      message: commentText,
+    };
 
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    loadPosts();  // Reload posts to show the new comment
+  };
+
+  // Add post functionality
+  const createNewPost = async () => {
     const caption = document.getElementById("new-post-caption").value;
     const fileInput = document.getElementById("new-post-image");
     const file = fileInput.files[0];
@@ -293,35 +235,30 @@
 
       if (file) {
         // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
-        const uploadTask = uploadBytes(storageReference, file);
-
-        await uploadTask;
+        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+        await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
       }
 
       const postId = push(ref(db, "posts")).key;
       await set(ref(db, `posts/${postId}`), {
-        authorName: user.displayName || "Anonymous",
-        authorPhoto: user.photoURL || "default.jpg",
+        authorName: currentUser.displayName || "Anonymous",
+        authorPhoto: currentUser.photoURL || "default.jpg",
         content: caption,
         imageUrl,
         timestamp: serverTimestamp(),
         likes: {},
         comments: {},
-        rating: null, // Rating field added
       });
 
-      loadPosts(); // Reload posts
+      loadPosts();  // Reload posts
     } catch (error) {
       console.error("Error creating post:", error);
     }
   };
 
-  // Bind create post button
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 
-  loadPosts(); // Load posts on page load
 </script>
 
 
