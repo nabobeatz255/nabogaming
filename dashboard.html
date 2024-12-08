@@ -29,12 +29,11 @@
 }
 </style>
 
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
   import { getDatabase, ref, push, update, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -117,7 +116,7 @@
     });
   };
 
-  // Display each post with like, share, comment, and rate functionality
+  // Display each post with like, share, comment functionality
   const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
@@ -142,14 +141,10 @@
         <div class="actions-left">
           <i class="ri-heart-line like-btn" data-id="${postId}"></i> <!-- Like button -->
           <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
-          <button class="rate-post-btn" data-id="${postId}">Rate 5 Stars</button> <!-- Rate 5 Stars button -->
         </div>
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
-      </div>
-      <div class="post-rating">
-        <span class="rating-count">Rating: ${post.rating || "No rating yet"}</span> <!-- Rating display -->
       </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
@@ -169,14 +164,11 @@
     `;
     postsContainer.appendChild(postElement);
 
-    // Like button functionality
+    // Like button functionality (each user can like only once)
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId, postElement));
 
     // Share button functionality
     postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
-
-    // Rate post functionality
-    postElement.querySelector(".rate-post-btn").addEventListener("click", () => ratePost(postId));
 
     // Toggle comments visibility
     postElement.querySelector(".toggle-comments").addEventListener("click", () => {
@@ -195,15 +187,23 @@
     });
   };
 
-  // Rate post functionality (rate with 5 stars)
-  const ratePost = async (postId) => {
+  // Like post functionality
+  const likePost = async (postId, postElement) => {
     const user = auth.currentUser;
     if (!user) return; // User must be logged in
 
-    const postRatingRef = ref(db, `posts/${postId}/rating`);
-    await set(postRatingRef, 5); // Set rating to 5 stars
+    const likesRef = ref(db, `posts/${postId}/likes`);
+    const userLikeRef = ref(db, `posts/${postId}/likes/${user.uid}`);
 
-    loadPosts(); // Reload posts to show updated rating
+    const snapshot = await get(likesRef);
+    if (snapshot.exists() && snapshot.val()[user.uid]) {
+      alert("You already liked this post.");
+      return;
+    }
+
+    await set(userLikeRef, true); // Mark the user as liked
+    alert("You liked this post.");
+    loadPosts(); // Reload posts to show updated like count
   };
 
   // Render comments for a post
@@ -232,6 +232,7 @@
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
 
+    alert("Your comment has been posted.");
     loadPosts(); // Reload posts to show the new comment
   };
 
@@ -243,7 +244,7 @@
         text: post.content,
         url: window.location.href,
       })
-        .then(() => console.log("Post shared"))
+        .then(() => alert("Post shared"))
         .catch((error) => console.error("Error sharing post:", error));
     } else {
       alert("Sharing not supported in this browser.");
@@ -269,15 +270,20 @@
 
     try {
       let imageUrl = "";
+      const uploadTask = uploadBytesResumable(storageRef(storage, `post_images/${user.uid}/${file.name}`), file);
 
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
-        const uploadTask = uploadBytes(storageReference, file);
+      uploadTask.on('state_changed', (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        // Optionally, you can display progress to the user here.
+      }, (error) => {
+        console.error("Upload error: ", error);
+      }, async () => {
+        imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+      });
 
-        await uploadTask;
-        imageUrl = await getDownloadURL(storageReference);
-      }
+      // Wait until upload completes
+      await uploadTask;
 
       const postId = push(ref(db, "posts")).key;
       await set(ref(db, `posts/${postId}`), {
@@ -288,9 +294,9 @@
         timestamp: serverTimestamp(),
         likes: {},
         comments: {},
-        rating: null, // Rating field added
       });
 
+      alert("Your post has been uploaded.");
       loadPosts(); // Reload posts
     } catch (error) {
       console.error("Error creating post:", error);
