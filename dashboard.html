@@ -58,12 +58,12 @@
   }
 }
 .delete-post-btn {
-    padding: 8px 16px;
+    padding: 8px 16px;margin-bottom: 7px;
 	font-size: 14px;
 	font-weight: bold;
 	color: white;background: red;
 	border: none;
-	border-radius: 5px;
+	border-radius: 5px;justify-content: center;align-items: center;
 	cursor: pointer;
 	outline: none;
 	transition: background-color 0.3s, transform 0.2s;
@@ -95,6 +95,7 @@
     currentUser = user;
     if (user) {
       loadPosts();  // Load posts after successful login
+      displayUserDetails();  // Display user details
     } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
@@ -298,15 +299,26 @@
       });
 
       alert("Post created successfully");
-      window.location.reload();  // Reload the page after successful upload
+      window.location.reload();  
+// Reload the page after successful upload
     } catch (error) {
       console.error("Error creating post:", error);
     }
   };
 
+  // Display user details using class selectors
+  const displayUserDetails = () => {
+    if (currentUser) {
+      document.querySelectorAll(".user-name").forEach(el => el.textContent = currentUser.displayName);
+      document.querySelectorAll(".user-email").forEach(el => el.textContent = currentUser.email);
+      document.querySelectorAll(".profile-picture").forEach(el => {
+        el.src = currentUser.photoURL || "default-profile-pic.jpg"; // Use default image if no photo is available
+      });
+    }
+  };
+
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
-
 
 
 
@@ -1163,85 +1175,14 @@ Please Wait.....
   </div>
   <section class="notify">
     <ul class="notify-list">
+
 <li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-message-line"></i>
-  </div>
+     <!-- <div class="notify-icon">
+    <i class="ri--line"></i>
+  </div>-->
   <div class="notify-content">
-    <h3>New Message <span class="notify-time"  data-timestamp=2024-11-06T11:48:00></span></h3>
-    <p>You have a new message from </p>
-  </div>
-</li>
-<li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-calendar-line"></i>
-  </div>
-  <div class="notify-content">
-    <h3>Event Reminder <span class="notify-time"   data-timestamp=2024-11-26T11:48:00></span></h3>
-    <p>Meeting scheduled at 3:00 PM.</p>
-  </div>
-</li>
-<li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-user-follow-line"></i>
-  </div>
-  <div class="notify-content">
-    <h3>New Follower <span class="notify-time"   data-timestamp=2024-11-12T15:48:00></span></h3>
-    <p>Alice started following you.</p>
-  </div>
-</li>
-<li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-message-line"></i>
-  </div>
-  <div class="notify-content">
-    <h3>New Message <span class="notify-time"  data-timestamp=2024-11-06T11:48:00></span></h3>
-    <p>You have a new message from </p>
-  </div>
-</li>
-<li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-calendar-line"></i>
-  </div>
-  <div class="notify-content">
-    <h3>Event Reminder <span class="notify-time"   data-timestamp=2024-11-26T11:48:00></span></h3>
-    <p>Meeting scheduled at 3:00 PM.</p>
-  </div>
-</li>
-<li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-user-follow-line"></i>
-  </div>
-  <div class="notify-content">
-    <h3>New Follower <span class="notify-time"   data-timestamp=2024-11-12T15:48:00></span></h3>
-    <p>Alice started following you.</p>
-  </div>
-</li>
-<li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-message-line"></i>
-  </div>
-  <div class="notify-content">
-    <h3>New Message <span class="notify-time"  data-timestamp=2024-11-06T11:48:00></span></h3>
-    <p>You have a new message from </p>
-  </div>
-</li>
-<li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-calendar-line"></i>
-  </div>
-  <div class="notify-content">
-    <h3>Event Reminder <span class="notify-time"   data-timestamp=2024-11-26T11:48:00></span></h3>
-    <p>Meeting scheduled at 3:00 PM.</p>
-  </div>
-</li>
-<li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-user-follow-line"></i>
-  </div>
-  <div class="notify-content">
-    <h3>New Follower <span class="notify-time"   data-timestamp=2024-11-12T15:48:00></span></h3>
-    <p>Alice started following you.</p>
+    <h3>No New Notifications <span class="notify-time"  data-timestamp=2024-12-08T10:37:00></span></h3>
+    <p>Hakuna taarifa kwa sasa </p>
   </div>
 </li>
     </ul>
