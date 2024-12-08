@@ -32,7 +32,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, update, set, onValue, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getDatabase, ref, push, update, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
@@ -110,24 +110,16 @@
     onValue(postsRef, (snapshot) => {
       postsContainer1.innerHTML = "";
       postsContainer2.innerHTML = "";
-
       snapshot.forEach((childSnapshot) => {
         const postId = childSnapshot.key;
         const post = childSnapshot.val();
-
-        // Display post in postsContainer1 (all posts)
-        displayPost(postId, post, postsContainer1);
-
-        // Display post in postsContainer2 only if the post belongs to the current user
-        if (auth.currentUser && post.authorId === auth.currentUser.uid) {
-          displayPost(postId, post, postsContainer2);
-        }
+        displayPost(postId, post);
       });
     });
   };
 
   // Display each post with like, share, comment, and rate functionality
-  const displayPost = (postId, post, container) => {
+  const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
     postElement.innerHTML = `
@@ -142,9 +134,7 @@
           <div class="post-time-2">
             ${formatTimestamp(post.timestamp)}
           </div>
-          <div class="post-options">
-            <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
-          </div>
+                <div class="post-options">      <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button --></div>
         </div>
       </div>
       <div class="post-image">
@@ -166,7 +156,8 @@
         </div>
       </div>
     `;
-    container.appendChild(postElement);
+    postsContainer1.appendChild(postElement);
+    postsContainer2.appendChild(postElement.cloneNode(true));
 
     // Like button functionality
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId, postElement));
@@ -303,7 +294,6 @@
         likes: {},
         comments: {},
         rating: null,
-        authorId: user.uid,  // Add the user ID here
       });
 
       alert("Post created successfully!");
