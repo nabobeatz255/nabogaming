@@ -32,8 +32,8 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, update, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { getDatabase, ref, push, set, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -49,61 +49,17 @@
   const db = getDatabase(app);
   const storage = getStorage(app);
 
-  // Monitor authentication state
+  // Ensure user is authenticated
   onAuthStateChanged(auth, (user) => {
-    if (user) {
-      const fullName = user.displayName;
-      const firstName = fullName ? fullName.split(" ")[0] : "";
-      const email = user.email;
-      const profilePicture = user.photoURL;
-
-      document.querySelectorAll(".user-name").forEach((element) => {
-        element.textContent = firstName;
-      });
-      document.querySelectorAll(".user-email").forEach((element) => {
-        element.textContent = email;
-      });
-      document.querySelectorAll(".profile-picture").forEach((element) => {
-        element.src = profilePicture || "default-profile.png";
-      });
-
-      console.log("User Data:", { firstName, email, profilePicture });
-    } else {
+    if (!user) {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
     }
   });
 
-  // Time ago format function
-  const formatTimestamp = (timestamp) => {
-    const now = new Date();
-    const timeDiff = now - new Date(timestamp); // Difference in milliseconds
-
-    const seconds = Math.floor(timeDiff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(months / 12);
-
-    if (seconds < 60) {
-      return `${seconds}s ago`;
-    } else if (minutes < 60) {
-      return `${minutes}m ago`;
-    } else if (hours < 24) {
-      return `${hours}hr ago`;
-    } else if (days < 30) {
-      return `${days}d ago`;
-    } else if (months < 12) {
-      return `${months}mo ago`;
-    } else {
-      return `${years}yr ago`;
-    }
-  };
-
-  // Load posts from the database
   const postsContainer = document.getElementById("posts-container");
 
+  // Load all posts from Firebase
   const loadPosts = () => {
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -116,7 +72,7 @@
     });
   };
 
-  // Display each post with like, share, comment, and rate functionality
+  // Display individual post
   const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
@@ -126,12 +82,8 @@
           <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
-          <div class="profile-name">
-            ${post.authorName}
-          </div>
-          <div class="post-time-2">
-            ${formatTimestamp(post.timestamp)}
-          </div>
+          <div class="profile-name">${post.authorName}</div>
+          <div class="post-time-2">${new Date(post.timestamp).toLocaleString()}</div>
         </div>
       </div>
       <div class="post-image">
@@ -139,27 +91,17 @@
       </div>
       <div class="post-actions">
         <div class="actions-left">
-          <i class="ri-heart-line like-btn" data-id="${postId}"></i> <!-- Like button -->
-          <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
-          <button class="rate-post-btn" data-id="${postId}">Rate 5 Stars</button> <!-- Rate 5 Stars button -->
+          <i class="ri-heart-line like-btn" data-id="${postId}"></i>
         </div>
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
       </div>
-      <div class="post-rating">
-        <span class="rating-count">Rating: ${post.rating || "No rating yet"}</span> <!-- Rating display -->
-      </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
       </div>
       <div class="post-comments">
-        <button class="toggle-comments" data-target="comments-container-${postId}">
-          <i class="ri-arrow-down-s-line"></i> View Comments
-        </button>
-        <div class="comments-container" id="comments-container-${postId}">
-          ${renderComments(post.comments)}
-        </div>
+        <div class="comments-container"></div>
         <div class="comment-input-container">
           <input class="comment-input" placeholder="Write a comment...">
           <button class="submit-comment" data-post-id="${postId}">Send</button>
@@ -168,138 +110,89 @@
     `;
     postsContainer.appendChild(postElement);
 
-    // Like button functionality
-    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId, postElement));
+    // Like button event
+    postElement.querySelector(".like-btn").addEventListener("click", () => ratePost(postId));
 
-    // Share button functionality
-    postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
-
-    // Rate post functionality
-    postElement.querySelector(".rate-post-btn").addEventListener("click", () => ratePost(postId));
-
-    // Toggle comments visibility
-    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-    });
-
-    // Handle comment submission
-    postElement.querySelector(".submit-comment").addEventListener("click", (event) => {
-      const postId = event.target.dataset.postId;
+    // Submit comment event
+    postElement.querySelector(".submit-comment").addEventListener("click", () => {
       const commentInput = postElement.querySelector(".comment-input");
       if (commentInput.value.trim() !== "") {
         submitComment(postId, commentInput.value.trim());
+        alert("Comment posted successfully!");
         commentInput.value = "";
       }
     });
   };
 
-  // Rate post functionality (rate with 5 stars)
+  // Like/Rate a post
   const ratePost = async (postId) => {
     const user = auth.currentUser;
-    if (!user) return; // User must be logged in
-
-    const postRatingRef = ref(db, `posts/${postId}/rating`);
-    await set(postRatingRef, 5); // Set rating to 5 stars
-
-    loadPosts(); // Reload posts to show updated rating
+    if (!user) return;
+    const likesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
+    await set(likesRef, true); // Each user can only like once
+    alert("You liked the post!");
+    loadPosts(); // Reload posts to update the like count
   };
 
-  // Render comments for a post
-  const renderComments = (comments) => {
-    if (!comments) return "";
-    return Object.keys(comments).map((commentId) => {
-      const comment = comments[commentId];
-      return `
-        <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
-        </div>
-      `;
-    }).join("");
-  };
-
-  // Submit comment
+  // Submit a comment
   const submitComment = async (postId, commentText) => {
     const user = auth.currentUser;
-    if (!user) return; // User must be logged in
-
-    const commentData = {
-      username: user.displayName,
-      message: commentText,
-    };
-
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-
-    loadPosts(); // Reload posts to show the new comment
-  };
-
-  // Share post functionality (native share)
-  const sharePost = (post) => {
-    if (navigator.share) {
-      navigator.share({
-        title: "Post Share",
-        text: post.content,
-        url: window.location.href,
-      })
-        .then(() => console.log("Post shared"))
-        .catch((error) => console.error("Error sharing post:", error));
-    } else {
-      alert("Sharing not supported in this browser.");
-    }
+    if (!user) return;
+    const commentData = { username: user.displayName, message: commentText };
+    await push(ref(db, `posts/${postId}/comments`), commentData);
+    loadPosts();
   };
 
   // Create a new post
-  const createNewPost = async () => {
+  const createNewPost = () => {
     const user = auth.currentUser;
-    if (!user) {
-      alert("Please log in to post.");
-      return;
-    }
+    if (!user) return alert("Please log in to post.");
 
     const caption = document.getElementById("new-post-caption").value;
     const fileInput = document.getElementById("new-post-image");
     const file = fileInput.files[0];
+    if (!caption && !file) return alert("Please provide a caption or an image.");
 
-    if (!caption && !file) {
-      alert("Please provide a caption or an image.");
-      return;
-    }
+    const uploadProgress = document.getElementById("upload-progress");
+    const uploadPercentage = document.getElementById("upload-percentage");
 
-    try {
-      let imageUrl = "";
+    const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageReference, file);
 
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
-        const uploadTask = uploadBytes(storageReference, file);
-
-        await uploadTask;
-        imageUrl = await getDownloadURL(storageReference);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        uploadProgress.style.display = "block";
+        uploadPercentage.textContent = progress.toFixed(2);
+      },
+      (error) => {
+        console.error(error);
+        alert("Failed to upload image. Try again.");
+        uploadProgress.style.display = "none";
+      },
+      async () => {
+        const imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+        const postId = push(ref(db, "posts")).key;
+        await set(ref(db, `posts/${postId}`), {
+          authorName: user.displayName || "Anonymous",
+          authorPhoto: user.photoURL || "default.jpg",
+          content: caption,
+          imageUrl,
+          timestamp: serverTimestamp(),
+          likes: {},
+        });
+        alert("Post uploaded successfully!");
+        uploadProgress.style.display = "none";
+        loadPosts();
       }
-
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: user.displayName || "Anonymous",
-        authorPhoto: user.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-        rating: null, // Rating field added
-      });
-
-      loadPosts(); // Reload posts
-    } catch (error) {
-      console.error("Error creating post:", error);
-    }
+    );
   };
 
-  // Bind create post button
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 
-  loadPosts(); // Load posts on page load
+  // Load posts on page load
+  loadPosts();
 </script>
 
 
@@ -1047,6 +940,7 @@ Please Wait.....
       <h2>Create a New Post</h2>
       <input type="text" id="new-post-caption" placeholder="Write a caption...">
       <input type="file" id="new-post-image">
+      <div id="upload-progress" style="display: none;">Uploading: <span id="upload-percentage">0</span>%</div>
       <button id="create-post-button">Post</button>
     </section>
   <!-- Comments template (for dynamic usage) -->
