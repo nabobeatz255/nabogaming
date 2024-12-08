@@ -29,6 +29,7 @@
 }
 </style>
 
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -171,13 +172,13 @@
 
     const user = auth.currentUser;
     if (user) {
+      // If post is by the logged-in user, show in myposts
       if (post.authorName === user.displayName) {
-        // If the post is by the current user, display it in myposts
         postElement.innerHTML += `<button class="delete-post-btn" data-id="${postId}">Delete</button>`;
         postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(postId));
         myPostsContainer.appendChild(postElement);
       } else {
-        // Otherwise, display it in allposts
+        // If post is not by the logged-in user, show in allposts
         allPostsContainer.appendChild(postElement);
       }
 
@@ -322,7 +323,6 @@
 
   loadPosts(); // Load posts on page load
 </script>
-
 
 
  </head>
