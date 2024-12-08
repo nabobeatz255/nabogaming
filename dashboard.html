@@ -26,8 +26,18 @@
 	font-size: 13px;
 	color: #888;
 	margin-top: 6px;
-}.like-btn { font-size: 14px; }
-.share-btn { font-size: 14px; }
+}.like-btn { font-size: 18px; }
+.share-btn { font-size: 18px; }.instagram-post-2 {
+	width: 100%;
+	max-width: 600px;
+	background-color: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 12px;
+	box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+	-webkit-tap-highlight-color: transparent;
+	outline: none;
+	overflow: hidden;margin-bottom: 10px;
+}
 </style>
 
 <script type="module">
@@ -107,7 +117,7 @@
 
   const displayPost = (post, container) => {
     const postElement = document.createElement("div");
-    postElement.className = "instagram-post";
+    postElement.className = "instagram-post-2";
     postElement.innerHTML = `
       <div class="post-header">
         <div class="profile-picture">
