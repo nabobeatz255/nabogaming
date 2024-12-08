@@ -29,11 +29,12 @@
 }
 </style>
 
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, update, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -102,14 +103,14 @@
   };
 
   // Load posts from the database
-  const postsContainer1 = document.getElementById("posts-container-1");
-  const postsContainer2 = document.getElementById("posts-container-2");
+  const allPostsContainer = document.getElementById("allposts");
+  const myPostsContainer = document.getElementById("myposts");
 
   const loadPosts = () => {
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
-      postsContainer1.innerHTML = "";
-      postsContainer2.innerHTML = "";
+      allPostsContainer.innerHTML = "";
+      myPostsContainer.innerHTML = "";
       snapshot.forEach((childSnapshot) => {
         const postId = childSnapshot.key;
         const post = childSnapshot.val();
@@ -134,11 +135,23 @@
           <div class="post-time-2">
             ${formatTimestamp(post.timestamp)}
           </div>
-                <div class="post-options">      <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button --></div>
         </div>
       </div>
       <div class="post-image">
         <img src="${post.imageUrl}" alt="Post content">
+      </div>
+      <div class="post-actions">
+        <div class="actions-left">
+          <i class="ri-heart-line like-btn" data-id="${postId}"></i> <!-- Like button -->
+          <i class="ri-share-line share-btn" data-id="${postId}"></i> <!-- Share button -->
+          <button class="rate-post-btn" data-id="${postId}">Rate 5 Stars</button> <!-- Rate 5 Stars button -->
+        </div>
+      </div>
+      <div class="like-counter">
+        <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
+      </div>
+      <div class="post-rating">
+        <span class="rating-count">Rating: ${post.rating || "No rating yet"}</span> <!-- Rating display -->
       </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
@@ -156,14 +169,25 @@
         </div>
       </div>
     `;
-    postsContainer1.appendChild(postElement);
-    postsContainer2.appendChild(postElement.cloneNode(true));
+
+    // Append to "allposts" or "myposts"
+    const user = auth.currentUser;
+    if (user && post.authorName === user.displayName) {
+      postElement.innerHTML += `<button class="delete-post-btn" data-id="${postId}">Delete</button>`;
+      postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(postId));
+      myPostsContainer.appendChild(postElement);
+    } else {
+      allPostsContainer.appendChild(postElement);
+    }
 
     // Like button functionality
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId, postElement));
 
     // Share button functionality
     postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
+
+    // Rate post functionality
+    postElement.querySelector(".rate-post-btn").addEventListener("click", () => ratePost(postId));
 
     // Toggle comments visibility
     postElement.querySelector(".toggle-comments").addEventListener("click", () => {
@@ -182,24 +206,22 @@
     });
   };
 
-  // Like post functionality (only 1 like per user)
-  const likePost = async (postId, postElement) => {
+  // Delete post functionality
+  const deletePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}`);
+    await remove(postRef);
+    loadPosts(); // Reload posts to reflect the deletion
+  };
+
+  // Rate post functionality (rate with 5 stars)
+  const ratePost = async (postId) => {
     const user = auth.currentUser;
-    if (!user) {
-      alert("You must be logged in to like a post.");
-      return;
-    }
+    if (!user) return; // User must be logged in
 
-    const likesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-    const snapshot = await get(likesRef);
-    if (snapshot.exists()) {
-      alert("You already liked this post.");
-      return;
-    }
+    const postRatingRef = ref(db, `posts/${postId}/rating`);
+    await set(postRatingRef, 5); // Set rating to 5 stars
 
-    await set(likesRef, true);
-    alert("You liked this post!");
-    loadPosts(); // Reload posts to show updated like count
+    loadPosts(); // Reload posts to show updated rating
   };
 
   // Render comments for a post
@@ -218,10 +240,7 @@
   // Submit comment
   const submitComment = async (postId, commentText) => {
     const user = auth.currentUser;
-    if (!user) {
-      alert("You must be logged in to comment.");
-      return;
-    }
+    if (!user) return; // User must be logged in
 
     const commentData = {
       username: user.displayName,
@@ -231,7 +250,6 @@
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
 
-    alert("Comment posted!");
     loadPosts(); // Reload posts to show the new comment
   };
 
@@ -269,16 +287,11 @@
 
     try {
       let imageUrl = "";
-      if (file) {
-        // Upload image to Firebase Storage with progress
-        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
-        const uploadTask = uploadBytesResumable(storageReference, file);
 
-        uploadTask.on("state_changed", (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-          // You can show the upload progress to the user if desired.
-        });
+      if (file) {
+        // Upload image to Firebase Storage
+        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
+        const uploadTask = uploadBytes(storageReference, file);
 
         await uploadTask;
         imageUrl = await getDownloadURL(storageReference);
@@ -293,14 +306,12 @@
         timestamp: serverTimestamp(),
         likes: {},
         comments: {},
-        rating: null,
+        rating: null, // Rating field added
       });
 
-      alert("Post created successfully!");
       loadPosts(); // Reload posts
     } catch (error) {
       console.error("Error creating post:", error);
-      alert("Error creating post. Please try again.");
     }
   };
 
@@ -309,7 +320,6 @@
 
   loadPosts(); // Load posts on page load
 </script>
-
 
 
  </head>
@@ -406,8 +416,10 @@
 
   <!-- Posts Section -->
   <div class="post-grid">
-  <div id="posts-container-1" class="posts-container"></div> <!-- First Post Container -->
-
+  <section id="posts-section">
+        <div id="allposts" class="post-list">Please wait!!!
+  </div>
+  </section>
 </div>
  <!-- <section class=tabs>
     <div class=tab-header>
@@ -1066,10 +1078,8 @@ Please Wait.....
 
 </section>
 
-  <div class=post-grid>
-        <div id="posts-container-2" class="posts-container"></div> <!-- Second Post Container -->
+       <div id="myposts" class="post-list">Please wait!!!
   </div>
-
   </div>
 </div>
 
