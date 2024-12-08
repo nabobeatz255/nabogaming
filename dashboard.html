@@ -32,7 +32,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, set, onValue, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getDatabase, ref, push, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
@@ -80,10 +80,19 @@
   const loadPosts = () => {
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
+      console.log("Posts data fetched:", snapshot.val()); // Debugging fetched data
+      postsContainer.innerHTML = "Loading, please wait..."; // Show loading message
+      const postsData = snapshot.val();
+      if (!postsData) {
+        postsContainer.innerHTML = "No posts available."; // Handle case with no posts
+        return;
+      }
+
       postsContainer.innerHTML = ""; // Clear posts container
       snapshot.forEach((childSnapshot) => {
         const postId = childSnapshot.key;
         const post = childSnapshot.val();
+        console.log("Post ID:", postId, "Post data:", post); // Debugging individual posts
         displayPost(postId, post); // Render each post
       });
     });
@@ -135,6 +144,12 @@
     postElement.querySelector(".rate-post-btn").addEventListener("click", () => ratePost(postId));
   };
 
+  // Format timestamp (use your custom format if needed)
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString(); // Simple date format
+  };
+
   // Create a new post
   const createNewPost = async () => {
     const user = auth.currentUser;
@@ -163,7 +178,7 @@
           "state_changed",
           (snapshot) => {
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            alert(`Uploading: ${Math.round(progress)}% completed`);
+            console.log(`Uploading: ${Math.round(progress)}% completed`); // Debugging progress
           },
           (error) => {
             console.error("Upload failed:", error);
@@ -217,6 +232,7 @@
   // Initial load
   loadPosts();
 </script>
+
 
  </head>
   <body>
