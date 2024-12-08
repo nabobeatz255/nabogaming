@@ -223,10 +223,10 @@
     const snapshot = await get(postRef);
     if (snapshot.exists()) {
       await remove(postRef);  // Remove like
-      alert("Post unliked");
+      alert("You unliked the post");
     } else {
       await set(postRef, true);  // Add like
-      alert("Post liked");
+      alert("You liked the post");
     }
     loadPosts();  // Reload to reflect the changes
   };
@@ -306,6 +306,7 @@
 
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
+
 
 
 
