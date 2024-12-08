@@ -49,17 +49,26 @@
   const db = getDatabase(app);
   const storage = getStorage(app);
 
-  // Ensure user is authenticated
+  const postsContainer = document.getElementById("posts-container");
+
+  // Authenticate user and display profile
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
+    } else {
+      document.getElementById("user-profile").innerHTML = `
+        <img src="${user.photoURL || 'default.jpg'}" alt="Profile Picture">
+        <div>
+          <p><strong>${user.displayName || "Anonymous"}</strong></p>
+          <p>${user.email}</p>
+          <p>ID: ${user.uid}</p>
+        </div>
+      `;
     }
   });
 
-  const postsContainer = document.getElementById("posts-container");
-
-  // Load all posts from Firebase
+  // Load all posts
   const loadPosts = () => {
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -72,7 +81,7 @@
     });
   };
 
-  // Display individual post
+  // Display a post
   const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
@@ -92,6 +101,10 @@
       <div class="post-actions">
         <div class="actions-left">
           <i class="ri-heart-line like-btn" data-id="${postId}"></i>
+          <i class="ri-share-line share-btn"></i>
+        </div>
+        <div class="actions-right">
+          <button class="view-comments-btn" data-id="${postId}">View Comments</button>
         </div>
       </div>
       <div class="like-counter">
@@ -100,7 +113,7 @@
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
       </div>
-      <div class="post-comments">
+      <div class="post-comments hidden" id="comments-${postId}">
         <div class="comments-container"></div>
         <div class="comment-input-container">
           <input class="comment-input" placeholder="Write a comment...">
@@ -110,10 +123,21 @@
     `;
     postsContainer.appendChild(postElement);
 
-    // Like button event
+    // Like button
     postElement.querySelector(".like-btn").addEventListener("click", () => ratePost(postId));
 
-    // Submit comment event
+    // Share button
+    postElement.querySelector(".share-btn").addEventListener("click", () => {
+      alert("Post shared successfully!");
+    });
+
+    // View comments button
+    postElement.querySelector(".view-comments-btn").addEventListener("click", () => {
+      const commentsSection = document.getElementById(`comments-${postId}`);
+      commentsSection.classList.toggle("hidden");
+    });
+
+    // Submit comment
     postElement.querySelector(".submit-comment").addEventListener("click", () => {
       const commentInput = postElement.querySelector(".comment-input");
       if (commentInput.value.trim() !== "") {
@@ -124,7 +148,7 @@
     });
   };
 
-  // Like/Rate a post
+  // Like a post
   const ratePost = async (postId) => {
     const user = auth.currentUser;
     if (!user) return;
@@ -194,7 +218,6 @@
   // Load posts on page load
   loadPosts();
 </script>
-
 
  </head>
   <body>
