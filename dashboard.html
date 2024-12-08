@@ -33,7 +33,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, set, onValue, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getDatabase, ref, push, update, set, onValue, remove, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
@@ -50,11 +50,12 @@
   const db = getDatabase(app);
   const storage = getStorage(app);
 
+  // Monitor authentication state
   let currentUser = null;
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
-      loadPosts(); // Load posts when the user is signed in
+      loadPosts();
     } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
@@ -82,8 +83,8 @@
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
-    allPostsContainer.innerHTML = ""; // Clear previous posts
-    myPostsContainer.innerHTML = ""; // Clear previous posts
+    allPostsContainer.innerHTML = "";
+    myPostsContainer.innerHTML = "";
 
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -94,13 +95,24 @@
         posts.push({ postId, ...post });
       });
 
+      // Debugging - Log posts to make sure you're fetching them
+      console.log(posts);
+
       // Separate posts into 'myPosts' (logged-in user's posts) and 'allPosts' (other users' posts)
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
       const allPosts = posts.filter(post => post.authorName !== currentUser.displayName);
 
+      // Debugging - Log the separated posts
+      console.log('My Posts:', myPosts);
+      console.log('All Posts:', allPosts);
+
       // Display the posts
       myPosts.forEach(post => displayPost(post, myPostsContainer));
       allPosts.forEach(post => displayPost(post, allPostsContainer));
+
+      // Debugging - Check if the correct posts are being displayed in their containers
+      console.log('My posts displayed:', myPostsContainer);
+      console.log('All posts displayed:', allPostsContainer);
     });
   };
 
@@ -110,7 +122,7 @@
     postElement.innerHTML = `
       <div class="post-header">
         <div class="profile-picture">
-          <img src="${post.authorPhoto || 'default.jpg'}" alt="User profile picture">
+          <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
           <div class="profile-name">${post.authorName}</div>
@@ -118,7 +130,7 @@
         </div>
       </div>
       <div class="post-image">
-        <img src="${post.imageUrl || ''}" alt="Post content">
+        <img src="${post.imageUrl}" alt="Post content">
       </div>
       <div class="post-actions">
         <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
@@ -144,7 +156,7 @@
       </div>
     `;
 
-    // Add the post to the correct container (all posts or my posts)
+    // Add post to the correct container
     container.appendChild(postElement);
 
     // Handle like button
@@ -259,7 +271,6 @@
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 
 </script>
-
 
 
  </head>
