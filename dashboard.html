@@ -36,7 +36,7 @@
 	box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 	-webkit-tap-highlight-color: transparent;
 	outline: none;
-	overflow: hidden;margin-bottom: 15px;
+	overflow: hidden;margin-left: 20px;margin-bottom: 15px;
 }/* Preloader styles */
 .preloader {
   width: 30px;
@@ -156,10 +156,24 @@ const displayPost = (post, container, isMyPost) => {
     postElement.querySelector(".username").textContent = post.authorName;
     postElement.querySelector(".content").textContent = post.content;
 
-    // Set up event listeners for actions (like, share, etc.)
+    // Display Comments
+    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+        const commentsContainer = postElement.querySelector(".comments-container");
+        commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+    });
+    postElement.querySelector(".comments-container").innerHTML = renderComments(post.comments);
+
+    // Add event listeners for like, share, comment, and delete actions
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
     postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post, postElement));
-    postElement.querySelector(".toggle-comments").addEventListener("click", () => toggleComments(postElement));
+    postElement.querySelector(".submit-comment").addEventListener("click", () => {
+        const commentInput = postElement.querySelector(".comment-input");
+        const commentText = commentInput.value.trim();
+        if (commentText !== "") {
+            submitComment(post.postId, commentText);
+            commentInput.value = "";
+        }
+    });
 
     if (isMyPost) {
         postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
@@ -168,9 +182,16 @@ const displayPost = (post, container, isMyPost) => {
     container.appendChild(postElement);
 };
 
-const toggleComments = (postElement) => {
-    const commentsContainer = postElement.querySelector(".comments-container");
-    commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+const renderComments = (comments) => {
+    if (!comments) return "";
+    return Object.keys(comments).map(commentId => {
+        const comment = comments[commentId];
+        return `
+            <div class="comment">
+                <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+            </div>
+        `;
+    }).join("");
 };
 
 const likePost = async (postId) => {
@@ -270,7 +291,6 @@ const displayUserDetails = () => {
 };
 
 document.getElementById("create-post-button").addEventListener("click", createNewPost);
-
 </script>
 
 
