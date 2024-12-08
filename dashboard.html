@@ -51,7 +51,7 @@
 
   const postsContainer = document.getElementById("posts-container");
 
-  // Authenticate user and display profile
+  // Display the authenticated user's profile
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       alert("You are not signed in. Redirecting to login...");
@@ -68,7 +68,7 @@
     }
   });
 
-  // Load all posts
+  // Load posts from the database
   const loadPosts = () => {
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -81,7 +81,7 @@
     });
   };
 
-  // Display a post
+  // Display a single post
   const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
@@ -135,6 +135,7 @@
     postElement.querySelector(".view-comments-btn").addEventListener("click", () => {
       const commentsSection = document.getElementById(`comments-${postId}`);
       commentsSection.classList.toggle("hidden");
+      loadComments(postId);
     });
 
     // Submit comment
@@ -158,16 +159,32 @@
     loadPosts(); // Reload posts to update the like count
   };
 
+  // Load comments for a post
+  const loadComments = (postId) => {
+    const commentsRef = ref(db, `posts/${postId}/comments`);
+    const commentsContainer = document.getElementById(`comments-${postId} .comments-container`);
+    onValue(commentsRef, (snapshot) => {
+      commentsContainer.innerHTML = "";
+      snapshot.forEach((childSnapshot) => {
+        const comment = childSnapshot.val();
+        const commentElement = document.createElement("div");
+        commentElement.className = "comment";
+        commentElement.textContent = `${comment.username}: ${comment.message}`;
+        commentsContainer.appendChild(commentElement);
+      });
+    });
+  };
+
   // Submit a comment
   const submitComment = async (postId, commentText) => {
     const user = auth.currentUser;
     if (!user) return;
     const commentData = { username: user.displayName, message: commentText };
     await push(ref(db, `posts/${postId}/comments`), commentData);
-    loadPosts();
+    loadComments(postId);
   };
 
-  // Create a new post
+  // Create a new post with upload progress
   const createNewPost = () => {
     const user = auth.currentUser;
     if (!user) return alert("Please log in to post.");
