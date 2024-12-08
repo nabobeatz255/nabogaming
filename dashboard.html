@@ -33,7 +33,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, update, set, onValue, remove, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
@@ -55,7 +55,7 @@
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
-      loadPosts();
+      loadPosts();  // Load posts after successful login
     } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
@@ -95,24 +95,13 @@
         posts.push({ postId, ...post });
       });
 
-      // Debugging - Log posts to make sure you're fetching them
-      console.log(posts);
-
-      // Separate posts into 'myPosts' (logged-in user's posts) and 'allPosts' (other users' posts)
+      // Separate posts into 'myPosts' (logged-in user's posts) and 'allPosts' (all users' posts)
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts.filter(post => post.authorName !== currentUser.displayName);
-
-      // Debugging - Log the separated posts
-      console.log('My Posts:', myPosts);
-      console.log('All Posts:', allPosts);
+      const allPosts = posts; // Show all posts, including the logged-in user's posts
 
       // Display the posts
       myPosts.forEach(post => displayPost(post, myPostsContainer));
       allPosts.forEach(post => displayPost(post, allPostsContainer));
-
-      // Debugging - Check if the correct posts are being displayed in their containers
-      console.log('My posts displayed:', myPostsContainer);
-      console.log('All posts displayed:', allPostsContainer);
     });
   };
 
@@ -271,6 +260,7 @@
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 
 </script>
+
 
 
  </head>
