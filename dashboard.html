@@ -171,7 +171,7 @@
             const commentInput = postElement.querySelector(".comment-input");
             const commentText = commentInput.value.trim();
             if (commentText !== "") {
-                submitComment(post.postId, commentText, postElement);
+                submitComment(post.postId, commentText, commentsContainer);
                 commentInput.value = ""; // Clear the input field after submitting
             }
         });
@@ -222,7 +222,7 @@
         }
     };
 
-    const submitComment = async (postId, commentText, postElement) => {
+    const submitComment = async (postId, commentText, commentsContainer) => {
         const commentData = {
             username: currentUser.displayName,
             message: commentText,
@@ -232,11 +232,12 @@
         await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
         alert("Comment added successfully");
 
-        // Re-render the comments for the specific post after submitting the comment
-        const commentsContainer = postElement.querySelector(".comments-container");
-        commentsContainer.innerHTML = renderComments({ ...postElement.querySelector(".comments-container").comments, [commentId]: commentData });
-
-        loadPosts();  // Reload posts to show the new comment
+        // Dynamically update the comment section after submission
+        commentsContainer.innerHTML += `
+            <div class="comment">
+                <span class="comment-username">${commentData.username}</span><br><span class="comment-sms">${commentData.message}</span>
+            </div>
+        `;
     };
 
     const deletePost = async (postId) => {
@@ -298,6 +299,7 @@
 
     document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
+
 
 
 
