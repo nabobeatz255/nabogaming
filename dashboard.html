@@ -36,7 +36,27 @@
 	box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 	-webkit-tap-highlight-color: transparent;
 	outline: none;
-	overflow: hidden;margin-bottom: 10px;
+	overflow: hidden;margin-bottom: 15px;
+}/* Preloader styles */
+.preloader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid transparent;
+  border-top: 4px solid #007bff; /* Primary color */
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: auto;align-items: center;justify-content: center;
+  display: none; /* Hidden by default */
+}
+
+/* Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
 
@@ -368,7 +388,7 @@
   <!-- Posts Section -->
   <div class="post-grid">
   <section id="posts-section">
-        <div id="allposts" class="post-list">Please wait!!!
+        <div id="allposts" class="post-list"><div class="preloader"></div>
   </div>
   </section>
 </div>
@@ -1029,7 +1049,7 @@ Please Wait.....
 
 </section>
 
-       <div id="myposts" class="post-list">Please wait!!!
+       <div id="myposts" class="post-list"><div class="preloader"></div>
   </div>
   </div>
 </div>
