@@ -102,12 +102,14 @@
   };
 
   // Load posts from the database
-  const postsContainer = document.getElementById("posts-container");
+  const postsContainer1 = document.getElementById("posts-container-1");
+  const postsContainer2 = document.getElementById("posts-container-2");
 
   const loadPosts = () => {
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
-      postsContainer.innerHTML = "";
+      postsContainer1.innerHTML = "";
+      postsContainer2.innerHTML = "";
       snapshot.forEach((childSnapshot) => {
         const postId = childSnapshot.key;
         const post = childSnapshot.val();
@@ -116,7 +118,7 @@
     });
   };
 
-  // Display each post with like, share, comment functionality
+  // Display each post with like, share, comment, and rate functionality
   const displayPost = (postId, post) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post";
@@ -162,9 +164,10 @@
         </div>
       </div>
     `;
-    postsContainer.appendChild(postElement);
+    postsContainer1.appendChild(postElement);
+    postsContainer2.appendChild(postElement.cloneNode(true));
 
-    // Like button functionality (each user can like only once)
+    // Like button functionality
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(postId, postElement));
 
     // Share button functionality
@@ -187,22 +190,23 @@
     });
   };
 
-  // Like post functionality
+  // Like post functionality (only 1 like per user)
   const likePost = async (postId, postElement) => {
     const user = auth.currentUser;
-    if (!user) return; // User must be logged in
+    if (!user) {
+      alert("You must be logged in to like a post.");
+      return;
+    }
 
-    const likesRef = ref(db, `posts/${postId}/likes`);
-    const userLikeRef = ref(db, `posts/${postId}/likes/${user.uid}`);
-
+    const likesRef = ref(db, `posts/${postId}/likes/${user.uid}`);
     const snapshot = await get(likesRef);
-    if (snapshot.exists() && snapshot.val()[user.uid]) {
+    if (snapshot.exists()) {
       alert("You already liked this post.");
       return;
     }
 
-    await set(userLikeRef, true); // Mark the user as liked
-    alert("You liked this post.");
+    await set(likesRef, true);
+    alert("You liked this post!");
     loadPosts(); // Reload posts to show updated like count
   };
 
@@ -222,7 +226,10 @@
   // Submit comment
   const submitComment = async (postId, commentText) => {
     const user = auth.currentUser;
-    if (!user) return; // User must be logged in
+    if (!user) {
+      alert("You must be logged in to comment.");
+      return;
+    }
 
     const commentData = {
       username: user.displayName,
@@ -232,7 +239,7 @@
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
 
-    alert("Your comment has been posted.");
+    alert("Comment posted!");
     loadPosts(); // Reload posts to show the new comment
   };
 
@@ -244,7 +251,7 @@
         text: post.content,
         url: window.location.href,
       })
-        .then(() => alert("Post shared"))
+        .then(() => console.log("Post shared"))
         .catch((error) => console.error("Error sharing post:", error));
     } else {
       alert("Sharing not supported in this browser.");
@@ -270,20 +277,20 @@
 
     try {
       let imageUrl = "";
-      const uploadTask = uploadBytesResumable(storageRef(storage, `post_images/${user.uid}/${file.name}`), file);
+      if (file) {
+        // Upload image to Firebase Storage with progress
+        const storageReference = storageRef(storage, `post_images/${user.uid}/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageReference, file);
 
-      uploadTask.on('state_changed', (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
-        // Optionally, you can display progress to the user here.
-      }, (error) => {
-        console.error("Upload error: ", error);
-      }, async () => {
-        imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-      });
+        uploadTask.on("state_changed", (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+          // You can show the upload progress to the user if desired.
+        });
 
-      // Wait until upload completes
-      await uploadTask;
+        await uploadTask;
+        imageUrl = await getDownloadURL(storageReference);
+      }
 
       const postId = push(ref(db, "posts")).key;
       await set(ref(db, `posts/${postId}`), {
@@ -294,12 +301,14 @@
         timestamp: serverTimestamp(),
         likes: {},
         comments: {},
+        rating: null,
       });
 
-      alert("Your post has been uploaded.");
+      alert("Post created successfully!");
       loadPosts(); // Reload posts
     } catch (error) {
       console.error("Error creating post:", error);
+      alert("Error creating post. Please try again.");
     }
   };
 
@@ -308,6 +317,7 @@
 
   loadPosts(); // Load posts on page load
 </script>
+
 
 
  </head>
@@ -404,11 +414,8 @@
 
   <!-- Posts Section -->
   <div class="post-grid">
-  <section id="posts-section">
-    <div id="posts-container">
-      Loading please wait...
-    </div>
-  </section>
+  <div id="posts-container-1" class="posts-container"></div> <!-- First Post Container -->
+
 </div>
  <!-- <section class=tabs>
     <div class=tab-header>
@@ -1067,7 +1074,9 @@ Please Wait.....
 
 </section>
 
-  <div class=post-grid id="posts-container"></div>
+  <div class=post-grid>
+        <div id="posts-container-2" class="posts-container"></div> <!-- Second Post Container -->
+  </div>
 
   </div>
 </div>
