@@ -94,50 +94,27 @@
 
   let currentUser = null;
 
-  // Display message function
-  const showMessage = (message, isSuccess) => {
-    const alertElements = document.querySelectorAll(".alert-message");
-    alertElements.forEach(alertElement => {
-      alertElement.style.display = "block";
-      alertElement.textContent = message;
-      alertElement.style.backgroundColor = isSuccess ? "green" : "red";
-      alertElement.style.color = "white";
-
-      setTimeout(() => {
-        alertElement.style.display = "none";
-      }, 3000);
-    });
-  };
-
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
-      // Show user info in multiple areas
-      displayUserInfo();
+      displayUserInfo(user);  // Display user info
       loadPosts();  // Load posts after successful login
     } else {
-      showMessage("You are not signed in. Redirecting to login...", false);
+      alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
     }
   });
 
-  // Display user info (username, email, and profile picture)
-  const displayUserInfo = () => {
+  const displayUserInfo = (user) => {
+    // Select all elements by their class name
     const userNameElements = document.querySelectorAll(".user-name");
     const userEmailElements = document.querySelectorAll(".user-email");
-    const userProfilePictureElements = document.querySelectorAll(".user-profile-picture");
+    const userPhotoElements = document.querySelectorAll(".profile-picture img");
 
-    userNameElements.forEach(element => {
-      element.textContent = currentUser.displayName || "Anonymous";
-    });
-
-    userEmailElements.forEach(element => {
-      element.textContent = currentUser.email || "No email";
-    });
-
-    userProfilePictureElements.forEach(element => {
-      element.src = currentUser.photoURL || "default-profile.jpg";
-    });
+    // Set the user info
+    userNameElements.forEach(element => element.textContent = user.displayName || "Anonymous");
+    userEmailElements.forEach(element => element.textContent = user.email || "No email provided");
+    userPhotoElements.forEach(element => element.src = user.photoURL || "default.jpg");
   };
 
   const formatTimestamp = (timestamp) => {
@@ -159,8 +136,8 @@
   };
 
   const loadPosts = () => {
-    const allPostsContainer = document.querySelector(".allposts");
-    const myPostsContainer = document.querySelector(".myposts");
+    const allPostsContainer = document.getElementById("allposts");
+    const myPostsContainer = document.getElementById("myposts");
     allPostsContainer.innerHTML = "";
     myPostsContainer.innerHTML = "";
 
@@ -183,15 +160,15 @@
 
   const displayPost = (post, container, isMyPost) => {
     const postElement = document.createElement("div");
-    postElement.className = "instagram-post";
+    postElement.className = "instagram-post-2";
     postElement.innerHTML = `
       <div class="post-header">
         <div class="profile-picture">
           <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time">${formatTimestamp(post.timestamp)}</div>
+          <div class="user-name">${post.authorName}</div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
         </div>
       </div>
       <div class="post-image">
@@ -262,10 +239,10 @@
     const snapshot = await get(postRef);
     if (snapshot.exists()) {
       await remove(postRef);  // Remove like
-      showMessage("You unliked the post", false);
+      alert("You unliked the post");
     } else {
       await set(postRef, true);  // Add like
-      showMessage("You liked the post", true);
+      alert("You liked the post");
     }
     loadPosts();  // Reload to reflect the changes
   };
@@ -277,10 +254,10 @@
         text: post.content,
         url: post.imageUrl,
       })
-        .then(() => showMessage("Post shared successfully", true))
-        .catch((error) => showMessage("Error sharing post: " + error, false));
+        .then(() => console.log("Post shared"))
+        .catch((error) => console.error("Error sharing post:", error));
     } else {
-      showMessage("Sharing not supported in this browser.", false);
+      alert("Sharing not supported in this browser.");
     }
   };
 
@@ -292,7 +269,7 @@
 
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showMessage("Comment added successfully", true);
+    alert("Comment added successfully");
     loadPosts();  // Reload posts to show the new comment
   };
 
@@ -300,50 +277,49 @@
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
     loadPosts();  // Reload posts to remove the deleted post
-    showMessage("Post deleted", true);
+    alert("Post deleted");
   };
 
   const createNewPost = async () => {
-    const caption = document.querySelector(".new-post-caption").value;
-    const fileInput = document.querySelector(".new-post-image");
+    const caption = document.getElementById("new-post-caption").value;
+    const fileInput = document.getElementById("new-post-image");
     const file = fileInput.files[0];
 
     if (!caption && !file) {
-      showMessage("Please provide a caption or an image.", false);
+      alert("Please provide a caption or an image.");
       return;
     }
 
     try {
       let imageUrl = "";
-      showMessage("Uploading post...", true);
+      alert("Uploading post...");
 
       if (file) {
         // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
-        showMessage("Image uploaded successfully", true);
+        alert("Image uploaded successfully");
       }
 
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
+      const newPostRef = push(ref(db, "posts"));
+      await set(newPostRef, {
+        authorName: currentUser.displayName,
+        authorPhoto: currentUser.photoURL,
         content: caption,
-        imageUrl,
+        imageUrl: imageUrl,
         timestamp: serverTimestamp(),
         likes: {},
         comments: {},
       });
 
-      showMessage("Post created successfully", true);
-      window.location.reload();  // Reload the page after successful upload
+      alert("Post created successfully!");
+      loadPosts();  // Reload posts to show the new post
+
     } catch (error) {
-      console.error("Error creating post:", error);
-      showMessage("Error creating post", false);
+      alert("Error creating post: " + error.message);
     }
   };
-
 </script>
 
 
@@ -1210,7 +1186,6 @@ Please Wait.....
     </ul>
   </section>
 </div>
-<div id="alert-message" style="display: none; padding: 10px; margin: 10px 0;"></div>
 
     </div>
     <script>
