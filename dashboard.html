@@ -70,54 +70,12 @@
 }
 </style>
 
-  <style>
-    .post-actions i {
-      margin-right: 10px;
-      cursor: pointer;
-    }
-
-    .save-btn, .report-btn, .edit-post-btn, .analytics-btn {
-      cursor: pointer;
-    }
-
-    .view-count {
-      font-size: 12px;
-      color: gray;
-    }
-
-    /* Style for comment section */
-    .comments-container {
-      margin-top: 10px;
-    }
-
-    .comment {
-      font-size: 12px;
-      margin: 5px 0;
-    }
-
-    .poll {
-      margin-top: 20px;
-    }
-
-    .poll button {
-      display: block;
-      margin: 5px 0;
-    }
-
-    .upload-progress {
-      display: none;
-      margin-top: 10px;
-    }
-  </style>
-
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
   import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
-  // Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
     authDomain: "register-71bde.firebaseapp.com",
@@ -127,26 +85,22 @@
     appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
   const db = getDatabase(app);
   const storage = getStorage(app);
 
   let currentUser = null;
-
-  // Auth State Change Listener (Sign-in check)
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
       loadPosts();  // Load posts after successful login
     } else {
       alert("You are not signed in. Redirecting to login...");
-      window.location.href = "index.html";  // Redirect to login if not signed in
+      window.location.href = "index.html";
     }
   });
 
-  // Format the timestamp for post display
   const formatTimestamp = (timestamp) => {
     const now = new Date();
     const timeDiff = now - new Date(timestamp);
@@ -165,35 +119,29 @@
     return `${years}yr ago`;
   };
 
-  // Load posts function (fetch posts from DB)
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
-
-    // Clear the containers before loading new data
     allPostsContainer.innerHTML = "";
     myPostsContainer.innerHTML = "";
 
-    const postsRef = ref(db, "posts"); // Reference to 'posts' in the Firebase DB
+    const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
       const posts = [];
       snapshot.forEach((childSnapshot) => {
-        const post = childSnapshot.val();  // Get the post data
-        const postId = childSnapshot.key;  // Get the post ID (key)
-        posts.push({ postId, ...post });    // Push post data to array
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
       });
 
-      // Filter posts for the current user and load them into containers
-      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);  // Filter user's posts
-      const allPosts = posts;  // All posts to show in the "allposts" container
+      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+      const allPosts = posts;
 
-      // Display my posts with delete button, and all posts without it
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true));  // 'true' means it's my post
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false));  // 'false' means not my post
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
     });
   };
 
-  // Render individual post in the specified container
   const displayPost = (post, container, isMyPost) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
@@ -213,8 +161,6 @@
       <div class="post-actions">
         <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
         <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
-        <i class="ri-bookmark-line save-btn" data-id="${post.postId}"></i>
-        <i class="ri-error-warning-line report-btn" data-id="${post.postId}"></i>
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
@@ -222,7 +168,6 @@
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
       </div>
-      <div class="view-count"></div>
       <div class="post-comments">
         <button class="toggle-comments" data-target="comments-container-${post.postId}">
           <i class="ri-arrow-down-s-line"></i> View Comments
@@ -235,18 +180,13 @@
           <button class="submit-comment" data-post-id="${post.postId}">Send</button>
         </div>
       </div>
-      ${isMyPost ? `<button class="edit-post-btn" data-id="${post.postId}">Edit Post</button>` : ""}
       ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Delete Post</button>` : ""}
     `;
 
     container.appendChild(postElement);
 
-    // Attach event listeners
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-    postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
-    postElement.querySelector(".save-btn").addEventListener("click", () => savePost(post.postId));
-    postElement.querySelector(".report-btn").addEventListener("click", () => reportPost(post.postId));
-    
+    postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post, postElement));
     postElement.querySelector(".toggle-comments").addEventListener("click", () => {
       const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
       commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
@@ -262,16 +202,10 @@
     });
 
     if (isMyPost) {
-      postElement.querySelector(".edit-post-btn").addEventListener("click", () => editPost(post));
       postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
     }
-
-    // Increment views and display view count
-    incrementPostView(post.postId);
-    loadPostViews(post.postId);
   };
 
-  // Render comments for a post
   const renderComments = (comments) => {
     if (!comments) return "";
     return Object.keys(comments).map(commentId => {
@@ -284,24 +218,6 @@
     }).join("");
   };
 
-  // Increment post view count
-  const incrementPostView = async (postId) => {
-    const postRef = ref(db, `posts/${postId}/views`);
-    const snapshot = await get(postRef);
-    const currentViews = snapshot.exists() ? snapshot.val() : 0;
-    await set(postRef, currentViews + 1);
-  };
-
-  // Load and display the view count for a post
-  const loadPostViews = (postId) => {
-    const postRef = ref(db, `posts/${postId}/views`);
-    get(postRef).then((snapshot) => {
-      const views = snapshot.val() || 0;
-      document.querySelector(`.post[data-id="${postId}"] .view-count`).textContent = `${views} views`;
-    });
-  };
-
-  // Handle liking a post
   const likePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
     const snapshot = await get(postRef);
@@ -315,8 +231,7 @@
     loadPosts();  // Reload to reflect the changes
   };
 
-  // Handle sharing a post
-  const sharePost = (post) => {
+  const sharePost = (post, postElement) => {
     if (navigator.share) {
       navigator.share({
         title: `${post.authorName}'s post`,
@@ -330,35 +245,6 @@
     }
   };
 
-  // Handle saving a post
-  const savePost = async (postId) => {
-    const saveRef = ref(db, `users/${currentUser.uid}/savedPosts/${postId}`);
-    await set(saveRef, true);
-    alert("Post saved!");
-  };
-
-  // Handle reporting a post
-  const reportPost = async (postId) => {
-    const reportRef = ref(db, `reports/${postId}`);
-    await set(reportRef, {
-      postId,
-      reportedBy: currentUser.uid,
-      reportedAt: serverTimestamp(),
-    });
-    alert("Post reported. Our team will review it.");
-  };
-
-  // Handle editing a post
-  const editPost = (post) => {
-    const newCaption = prompt("Edit your caption:", post.content);
-    if (newCaption) {
-      const postRef = ref(db, `posts/${post.postId}`);
-      update(postRef, { content: newCaption });
-      alert("Post updated");
-    }
-  };
-
-  // Submit a new comment
   const submitComment = async (postId, commentText) => {
     const commentData = {
       username: currentUser.displayName,
@@ -371,7 +257,6 @@
     loadPosts();  // Reload posts to show the new comment
   };
 
-  // Handle deleting a post
   const deletePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
@@ -379,7 +264,6 @@
     alert("Post deleted");
   };
 
-  // Create a new post (from user input)
   const createNewPost = async () => {
     const caption = document.getElementById("new-post-caption").value;
     const fileInput = document.getElementById("new-post-image");
@@ -392,48 +276,36 @@
 
     try {
       let imageUrl = "";
-      const uploadProgressElement = document.getElementById("upload-progress");
-      const uploadPercentageElement = document.getElementById("upload-percentage");
+      alert("Uploading post...");
 
       if (file) {
-        uploadProgressElement.style.display = "block";
-
+        // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        const uploadTask = uploadBytesResumable(storageReference, file);
-
-        uploadTask.on("state_changed", (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          uploadPercentageElement.textContent = progress.toFixed(0);
-        });
-
-        await uploadTask;
+        await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
+        alert("Image uploaded successfully");
       }
 
-      const newPostData = {
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: currentUser.displayName || "Anonymous",
+        authorPhoto: currentUser.photoURL || "default.jpg",
         content: caption,
-        imageUrl: imageUrl,
-        authorName: currentUser.displayName,
-        authorPhoto: currentUser.photoURL,
+        imageUrl,
         timestamp: serverTimestamp(),
         likes: {},
         comments: {},
-        views: 0,
-      };
+      });
 
-      await push(ref(db, "posts"), newPostData);
-      alert("New post created!");
-      loadPosts();
+      alert("Post created successfully");
+      window.location.reload();  // Reload the page after successful upload
     } catch (error) {
-      alert("Error creating post: " + error.message);
+      console.error("Error creating post:", error);
     }
   };
 
-  // Event listener for creating a new post
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
-
-
 
 
 
