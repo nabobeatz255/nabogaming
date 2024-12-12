@@ -100,27 +100,18 @@
       displayUserInfo(user);  // Display user info
       loadPosts();  // Load posts after successful login
     } else {
-      showToast("You are not signed in. Redirecting to login...", "error");
+      alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
     }
   });
 
-  const showToast = (message, type = "success") => {
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);  // Remove toast after 3 seconds
-  };
-
   const displayUserInfo = (user) => {
+    // Select all elements by their class name
     const userNameElements = document.querySelectorAll(".user-name");
     const userEmailElements = document.querySelectorAll(".user-email");
     const userPhotoElements = document.querySelectorAll(".profile-picture");
 
+    // Set the user info
     userNameElements.forEach(element => element.textContent = user.displayName || "Anonymous");
     userEmailElements.forEach(element => element.textContent = user.email || "No email provided");
     userPhotoElements.forEach(element => element.src = user.photoURL || "default.jpg");
@@ -162,8 +153,8 @@
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
       const allPosts = posts;
 
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true));
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false));
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
     });
   };
 
@@ -248,10 +239,10 @@
     const snapshot = await get(postRef);
     if (snapshot.exists()) {
       await remove(postRef);  // Remove like
-      showToast("You unliked the post", "info");
+      alert("You unliked the post");
     } else {
       await set(postRef, true);  // Add like
-      showToast("You liked the post", "success");
+      alert("You liked the post");
     }
     loadPosts();  // Reload to reflect the changes
   };
@@ -263,10 +254,10 @@
         text: post.content,
         url: post.imageUrl,
       })
-        .then(() => showToast("Post shared successfully!", "success"))
-        .catch((error) => showToast("Error sharing post: " + error.message, "error"));
+        .then(() => console.log("Post shared"))
+        .catch((error) => console.error("Error sharing post:", error));
     } else {
-      showToast("Sharing not supported in this browser.", "warning");
+      alert("Sharing not supported in this browser.");
     }
   };
 
@@ -278,7 +269,7 @@
 
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showToast("Comment added successfully", "success");
+    alert("Comment added successfully");
     loadPosts();  // Reload posts to show the new comment
   };
 
@@ -286,7 +277,7 @@
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
     loadPosts();  // Reload posts to remove the deleted post
-    showToast("Post deleted", "error");
+    alert("Post deleted");
   };
 
   const createNewPost = async () => {
@@ -295,19 +286,20 @@
     const file = fileInput.files[0];
 
     if (!caption && !file) {
-      showToast("Please provide a caption or an image.", "warning");
+      alert("Please provide a caption or an image.");
       return;
     }
 
     try {
       let imageUrl = "";
-      showToast("Uploading post...", "info");
+      alert("Uploading post...");
 
       if (file) {
+        // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
-        showToast("Image uploaded successfully", "success");
+        alert("Image uploaded successfully");
       }
 
       const newPostRef = push(ref(db, "posts"));
@@ -321,58 +313,14 @@
         comments: {},
       });
 
-      showToast("Post created successfully!", "success");
+      alert("Post created successfully!");
       loadPosts();  // Reload posts to show the new post
 
     } catch (error) {
-      showToast("Error creating post: " + error.message, "error");
+      alert("Error creating post: " + error.message);
     }
   };
 </script>
-
-<style>
-  .toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 14px;
-    z-index: 9999;
-    opacity: 0;
-    animation: fadein 0.5s, fadeout 0.5s 2.5s forwards;
-  }
-
-  .toast.success {
-    background-color: #4CAF50;
-  }
-
-  .toast.error {
-    background-color: #f44336;
-  }
-
-  .toast.warning {
-    background-color: #ff9800;
-  }
-
-  .toast.info {
-    background-color: #2196F3;
-  }
-
-  @keyframes fadein {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes fadeout {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
-</style>
-
 
 
 
