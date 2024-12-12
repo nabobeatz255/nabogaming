@@ -3,21 +3,21 @@
   <head>
     <meta charset=UTF-8>
     <meta name=viewport content="width=device-width,initial-scale=1">
-    <meta name="description" content="Nabogaming - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
-    <meta name="keywords" content="Nabogaming, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+    <meta name="description" content="Nabogaming Betplace - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming, Betplace, Kubashiri Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
     <meta name="author" content="Nabogaming">
-    <meta property="og:title" content="Nabogaming">
-    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
+    <meta property="og:title" content="Nabogaming Betplace">
+    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming Betplace. Usikose nafasi yako ya ushindi!">
     <meta property="og:image" content="https://nabogaming.com/logo.png">
     <meta property="og:url" content="https://nabogaming.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Nabogaming">
-    <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:title" content="Nabogaming Betplace">
+    <meta name="twitter:description" content="Jiunge na Nabogaming Betplace kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
     <meta name="twitter:image" content="https://nabogaming.com/logo.png">
     <link rel="canonical" href="https://nabogaming.com">
     <link rel="icon" href="logo.png" type="image/x-icon">
-  <title>Nabogaming 2.5</title>
+  <title>Nabogaming Betplace 2.5</title>
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css><style>.post-time-2 {
@@ -70,13 +70,11 @@
 }
 </style>
 
-
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
   import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -93,27 +91,15 @@
   const storage = getStorage(app);
 
   let currentUser = null;
-
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
-      displayUserInfo(user);
-      loadPosts();
+      loadPosts();  // Load posts after successful login
     } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
     }
   });
-
-  const displayUserInfo = (user) => {
-    const userNameElements = document.querySelectorAll(".user-name");
-    const userEmailElements = document.querySelectorAll(".user-email");
-    const userPhotoElements = document.querySelectorAll(".profile-picture");
-
-    userNameElements.forEach(element => element.textContent = user.displayName || "Anonymous");
-    userEmailElements.forEach(element => element.textContent = user.email || "No email provided");
-    userPhotoElements.forEach(element => element.src = user.photoURL || "default.jpg");
-  };
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -136,9 +122,8 @@
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
-
-    allPostsContainer.innerHTML = "Loading posts...";
-    myPostsContainer.innerHTML = "Loading your posts...";
+    allPostsContainer.innerHTML = "";
+    myPostsContainer.innerHTML = "";
 
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -152,13 +137,8 @@
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
       const allPosts = posts;
 
-      if (posts.length === 0) {
-        allPostsContainer.innerHTML = "<p>No posts available.</p>";
-        myPostsContainer.innerHTML = "<p>No posts available.</p>";
-      } else {
-        myPosts.forEach(post => displayPost(post, myPostsContainer, true));
-        allPosts.forEach(post => displayPost(post, allPostsContainer, false));
-      }
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
     });
   };
 
@@ -227,9 +207,7 @@
   };
 
   const renderComments = (comments) => {
-    if (!comments || Object.keys(comments).length === 0) {
-      return "<p>No comments yet.</p>";
-    }
+    if (!comments) return "";
     return Object.keys(comments).map(commentId => {
       const comment = comments[commentId];
       return `
@@ -303,40 +281,30 @@
       if (file) {
         // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        const uploadTask = uploadBytesResumable(storageReference, file);
-
-        uploadTask.on('state_changed', (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        });
-
-        await uploadTask;
+        await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
         alert("Image uploaded successfully");
       }
 
-      const newPostRef = push(ref(db, "posts"));
-      await set(newPostRef, {
-        authorName: currentUser.displayName,
-        authorPhoto: currentUser.photoURL,
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: currentUser.displayName || "Anonymous",
+        authorPhoto: currentUser.photoURL || "default.jpg",
         content: caption,
-        imageUrl: imageUrl,
+        imageUrl,
         timestamp: serverTimestamp(),
         likes: {},
         comments: {},
       });
 
-      alert("Post created successfully!");
-      loadPosts();  // Reload posts to show the new post
-
+      alert("Post created successfully");
+      window.location.reload();  // Reload the page after successful upload
     } catch (error) {
       console.error("Error creating post:", error);
-      alert("Error creating post: " + error.message);
     }
   };
 
-  // Event listener for creating new post
-  document.getElementById("create-post-btn").addEventListener("click", createNewPost);
+  document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
 
 
@@ -345,7 +313,7 @@
 
  </head>
   <body>
-    <div class=dashboard>
+    <div class=dashboard  id="app">
     <nav class="sidebar desktop-sidebar">
 <h2>Dashboard</h2>
 <ul>
@@ -436,8 +404,12 @@
   </div>
 
   <!-- Posts Section -->
-<div id="allposts" class="post-grid"><div class="preloader"></div>
+  <div class="post-grid">
+  <section id="posts-section">
+        <div id="allposts" class="post-list"><div class="preloader"></div>
   </div>
+  </section>
+</div>
  <!-- <section class=tabs>
     <div class=tab-header>
 <button onclick='showTab("trending")'>Trending</button>
@@ -1068,7 +1040,7 @@ Please Wait.....
     <!-- Top Card: Profile Overview -->
     <div class="profile-overview">
 <div class="profile-photo">
-  <img alt="User Profile Picture" class="profile-picture">
+  <img src="5.png" alt="User Profile Picture" class="profile-picture">
 </div>
 <div class="profile-details">
   <h2 class="user-name">No User Found</h2>
@@ -1086,7 +1058,7 @@ Please Wait.....
       <button id="create-post-button">Post</button>
     </section>
 <br>
- <div id="myposts" class="post-grid"><div class="preloader"></div>
+ <div id="myposts" class="post-list"><div class="preloader"></div>
   </div>
 </div>
 
@@ -1204,7 +1176,6 @@ Please Wait.....
     </ul>
   </section>
 </div>
-
     </div>
     <script>
 // Function to navigate to a specific section
@@ -1390,6 +1361,5 @@ function closeModal(modal) {
 // Initialize modals on page load
 initializeModals();
   </script>
-  </div>
   </body>
 </html>
