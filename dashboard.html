@@ -264,45 +264,67 @@
     alert("Post deleted");
   };
 
-  const createNewPost = async () => {
-    const caption = document.getElementById("new-post-caption").value;
-    const fileInput = document.getElementById("new-post-image");
-    const file = fileInput.files[0];
+ const createNewPost = async () => {
+  const caption = document.getElementById("new-post-caption").value;
+  const fileInput = document.getElementById("new-post-image");
+  const file = fileInput.files[0];
 
-    if (!caption && !file) {
-      alert("Please provide a caption or an image.");
-      return;
+  if (!caption && !file) {
+    alert("Please provide a caption or an image.");
+    return;
+  }
+
+  try {
+    let imageUrl = "";
+    const uploadProgressElement = document.getElementById("upload-progress");
+    const uploadPercentageElement = document.getElementById("upload-percentage");
+
+    if (file) {
+      // Show progress bar initially
+      uploadProgressElement.style.display = "block";
+
+      // Upload image to Firebase Storage using uploadBytesResumable to track progress
+      const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageReference, file);
+
+      // Listen to the upload process
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Get upload progress
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          uploadPercentageElement.textContent = Math.round(progress);
+        }, 
+        (error) => {
+          console.error("Error during upload:", error);
+          alert("Error uploading image. Please try again.");
+        },
+        async () => {
+          // When upload is complete, get the download URL
+          imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          alert("Image uploaded successfully");
+        }
+      );
     }
 
-    try {
-      let imageUrl = "";
-      alert("Uploading post...");
+    // Once the image is uploaded (or if no image), create the post
+    const postId = push(ref(db, "posts")).key;
+    await set(ref(db, `posts/${postId}`), {
+      authorName: currentUser.displayName || "Anonymous",
+      authorPhoto: currentUser.photoURL || "default.jpg",
+      content: caption,
+      imageUrl,
+      timestamp: serverTimestamp(),
+      likes: {},
+      comments: {},
+    });
 
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        await uploadBytes(storageReference, file);
-        imageUrl = await getDownloadURL(storageReference);
-        alert("Image uploaded successfully");
-      }
-
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-      });
-
-      alert("Post created successfully");
-      window.location.reload();  // Reload the page after successful upload
-    } catch (error) {
-      console.error("Error creating post:", error);
-    }
-  };
+    alert("Post created successfully");
+    window.location.reload();  // Reload the page after successful upload
+  } catch (error) {
+    console.error("Error creating post:", error);
+    alert("An error occurred while creating the post.");
+  }
+};
 
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
