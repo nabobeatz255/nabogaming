@@ -69,7 +69,6 @@
 	transition: background-color 0.3s, transform 0.2s;
 }
 </style>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -161,6 +160,7 @@
       <div class="post-actions">
         <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
         <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
+        ${isMyPost ? `<i class="ri-pencil-line edit-btn" data-id="${post.postId}"></i>` : ""}
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
@@ -203,6 +203,7 @@
 
     if (isMyPost) {
       postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
+      postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
     }
   };
 
@@ -264,6 +265,16 @@
     alert("Post deleted");
   };
 
+  const editPost = (post) => {
+    const newContent = prompt("Edit your post content:", post.content);
+    if (newContent !== null) {
+      const postRef = ref(db, `posts/${post.postId}`);
+      update(postRef, { content: newContent });
+      alert("Post updated successfully");
+      loadPosts();  // Reload posts to show updated content
+    }
+  };
+
   const createNewPost = async () => {
     const caption = document.getElementById("new-post-caption").value;
     const fileInput = document.getElementById("new-post-image");
@@ -306,7 +317,6 @@
 
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
-
 
 
 
