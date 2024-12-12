@@ -93,15 +93,52 @@
   const storage = getStorage(app);
 
   let currentUser = null;
+
+  // Display message function
+  const showMessage = (message, isSuccess) => {
+    const alertElements = document.querySelectorAll(".alert-message");
+    alertElements.forEach(alertElement => {
+      alertElement.style.display = "block";
+      alertElement.textContent = message;
+      alertElement.style.backgroundColor = isSuccess ? "green" : "red";
+      alertElement.style.color = "white";
+
+      setTimeout(() => {
+        alertElement.style.display = "none";
+      }, 3000);
+    });
+  };
+
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
+      // Show user info in multiple areas
+      displayUserInfo();
       loadPosts();  // Load posts after successful login
     } else {
-      alert("You are not signed in. Redirecting to login...");
+      showMessage("You are not signed in. Redirecting to login...", false);
       window.location.href = "index.html";
     }
   });
+
+  // Display user info (username, email, and profile picture)
+  const displayUserInfo = () => {
+    const userNameElements = document.querySelectorAll(".user-name");
+    const userEmailElements = document.querySelectorAll(".user-email");
+    const userProfilePictureElements = document.querySelectorAll(".user-profile-picture");
+
+    userNameElements.forEach(element => {
+      element.textContent = currentUser.displayName || "Anonymous";
+    });
+
+    userEmailElements.forEach(element => {
+      element.textContent = currentUser.email || "No email";
+    });
+
+    userProfilePictureElements.forEach(element => {
+      element.src = currentUser.photoURL || "default-profile.jpg";
+    });
+  };
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -122,8 +159,8 @@
   };
 
   const loadPosts = () => {
-    const allPostsContainer = document.getElementById("allposts");
-    const myPostsContainer = document.getElementById("myposts");
+    const allPostsContainer = document.querySelector(".allposts");
+    const myPostsContainer = document.querySelector(".myposts");
     allPostsContainer.innerHTML = "";
     myPostsContainer.innerHTML = "";
 
@@ -146,7 +183,7 @@
 
   const displayPost = (post, container, isMyPost) => {
     const postElement = document.createElement("div");
-    postElement.className = "instagram-post-2";
+    postElement.className = "instagram-post";
     postElement.innerHTML = `
       <div class="post-header">
         <div class="profile-picture">
@@ -154,7 +191,7 @@
         </div>
         <div class="profile-details">
           <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
+          <div class="post-time">${formatTimestamp(post.timestamp)}</div>
         </div>
       </div>
       <div class="post-image">
@@ -225,10 +262,10 @@
     const snapshot = await get(postRef);
     if (snapshot.exists()) {
       await remove(postRef);  // Remove like
-      alert("You unliked the post");
+      showMessage("You unliked the post", false);
     } else {
       await set(postRef, true);  // Add like
-      alert("You liked the post");
+      showMessage("You liked the post", true);
     }
     loadPosts();  // Reload to reflect the changes
   };
@@ -240,10 +277,10 @@
         text: post.content,
         url: post.imageUrl,
       })
-        .then(() => console.log("Post shared"))
-        .catch((error) => console.error("Error sharing post:", error));
+        .then(() => showMessage("Post shared successfully", true))
+        .catch((error) => showMessage("Error sharing post: " + error, false));
     } else {
-      alert("Sharing not supported in this browser.");
+      showMessage("Sharing not supported in this browser.", false);
     }
   };
 
@@ -255,7 +292,7 @@
 
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    alert("Comment added successfully");
+    showMessage("Comment added successfully", true);
     loadPosts();  // Reload posts to show the new comment
   };
 
@@ -263,29 +300,29 @@
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
     loadPosts();  // Reload posts to remove the deleted post
-    alert("Post deleted");
+    showMessage("Post deleted", true);
   };
 
   const createNewPost = async () => {
-    const caption = document.getElementById("new-post-caption").value;
-    const fileInput = document.getElementById("new-post-image");
+    const caption = document.querySelector(".new-post-caption").value;
+    const fileInput = document.querySelector(".new-post-image");
     const file = fileInput.files[0];
 
     if (!caption && !file) {
-      alert("Please provide a caption or an image.");
+      showMessage("Please provide a caption or an image.", false);
       return;
     }
 
     try {
       let imageUrl = "";
-      alert("Uploading post...");
+      showMessage("Uploading post...", true);
 
       if (file) {
         // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
-        alert("Image uploaded successfully");
+        showMessage("Image uploaded successfully", true);
       }
 
       const postId = push(ref(db, "posts")).key;
@@ -299,15 +336,16 @@
         comments: {},
       });
 
-      alert("Post created successfully");
+      showMessage("Post created successfully", true);
       window.location.reload();  // Reload the page after successful upload
     } catch (error) {
       console.error("Error creating post:", error);
+      showMessage("Error creating post", false);
     }
   };
 
-  document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
+
 
 
 
@@ -1172,6 +1210,7 @@ Please Wait.....
     </ul>
   </section>
 </div>
+<div id="alert-message" style="display: none; padding: 10px; margin: 10px 0;"></div>
 
     </div>
     <script>
