@@ -91,10 +91,11 @@
   const storage = getStorage(app);
 
   let currentUser = null;
+
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
-      loadPosts();  // Load posts after successful login
+      loadPosts(); // Load posts after successful login
     } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
@@ -122,88 +123,54 @@
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
+
+    // Clear the containers
     allPostsContainer.innerHTML = "";
     myPostsContainer.innerHTML = "";
 
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
-      const posts = [];
       snapshot.forEach((childSnapshot) => {
         const post = childSnapshot.val();
         const postId = childSnapshot.key;
-        posts.push({ postId, ...post });
+        const isMyPost = post.authorName === currentUser.displayName;
+
+        const templateId = isMyPost ? "myposts-template" : "allposts-template";
+        const template = document.getElementById(templateId).content.cloneNode(true);
+
+        // Populate the template with data
+        template.querySelector(".author-photo").src = post.authorPhoto || "default.jpg";
+        template.querySelector(".profile-name").textContent = post.authorName || "Anonymous";
+        template.querySelector(".post-time-2").textContent = formatTimestamp(post.timestamp);
+        template.querySelector(".post-image-url").src = post.imageUrl || "";
+        template.querySelector(".like-count").textContent = `${Object.keys(post.likes || {}).length} likes`;
+        template.querySelector(".username").textContent = post.authorName;
+        template.querySelector(".post-content").textContent = post.content;
+
+        // Add event listeners for like, share, etc.
+        template.querySelector(".like-btn").addEventListener("click", () => likePost(postId));
+        template.querySelector(".share-btn").addEventListener("click", () => sharePost(post));
+        template.querySelector(".submit-comment").addEventListener("click", () => {
+          const commentInput = template.querySelector(".comment-input");
+          submitComment(postId, commentInput.value.trim());
+          commentInput.value = "";
+        });
+
+        if (isMyPost) {
+          template.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(postId));
+        }
+
+        const commentsContainer = template.querySelector(".comments-container");
+        commentsContainer.innerHTML = renderComments(post.comments);
+
+        template.querySelector(".toggle-comments").addEventListener("click", () => {
+          commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+        });
+
+        // Append to the appropriate container
+        (isMyPost ? myPostsContainer : allPostsContainer).appendChild(template);
       });
-
-      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts;
-
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
     });
-  };
-
-  const displayPost = (post, container, isMyPost) => {
-    const postElement = document.createElement("div");
-    postElement.className = "instagram-post-2";
-    postElement.innerHTML = `
-      <div class="post-header">
-        <div class="profile-picture">
-          <img src="${post.authorPhoto}" alt="User profile picture">
-        </div>
-        <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
-        </div>
-      </div>
-      <div class="post-image">
-        <img src="${post.imageUrl}" alt="Post content">
-      </div>
-      <div class="post-actions">
-        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-        <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
-      </div>
-      <div class="like-counter">
-        <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
-      </div>
-      <div class="caption">
-        <span class="username">${post.authorName}</span> ${post.content}
-      </div>
-      <div class="post-comments">
-        <button class="toggle-comments" data-target="comments-container-${post.postId}">
-          <i class="ri-arrow-down-s-line"></i> View Comments
-        </button>
-        <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
-          ${renderComments(post.comments)}
-        </div>
-        <div class="comment-input-container">
-          <input class="comment-input" placeholder="Write a comment...">
-          <button class="submit-comment" data-post-id="${post.postId}">Send</button>
-        </div>
-      </div>
-      ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Delete Post</button>` : ""}
-    `;
-
-    container.appendChild(postElement);
-
-    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-    postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post, postElement));
-    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-    });
-
-    postElement.querySelector(".submit-comment").addEventListener("click", () => {
-      const commentInput = postElement.querySelector(".comment-input");
-      const commentText = commentInput.value.trim();
-      if (commentText !== "") {
-        submitComment(post.postId, commentText);
-        commentInput.value = "";
-      }
-    });
-
-    if (isMyPost) {
-      postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
-    }
   };
 
   const renderComments = (comments) => {
@@ -212,7 +179,8 @@
       const comment = comments[commentId];
       return `
         <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+          <span class="comment-username">${comment.username}</span><br>
+          <span class="comment-sms">${comment.message}</span>
         </div>
       `;
     }).join("");
@@ -222,16 +190,16 @@
     const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
     const snapshot = await get(postRef);
     if (snapshot.exists()) {
-      await remove(postRef);  // Remove like
+      await remove(postRef); // Remove like
       alert("You unliked the post");
     } else {
-      await set(postRef, true);  // Add like
+      await set(postRef, true); // Add like
       alert("You liked the post");
     }
-    loadPosts();  // Reload to reflect the changes
+    loadPosts(); // Reload to reflect the changes
   };
 
-  const sharePost = (post, postElement) => {
+  const sharePost = (post) => {
     if (navigator.share) {
       navigator.share({
         title: `${post.authorName}'s post`,
@@ -246,6 +214,8 @@
   };
 
   const submitComment = async (postId, commentText) => {
+    if (!commentText) return;
+
     const commentData = {
       username: currentUser.displayName,
       message: commentText,
@@ -254,13 +224,13 @@
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
     alert("Comment added successfully");
-    loadPosts();  // Reload posts to show the new comment
+    loadPosts(); // Reload posts to show the new comment
   };
 
   const deletePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}`);
-    await remove(postRef);  // Delete the post
-    loadPosts();  // Reload posts to remove the deleted post
+    await remove(postRef); // Delete the post
+    loadPosts(); // Reload posts to remove the deleted post
     alert("Post deleted");
   };
 
@@ -279,7 +249,6 @@
       alert("Uploading post...");
 
       if (file) {
-        // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
@@ -298,7 +267,7 @@
       });
 
       alert("Post created successfully");
-      window.location.reload();  // Reload the page after successful upload
+      window.location.reload(); // Reload the page after successful upload
     } catch (error) {
       console.error("Error creating post:", error);
     }
@@ -313,7 +282,7 @@
 
  </head>
   <body>
-    <div class=dashboard  id="app">
+    <div class=dashboard>
     <nav class="sidebar desktop-sidebar">
 <h2>Dashboard</h2>
 <ul>
@@ -1176,6 +1145,87 @@ Please Wait.....
     </ul>
   </section>
 </div>
+
+<!-- Template for allposts -->
+<template id="allposts-template">
+  <div class="instagram-post-2">
+    <div class="post-header">
+      <div class="profile-picture">
+        <img src="" alt="User profile picture" class="author-photo">
+      </div>
+      <div class="profile-details">
+        <div class="profile-name"></div>
+        <div class="post-time-2"></div>
+      </div>
+    </div>
+    <div class="post-image">
+      <img src="" alt="Post content" class="post-image-url">
+    </div>
+    <div class="post-actions">
+      <i class="ri-heart-line like-btn"></i>
+      <i class="ri-share-line share-btn"></i>
+    </div>
+    <div class="like-counter">
+      <span class="like-count"></span>
+    </div>
+    <div class="caption">
+      <span class="username"></span>
+      <span class="post-content"></span>
+    </div>
+    <div class="post-comments">
+      <button class="toggle-comments">
+        <i class="ri-arrow-down-s-line"></i> View Comments
+      </button>
+      <div class="comments-container" style="display: none;"></div>
+      <div class="comment-input-container">
+        <input class="comment-input" placeholder="Write a comment...">
+        <button class="submit-comment">Send</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Template for myposts -->
+<template id="myposts-template">
+  <div class="instagram-post-2">
+    <!-- All content from allposts -->
+    <div class="post-header">
+      <div class="profile-picture">
+        <img src="" alt="User profile picture" class="author-photo">
+      </div>
+      <div class="profile-details">
+        <div class="profile-name"></div>
+        <div class="post-time-2"></div>
+      </div>
+    </div>
+    <div class="post-image">
+      <img src="" alt="Post content" class="post-image-url">
+    </div>
+    <div class="post-actions">
+      <i class="ri-heart-line like-btn"></i>
+      <i class="ri-share-line share-btn"></i>
+    </div>
+    <div class="like-counter">
+      <span class="like-count"></span>
+    </div>
+    <div class="caption">
+      <span class="username"></span>
+      <span class="post-content"></span>
+    </div>
+    <div class="post-comments">
+      <button class="toggle-comments">
+        <i class="ri-arrow-down-s-line"></i> View Comments
+      </button>
+      <div class="comments-container" style="display: none;"></div>
+      <div class="comment-input-container">
+        <input class="comment-input" placeholder="Write a comment...">
+        <button class="submit-comment">Send</button>
+      </div>
+    </div>
+    <!-- Additional delete button for myposts -->
+    <button class="delete-post-btn">Delete Post</button>
+  </div>
+</template>
     </div>
     <script>
 // Function to navigate to a specific section
@@ -1361,5 +1411,6 @@ function closeModal(modal) {
 // Initialize modals on page load
 initializeModals();
   </script>
+  </div>
   </body>
 </html>
