@@ -1,0 +1,173 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">    <meta name="description" content="Nabogaming Betplace - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming, Betplace, Kubashiri Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+    <meta name="author" content="Nabogaming">
+    <meta property="og:title" content="Nabogaming Betplace">
+    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming Betplace. Usikose nafasi yako ya ushindi!">
+    <meta property="og:image" content="https://nabogaming.com/logo.png">
+    <meta property="og:url" content="https://nabogaming.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nabogaming Betplace">
+    <meta name="twitter:description" content="Jiunge na Nabogaming Betplace kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:image" content="https://nabogaming.com/logo.png">
+    <link rel="canonical" href="https://nabogaming.com">
+  <title>Nabogaming Betplace 2.5</title><link rel="stylesheet" href="app.css"><link rel="stylesheet" href="2.css"><link rel="stylesheet" href="remixicon.min.css"></head><body>
+<script>// Function to render the dashboard
+  function renderDashboard() {
+    const main = document.createElement('main');
+
+    // Header
+    const header = document.createElement('header');
+    header.classList.add('page-header');
+    header.innerHTML = `
+      <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
+      <h1>Administrator</h1>
+      <div class="header-icons">
+        <i class="ri-gamepad-line" onclick='navigateTo("games")'></i>
+      </div>
+    `;
+    main.appendChild(header);
+
+    // Profile Container
+    const profileContainer = document.createElement('div');
+    profileContainer.classList.add('profile-container');
+
+    // Profile Overview
+    const profileOverview = document.createElement('div');
+    profileOverview.classList.add('profile-overview');
+    profileOverview.innerHTML = `
+      <div class="profile-photo">
+        <img src="5.png" alt="User Profile Picture">
+        <img src="logo.png" style="border:1px solid #f0f0f0;margin-left:-60px" alt="User Profile Picture">
+      </div>
+      <div class="profile-details">
+        <h2>John Doe</h2>
+        <p>UI/UX Designer | Frontend Developer</p>
+        <div class="profile-stats">
+          <div>
+            <h3>120</h3>
+            <p>Projects</p>
+          </div>
+          <div>
+            <h3>1.5k</h3>
+            <p>Followers</p>
+          </div>
+                    <div>
+            <h3>1.5k</h3>
+            <p>Followers</p>
+          </div>
+          <div>
+            <h3>300</h3>
+            <p>Following</p>
+          </div>
+        </div>
+      </div>
+    `;
+    profileContainer.appendChild(profileOverview);
+
+    // Profile Settings
+    const profileSettings = document.createElement('section');
+    profileSettings.classList.add('profile-settings');
+    profileSettings.innerHTML = `
+      <div class="settings-card">
+        <h2> Update Post Version 01</h2>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+         <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+         <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+         <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="john.doe@example.com">
+        </div>
+        <button class="save-btn">Update Changes</button>
+      </div>
+      <div class="settings-card">
+        <h2> Update Post Version 02</h2>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+         <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+         <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+         <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="john.doe@example.com">
+        </div>
+        <button class="save-btn">Update Changes</button>
+      </div>
+      <div class="settings-card">
+        <h2> Update Post Version 03</h2>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+         <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+         <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+         <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="john.doe@example.com">
+        </div>
+        <button class="save-btn">Update Changes</button>
+      </div>
+      <div class="settings-card">
+        <h2>Change Password</h2>
+        <div class="form-group">
+          <label for="current-password">Current Password</label>
+          <input type="password" id="current-password" placeholder="Enter current password">
+        </div>
+        <div class="form-group">
+          <label for="new-password">New Password</label>
+          <input type="password" id="new-password" placeholder="Enter new password">
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password</label>
+          <input type="password" id="confirm-password" placeholder="Confirm new password">
+        </div>
+        <button class="save-btn">Update Password</button>
+      </div>
+    `;
+    profileContainer.appendChild(profileSettings);
+
+    main.appendChild(profileContainer);
+    document.body.appendChild(main);
+  }
+
+  // Dummy navigation function
+  function navigateTo(page) {
+    alert(`Navigating to ${page} page...`);
+  }
+
+  // Initialize the dashboard on page load
+  renderDashboard();</script></body></html>
