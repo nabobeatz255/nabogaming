@@ -97,8 +97,8 @@
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
-      displayUserInfo(user);  // Display user info
-      loadPosts();  // Load posts after successful login
+      displayUserInfo(user);
+      loadPosts();
     } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
@@ -106,12 +106,10 @@
   });
 
   const displayUserInfo = (user) => {
-    // Select all elements by their class name
     const userNameElements = document.querySelectorAll(".user-name");
     const userEmailElements = document.querySelectorAll(".user-email");
     const userPhotoElements = document.querySelectorAll(".profile-picture");
 
-    // Set the user info
     userNameElements.forEach(element => element.textContent = user.displayName || "Anonymous");
     userEmailElements.forEach(element => element.textContent = user.email || "No email provided");
     userPhotoElements.forEach(element => element.src = user.photoURL || "default.jpg");
@@ -138,8 +136,9 @@
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
-    allPostsContainer.innerHTML = "";
-    myPostsContainer.innerHTML = "";
+
+    allPostsContainer.innerHTML = "Loading posts...";
+    myPostsContainer.innerHTML = "Loading your posts...";
 
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -153,8 +152,13 @@
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
       const allPosts = posts;
 
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+      if (posts.length === 0) {
+        allPostsContainer.innerHTML = "<p>No posts available.</p>";
+        myPostsContainer.innerHTML = "<p>No posts available.</p>";
+      } else {
+        myPosts.forEach(post => displayPost(post, myPostsContainer, true));
+        allPosts.forEach(post => displayPost(post, allPostsContainer, false));
+      }
     });
   };
 
@@ -223,7 +227,9 @@
   };
 
   const renderComments = (comments) => {
-    if (!comments) return "";
+    if (!comments || Object.keys(comments).length === 0) {
+      return "<p>No comments yet.</p>";
+    }
     return Object.keys(comments).map(commentId => {
       const comment = comments[commentId];
       return `
@@ -317,6 +323,7 @@
       loadPosts();  // Reload posts to show the new post
 
     } catch (error) {
+      console.error("Error creating post:", error);
       alert("Error creating post: " + error.message);
     }
   };
