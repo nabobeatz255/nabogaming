@@ -132,6 +132,9 @@
         posts.push({ postId, ...post });
       });
 
+      // Sort posts by timestamp from new to old
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
       const allPosts = posts;
 
@@ -319,6 +322,7 @@
 
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
+
 
 
 
