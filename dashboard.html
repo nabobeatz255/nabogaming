@@ -163,7 +163,7 @@
     <div class="options-menu">
 <ul>
   <li>Report ${post.authorName}'s Post</li>
-   <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post</li>
+   <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post <span class="like-count">${Object.keys(post.likes || {}).length}</span></li>
   <li class="share-btn" data-id="${post.postId}">Share The Post</li>
 </ul>
     </div>
@@ -174,9 +174,6 @@
       </div>
       <div class="post-actions">
         ${isMyPost ? `<i class="ri-pencil-fill ri-xl edit-btn" data-id="${post.postId}"></i>` : ""}
-      </div>
-      <div class="like-counter">
-        <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
       </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
