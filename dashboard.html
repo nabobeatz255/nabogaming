@@ -305,7 +305,7 @@
         </div>
         <div class="post-options">
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-            ${isMyPost ? `<i class="ri-ball-pen-line edit-btn" data-id="${post.postId}"></i>` : ""}
+            ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         </div>
       </div>
       <div class="post-image">
@@ -476,7 +476,7 @@
       element.textContent = userEmail;  // Set user email
     });
 
-    document.querySelectorAll('.user-profile-picture').forEach(element => {
+    document.querySelectorAll('.profile-picture').forEach(element => {
       element.src = userProfilePic;  // Set user profile picture
     });
   };
