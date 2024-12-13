@@ -156,14 +156,14 @@
         </div>
         <div class="profile-details">
           <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
         </div>
           <div class="post-options">
     <i class="ri-more-fill"></i>
     <div class="options-menu">
 <ul>
   <li>Report ${post.authorName}'s Post</li>
-   <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post <span class="like-count">${Object.keys(post.likes || {}).length}</span></li>
+   <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post</li>
   <li class="share-btn" data-id="${post.postId}">Share The Post</li>
 </ul>
     </div>
