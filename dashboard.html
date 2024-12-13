@@ -94,6 +94,7 @@
     currentUser = user;
     if (user) {
       loadPosts();  // Load posts after successful login
+      loadUsers();  // Load the users list
     } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
@@ -150,7 +151,10 @@
           <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
+          <div class="profile-name">
+            ${post.authorName}
+            ${post.isVIP ? '<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>' : ''}
+          </div>
           <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
         </div>
       </div>
@@ -159,7 +163,7 @@
       </div>
       <div class="post-actions">
         <i class="ri-heart-line ri-xl like-btn" data-id="${post.postId}"></i>
-         ${isMyPost ? `<i class="ri-pencil-line ri-xl edit-btn" data-id="${post.postId}"></i>` : ""}
+        ${isMyPost ? `<i class="ri-pencil-line ri-xl edit-btn" data-id="${post.postId}"></i>` : ""}
         <i class="ri-share-line ri-xl share-btn" data-id="${post.postId}"></i>
       </div>
       <div class="like-counter">
@@ -301,6 +305,7 @@
       await set(ref(db, `posts/${postId}`), {
         authorName: currentUser.displayName || "Anonymous",
         authorPhoto: currentUser.photoURL || "default.jpg",
+        isVIP: currentUser.isVIP || false,  // Store VIP status in the post
         content: caption,
         imageUrl,
         timestamp: serverTimestamp(),
@@ -315,8 +320,52 @@
     }
   };
 
+  // Load and toggle VIP status for users
+  const loadUsers = () => {
+    const usersRef = ref(db, "users");
+    onValue(usersRef, (snapshot) => {
+      const usersContainer = document.getElementById("users-container");
+      usersContainer.innerHTML = "";  // Clear existing users
+      snapshot.forEach((childSnapshot) => {
+        const user = childSnapshot.val();
+        const userId = childSnapshot.key;
+        
+        // Display user information
+        const userElement = document.createElement("div");
+        userElement.className = "user-item";
+        userElement.innerHTML = `
+          <div class="user-details">
+            <img src="${user.profilePicture}" alt="${user.name}'s profile picture" class="profile-pic">
+            <span class="user-name">${user.name}</span>
+            <span class="user-email">${user.email}</span>
+            ${user.isVIP ? '<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>' : ''}
+          </div>
+          <div class="user-actions">
+            <button class="toggle-vip" data-user-id="${userId}">${user.isVIP ? 'Remove VIP' : 'Make VIP'}</button>
+          </div>
+        `;
+        usersContainer.appendChild(userElement);
+
+        // Toggle VIP access
+        userElement.querySelector(".toggle-vip").addEventListener("click", () => toggleVIPAccess(userId, user.isVIP));
+      });
+    });
+  };
+
+  const toggleVIPAccess = async (userId, isVIP) => {
+    const userRef = ref(db, `users/${userId}`);
+    await update(userRef, { isVIP: !isVIP });
+    loadUsers();  // Reload the users list to reflect the change
+  };
+
+  // Trigger when the user presses the create post button
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
+
+<!-- Container for displaying users -->
+<div id="users-container"></div>
+
+
 
 
 
@@ -412,6 +461,7 @@
 </div>
     </section>
   </div>
+<div id="users-container"></div>
 
   <!-- Posts Section -->
   <div class="post-grid">
