@@ -242,8 +242,8 @@ const sharePost = (post, postElement) => {
     navigator.share({
       title: `${post.authorName}'s post`,  // Title of the post
       text: post.content,  // Caption of the post
-      url: `https://nabogaming.com`,  // Link to your website
-      files: [new File([post.imageUrl],  { type: 'image/jpeg' })]  // Post image as file
+      url: ` check my post at https://nabogaming.com`,  // Link to your website
+      files: [new File([post.authorPhoto], '5.png', { type: 'image/jpeg' })]  // Author's profile image as file
     })
     .then(() => console.log("Post shared"))
     .catch((error) => console.error("Error sharing post:", error));
@@ -251,6 +251,7 @@ const sharePost = (post, postElement) => {
     alert("Sharing not supported in this browser.");
   }
 };
+
 
 
   const submitComment = async (postId, commentText) => {
@@ -1378,3 +1379,4 @@ initializeModals();
   </script>
   </body>
 </html>
+ 
