@@ -17,1483 +17,1445 @@
     <meta name="twitter:image" content="https://nabogaming.com/logo.png">
     <link rel="canonical" href="https://nabogaming.com">
     <link rel="icon" href="logo.png" type="image/x-icon">
-  <title>Nabogaming Betplace 2.5</title>
+    <title>Nabogaming Betplace 2.5</title>
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
-<style>
-    #create-post {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 15px;
-  background-color: #f9f9f9; /* Light background for a clean look */
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  max-width: 100%; /* Ensure responsiveness */
-  box-sizing: border-box;
-  gap: 10px;
-}
-#create-post h2 {
-    text-align: center;
-}
-
-#new-post-caption {
-  flex: 2;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  font-size: 14px;
-  outline: none;
-  box-sizing: border-box;
-}
-
-#new-post-caption::placeholder {
-  color: #999; /* Subtle placeholder color */
-}
-
-#new-post-image {
-  flex: 1;
-  font-size: 14px;
-  padding: 5px;
-}
-
-#upload-progress {
-  display: none;
-  flex: 1;
-  font-size: 12px;
-  color: #555;
-}
-
-#create-post-button {
-  flex: 0.5;
-  padding: 8px 15px;
-  background-color: black; /* Facebook-style blue */
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-#create-post-button:hover {
-  background-color: white;color: black;
-}
-
-@media (max-width: 600px) {
-  #create-post {
-    flex-wrap: wrap; /* Stack items on smaller screens */
-    gap: 8px;
-  }
-
-  #new-post-caption,
-  #new-post-image,
-  #create-post-button {
-    flex: 1;
-  }
-
-  #create-post-button {
-    text-align: center;
-  }
-}.post-time-2 {
-        font-size: 13px;
-        color: #888;
-        font-size: 13px;
-        color: #888;
-        margin-top: 6px;
-}.instagram-post-2 {
-        width: 100%;
-        max-width: 600px;
-        background-color: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        -webkit-tap-highlight-color: transparent;
-        outline: none;
-        overflow: hidden;margin-bottom: 15px;
-}/* Preloader styles */
-.preloader {
-  width: 30px;
-  height: 30px;
-  border: 4px solid white;
-  border-top: 4px solid black; /* Primary color */
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: auto;align-items: center;justify-content: center;
-}
-
-/* Animation */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-.delete-post-btn {
-    padding: 8px 16px;
-        font-size: 14px;
-        font-weight: bold;
-        color: white;background: red;
-        border: none;
-        cursor: pointer;
-        outline: none;width: 100%;
-        transition: background-color 0.3s, transform 0.2s;
-}
-
-</style>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-    import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-      authDomain: "register-71bde.firebaseapp.com",
-      projectId: "register-71bde",
-      storageBucket: "register-71bde.appspot.com",
-      messagingSenderId: "412548441298",
-      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const db = getDatabase(app);
-    const storage = getStorage(app);
-
-    let currentUser = null;
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      if (user) {
-        loadPosts();  // Load posts after successful login
-        displayUserDetails(); // Display user details
-      } else {
-        showToast("You are not signed in. Redirecting to login...", 'error');
-        window.location.href = "index.html";
+    <style>
+      #create-post {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 15px;
+      background-color: #f9f9f9; /* Light background for a clean look */
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+      max-width: 100%; /* Ensure responsiveness */
+      box-sizing: border-box;
+      gap: 10px;
       }
-    });
-
-    // Toast function to display notifications
-    const showToast = (message, type = 'info') => {
-      const toast = document.createElement('div');
-      toast.classList.add('toast', type);
-      toast.textContent = message;
-
-      // Append to the body
-      document.body.appendChild(toast);
-
-      // Remove toast after 3 seconds
-      setTimeout(() => {
-        toast.remove();
-      }, 3000);
-    };
-
-    // CSS Styles for Toast notifications
-    const style = document.createElement('style');
-    style.textContent = `
-      .toast {
-        position: fixed;
-        bottom: 0;
-        left: 50%;
-        padding-top:16px;
-        padding-left:10px;
-        padding-bottom:10px;
-        padding-right:10px;
-        transform: translateX(-50%);
-        width: 100%;
-        height: 50px;opacity:.8;
-        color: white;text-align: center;
-        font-size: 14px;
-        opacity: 0;z-index: 999999;
-        animation: fadeIn 0.5s forwards;
+      #create-post h2 {
+      text-align: center;
       }
+      #new-post-caption {
+      flex: 2;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+      box-sizing: border-box;
+      }
+      #new-post-caption::placeholder {
+      color: #999; /* Subtle placeholder color */
+      }
+      #new-post-image {
+      flex: 1;
+      font-size: 14px;
+      padding: 5px;
+      }
+      #upload-progress {
+      display: none;
+      flex: 1;
+      font-size: 12px;
+      color: #555;
+      }
+      #create-post-button {
+      flex: 0.5;
+      padding: 8px 15px;
+      background-color: black; /* Facebook-style blue */
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      }
+      #create-post-button:hover {
+      background-color: white;color: black;
+      }
+      @media (max-width: 600px) {
+      #create-post {
+      flex-wrap: wrap; /* Stack items on smaller screens */
+      gap: 8px;
+      }
+      #new-post-caption,
+      #new-post-image,
+      #create-post-button {
+      flex: 1;
+      }
+      #create-post-button {
+      text-align: center;
+      }
+      }.post-time-2 {
+      font-size: 13px;
+      color: #888;
+      font-size: 13px;
+      color: #888;
+      margin-top: 6px;
+      }.instagram-post-2 {
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      overflow: hidden;margin-bottom: 15px;
+      }/* Preloader styles */
+      .preloader {
+      width: 30px;
+      height: 30px;
+      border: 4px solid white;
+      border-top: 4px solid black; /* Primary color */
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: auto;align-items: center;justify-content: center;
+      }
+      /* Animation */
+      @keyframes spin {
+      from {
+      transform: rotate(0deg);
+      }
+      to {
+      transform: rotate(360deg);
+      }
+      }
+      .delete-post-btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;background: red;
+      border: none;
+      cursor: pointer;
+      outline: none;width: 100%;
+      transition: background-color 0.3s, transform 0.2s;
+      }
+    </style>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+      import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+      import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
       
-      .toast.success {
-        background-color: #121212; /* Green */
-      }
-
-      .toast.error {
-        background-color: #f44336; /* Red */
-      }
-
-      .toast.info {
-        background-color: #2196F3; /* Blue */
-      }
-
-      .toast.warning {
-        background-color: #ff9800; /* Orange */
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    const formatTimestamp = (timestamp) => {
-      const now = new Date();
-      const timeDiff = now - new Date(timestamp);
-      const seconds = Math.floor(timeDiff / 1000);
-      const minutes = Math.floor(seconds / 60);
-      const hours = Math.floor(minutes / 60);
-      const days = Math.floor(hours / 24);
-      const months = Math.floor(days / 30);
-      const years = Math.floor(months / 12);
-
-      if (seconds < 60) return `just now`;
-      if (minutes < 60) return `${minutes}m ago`;
-      if (hours < 24) return `${hours}hr ago`;
-      if (days < 30) return `${days}d ago`;
-      if (months < 12) return `${months}mo ago`;
-      return `${years}yr ago`;
-    };
-
-   const loadPosts = () => {
-      const allPostsContainer = document.getElementById("allposts");
-      const myPostsContainer = document.getElementById("myposts");
-      allPostsContainer.innerHTML = "";
-      myPostsContainer.innerHTML = "";
-
-      const postsRef = ref(db, "posts");
-      onValue(postsRef, (snapshot) => {
-        const posts = [];
-        snapshot.forEach((childSnapshot) => {
-          const post = childSnapshot.val();
-          const postId = childSnapshot.key;
-          posts.push({ postId, ...post });
-        });
-
-        // Sort posts by timestamp from new to old
-        posts.sort((a, b) => b.timestamp - a.timestamp);
-
-        const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-        const allPosts = posts;
-
-        myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
-        allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
-      });
-    };
-
-    const displayPost = (post, container, isMyPost) => {
-      const postElement = document.createElement("div");
-      postElement.className = "instagram-post-2";
-      postElement.innerHTML = `
-        <div class="post-header">
-          <div class="profile-picture">
-            <img src="${post.authorPhoto}" alt="User profile picture">
-          </div>
-          <div class="profile-details">
-            <div class="profile-name">${post.authorName}</div>
-            <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
-          </div>
-          <div class="post-options">
-            <i class="ri-heart-fill like-btn" data-id="${post.postId}"></i>
-          </div>
-        </div>
-        <div class="post-image">
-          <img src="${post.imageUrl}" alt="Post content">
-        </div>
-        <div class="caption">
-          <span class="username">${post.authorName}</span> ${post.content}
-        </div>
-        <div class="post-comments">
-          <button class="toggle-comments" data-target="comments-container-${post.postId}">
-            Comments
-          </button>
-          <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
-            ${renderComments(post.comments)}
-          </div>
-          <div class="comment-input-container">
-            <input class="comment-input" placeholder="Write a comment...">
-            <button class="submit-comment" data-post-id="${post.postId}">Send</button>
-          </div>
-        </div>
-        ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Futa Post Yangu</button>` : ""}
-      `;
-
-      container.appendChild(postElement);
-
-      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-      postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post, postElement));
-      postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-        const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-        commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-      });
-
-      postElement.querySelector(".submit-comment").addEventListener("click", () => {
-        const commentInput = postElement.querySelector(".comment-input");
-        const commentText = commentInput.value.trim();
-        if (commentText !== "") {
-          submitComment(post.postId, commentText);
-          commentInput.value = "";
-        }
-      });
-
-      if (isMyPost) {
-        postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
-        postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
-      }
-    };
-
-    const renderComments = (comments) => {
-      if (!comments) return "";
-      return Object.keys(comments).map(commentId => {
-        const comment = comments[commentId];
-        return `
-          <div class="comment">
-            <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
-          </div>
-        `;
-      }).join("");
-    };
-
-    const likePost = async (postId) => {
-      const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-      const snapshot = await get(postRef);
-      if (snapshot.exists()) {
-        await remove(postRef);  // Remove like
-        showToast("unliked", 'info');
-      } else {
-        await set(postRef, true);  // Add like
-        showToast("you liked the post", 'success');
-      }
-      loadPosts();  // Reload to reflect the changes
-    };
-
-    const submitComment = async (postId, commentText) => {
-      const commentData = {
-        username: currentUser.displayName,
-        message: commentText,
+      const firebaseConfig = {
+        apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+        authDomain: "register-71bde.firebaseapp.com",
+        projectId: "register-71bde",
+        storageBucket: "register-71bde.appspot.com",
+        messagingSenderId: "412548441298",
+        appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
       };
-
-      const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-      await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-      showToast("comment added", 'success');
-      loadPosts();  // Reload posts to show the new comment
-    };
-
-    const deletePost = async (postId) => {
-      const postRef = ref(db, `posts/${postId}`);
-      await remove(postRef);  // Delete the post
-      loadPosts();  // Reload posts to remove the deleted post
-      showToast("post imefutwa", 'success');
-    };
-
-    const editPost = (post) => {
-      const newContent = prompt("Edit your post content:", post.content);
-      if (newContent !== null) {
-        const postRef = ref(db, `posts/${post.postId}`);
-        update(postRef, { content: newContent });
-        showToast("post imeupdatiwa", 'success');
-        loadPosts();  // Reload posts to show updated content
-      }
-    };
-
-    const createNewPost = async () => {
-      const caption = document.getElementById("new-post-caption").value;
-      const fileInput = document.getElementById("new-post-image");
-      const file = fileInput.files[0];
-
-      if (!caption && !file) {
-        showToast("tafadhari weka caption na image.", 'warning');
-        return;
-      }
-
-      try {
-        let imageUrl = "";
-        showToast("Uploading post yako...Tafadhari subiri", 'info');
-
-        if (file) {
-          // Upload image to Firebase Storage
-          const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-          await uploadBytes(storageReference, file);
-          imageUrl = await getDownloadURL(storageReference);
-          showToast("ukaguzi wa post umekamilika", 'info');
+      
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth();
+      const db = getDatabase(app);
+      const storage = getStorage(app);
+      
+      let currentUser = null;
+      onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        if (user) {
+          loadPosts();  // Load posts after successful login
+          displayUserDetails(); // Display user details
+        } else {
+          showToast("You are not signed in. Redirecting to login...", 'error');
+          window.location.href = "index.html";
         }
-
-        const postId = push(ref(db, "posts")).key;
-        await set(ref(db, `posts/${postId}`), {
-          authorName: currentUser.displayName || "Anonymous",
-          authorPhoto: currentUser.photoURL || "default.jpg",
-          content: caption,
-          imageUrl,
-          timestamp: serverTimestamp(),
-          likes: {},
-          comments: {},
+      });
+      
+      // Toast function to display notifications
+      const showToast = (message, type = 'info') => {
+        const toast = document.createElement('div');
+        toast.classList.add('toast', type);
+        toast.textContent = message;
+      
+        // Append to the body
+        document.body.appendChild(toast);
+      
+        // Remove toast after 3 seconds
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      };
+      
+      // CSS Styles for Toast notifications
+      const style = document.createElement('style');
+      style.textContent = `
+        .toast {
+          position: fixed;
+          bottom: 0;
+          left: 50%;
+          padding-top:16px;
+          padding-left:10px;
+          padding-bottom:10px;
+          padding-right:10px;
+          transform: translateX(-50%);
+          width: 100%;
+          height: 50px;opacity:.8;
+          color: white;text-align: center;
+          font-size: 14px;
+          opacity: 0;z-index: 999999;
+          animation: fadeIn 0.5s forwards;
+        }
+        
+        .toast.success {
+          background-color: #121212; /* Green */
+        }
+      
+        .toast.error {
+          background-color: #f44336; /* Red */
+        }
+      
+        .toast.info {
+          background-color: #2196F3; /* Blue */
+        }
+      
+        .toast.warning {
+          background-color: #ff9800; /* Orange */
+        }
+      
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      const formatTimestamp = (timestamp) => {
+        const now = new Date();
+        const timeDiff = now - new Date(timestamp);
+        const seconds = Math.floor(timeDiff / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const months = Math.floor(days / 30);
+        const years = Math.floor(months / 12);
+      
+        if (seconds < 60) return `just now`;
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}hr ago`;
+        if (days < 30) return `${days}d ago`;
+        if (months < 12) return `${months}mo ago`;
+        return `${years}yr ago`;
+      };
+      
+      const loadPosts = () => {
+        const allPostsContainer = document.getElementById("allposts");
+        const myPostsContainer = document.getElementById("myposts");
+        allPostsContainer.innerHTML = "";
+        myPostsContainer.innerHTML = "";
+      
+        const postsRef = ref(db, "posts");
+        onValue(postsRef, (snapshot) => {
+          const posts = [];
+          snapshot.forEach((childSnapshot) => {
+            const post = childSnapshot.val();
+            const postId = childSnapshot.key;
+            posts.push({ postId, ...post });
+          });
+      
+          // Sort posts by timestamp from new to old
+          posts.sort((a, b) => b.timestamp - a.timestamp);
+      
+          const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+          const allPosts = posts;
+      
+          myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+          allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
         });
-
-        showToast("Post yako imetengenezwa tayari...reloading!", 'success');
-        window.location.reload();  // Reload the page after successful upload
-      } catch (error) {
-        console.error("Error creating post:", error);
-        showToast("Error creating post", 'error');
-      }
-    };
-
-    document.getElementById("create-post-button").addEventListener("click", createNewPost);
-  </script>
-
-
-
-
-
-
-
-
- </head>
+      };
+      
+      const displayPost = (post, container, isMyPost) => {
+        const postElement = document.createElement("div");
+        postElement.className = "instagram-post-2";
+        postElement.innerHTML = `
+          <div class="post-header">
+            <div class="profile-picture">
+              <img src="${post.authorPhoto}" alt="User profile picture">
+            </div>
+            <div class="profile-details">
+              <div class="profile-name">${post.authorName}</div>
+              <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+            </div>
+            <div class="post-options">
+              <i class="ri-heart-fill like-btn" data-id="${post.postId}"></i>
+            </div>
+          </div>
+          <div class="post-image">
+            <img src="${post.imageUrl}" alt="Post content">
+          </div>
+          <div class="caption">
+            <span class="username">${post.authorName}</span> ${post.content}
+          </div>
+          <div class="post-comments">
+            <button class="toggle-comments" data-target="comments-container-${post.postId}">
+              Comments
+            </button>
+            <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
+              ${renderComments(post.comments)}
+            </div>
+            <div class="comment-input-container">
+              <input class="comment-input" placeholder="Write a comment...">
+              <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+            </div>
+          </div>
+          ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Futa Post Yangu</button>` : ""}
+        `;
+      
+        container.appendChild(postElement);
+      
+        postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+        postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post, postElement));
+        postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+          const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+          commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+        });
+      
+        postElement.querySelector(".submit-comment").addEventListener("click", () => {
+          const commentInput = postElement.querySelector(".comment-input");
+          const commentText = commentInput.value.trim();
+          if (commentText !== "") {
+            submitComment(post.postId, commentText);
+            commentInput.value = "";
+          }
+        });
+      
+        if (isMyPost) {
+          postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
+          postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
+        }
+      };
+      
+      const renderComments = (comments) => {
+        if (!comments) return "";
+        return Object.keys(comments).map(commentId => {
+          const comment = comments[commentId];
+          return `
+            <div class="comment">
+              <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+            </div>
+          `;
+        }).join("");
+      };
+      
+      const likePost = async (postId) => {
+        const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+        const snapshot = await get(postRef);
+        if (snapshot.exists()) {
+          await remove(postRef);  // Remove like
+          showToast("unliked", 'info');
+        } else {
+          await set(postRef, true);  // Add like
+          showToast("you liked the post", 'success');
+        }
+        loadPosts();  // Reload to reflect the changes
+      };
+      
+      const submitComment = async (postId, commentText) => {
+        const commentData = {
+          username: currentUser.displayName,
+          message: commentText,
+        };
+      
+        const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+        await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+        showToast("comment added", 'success');
+        loadPosts();  // Reload posts to show the new comment
+      };
+      
+      const deletePost = async (postId) => {
+        const postRef = ref(db, `posts/${postId}`);
+        await remove(postRef);  // Delete the post
+        loadPosts();  // Reload posts to remove the deleted post
+        showToast("post imefutwa", 'success');
+      };
+      
+      const editPost = (post) => {
+        const newContent = prompt("Edit your post content:", post.content);
+        if (newContent !== null) {
+          const postRef = ref(db, `posts/${post.postId}`);
+          update(postRef, { content: newContent });
+          showToast("post imeupdatiwa", 'success');
+          loadPosts();  // Reload posts to show updated content
+        }
+      };
+      
+      const createNewPost = async () => {
+        const caption = document.getElementById("new-post-caption").value;
+        const fileInput = document.getElementById("new-post-image");
+        const file = fileInput.files[0];
+      
+        if (!caption && !file) {
+          showToast("tafadhari weka caption na image.", 'warning');
+          return;
+        }
+      
+        try {
+          let imageUrl = "";
+          showToast("Uploading post yako...Tafadhari subiri", 'info');
+      
+          if (file) {
+            // Upload image to Firebase Storage
+            const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+            await uploadBytes(storageReference, file);
+            imageUrl = await getDownloadURL(storageReference);
+            showToast("ukaguzi wa post umekamilika", 'info');
+          }
+      
+          const postId = push(ref(db, "posts")).key;
+          await set(ref(db, `posts/${postId}`), {
+            authorName: currentUser.displayName || "Anonymous",
+            authorPhoto: currentUser.photoURL || "default.jpg",
+            content: caption,
+            imageUrl,
+            timestamp: serverTimestamp(),
+            likes: {},
+            comments: {},
+          });
+      
+          showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+          window.location.reload();  // Reload the page after successful upload
+        } catch (error) {
+          console.error("Error creating post:", error);
+          showToast("Error creating post", 'error');
+        }
+      };
+      
+      document.getElementById("create-post-button").addEventListener("click", createNewPost);
+    </script>
+  </head>
   <body>
     <div class=dashboard>
     <nav class="sidebar desktop-sidebar">
-<h2>Dashboard</h2>
-<ul>
-  <li><a onclick='navigateTo("home")'>Home</a></li>
-  <li><a onclick='navigateTo("games")'>Events</a></li>
-  <li><a onclick='navigateTo("shop")'>Shop</a></li>
-  <li><a onclick='navigateTo("policy")'>Sheria</a></li>
-  <li><a onclick='navigateTo("profile")'>Profile</a></li>
-</ul>
+      <h2>Dashboard</h2>
+      <ul>
+        <li><a onclick='navigateTo("home")'>Home</a></li>
+        <li><a onclick='navigateTo("games")'>Events</a></li>
+        <li><a onclick='navigateTo("shop")'>Shop</a></li>
+        <li><a onclick='navigateTo("policy")'>Sheria</a></li>
+        <li><a onclick='navigateTo("profile")'>Profile</a></li>
+      </ul>
     </nav>
     <div class=main-content>
-<div id=home class=visible>
-  <header class=header>
-    <div class=logo>
-<img src=logo.png alt=Logo>
-    </div>
-    <div class=search-bar>
-<input placeholder="Search games, players...">
-    </div>
-    <div class=icons>
-<i class=ri-notification-line  id="toggleNotify"></i>
-<i class="ri-whatsapp-line"></i>
-    </div>
-  </header>
-  <nav class="sidebar mobile-sidebar">
-    <ul>
-<li>
-  <a onclick='navigateTo("games")'>
-  <i class=ri-gamepad-line></i>
-  <span>Events</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("shop")'>
-  <i class=ri-shopping-cart-line></i>
-  <span>Shop</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("home")'>
-  <i class="ri-home-6-fill add"></i>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("policy")'>
-  <i class=ri-file-line></i>
-  <span>Sheria</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("profile")'>
-  <i class=ri-user-4-line></i>
-  <span>Akaunti</span>
-  </a>
-</li>
-    </ul>
-  </nav>
-  <div class=post-base>
-    <section class=hero>
-<div class=hero-content>
-  <h1>Nabogaming Tournament 2025</h1>
-  <p> Habari <span class="user-name"></span>, Jiandae Kikamilimifu Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
-  <a href=#games class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
-</div>
-    </section>
-    <section class=carousel>
-<div class=carousel-slide>
-  <img src=1.png alt="Featured Game 1">
-  <h3>Nabogaming Kivingine..!</h3>
-  <p>Mechi Zaidi, Ushindani Na Wachezaji Kibao</p>
-</div>
-<div class=carousel-slide>
-  <img src=2.png alt="Featured Game 2">
-  <h3>Featured Game 2</h3>
-  <p>Embark on an epic adventure today.</p>
-</div>
-<div class=carousel-slide>
-  <img src=3.png alt="Featured Game 3">
-  <h3>Featured Game 3</h3>
-  <p>Experience the thrill of the battle arena.</p>
-</div>
-<div class=carousel-slide>
-  <img src=4.png alt="Featured Game 3">
-  <h3>Featured Game 3</h3>
-  <p>Experience the thrill of the battle arena.</p>
-</div>
-    </section>
-  </div>
-
- 
- <!-- <section class=tabs>
-    <div class=tab-header>
-<button onclick='showTab("trending")'>Trending</button>
-<button onclick='showTab("latest")'>Latest</button>
-<button onclick='showTab("popular")'>Popular</button>
-    </div>
-    <div class=tab-content id=trending>
-<p>Trending games will appear here.</p>
-    </div>
-    <div class="tab-content hidden" id=latest>
-<p>Latest games will appear here.</p>
-    </div>
-    <div class="tab-content hidden" id=popular>
-<p>Popular games will appear here.</p>
-    </div>
-  </section>-->
-</div>
-
-
-<div id="shop" class="hidden">
+      <div id=home class=visible>
+        <header class=header>
+          <div class=logo>
+            <img src=logo.png alt=Logo>
+          </div>
+          <div class=search-bar>
+            <input placeholder="Search games, players...">
+          </div>
+          <div class=icons>
+            <i class=ri-notification-line  id="toggleNotify"></i>
+            <i class="ri-whatsapp-line"></i>
+          </div>
+        </header>
+        <nav class="sidebar mobile-sidebar">
+          <ul>
+            <li>
+              <a onclick='navigateTo("games")'>
+              <i class=ri-gamepad-line></i>
+              <span>Events</span>
+              </a>
+            </li>
+            <li>
+              <a onclick='navigateTo("shop")'>
+              <i class=ri-shopping-cart-line></i>
+              <span>Shop</span>
+              </a>
+            </li>
+            <li>
+              <a onclick='navigateTo("home")'>
+              <i class="ri-home-6-fill add"></i>
+              </a>
+            </li>
+            <li>
+              <a onclick='navigateTo("policy")'>
+              <i class=ri-file-line></i>
+              <span>Sheria</span>
+              </a>
+            </li>
+            <li>
+              <a onclick='navigateTo("profile")'>
+              <i class=ri-user-4-line></i>
+              <span>Akaunti</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div class=post-base>
+          <section class=hero>
+            <div class=hero-content>
+              <h1>Nabogaming Tournament 2025</h1>
+              <p> Habari <span class="user-name"></span>, Jiandae Kikamilimifu Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
+              <a href=#games class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
+            </div>
+          </section>
+          <section class=carousel>
+            <div class=carousel-slide>
+              <img src=1.png alt="Featured Game 1">
+              <h3>Nabogaming Kivingine..!</h3>
+              <p>Mechi Zaidi, Ushindani Na Wachezaji Kibao</p>
+            </div>
+            <div class=carousel-slide>
+              <img src=2.png alt="Featured Game 2">
+              <h3>Featured Game 2</h3>
+              <p>Embark on an epic adventure today.</p>
+            </div>
+            <div class=carousel-slide>
+              <img src=3.png alt="Featured Game 3">
+              <h3>Featured Game 3</h3>
+              <p>Experience the thrill of the battle arena.</p>
+            </div>
+            <div class=carousel-slide>
+              <img src=4.png alt="Featured Game 3">
+              <h3>Featured Game 3</h3>
+              <p>Experience the thrill of the battle arena.</p>
+            </div>
+          </section>
+        </div>
+        <!-- <section class=tabs>
+          <div class=tab-header>
+          <button onclick='showTab("trending")'>Trending</button>
+          <button onclick='showTab("latest")'>Latest</button>
+          <button onclick='showTab("popular")'>Popular</button>
+          </div>
+          <div class=tab-content id=trending>
+          <p>Trending games will appear here.</p>
+          </div>
+          <div class="tab-content hidden" id=latest>
+          <p>Latest games will appear here.</p>
+          </div>
+          <div class="tab-content hidden" id=popular>
+          <p>Popular games will appear here.</p>
+          </div>
+          </section>-->
+      </div>
+      <div id="shop" class="hidden">
         <header class="header headec">
-        <div class="logo"><h1>ShopMall</h1></div>
-        <!--div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
-         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
-        </div-->
-    </header>
-  <nav class="sidebar mobile-sidebar">
-    <ul>
-<li>
-  <a onclick='navigateTo("games")'>
-  <i class=ri-gamepad-line></i>
-  <span>Events</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("shop")'>
-  <i class=ri-shopping-cart-fill></i>
-  <span>In-Shop</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("home")'>
-  <i class="ri-home-6-line add"></i>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("policy")'>
-  <i class=ri-file-line></i>
-  <span>Sheria</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("profile")'>
-  <i class=ri-user-4-line></i>
-  <span>Akaunti</span>
-  </a>
-</li>
-    </ul>
-  </nav>
-
-
-<!-- Modal 1 -->
-<div id="modal1" class="modal">
-  <div class="modal-content">
-       <div class="btn-primary headec-nav">&nbsp; 
-         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Selling Experience&nbsp; </a>
+          <div class="logo">
+            <h1>ShopMall</h1>
+          </div>
+          <!--div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
+            <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
+            </div-->
+        </header>
+        <nav class="sidebar mobile-sidebar">
+          <ul>
+            <li>
+              <a onclick='navigateTo("games")'>
+              <i class=ri-gamepad-line></i>
+              <span>Events</span>
+              </a>
+            </li>
+            <li>
+              <a onclick='navigateTo("shop")'>
+              <i class=ri-shopping-cart-fill></i>
+              <span>In-Shop</span>
+              </a>
+            </li>
+            <li>
+              <a onclick='navigateTo("home")'>
+              <i class="ri-home-6-line add"></i>
+              </a>
+            </li>
+            <li>
+              <a onclick='navigateTo("policy")'>
+              <i class=ri-file-line></i>
+              <span>Sheria</span>
+              </a>
+            </li>
+            <li>
+              <a onclick='navigateTo("profile")'>
+              <i class=ri-user-4-line></i>
+              <span>Akaunti</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <!-- Modal 1 -->
+        <div id="modal1" class="modal">
+          <div class="modal-content">
+            <div class="btn-primary headec-nav">&nbsp; 
+              <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Selling Experience&nbsp; </a>
+            </div>
+            <h3 class="modal-title"></h3>
+            <p class="modal-body">Pata Uwanja Wako Wa Mauzo Yako Yote Hapahapa. Hakikisha Umesoma Vizuri <a href=""> Sheria, Taratibu Na Kanuni</a> Za Muuzaji Hapa Nabogaming Kabla Ya Ku upgrade Experience Yako. Uko Tayari Kuendelea?</p>
+            <div class="modal-buttons">
+              <button class="modal-btn cancel-btn">Hapana</button>
+              <button class="modal-btn ok-btn open-modal" data-modal="modal3">Ndiyo</button>
+            </div>
+          </div>
         </div>
-    <h3 class="modal-title"></h3>
-    <p class="modal-body">Pata Uwanja Wako Wa Mauzo Yako Yote Hapahapa. Hakikisha Umesoma Vizuri <a href=""> Sheria, Taratibu Na Kanuni</a> Za Muuzaji Hapa Nabogaming Kabla Ya Ku upgrade Experience Yako. Uko Tayari Kuendelea?</p>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel-btn">Hapana</button>
-      <button class="modal-btn ok-btn open-modal" data-modal="modal3">Ndiyo</button>
-    </div>
-  </div>
-</div>
-<!-- Modal 3 -->
-<div id="modal3" class="modal" style="background-color:white">
-  <div class="modal-content">
-    <h3 class="modal-title">Verify Your Identity</h3>
-    <p class="modal-body">
-      Tafadhali Ingiza OTP (One-Time Password) Yako Ili Kuendelea. Kama Hukupokea OTP, Tafadhali <a href="#">Bonyeza Hapa Kuomba OTP</a> Ama Kamilisha Malipo Ili Uweze Kupata OTP Yako.
-    </p>
-    <div class="otp-container" style="display: flex; justify-content: center; gap: 10px;">
-      <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none" />
-      <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none" />
-      <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none" />
-      <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none;padding:7px" />
-    </div>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel-btn">Cancel</button>
-      <button class="modal-btn ok-btn" onclick="navigateTo('sell')">Endelea</button>
-    </div>
-  </div>
-</div>
-
- <div class=post-grid>
-    <div class="shop">
-        <img src="shopmall.png">
-    </div>
-
-       <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="1.jpeg" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">PUBGM</span>
-  </div>
-  <div class="bottom-left-icon">
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Save</button>
-  <button class="cta-btn secondary">Buy Now</button>
-</div>
-    </div>
-</div>
-  <div id="allposts" class="post-grid"><div class="preloader"></div>
-  </div>
-  <!--div class=post-grid>
-    <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="1.jpeg" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">PUBGM</span>
-  </div>
-  <div class="bottom-left-icon">
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Save</button>
-  <button class="cta-btn secondary">Buy Now</button>
-</div>
-    </div>
-    <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="post1.png" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">New</span>
-  </div>
-  <div class="bottom-left-icon">
-    01d 12hrs 02min 43sec
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Like</button>
-  <button class="cta-btn secondary">Comment</button>
-</div>
-    </div>
-    <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="post1.png" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">New</span>
-  </div>
-  <div class="bottom-left-icon">
-    01d 12hrs 02min 43sec
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Like</button>
-  <button class="cta-btn secondary">Comment</button>
-</div>
-    </div>
-    <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="post1.png" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">New</span>
-  </div>
-  <div class="bottom-left-icon">
-    01d 12hrs 02min 43sec
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Like</button>
-  <button class="cta-btn secondary">Comment</button>
-</div>
-    </div>
-  </div>
-</div-->
-
-
-<div id="policy" class="hidden">
-      <header class="header headec">
-        <div class="logo"><h1>Sheria</h1></div>
-        <div class="btn-primary riri" style="font-weight:500">&nbsp; 
-         <i class="ri-phone-line ri-xl"></i>&nbsp; <i class="ri-whatsapp-line ri-xl"></i>&nbsp;
+        <!-- Modal 3 -->
+        <div id="modal3" class="modal" style="background-color:white">
+          <div class="modal-content">
+            <h3 class="modal-title">Verify Your Identity</h3>
+            <p class="modal-body">
+              Tafadhali Ingiza OTP (One-Time Password) Yako Ili Kuendelea. Kama Hukupokea OTP, Tafadhali <a href="#">Bonyeza Hapa Kuomba OTP</a> Ama Kamilisha Malipo Ili Uweze Kupata OTP Yako.
+            </p>
+            <div class="otp-container" style="display: flex; justify-content: center; gap: 10px;">
+              <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none" />
+              <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none" />
+              <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none" />
+              <input type="text" maxlength="1" class="otp-input" style="width: 40px; text-align: center; font-size: 20px;border: 1px solid #e0e0e0;border-radius:8px;background-color:#e0e0e0;outline:none;padding:7px" />
+            </div>
+            <div class="modal-buttons">
+              <button class="modal-btn cancel-btn">Cancel</button>
+              <button class="modal-btn ok-btn" onclick="navigateTo('sell')">Endelea</button>
+            </div>
+          </div>
         </div>
-    </header>
-  <nav class="sidebar mobile-sidebar">
-    <ul>
-<li>
-  <a onclick='navigateTo("games")'>
-  <i class=ri-gamepad-fill></i>
-  <span>Events</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("shop")'>
-  <i class=ri-shopping-cart-line></i>
-  <span>Shop</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("home")'>
-  <i class="ri-home-6-line add"></i>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("policy")'>
-  <i class=ri-file-fill></i>
-  <span>In-Sheria</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("profile")'>
-  <i class=ri-user-4-line></i>
-  <span>Akaunti</span>
-  </a>
-</li>
-    </ul>
-  </nav>
- <main class="fanq">
-    <h2>1. Masharti ya Jumla</h2>
-    <ul>
-      <li>Kwa kutumia NaboGaming, unakubali kufuata sheria na masharti yaliyowekwa.</li>
-      <li>Watumiaji lazima wawe na utii wa sheria zaidi ili kujiandikisha na kutumia huduma zetu.</li>
-      <li>Ni marufuku kutumia lugha chafu, matusi, au vitendo vyovyote vya udanganyifu, Hii Itapelekea akaunti yako kufungiwa.</li>
-    </ul>
-
-    <h2>2. Faragha</h2>
-    <ul>
-      <li>Habari zako za kibinafsi zitalindwa kulingana na sera yetu ya faragha.</li>
-      <li>Tunatumia auto enabled cookies (AEC) kuboresha uzoefu wako mtandaoni.</li>
-      <li>Tunza Namba Siri (OTP) na Namba ziada zozote utazopewa, Usimpe Mtu yeyote kwa maana muhusika ni wewe pekee.</li>
-    </ul>
-
-    <h2>3. Matumizi ya Akaunti</h2>
-    <ul>
-      <li>Unawajibika kwa usalama wa akaunti yako na nywila.</li>
-      <li>Akaunti yoyote itakayobainika ikivunja sheria zetu itafungwa mara moja.</li>
-    </ul>
-     <h2>4. Wauzaji ShopMall</h2>
-    <ul>
-      <li>Weka Taarifa Kamilifu Kuhusu Unachouza, Unaruhusa ya Kupost mauzo ya akaunti, mauzo ya skin(maleo e.t.c) na si vinginevyo.</li>
-      <li>Tumia OTP yako Mara Moja Kwa Siku Hakikisha Unaitunza Maana OTP yako Ndiyo Soko Lako</li>
-      <li>Akaunti yoyote itakayobainika ikikiuka maagizo haya itazuiliwa mara moja.</li>
-    </ul>
-
-    <h2>FAQs (Maswali Yanayoulizwa Mara kwa Mara)</h2>
-    <div class="faq">
-      <h3>1. Je, NaboGaming ni nini?</h3>
-      <p>NaboGaming ni jukwaa la michezo ya mtandaoni linalowapa watumiaji fursa ya kushindana na kushirikiana na wachezaji wengine duniani kote.</p>
-    </div>
-    <div class="faq">
-      <h3>2. Ninawezaje kufungua akaunti?</h3>
-      <p>Bofya kitufe cha "Jiandikishe" na ujaze taarifa zako. Kumbuka kuwa lazima uwe na umri wa miaka 18 au zaidi.</p>
-    </div>
-    <div class="faq">
-      <h3>3. Nifanye nini ikiwa nimesahau nenosiri langu?</h3>
-      <p>Bonyeza "Umesahau Nenosiri?" kwenye ukurasa wa kuingia na ufuate maelekezo ya kurejesha akaunti yako.</p>
-    </div>
-  </main>
-</div>
-
-
-<div id="games" class="hidden">
-    <header class="header headec">
-        <div class="logo"><h1>Events</h1></div>
-        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
-         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
+        <div class=post-grid>
+          <div class="shop">
+            <img src="shopmall.png">
+          </div>
+          <div class="instagram-post">
+            <div class="post-header">
+              <div class="profile-picture">
+                <img src="5.png" alt="User profile picture">
+              </div>
+              <div class="profile-details">
+                <div class="profile-name">
+                  Nabobeatz
+                  <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+                </div>
+                <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+                  Please Wait.....
+                </div>
+              </div>
+              <div class="post-options">
+                <i class="ri-more-fill"></i>
+                <div class="options-menu">
+                  <ul>
+                    <li>Save Post</li>
+                    <li>Report Nabobeatz Post</li>
+                    <li>Share The Post</li>
+                    <li>Message Nabobeatz</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="post-image">
+              <img src="1.jpeg" alt="Post content">
+              <div class="post-badges">
+                <span class="badge new">PUBGM</span>
+              </div>
+              <div class="bottom-left-icon">
+              </div>
+            </div>
+            <div class="caption">
+              <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+            </div>
+            <div class="post-cta-buttons">
+              <button class="cta-btn primary">Save</button>
+              <button class="cta-btn secondary">Buy Now</button>
+            </div>
+          </div>
         </div>
-    </header>
-  <nav class="sidebar mobile-sidebar">
-    <ul>
-<li>
-  <a onclick='navigateTo("games")'>
-  <i class=ri-gamepad-fill></i>
-  <span>In-Events</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("shop")'>
-  <i class=ri-shopping-cart-line></i>
-  <span>Shop</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("home")'>
-  <i class="ri-home-6-line add"></i>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("policy")'>
-  <i class=ri-file-line></i>
-  <span>Sheria</span>
-  </a>
-</li>
-<li>
-  <a onclick='navigateTo("profile")'>
-  <i class=ri-user-4-line></i>
-  <span>Akaunti</span>
-  </a>
-</li>
-    </ul>
-  </nav>
-   <div class=post-grid>
-    <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="1.jpeg" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">PUBGM</span>
-  </div>
-  <div class="bottom-left-icon">
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Save</button>
-  <button class="cta-btn secondary">Buy Now</button>
-</div>
-    </div>
-    <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="post1.png" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">New</span>
-  </div>
-  <div class="bottom-left-icon">
-    01d 12hrs 02min 43sec
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Like</button>
-  <button class="cta-btn secondary">Comment</button>
-</div>
-    </div>
-    <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="post1.png" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">New</span>
-  </div>
-  <div class="bottom-left-icon">
-    01d 12hrs 02min 43sec
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Like</button>
-  <button class="cta-btn secondary">Comment</button>
-</div>
-    </div>
-    <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="post1.png" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">New</span>
-  </div>
-  <div class="bottom-left-icon">
-    01d 12hrs 02min 43sec
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Like</button>
-  <button class="cta-btn secondary">Comment</button>
-</div>
-    </div>
-  </div>
-</div>
-
-
-<div id="profile" class="hidden">
-  <header class="page-header">
-    <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
-    <h1>Profile (<span class="user-name"> No data </span>)</h1>
-  </header>
-
-  <div class="profile-container">
-    <!-- Top Card: Profile Overview -->
-    <div class="profile-overview">
-<div class="profile-photo">
-  <img src="5.png" alt="User Profile Picture" class="profile-picture">
-</div>
-<div class="profile-details">
-  <h2 class="user-name">No User Found</h2>
-  <p class="user-email">Email Not Registered | <a href="index.html">Jiunge Sasa</a></p>
-
-</div>
-    </div>
-    </div> 
-
- <section id="create-post">
-      <h2>Create a New Post</h2>
-      <input type="text" id="new-post-caption" placeholder="Write a caption...">
-      <input type="file" id="new-post-image">
-      <div id="upload-progress" style="display: none;">Uploading: <span id="upload-percentage">0</span>%</div>
-      <button id="create-post-button">Post</button>
-    </section>
-<br>
- <div id="myposts" class="post-grid"><div class="preloader"></div>
-  </div>
-</div>
-
-
-
-<div id="sell" class="hidden">
-  <header class=header>
-    <div class=logo>
-<img src=logo.png alt=Logo>
-<img class="profile-picture" src=5.png alt=Logo>
-    </div>
-    <div class=search-bar>
-<span style="background-color:#121212;padding:5px 6px;border-radius:10px;color:white;font-size:13px">
-Create New Post
-</span>
-    </div>
-    <div class=icons>
-<span class=" open-modal" data-modal="modal2" style="color:red">Log Out</span>
-    </div>
-  </header>
-
-    <header class="header headec">
-        <div class="logo"><h1>Seller <span class="user-name">nabogaming</span>, </h1>
+        <div id="allposts" class="post-grid">
+          <div class="preloader"></div>
         </div>
-    </header>
-<!-- Modal 2 -->
-<div id="modal2" class="modal">
-  <div class="modal-content">
-       <div class="btn-primary headec-nav" style="background-color: white;">&nbsp; 
-         <i class="ri-vip-crown-fill" style=" color: black;"></i>&nbsp;   <a href="#" style=" color: black;"> Upgraded Selling Experience&nbsp; </a>
+        <!--div class=post-grid>
+          <div class="instagram-post">
+          <div class="post-header">
+          <div class="profile-picture">
+          <img src="5.png" alt="User profile picture">
+          </div>
+          <div class="profile-details">
+          <div class="profile-name">
+          Nabobeatz
+          <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+          </div>
+          <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+          Please Wait.....
+          </div>
+          </div>
+          <div class="post-options">
+          <i class="ri-more-fill"></i>
+          <div class="options-menu">
+          <ul>
+          <li>Save Post</li>
+          <li>Report Nabobeatz Post</li>
+          <li>Share The Post</li>
+          <li>Message Nabobeatz</li>
+          </ul>
+          </div>
+          </div>
+          </div>
+          <div class="post-image">
+          <img src="1.jpeg" alt="Post content">
+          <div class="post-badges">
+          <span class="badge new">PUBGM</span>
+          </div>
+          <div class="bottom-left-icon">
+          </div>
+          </div>
+          <div class="caption">
+          <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+          </div>
+          <div class="post-cta-buttons">
+          <button class="cta-btn primary">Save</button>
+          <button class="cta-btn secondary">Buy Now</button>
+          </div>
+          </div>
+          <div class="instagram-post">
+          <div class="post-header">
+          <div class="profile-picture">
+          <img src="5.png" alt="User profile picture">
+          </div>
+          <div class="profile-details">
+          <div class="profile-name">
+          Nabobeatz
+          <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+          </div>
+          <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+          Please Wait.....
+          </div>
+          </div>
+          <div class="post-options">
+          <i class="ri-more-fill"></i>
+          <div class="options-menu">
+          <ul>
+          <li>Save Post</li>
+          <li>Report Nabobeatz Post</li>
+          <li>Share The Post</li>
+          <li>Message Nabobeatz</li>
+          </ul>
+          </div>
+          </div>
+          </div>
+          <div class="post-image">
+          <img src="post1.png" alt="Post content">
+          <div class="post-badges">
+          <span class="badge new">New</span>
+          </div>
+          <div class="bottom-left-icon">
+          01d 12hrs 02min 43sec
+          </div>
+          </div>
+          <div class="caption">
+          <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+          </div>
+          <div class="post-cta-buttons">
+          <button class="cta-btn primary">Like</button>
+          <button class="cta-btn secondary">Comment</button>
+          </div>
+          </div>
+          <div class="instagram-post">
+          <div class="post-header">
+          <div class="profile-picture">
+          <img src="5.png" alt="User profile picture">
+          </div>
+          <div class="profile-details">
+          <div class="profile-name">
+          Nabobeatz
+          <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+          </div>
+          <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+          Please Wait.....
+          </div>
+          </div>
+          <div class="post-options">
+          <i class="ri-more-fill"></i>
+          <div class="options-menu">
+          <ul>
+          <li>Save Post</li>
+          <li>Report Nabobeatz Post</li>
+          <li>Share The Post</li>
+          <li>Message Nabobeatz</li>
+          </ul>
+          </div>
+          </div>
+          </div>
+          <div class="post-image">
+          <img src="post1.png" alt="Post content">
+          <div class="post-badges">
+          <span class="badge new">New</span>
+          </div>
+          <div class="bottom-left-icon">
+          01d 12hrs 02min 43sec
+          </div>
+          </div>
+          <div class="caption">
+          <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+          </div>
+          <div class="post-cta-buttons">
+          <button class="cta-btn primary">Like</button>
+          <button class="cta-btn secondary">Comment</button>
+          </div>
+          </div>
+          <div class="instagram-post">
+          <div class="post-header">
+          <div class="profile-picture">
+          <img src="5.png" alt="User profile picture">
+          </div>
+          <div class="profile-details">
+          <div class="profile-name">
+          Nabobeatz
+          <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+          </div>
+          <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+          Please Wait.....
+          </div>
+          </div>
+          <div class="post-options">
+          <i class="ri-more-fill"></i>
+          <div class="options-menu">
+          <ul>
+          <li>Save Post</li>
+          <li>Report Nabobeatz Post</li>
+          <li>Share The Post</li>
+          <li>Message Nabobeatz</li>
+          </ul>
+          </div>
+          </div>
+          </div>
+          <div class="post-image">
+          <img src="post1.png" alt="Post content">
+          <div class="post-badges">
+          <span class="badge new">New</span>
+          </div>
+          <div class="bottom-left-icon">
+          01d 12hrs 02min 43sec
+          </div>
+          </div>
+          <div class="caption">
+          <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+          </div>
+          <div class="post-cta-buttons">
+          <button class="cta-btn primary">Like</button>
+          <button class="cta-btn secondary">Comment</button>
+          </div>
+          </div>
+          </div>
+          </div-->
+        <div id="policy" class="hidden">
+          <header class="header headec">
+            <div class="logo">
+              <h1>Sheria</h1>
+            </div>
+            <div class="btn-primary riri" style="font-weight:500">&nbsp; 
+              <i class="ri-phone-line ri-xl"></i>&nbsp; <i class="ri-whatsapp-line ri-xl"></i>&nbsp;
+            </div>
+          </header>
+          <nav class="sidebar mobile-sidebar">
+            <ul>
+              <li>
+                <a onclick='navigateTo("games")'>
+                <i class=ri-gamepad-fill></i>
+                <span>Events</span>
+                </a>
+              </li>
+              <li>
+                <a onclick='navigateTo("shop")'>
+                <i class=ri-shopping-cart-line></i>
+                <span>Shop</span>
+                </a>
+              </li>
+              <li>
+                <a onclick='navigateTo("home")'>
+                <i class="ri-home-6-line add"></i>
+                </a>
+              </li>
+              <li>
+                <a onclick='navigateTo("policy")'>
+                <i class=ri-file-fill></i>
+                <span>In-Sheria</span>
+                </a>
+              </li>
+              <li>
+                <a onclick='navigateTo("profile")'>
+                <i class=ri-user-4-line></i>
+                <span>Akaunti</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          <main class="fanq">
+            <h2>1. Masharti ya Jumla</h2>
+            <ul>
+              <li>Kwa kutumia NaboGaming, unakubali kufuata sheria na masharti yaliyowekwa.</li>
+              <li>Watumiaji lazima wawe na utii wa sheria zaidi ili kujiandikisha na kutumia huduma zetu.</li>
+              <li>Ni marufuku kutumia lugha chafu, matusi, au vitendo vyovyote vya udanganyifu, Hii Itapelekea akaunti yako kufungiwa.</li>
+            </ul>
+            <h2>2. Faragha</h2>
+            <ul>
+              <li>Habari zako za kibinafsi zitalindwa kulingana na sera yetu ya faragha.</li>
+              <li>Tunatumia auto enabled cookies (AEC) kuboresha uzoefu wako mtandaoni.</li>
+              <li>Tunza Namba Siri (OTP) na Namba ziada zozote utazopewa, Usimpe Mtu yeyote kwa maana muhusika ni wewe pekee.</li>
+            </ul>
+            <h2>3. Matumizi ya Akaunti</h2>
+            <ul>
+              <li>Unawajibika kwa usalama wa akaunti yako na nywila.</li>
+              <li>Akaunti yoyote itakayobainika ikivunja sheria zetu itafungwa mara moja.</li>
+            </ul>
+            <h2>4. Wauzaji ShopMall</h2>
+            <ul>
+              <li>Weka Taarifa Kamilifu Kuhusu Unachouza, Unaruhusa ya Kupost mauzo ya akaunti, mauzo ya skin(maleo e.t.c) na si vinginevyo.</li>
+              <li>Tumia OTP yako Mara Moja Kwa Siku Hakikisha Unaitunza Maana OTP yako Ndiyo Soko Lako</li>
+              <li>Akaunti yoyote itakayobainika ikikiuka maagizo haya itazuiliwa mara moja.</li>
+            </ul>
+            <h2>FAQs (Maswali Yanayoulizwa Mara kwa Mara)</h2>
+            <div class="faq">
+              <h3>1. Je, NaboGaming ni nini?</h3>
+              <p>NaboGaming ni jukwaa la michezo ya mtandaoni linalowapa watumiaji fursa ya kushindana na kushirikiana na wachezaji wengine duniani kote.</p>
+            </div>
+            <div class="faq">
+              <h3>2. Ninawezaje kufungua akaunti?</h3>
+              <p>Bofya kitufe cha "Jiandikishe" na ujaze taarifa zako. Kumbuka kuwa lazima uwe na umri wa miaka 18 au zaidi.</p>
+            </div>
+            <div class="faq">
+              <h3>3. Nifanye nini ikiwa nimesahau nenosiri langu?</h3>
+              <p>Bonyeza "Umesahau Nenosiri?" kwenye ukurasa wa kuingia na ufuate maelekezo ya kurejesha akaunti yako.</p>
+            </div>
+          </main>
         </div>
-    <h3 class="modal-title"></h3>
-    <p class="modal-body">Habari <span class="user-name">nabogaming</span>, Ungependelea Kuswitch Back Kwenye Normal ShopMall?</p>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel-btn">Hapana</button>
-      <button class="modal-btn ok-btn"  onclick="navigateTo('games')">Ndiyo</button>
-    </div>
-  </div>
-</div>
-
-
- <div class=post-grid>
-       <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img class="profile-picture" src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name user-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-<!--<span class="badge" style="color: red">NOT APPROVED</span>-->
-<span class="badge" style="color: green">APPROVED</span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Delete My Post</li>
-  <li>Share My Post</li>
-  <li>Create New Post</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="1.jpeg" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">PUBGM</span>
-  </div>
-  <div class="bottom-left-icon">
-  </div>
-</div>
-<div class="caption">
-  <span class="username user-name">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Save</button>
-  <button class="cta-btn secondary">Buy Now</button>
-</div>
-    </div>
-</div>
-
-</div>
-
-
-
-<!-- Notification -->
-<div class="hidden" id="notifyPopup">
-  <div class="header-2">
-    <div class="logo">
-<i class="ri-notification-fill"></i>
-    </div>
-    <div class="title-center">
-<h2>Notifications</h2>
-    </div>
-  </div>
-  <section class="notify">
-    <ul class="notify-list">
-
-<li class="notify-item">
-     <!-- <div class="notify-icon">
-    <i class="ri--line"></i>
-  </div>-->
-  <div class="notify-content">
-    <h3>No New Notifications <span class="notify-time"  data-timestamp=2024-12-08T10:37:00></span></h3>
-    <p>Hakuna taarifa kwa sasa </p>
-  </div>
-</li>
-    </ul>
-  </section>
-</div>
-    </div>
+        <div id="games" class="hidden">
+          <header class="header headec">
+            <div class="logo">
+              <h1>Events</h1>
+            </div>
+            <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
+              <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
+            </div>
+          </header>
+          <nav class="sidebar mobile-sidebar">
+            <ul>
+              <li>
+                <a onclick='navigateTo("games")'>
+                <i class=ri-gamepad-fill></i>
+                <span>In-Events</span>
+                </a>
+              </li>
+              <li>
+                <a onclick='navigateTo("shop")'>
+                <i class=ri-shopping-cart-line></i>
+                <span>Shop</span>
+                </a>
+              </li>
+              <li>
+                <a onclick='navigateTo("home")'>
+                <i class="ri-home-6-line add"></i>
+                </a>
+              </li>
+              <li>
+                <a onclick='navigateTo("policy")'>
+                <i class=ri-file-line></i>
+                <span>Sheria</span>
+                </a>
+              </li>
+              <li>
+                <a onclick='navigateTo("profile")'>
+                <i class=ri-user-4-line></i>
+                <span>Akaunti</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          <div class=post-grid>
+            <div class="instagram-post">
+              <div class="post-header">
+                <div class="profile-picture">
+                  <img src="5.png" alt="User profile picture">
+                </div>
+                <div class="profile-details">
+                  <div class="profile-name">
+                    Nabobeatz
+                    <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+                  </div>
+                  <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+                    Please Wait.....
+                  </div>
+                </div>
+                <div class="post-options">
+                  <i class="ri-more-fill"></i>
+                  <div class="options-menu">
+                    <ul>
+                      <li>Save Post</li>
+                      <li>Report Nabobeatz Post</li>
+                      <li>Share The Post</li>
+                      <li>Message Nabobeatz</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="post-image">
+                <img src="1.jpeg" alt="Post content">
+                <div class="post-badges">
+                  <span class="badge new">PUBGM</span>
+                </div>
+                <div class="bottom-left-icon">
+                </div>
+              </div>
+              <div class="caption">
+                <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+              </div>
+              <div class="post-cta-buttons">
+                <button class="cta-btn primary">Save</button>
+                <button class="cta-btn secondary">Buy Now</button>
+              </div>
+            </div>
+            <div class="instagram-post">
+              <div class="post-header">
+                <div class="profile-picture">
+                  <img src="5.png" alt="User profile picture">
+                </div>
+                <div class="profile-details">
+                  <div class="profile-name">
+                    Nabobeatz
+                    <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+                  </div>
+                  <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+                    Please Wait.....
+                  </div>
+                </div>
+                <div class="post-options">
+                  <i class="ri-more-fill"></i>
+                  <div class="options-menu">
+                    <ul>
+                      <li>Save Post</li>
+                      <li>Report Nabobeatz Post</li>
+                      <li>Share The Post</li>
+                      <li>Message Nabobeatz</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="post-image">
+                <img src="post1.png" alt="Post content">
+                <div class="post-badges">
+                  <span class="badge new">New</span>
+                </div>
+                <div class="bottom-left-icon">
+                  01d 12hrs 02min 43sec
+                </div>
+              </div>
+              <div class="caption">
+                <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+              </div>
+              <div class="post-cta-buttons">
+                <button class="cta-btn primary">Like</button>
+                <button class="cta-btn secondary">Comment</button>
+              </div>
+            </div>
+            <div class="instagram-post">
+              <div class="post-header">
+                <div class="profile-picture">
+                  <img src="5.png" alt="User profile picture">
+                </div>
+                <div class="profile-details">
+                  <div class="profile-name">
+                    Nabobeatz
+                    <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+                  </div>
+                  <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+                    Please Wait.....
+                  </div>
+                </div>
+                <div class="post-options">
+                  <i class="ri-more-fill"></i>
+                  <div class="options-menu">
+                    <ul>
+                      <li>Save Post</li>
+                      <li>Report Nabobeatz Post</li>
+                      <li>Share The Post</li>
+                      <li>Message Nabobeatz</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="post-image">
+                <img src="post1.png" alt="Post content">
+                <div class="post-badges">
+                  <span class="badge new">New</span>
+                </div>
+                <div class="bottom-left-icon">
+                  01d 12hrs 02min 43sec
+                </div>
+              </div>
+              <div class="caption">
+                <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+              </div>
+              <div class="post-cta-buttons">
+                <button class="cta-btn primary">Like</button>
+                <button class="cta-btn secondary">Comment</button>
+              </div>
+            </div>
+            <div class="instagram-post">
+              <div class="post-header">
+                <div class="profile-picture">
+                  <img src="5.png" alt="User profile picture">
+                </div>
+                <div class="profile-details">
+                  <div class="profile-name">
+                    Nabobeatz
+                    <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+                  </div>
+                  <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+                    Please Wait.....
+                  </div>
+                </div>
+                <div class="post-options">
+                  <i class="ri-more-fill"></i>
+                  <div class="options-menu">
+                    <ul>
+                      <li>Save Post</li>
+                      <li>Report Nabobeatz Post</li>
+                      <li>Share The Post</li>
+                      <li>Message Nabobeatz</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="post-image">
+                <img src="post1.png" alt="Post content">
+                <div class="post-badges">
+                  <span class="badge new">New</span>
+                </div>
+                <div class="bottom-left-icon">
+                  01d 12hrs 02min 43sec
+                </div>
+              </div>
+              <div class="caption">
+                <span class="username">Nabobeatz</span> This is an example caption for the Instagram post.
+              </div>
+              <div class="post-cta-buttons">
+                <button class="cta-btn primary">Like</button>
+                <button class="cta-btn secondary">Comment</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="profile" class="hidden">
+          <header class="page-header">
+            <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
+            <h1>Profile (<span class="user-name"> No data </span>)</h1>
+          </header>
+          <div class="profile-container">
+            <!-- Top Card: Profile Overview -->
+            <div class="profile-overview">
+              <div class="profile-photo">
+                <img src="5.png" alt="User Profile Picture" class="profile-picture">
+              </div>
+              <div class="profile-details">
+                <h2 class="user-name">No User Found</h2>
+                <p class="user-email">Email Not Registered | <a href="index.html">Jiunge Sasa</a></p>
+              </div>
+            </div>
+          </div>
+          <section id="create-post">
+            <h2>Create a New Post</h2>
+            <input type="text" id="new-post-caption" placeholder="Write a caption...">
+            <input type="file" id="new-post-image">
+            <div id="upload-progress" style="display: none;">Uploading: <span id="upload-percentage">0</span>%</div>
+            <button id="create-post-button">Post</button>
+          </section>
+          <br>
+          <div id="myposts" class="post-grid">
+            <div class="preloader"></div>
+          </div>
+        </div>
+        <div id="sell" class="hidden">
+          <header class=header>
+            <div class=logo>
+              <img src=logo.png alt=Logo>
+              <img class="profile-picture" src=5.png alt=Logo>
+            </div>
+            <div class=search-bar>
+              <span style="background-color:#121212;padding:5px 6px;border-radius:10px;color:white;font-size:13px">
+              Create New Post
+              </span>
+            </div>
+            <div class=icons>
+              <span class=" open-modal" data-modal="modal2" style="color:red">Log Out</span>
+            </div>
+          </header>
+          <header class="header headec">
+            <div class="logo">
+              <h1>Seller <span class="user-name">nabogaming</span>, </h1>
+            </div>
+          </header>
+          <!-- Modal 2 -->
+          <div id="modal2" class="modal">
+            <div class="modal-content">
+              <div class="btn-primary headec-nav" style="background-color: white;">&nbsp; 
+                <i class="ri-vip-crown-fill" style=" color: black;"></i>&nbsp;   <a href="#" style=" color: black;"> Upgraded Selling Experience&nbsp; </a>
+              </div>
+              <h3 class="modal-title"></h3>
+              <p class="modal-body">Habari <span class="user-name">nabogaming</span>, Ungependelea Kuswitch Back Kwenye Normal ShopMall?</p>
+              <div class="modal-buttons">
+                <button class="modal-btn cancel-btn">Hapana</button>
+                <button class="modal-btn ok-btn"  onclick="navigateTo('games')">Ndiyo</button>
+              </div>
+            </div>
+          </div>
+          <div class=post-grid>
+            <div class="instagram-post">
+              <div class="post-header">
+                <div class="profile-picture">
+                  <img class="profile-picture" src="5.png" alt="User profile picture">
+                </div>
+                <div class="profile-details">
+                  <div class="profile-name user-name">
+                    Nabobeatz
+                    <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+                    <!--<span class="badge" style="color: red">NOT APPROVED</span>-->
+                    <span class="badge" style="color: green">APPROVED</span>
+                  </div>
+                  <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+                    Please Wait.....
+                  </div>
+                </div>
+                <div class="post-options">
+                  <i class="ri-more-fill"></i>
+                  <div class="options-menu">
+                    <ul>
+                      <li>Save Post</li>
+                      <li>Delete My Post</li>
+                      <li>Share My Post</li>
+                      <li>Create New Post</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="post-image">
+                <img src="1.jpeg" alt="Post content">
+                <div class="post-badges">
+                  <span class="badge new">PUBGM</span>
+                </div>
+                <div class="bottom-left-icon">
+                </div>
+              </div>
+              <div class="caption">
+                <span class="username user-name">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+              </div>
+              <div class="post-cta-buttons">
+                <button class="cta-btn primary">Save</button>
+                <button class="cta-btn secondary">Buy Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Notification -->
+        <div class="hidden" id="notifyPopup">
+          <div class="header-2">
+            <div class="logo">
+              <i class="ri-notification-fill"></i>
+            </div>
+            <div class="title-center">
+              <h2>Notifications</h2>
+            </div>
+          </div>
+          <section class="notify">
+            <ul class="notify-list">
+              <li class="notify-item">
+                <!-- <div class="notify-icon">
+                  <i class="ri--line"></i>
+                  </div>-->
+                <div class="notify-content">
+                  <h3>No New Notifications <span class="notify-time"  data-timestamp=2024-12-08T10:37:00></span></h3>
+                  <p>Hakuna taarifa kwa sasa </p>
+                </div>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </div>
     </div>
     <script>
-// Function to navigate to a specific section
-function navigateTo(pageId) {
-  // Hide all sections
-  document.querySelectorAll(".main-content > div").forEach((div) => {
-    div.classList.add("hidden");
-    div.classList.remove("visible");
-  });
-
-  // Show the target section
-  const target = document.getElementById(pageId);
-  if (target) {
-    target.classList.remove("hidden");
-    target.classList.add("visible");
-
-    // Reset scroll position to the top of the section
-    window.scrollTo({
-top: 0,
-behavior: "smooth", // Optional: Adds smooth scrolling effect
-    });
-  }
-}
-
-// Optional: Function to handle mobile navigation by listening to links
-document.querySelectorAll('.sidebar a').forEach(link => {
-  link.addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent default link behavior
-    const targetId = this.getAttribute('onclick').match(/navigateTo\("(\w+)"\)/)[1];
-    navigateTo(targetId);
-  });
-});
-
+      // Function to navigate to a specific section
+      function navigateTo(pageId) {
+        // Hide all sections
+        document.querySelectorAll(".main-content > div").forEach((div) => {
+          div.classList.add("hidden");
+          div.classList.remove("visible");
+        });
+      
+        // Show the target section
+        const target = document.getElementById(pageId);
+        if (target) {
+          target.classList.remove("hidden");
+          target.classList.add("visible");
+      
+          // Reset scroll position to the top of the section
+          window.scrollTo({
+      top: 0,
+      behavior: "smooth", // Optional: Adds smooth scrolling effect
+          });
+        }
+      }
+      
+      // Optional: Function to handle mobile navigation by listening to links
+      document.querySelectorAll('.sidebar a').forEach(link => {
+        link.addEventListener('click', function(event) {
+          event.preventDefault(); // Prevent default link behavior
+          const targetId = this.getAttribute('onclick').match(/navigateTo\("(\w+)"\)/)[1];
+          navigateTo(targetId);
+        });
+      });
+      
+          
     </script>
     <script>let currentSlide=0;function showNextSlide(){const e=document.querySelectorAll(".carousel-slide");e[currentSlide].style.display="none",currentSlide=(currentSlide+1)%e.length,e[currentSlide].style.display="block"}document.querySelectorAll(".carousel-slide").forEach(((e,l)=>{e.style.display=0===l?"block":"none"})),setInterval(showNextSlide,3e3)</script>
     <script>function showTab(e){document.querySelectorAll(".tab-content").forEach((e=>{e.classList.add("hidden"),e.classList.remove("visible")})),document.getElementById(e).classList.add("visible")}</script>
     <script>const toggleCommentsButtons=document.querySelectorAll(".toggle-comments");toggleCommentsButtons.forEach((t=>{t.addEventListener("click",(function(){const t=this.getAttribute("data-target"),e=document.getElementById(t);"flex"===e.style.display?(e.style.display="none",this.innerHTML='<i class="ri-arrow-down-s-line"></i> View Comments'):(e.style.display="flex",this.innerHTML='<i class="ri-arrow-up-s-line"></i> Hide Comments')}))}))</script>
     <script>
-function updateTimeAgo() {
-  // Find all elements with a data-timestamp attribute
-  document.querySelectorAll("[data-timestamp]").forEach((element) => {
-    const timestamp = element.getAttribute("data-timestamp");
-    if (timestamp) {
-const timeAgo = getTimeAgo(new Date(timestamp));
-element.textContent = timeAgo;
-    }
-  });
-}
-
-function getTimeAgo(date) {
-  const now = new Date();
-  const secondsElapsed = Math.floor((now - date) / 1000);
-
-  if (secondsElapsed < 60) {
-    return `${secondsElapsed}s ago`; // Seconds
-  }
-
-  const minutesElapsed = Math.floor(secondsElapsed / 60);
-  if (minutesElapsed < 60) {
-    return `${minutesElapsed}m ago`; // Minutes
-  }
-
-  const hoursElapsed = Math.floor(minutesElapsed / 60);
-  if (hoursElapsed < 24) {
-    return `${hoursElapsed}h ago`; // Hours
-  }
-
-  const daysElapsed = Math.floor(hoursElapsed / 24);
-  if (daysElapsed < 30) {
-    return `${daysElapsed}d ago`; // Days
-  }
-
-  const monthsElapsed = Math.floor(daysElapsed / 30);
-  if (monthsElapsed < 12) {
-    return `${monthsElapsed}mo ago`; // Months
-  }
-
-  const yearsElapsed = Math.floor(monthsElapsed / 12);
-  return `${yearsElapsed}y ago`; // Years
-}
-
-// Update all timestamps every 10 seconds
-setInterval(updateTimeAgo, 10000);
-
-// Initial update when the DOM is loaded
-document.addEventListener("DOMContentLoaded", updateTimeAgo);
+      function updateTimeAgo() {
+        // Find all elements with a data-timestamp attribute
+        document.querySelectorAll("[data-timestamp]").forEach((element) => {
+          const timestamp = element.getAttribute("data-timestamp");
+          if (timestamp) {
+      const timeAgo = getTimeAgo(new Date(timestamp));
+      element.textContent = timeAgo;
+          }
+        });
+      }
+      
+      function getTimeAgo(date) {
+        const now = new Date();
+        const secondsElapsed = Math.floor((now - date) / 1000);
+      
+        if (secondsElapsed < 60) {
+          return `${secondsElapsed}s ago`; // Seconds
+        }
+      
+        const minutesElapsed = Math.floor(secondsElapsed / 60);
+        if (minutesElapsed < 60) {
+          return `${minutesElapsed}m ago`; // Minutes
+        }
+      
+        const hoursElapsed = Math.floor(minutesElapsed / 60);
+        if (hoursElapsed < 24) {
+          return `${hoursElapsed}h ago`; // Hours
+        }
+      
+        const daysElapsed = Math.floor(hoursElapsed / 24);
+        if (daysElapsed < 30) {
+          return `${daysElapsed}d ago`; // Days
+        }
+      
+        const monthsElapsed = Math.floor(daysElapsed / 30);
+        if (monthsElapsed < 12) {
+          return `${monthsElapsed}mo ago`; // Months
+        }
+      
+        const yearsElapsed = Math.floor(monthsElapsed / 12);
+        return `${yearsElapsed}y ago`; // Years
+      }
+      
+      // Update all timestamps every 10 seconds
+      setInterval(updateTimeAgo, 10000);
+      
+      // Initial update when the DOM is loaded
+      document.addEventListener("DOMContentLoaded", updateTimeAgo);
+          
     </script>
     <script>
-// Select the notification icon and popup
-const toggleNotify = document.getElementById("toggleNotify");
-const notifyPopup = document.getElementById("notifyPopup");
-
-// Toggle visibility of the notification popup
-toggleNotify.addEventListener("click", () => {
-notifyPopup.classList.toggle("hidden");
-});
-
-// Close the popup when clicking outside
-document.addEventListener("click", (event) => {
-if (!toggleNotify.contains(event.target) && !notifyPopup.contains(event.target)) {
-notifyPopup.classList.add("hidden");
-}
-});
-    </script>
-     <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const captions = document.querySelectorAll(".caption span");
-
-      captions.forEach((caption) => {
-        const fullText = caption.textContent.trim();
-        const words = fullText.split(" ");
-        const maxWords = 10;
-
-        if (words.length > maxWords) {
-          const shortText = words.slice(0, maxWords).join(" ");
-          const fullCaption = document.createElement("span");
-          const ellipsis = document.createElement("span");
-          const toggleButton = document.createElement("button");
-
-          // Set up elements
-          fullCaption.textContent = fullText;
-          ellipsis.textContent = "...";
-          toggleButton.textContent = "More";
-
-          fullCaption.className = "full-caption";
-          ellipsis.className = "ellipsis";
-          toggleButton.className = "toggle-button";
-
-          // Clear and rebuild the caption container
-          caption.textContent = shortText;
-          caption.parentNode.appendChild(ellipsis);
-          caption.parentNode.appendChild(fullCaption);
-          caption.parentNode.appendChild(toggleButton);
-
-          // Add toggle functionality
-          toggleButton.addEventListener("click", () => {
-            const isExpanded = fullCaption.style.display === "inline";
-            fullCaption.style.display = isExpanded ? "none" : "inline";
-            ellipsis.style.display = isExpanded ? "inline" : "none";
-            toggleButton.textContent = isExpanded ? "More" : "Less";
-          });
-        }
+      // Select the notification icon and popup
+      const toggleNotify = document.getElementById("toggleNotify");
+      const notifyPopup = document.getElementById("notifyPopup");
+      
+      // Toggle visibility of the notification popup
+      toggleNotify.addEventListener("click", () => {
+      notifyPopup.classList.toggle("hidden");
       });
-    });
-  </script>
-  <script>
+      
+      // Close the popup when clicking outside
+      document.addEventListener("click", (event) => {
+      if (!toggleNotify.contains(event.target) && !notifyPopup.contains(event.target)) {
+      notifyPopup.classList.add("hidden");
+      }
+      });
+          
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const captions = document.querySelectorAll(".caption span");
+      
+        captions.forEach((caption) => {
+          const fullText = caption.textContent.trim();
+          const words = fullText.split(" ");
+          const maxWords = 10;
+      
+          if (words.length > maxWords) {
+            const shortText = words.slice(0, maxWords).join(" ");
+            const fullCaption = document.createElement("span");
+            const ellipsis = document.createElement("span");
+            const toggleButton = document.createElement("button");
+      
+            // Set up elements
+            fullCaption.textContent = fullText;
+            ellipsis.textContent = "...";
+            toggleButton.textContent = "More";
+      
+            fullCaption.className = "full-caption";
+            ellipsis.className = "ellipsis";
+            toggleButton.className = "toggle-button";
+      
+            // Clear and rebuild the caption container
+            caption.textContent = shortText;
+            caption.parentNode.appendChild(ellipsis);
+            caption.parentNode.appendChild(fullCaption);
+            caption.parentNode.appendChild(toggleButton);
+      
+            // Add toggle functionality
+            toggleButton.addEventListener("click", () => {
+              const isExpanded = fullCaption.style.display === "inline";
+              fullCaption.style.display = isExpanded ? "none" : "inline";
+              ellipsis.style.display = isExpanded ? "inline" : "none";
+              toggleButton.textContent = isExpanded ? "More" : "Less";
+            });
+          }
+        });
+      });
+    </script>
+    <script>
       // Function to initialize modals
-function initializeModals() {
-  // Add event listeners to all modal trigger buttons
-  document.querySelectorAll('.open-modal').forEach((button) => {
-    button.addEventListener('click', (e) => {
+      function initializeModals() {
+      // Add event listeners to all modal trigger buttons
+      document.querySelectorAll('.open-modal').forEach((button) => {
+      button.addEventListener('click', (e) => {
       const modalId = button.dataset.modal;
       const modal = document.getElementById(modalId);
       if (modal) {
         openModal(modal);
       }
-    });
-  });
-
-  // Add event listeners to all modal buttons (Cancel/OK)
-  document.querySelectorAll('.modal .modal-btn').forEach((button) => {
-    button.addEventListener('click', (e) => {
+      });
+      });
+      
+      // Add event listeners to all modal buttons (Cancel/OK)
+      document.querySelectorAll('.modal .modal-btn').forEach((button) => {
+      button.addEventListener('click', (e) => {
       const modal = button.closest('.modal');
       if (modal) {
         closeModal(modal);
       }
-    });
-  });
-}
-
-// Function to open a modal
-function openModal(modal) {
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('show'), 10); // Smooth animation
-}
-
-// Function to close a modal
-function closeModal(modal) {
-  modal.classList.remove('show');
-  setTimeout(() => (modal.style.display = 'none'), 300); // Wait for animation to complete
-}
-
-// Initialize modals on page load
-initializeModals();
-  </script>
+      });
+      });
+      }
+      
+      // Function to open a modal
+      function openModal(modal) {
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 10); // Smooth animation
+      }
+      
+      // Function to close a modal
+      function closeModal(modal) {
+      modal.classList.remove('show');
+      setTimeout(() => (modal.style.display = 'none'), 300); // Wait for animation to complete
+      }
+      
+      // Initialize modals on page load
+      initializeModals();
+    </script>
   </body>
 </html>
+ 
