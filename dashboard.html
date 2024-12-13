@@ -204,7 +204,7 @@
         margin-bottom: 10px;
         border-radius: 5px;
         color: white;
-        font-size: 16px;
+        font-size: 14px;
         opacity: 0;z-index: 999999;
         animation: fadeIn 0.5s forwards;
       }
@@ -366,10 +366,10 @@
       const snapshot = await get(postRef);
       if (snapshot.exists()) {
         await remove(postRef);  // Remove like
-        showToast("You unliked the post", 'info');
+        showToast("unliked", 'info');
       } else {
         await set(postRef, true);  // Add like
-        showToast("You liked the post", 'success');
+        showToast("you liked the post", 'success');
       }
       loadPosts();  // Reload to reflect the changes
     };
@@ -382,7 +382,7 @@
 
       const commentId = push(ref(db, `posts/${postId}/comments`)).key;
       await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-      showToast("Comment added successfully", 'success');
+      showToast("comment added", 'success');
       loadPosts();  // Reload posts to show the new comment
     };
 
@@ -390,7 +390,7 @@
       const postRef = ref(db, `posts/${postId}`);
       await remove(postRef);  // Delete the post
       loadPosts();  // Reload posts to remove the deleted post
-      showToast("Post deleted", 'success');
+      showToast("post imefutwa", 'success');
     };
 
     const editPost = (post) => {
@@ -398,7 +398,7 @@
       if (newContent !== null) {
         const postRef = ref(db, `posts/${post.postId}`);
         update(postRef, { content: newContent });
-        showToast("Post updated successfully", 'success');
+        showToast("post imeupdatiwa", 'success');
         loadPosts();  // Reload posts to show updated content
       }
     };
@@ -409,20 +409,20 @@
       const file = fileInput.files[0];
 
       if (!caption && !file) {
-        showToast("Please provide a caption or an image.", 'warning');
+        showToast("tafadhari weka caption na image.", 'warning');
         return;
       }
 
       try {
         let imageUrl = "";
-        showToast("Uploading post...", 'info');
+        showToast("Uploading post yako...Tafadhari subiri", 'info');
 
         if (file) {
           // Upload image to Firebase Storage
           const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
           await uploadBytes(storageReference, file);
           imageUrl = await getDownloadURL(storageReference);
-          showToast("Image uploaded successfully", 'success');
+          showToast("ukaguzi wa post umekamilika", 'info');
         }
 
         const postId = push(ref(db, "posts")).key;
@@ -436,7 +436,7 @@
           comments: {},
         });
 
-        showToast("Post created successfully", 'success');
+        showToast("Post yako imetengenezwa tayari...reloading!", 'success');
         window.location.reload();  // Reload the page after successful upload
       } catch (error) {
         console.error("Error creating post:", error);
