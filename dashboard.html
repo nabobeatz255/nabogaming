@@ -165,15 +165,13 @@
   <li>Report ${post.authorName}'s Post</li>
    <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post</li>
   <li class="share-btn" data-id="${post.postId}">Share The Post</li>
+   ${isMyPost ? `<li class="edit-btn" data-id="${post.postId}"></li>` : ""}
 </ul>
     </div>
   </div>
       </div>
       <div class="post-image">
         <img src="${post.imageUrl}" alt="Post content">
-      </div>
-      <div class="post-actions">
-        ${isMyPost ? `<i class="ri-pencil-fill ri-xl edit-btn" data-id="${post.postId}"></i>` : ""}
       </div>
       <div class="caption">
         <span class="username">${post.authorName}</span> ${post.content}
