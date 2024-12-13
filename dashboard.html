@@ -26,8 +26,7 @@
 	font-size: 13px;
 	color: #888;
 	margin-top: 6px;
-}.like-btn { font-size: 20px; }
-.share-btn { font-size: 20px; }.instagram-post-2 {
+}.instagram-post-2 {
 	width: 100%;
 	max-width: 600px;
 	background-color: #fff;
@@ -159,14 +158,22 @@
           <div class="profile-name">${post.authorName}</div>
           <div class="post-time-2">${formatTimestamp(post.timestamp)}</div>
         </div>
+          <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li class="like-btn" data-id="${post.postId}">Like Post</li>
+  <li class="share-btn" data-id="${post.postId}">Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+</ul>
+    </div>
+  </div>
       </div>
       <div class="post-image">
         <img src="${post.imageUrl}" alt="Post content">
       </div>
       <div class="post-actions">
-        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
         ${isMyPost ? `<i class="ri-pencil-fill ri-xl edit-btn" data-id="${post.postId}"></i>` : ""}
-        <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
