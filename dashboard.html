@@ -159,9 +159,6 @@
   <li>Report ${post.authorName}'s Post</li>
    <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post</li>
   <li class="share-btn" data-id="${post.postId}">Share The Post</li>
-  <li data-target="comments-container-${post.postId}">
-          View Comments
-        </li>
    ${isMyPost ? `<li class="edit-btn" data-id="${post.postId}"> Edit Your Post</li>` : ""}
 </ul>
     </div>
@@ -174,7 +171,9 @@
         <span class="username">${post.authorName}</span> ${post.content}
       </div>
       <div class="post-comments">
-        
+        <button class="toggle-comments" data-target="comments-container-${post.postId}">
+           Comments
+        </button>
         <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
           ${renderComments(post.comments)}
         </div>
