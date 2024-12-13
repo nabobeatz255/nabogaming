@@ -148,6 +148,7 @@
 </style>
 
 
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -169,15 +170,21 @@
   const storage = getStorage(app);
 
   let currentUser = null;
-  let premiumUsers = [];
 
   onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     if (user) {
-      // Automatically add premium users when they sign in
-      await checkAndAddPremiumUser(user);
-      
-      loadPremiumUsers();  // Load premium users after checking
+      const userRef = ref(db, `users/${user.uid}`);
+      const userSnapshot = await get(userRef);
+
+      // If user does not exist in database, create their profile with premium status set to false
+      if (!userSnapshot.exists()) {
+        await set(userRef, {
+          uid: user.uid,
+          premium: false, // Default to false
+        });
+      }
+
       loadPosts();  // Load posts after successful login
       displayUserDetails(); // Display user details if available
     } else {
@@ -201,35 +208,51 @@
     }, 3000);
   };
 
-  // Load the list of premium users from Firebase
-  const loadPremiumUsers = async () => {
-    const premiumUsersRef = ref(db, "premiumUsers");
-    const snapshot = await get(premiumUsersRef);
-
-    if (snapshot.exists()) {
-      premiumUsers = Object.keys(snapshot.val());
-      console.log("Loaded premium users:", premiumUsers);  // Log the premium users for debugging
-    } else {
-      console.log("No premium users found");
+  // CSS Styles for Toast notifications
+  const style = document.createElement('style');
+  style.textContent = `
+    .toast {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      padding-top:16px;
+      padding-left:10px;
+      padding-bottom:10px;
+      padding-right:10px;
+      transform: translateX(-50%);
+      width: 100%;height:50px;
+      color: white;text-align: center;
+      font-size: 14px;
+      opacity: 0;z-index: 999999;
+      animation: fadeIn 0.5s forwards;
     }
-  };
-
-  // Automatically add the user to the premiumUsers node if they are premium
-  const checkAndAddPremiumUser = async (user) => {
-    // Define premium user criteria
-    // For example: If the user's email is from a specific domain, add them as a premium user
-    const isPremium = user.email && user.email.endsWith("@premium.com");  // Example criterion
-
-    if (isPremium) {
-      const premiumUsersRef = ref(db, "premiumUsers");
-
-      // Add the user's UID to the premiumUsers list
-      await set(ref(premiumUsersRef, user.uid), true);
-      console.log(`${user.displayName} is a premium user and has been added to the database.`);
-    } else {
-      console.log(`${user.displayName} is not a premium user.`);
+    
+    .toast.success {
+      background-color: #4CAF50; /* Green */
     }
-  };
+
+    .toast.error {
+      background-color: #f44336; /* Red */
+    }
+
+    .toast.info {
+      background-color: #2196F3; /* Blue */
+    }
+
+    .toast.warning {
+      background-color: #ff9800; /* Orange */
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  `;
+  document.head.appendChild(style);
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -279,26 +302,28 @@
     });
   };
 
-  const displayPost = (post, container, isMyPost) => {
+  const displayPost = async (post, container, isMyPost) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
 
-    // Check if the author is a premium user
-    const isPremium = premiumUsers.includes(post.authorId);  // Check if this user's UID is in the premium list
+    // Get the author's premium status
+    const authorRef = ref(db, `users/${post.authorUID}`);
+    const authorSnapshot = await get(authorRef);
+    const authorData = authorSnapshot.val();
+    const isPremium = authorData && authorData.premium;
+
     postElement.innerHTML = `
       <div class="post-header">
         <div class="profile-picture">
           <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <!-- Conditionally add the premium badge -->
-          ${isPremium ? `<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>` : ''}
-          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+          <div class="profile-name">${post.authorName}${isPremium ? ' <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>' : ''}</div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
         </div>
         <div class="post-options">
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-            ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+          ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         </div>
       </div>
       <div class="post-image">
@@ -323,6 +348,39 @@
     `;
 
     container.appendChild(postElement);
+
+    if (postElement.querySelector(".like-btn")) {
+      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+    }
+
+    if (postElement.querySelector(".toggle-comments")) {
+      postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+        const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+        commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+      });
+    }
+
+    if (postElement.querySelector(".submit-comment")) {
+      postElement.querySelector(".submit-comment").addEventListener("click", () => {
+        const commentInput = postElement.querySelector(".comment-input");
+        const commentText = commentInput.value.trim();
+        if (commentText !== "") {
+          submitComment(post.postId, commentText);
+          commentInput.value = "";
+        }
+      });
+    }
+
+    if (isMyPost) {
+      const deleteButton = postElement.querySelector(".delete-post-btn");
+      if (deleteButton) {
+        deleteButton.addEventListener("click", () => deletePost(post.postId));
+      }
+      const editButton = postElement.querySelector(".edit-btn");
+      if (editButton) {
+        editButton.addEventListener("click", () => editPost(post));
+      }
+    }
   };
 
   const renderComments = (comments) => {
@@ -331,50 +389,53 @@
       const comment = comments[commentId];
       return `
         <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+          <span class="comment-author">${comment.authorName}</span>: ${comment.content}
         </div>
       `;
     }).join("");
   };
 
-  const likePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-    const snapshot = await get(postRef);
-    if (snapshot.exists()) {
-      await remove(postRef);  // Remove like
-      showToast("unliked", 'info');
-    } else {
-      await set(postRef, true);  // Add like
-      showToast("you liked the post", 'success');
-    }
-    loadPosts();  // Reload to reflect the changes
+  const displayUserDetails = async () => {
+    if (!currentUser) return;
+
+    const userName = currentUser.displayName || "Anonymous";
+    const userEmail = currentUser.email || "No email available";
+    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";
+
+    const userRef = ref(db, `users/${currentUser.uid}`);
+    const userSnapshot = await get(userRef);
+    const userData = userSnapshot.val();
+
+    const isPremium = userData && userData.premium;
+
+    document.querySelectorAll('.user-name').forEach(element => {
+      element.textContent = userName;
+      if (isPremium) {
+        element.innerHTML += ' <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>';
+      }
+    });
+
+    document.querySelectorAll('.user-email').forEach(element => {
+      element.textContent = userEmail;
+    });
+
+    document.querySelectorAll('.profile-picture').forEach(element => {
+      element.src = userProfilePic;
+    });
   };
 
-  const submitComment = async (postId, commentText) => {
-    const commentData = {
-      username: currentUser.displayName,
-      message: commentText,
-    };
-
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showToast("comment added", 'success');
-    loadPosts();  // Reload posts to show the new comment
+  // Change user to premium manually
+  const setPremiumStatus = async (userId, isPremium) => {
+    const userRef = ref(db, `users/${userId}`);
+    await update(userRef, {
+      premium: isPremium,
+    });
   };
 
-  const deletePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}`);
-    await remove(postRef);
-    showToast("Post deleted", 'error');
-    loadPosts();  // Reload posts after deletion
-  };
+  // For example, set the current user as premium
+  setPremiumStatus(currentUser.uid, false);  // Set to true or false as needed
 
-  const editPost = (post) => {
-    // Logic for editing post
-    console.log("Edit post", post);
-  };
 </script>
-
 
 
 
