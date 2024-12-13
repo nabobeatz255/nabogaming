@@ -145,7 +145,10 @@
 
 </style>
 
-  <script type="module">
+
+
+
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
     import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
@@ -170,7 +173,7 @@
       currentUser = user;
       if (user) {
         loadPosts();  // Load posts after successful login
-        displayUserDetails(); // Display user details
+        displayUserDetails(); // Display user details if available
       } else {
         showToast("You are not signed in. Redirecting to login...", 'error');
         window.location.href = "index.html";
@@ -200,9 +203,9 @@
         bottom: 0;
         left: 50%;
         padding-top:16px;
-          padding-left:10px;
-          padding-bottom:10px;
-          padding-right:10px;
+        padding-left:10px;
+        padding-bottom:10px;
+        padding-right:10px;
         transform: translateX(-50%);
         padding: 10px 20px;
         margin-bottom: 10px;
@@ -261,6 +264,10 @@
     const loadPosts = () => {
       const allPostsContainer = document.getElementById("allposts");
       const myPostsContainer = document.getElementById("myposts");
+
+      // Only proceed if the containers are present
+      if (!allPostsContainer || !myPostsContainer) return;
+
       allPostsContainer.innerHTML = "";
       myPostsContainer.innerHTML = "";
 
@@ -323,25 +330,37 @@
 
       container.appendChild(postElement);
 
-      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-      postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post, postElement));
-      postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-        const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-        commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-      });
+      if (postElement.querySelector(".like-btn")) {
+        postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+      }
 
-      postElement.querySelector(".submit-comment").addEventListener("click", () => {
-        const commentInput = postElement.querySelector(".comment-input");
-        const commentText = commentInput.value.trim();
-        if (commentText !== "") {
-          submitComment(post.postId, commentText);
-          commentInput.value = "";
-        }
-      });
+      if (postElement.querySelector(".toggle-comments")) {
+        postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+          const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+          commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+        });
+      }
+
+      if (postElement.querySelector(".submit-comment")) {
+        postElement.querySelector(".submit-comment").addEventListener("click", () => {
+          const commentInput = postElement.querySelector(".comment-input");
+          const commentText = commentInput.value.trim();
+          if (commentText !== "") {
+            submitComment(post.postId, commentText);
+            commentInput.value = "";
+          }
+        });
+      }
 
       if (isMyPost) {
-        postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
-        postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
+        const deleteButton = postElement.querySelector(".delete-post-btn");
+        if (deleteButton) {
+          deleteButton.addEventListener("click", () => deletePost(post.postId));
+        }
+        const editButton = postElement.querySelector(".edit-btn");
+        if (editButton) {
+          editButton.addEventListener("click", () => editPost(post));
+        }
       }
     };
 
@@ -400,9 +419,9 @@
     };
 
     const createNewPost = async () => {
-      const caption = document.getElementById("new-post-caption").value;
+      const caption = document.getElementById("new-post-caption")?.value;
       const fileInput = document.getElementById("new-post-image");
-      const file = fileInput.files[0];
+      const file = fileInput?.files[0];
 
       if (!caption && !file) {
         showToast("tafadhari weka caption na image.", 'warning');
@@ -440,11 +459,8 @@
       }
     };
 
-    document.getElementById("create-post-button").addEventListener("click", createNewPost);
+    document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
   </script>
-
-
-
 
 
 
