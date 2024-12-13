@@ -143,7 +143,7 @@
 	transition: background-color 0.3s, transform 0.2s;
 }
 .like-btn {
-    color: red;
+    color: #121212;
 }
 </style>
 
@@ -209,7 +209,6 @@
         padding-bottom:10px;
         padding-right:10px;
         transform: translateX(-50%);
-        padding: 10px 20px;
         width: 100%;height:50px;
         color: white;text-align: center;
         font-size: 14px;
@@ -305,7 +304,7 @@
             <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
           </div>
           <div class="post-options">
-            <i class="ri-heart-fill like-btn" data-id="${post.postId}"></i>
+            <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
               ${isMyPost ? `<i class="ri-file-line edit-btn" data-id="${post.postId}"></i>` : ""}
           </div>
         </div>
