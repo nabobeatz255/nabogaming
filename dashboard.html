@@ -97,21 +97,21 @@
     text-align: center;
   }
 }.post-time-2 {
-	font-size: 13px;
-	color: #888;
-	font-size: 13px;
-	color: #888;
-	margin-top: 6px;
+        font-size: 13px;
+        color: #888;
+        font-size: 13px;
+        color: #888;
+        margin-top: 6px;
 }.instagram-post-2 {
-	width: 100%;
-	max-width: 600px;
-	background-color: #fff;
-	border: 1px solid #e0e0e0;
-	border-radius: 12px;
-	box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-	-webkit-tap-highlight-color: transparent;
-	outline: none;
-	overflow: hidden;margin-bottom: 15px;
+        width: 100%;
+        max-width: 600px;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        -webkit-tap-highlight-color: transparent;
+        outline: none;
+        overflow: hidden;margin-bottom: 15px;
 }/* Preloader styles */
 .preloader {
   width: 30px;
@@ -134,13 +134,13 @@
 }
 .delete-post-btn {
     padding: 8px 16px;
-	font-size: 14px;
-	font-weight: bold;
-	color: white;background: red;
-	border: none;
-	cursor: pointer;
-	outline: none;width: 100%;
-	transition: background-color 0.3s, transform 0.2s;
+        font-size: 14px;
+        font-weight: bold;
+        color: white;background: red;
+        border: none;
+        cursor: pointer;
+        outline: none;width: 100%;
+        transition: background-color 0.3s, transform 0.2s;
 }
 
 </style>
@@ -463,7 +463,7 @@
     <nav class="sidebar desktop-sidebar">
 <h2>Dashboard</h2>
 <ul>
-  <li><a onclick='navigateTo("home")'>Home <i class=ri-home-line></i></a></li>
+  <li><a onclick='navigateTo("home")'>Home</a></li>
   <li><a onclick='navigateTo("games")'>Events</a></li>
   <li><a onclick='navigateTo("shop")'>Shop</a></li>
   <li><a onclick='navigateTo("policy")'>Sheria</a></li>
@@ -500,7 +500,7 @@
 </li>
 <li>
   <a onclick='navigateTo("home")'>
-  <i class="ri-home-6-fill add"></i>
+  <i class="ri-home-6-line add"></i>
   </a>
 </li>
 <li>
@@ -575,9 +575,9 @@
 <div id="shop" class="hidden">
         <header class="header headec">
         <div class="logo"><h1>ShopMall</h1></div>
-        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
+        <!--div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
          <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
-        </div>
+        </div-->
     </header>
   <nav class="sidebar mobile-sidebar">
     <ul>
@@ -589,7 +589,7 @@
 </li>
 <li>
   <a onclick='navigateTo("shop")'>
-  <i class=ri-shopping-cart-fill></i>
+  <i class=ri-shopping-cart-line></i>
   <span>In-Shop</span>
   </a>
 </li>
@@ -652,7 +652,7 @@
     <div class="shop">
         <img src="shopmall.png">
     </div>
-    
+
        <div class="instagram-post">
 <div class="post-header">
   <div class="profile-picture">
@@ -901,7 +901,7 @@ Please Wait.....
 </li>
 <li>
   <a onclick='navigateTo("policy")'>
-  <i class=ri-file-fill></i>
+  <i class=ri-file-line></i>
   <span>In-Sheria</span>
   </a>
 </li>
@@ -968,7 +968,7 @@ Please Wait.....
     <ul>
 <li>
   <a onclick='navigateTo("games")'>
-  <i class=ri-gamepad-fill></i>
+  <i class=ri-gamepad-line></i>
   <span>In-Events</span>
   </a>
 </li>
@@ -1334,7 +1334,7 @@ function navigateTo(pageId) {
   if (target) {
     target.classList.remove("hidden");
     target.classList.add("visible");
-    
+
     // Reset scroll position to the top of the section
     window.scrollTo({
 top: 0,
@@ -1506,4 +1506,3 @@ initializeModals();
   </script>
   </body>
 </html>
- 
