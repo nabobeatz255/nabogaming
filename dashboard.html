@@ -34,6 +34,9 @@
   box-sizing: border-box;
   gap: 10px;
 }
+#create-post h2 {
+    text-align: center;
+}
 
 #new-post-caption {
   flex: 2;
@@ -166,11 +169,36 @@
     currentUser = user;
     if (user) {
       loadPosts();  // Load posts after successful login
+      displayUserDetails(); // Display user details
     } else {
       alert("You are not signed in. Redirecting to login...");
       window.location.href = "index.html";
     }
   });
+
+  // Function to display user details in the UI
+  const displayUserDetails = () => {
+    if (currentUser) {
+      const userNameElements = document.querySelectorAll(".user-name");
+      const userEmailElements = document.querySelectorAll(".user-email");
+      const userProfilePicElements = document.querySelectorAll(".profile-picture");
+
+      // Set username and email for all matching elements
+      userNameElements.forEach(element => {
+        element.textContent = currentUser.displayName || "Anonymous";
+      });
+
+      userEmailElements.forEach(element => {
+        element.textContent = currentUser.email || "No email available";
+      });
+
+      userProfilePicElements.forEach(element => {
+        // Check if the user has a profile photo or use a default
+        const profilePhotoUrl = currentUser.photoURL || "default-profile.jpg";
+        element.innerHTML = `<img src="${profilePhotoUrl}" alt="User profile picture">`;
+      });
+    }
+  };
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -310,22 +338,20 @@
     loadPosts();  // Reload to reflect the changes
   };
 
-const sharePost = (post, postElement) => {
-  if (navigator.share) {
-    navigator.share({
-      title: `${post.authorName}'s post`,  // Title of the post
-      text: post.content,  // Caption of the post
-      url: ` check my post at https://nabogaming.com`,  // Link to your website
-      files: [new File([post.authorPhoto], '5.png', { type: 'image/jpeg' })]  // Author's profile image as file
-    })
-    .then(() => console.log("Post shared"))
-    .catch((error) => console.error("Error sharing post:", error));
-  } else {
-    alert("Sharing not supported in this browser.");
-  }
-};
-
-
+  const sharePost = (post, postElement) => {
+    if (navigator.share) {
+      navigator.share({
+        title: `${post.authorName}'s post`,  // Title of the post
+        text: post.content,  // Caption of the post
+        url: ` check my post at https://nabogaming.com`,  // Link to your website
+        files: [new File([post.authorPhoto], '5.png', { type: 'image/jpeg' })]  // Author's profile image as file
+      })
+      .then(() => console.log("Post shared"))
+      .catch((error) => console.error("Error sharing post:", error));
+    } else {
+      alert("Sharing not supported in this browser.");
+    }
+  };
 
   const submitComment = async (postId, commentText) => {
     const commentData = {
@@ -398,6 +424,7 @@ const sharePost = (post, postElement) => {
 
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
+
 
 
 
