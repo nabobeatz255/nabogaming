@@ -261,6 +261,12 @@
     return `${years}yr ago`;
   };
 
+  // List of premium user IDs
+  const premiumUsers = [
+    "Sw9hx2GrwMYPkmzimgOMsTEbKK53",  // UID of premium user 1
+    // Add more UIDs as needed
+  ];
+
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
@@ -294,6 +300,10 @@
   const displayPost = (post, container, isMyPost) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
+
+    // Check if the author is a premium user
+    const isPremium = premiumUsers.includes(post.authorId);  // Check if this user's UID is in the premium list
+
     postElement.innerHTML = `
       <div class="post-header">
         <div class="profile-picture">
@@ -301,6 +311,8 @@
         </div>
         <div class="profile-details">
           <div class="profile-name">${post.authorName}</div>
+          <!-- Conditionally add the premium badge -->
+          ${isPremium ? `<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>` : ''}
           <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
         </div>
         <div class="post-options">
@@ -331,6 +343,7 @@
 
     container.appendChild(postElement);
 
+    // Other event listeners for like, comment, and edit functionality
     if (postElement.querySelector(".like-btn")) {
       postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
     }
@@ -404,87 +417,19 @@
 
   const deletePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}`);
-    await remove(postRef);  // Delete the post
-    loadPosts();  // Reload posts to remove the deleted post
-    showToast("post imefutwa", 'success');
+    await remove(postRef);
+    showToast("Post deleted", 'error');
+    loadPosts();  // Reload posts after deletion
   };
 
   const editPost = (post) => {
-    const newContent = prompt("Edit your post content:", post.content);
-    if (newContent !== null) {
-      const postRef = ref(db, `posts/${post.postId}`);
-      update(postRef, { content: newContent });
-      showToast("post imeupdatiwa", 'success');
-      loadPosts();  // Reload posts to show updated content
-    }
+    // Logic for editing post
+    console.log("Edit post", post);
   };
-
-  const createNewPost = async () => {
-    const caption = document.getElementById("new-post-caption")?.value;
-    const fileInput = document.getElementById("new-post-image");
-    const file = fileInput?.files[0];
-
-    if (!caption && !file) {
-      showToast("tafadhari weka caption na image.", 'warning');
-      return;
-    }
-
-    try {
-      let imageUrl = "";
-      showToast("Uploading post yako...Tafadhari subiri", 'info');
-
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        await uploadBytes(storageReference, file);
-        imageUrl = await getDownloadURL(storageReference);
-        showToast("ukaguzi wa post umekamilika", 'info');
-      }
-
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-      });
-
-      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
-      window.location.reload();  // Reload the page after successful upload
-    } catch (error) {
-      console.error("Error creating post:", error);
-      showToast("Error creating post", 'error');
-    }
-  };
-
-  // Display user details
-  const displayUserDetails = () => {
-    if (!currentUser) return;
-
-    const userName = currentUser.displayName || "Anonymous";
-    const userEmail = currentUser.email || "No email available";
-    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
-
-    document.querySelectorAll('.user-name').forEach(element => {
-      element.textContent = userName;  // Set user name
-    });
-
-    document.querySelectorAll('.user-email').forEach(element => {
-      element.textContent = userEmail;  // Set user email
-    });
-
-    document.querySelectorAll('.profile-picture').forEach(element => {
-      element.src = userProfilePic;  // Set user profile picture
-    });
-  };
-
-  document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
 </script>
 
 
+-->
 
 
 
@@ -606,9 +551,9 @@
 <div id="shop" class="hidden">
         <header class="header headec">
         <div class="logo"><h1>ShopMall</h1></div>
-        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
+        <!--div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
          <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
-        </div>
+        </div!-->
     </header>
   <nav class="sidebar mobile-sidebar">
     <ul>
@@ -686,16 +631,13 @@
     
        <div class="instagram-post">
 <div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
 <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
+    <div class="post-time">
+Sponsored
     </div>
   </div>
   <div class="post-options">
@@ -729,48 +671,6 @@ Please Wait.....
 </div>
 
   <div class=post-grid>
-    <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="1.jpeg" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">PUBGM</span>
-  </div>
-  <div class="bottom-left-icon">
-  </div>
-</div>
-<div class="caption">
-  <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Save</button>
-  <button class="cta-btn secondary">Buy Now</button>
-</div>
-    </div>
     <div class="instagram-post">
 <div class="post-header">
   <div class="profile-picture">
