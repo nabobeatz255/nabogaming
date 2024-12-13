@@ -148,8 +148,6 @@
 </style>
 
 
-
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -301,8 +299,14 @@
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
 
+    // Log post.authorId to debug if it's correct
+    console.log("Post author ID: ", post.authorId);  // Debugging line
+
     // Check if the author is a premium user
     const isPremium = premiumUsers.includes(post.authorId);  // Check if this user's UID is in the premium list
+
+    // Log the result of the premium check
+    console.log("Is this user a premium user?", isPremium);  // Debugging line
 
     postElement.innerHTML = `
       <div class="post-header">
@@ -428,8 +432,6 @@
   };
 </script>
 
-
--->
 
 
 
