@@ -20,7 +20,83 @@
   <title>Nabogaming Betplace 2.5</title>
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
-    <link rel=stylesheet href=remixicon.min.css><style>.post-time-2 {
+    <link rel=stylesheet href=remixicon.min.css><style>
+    # create-post {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background-color: #f9f9f9; /* Light background for a clean look */
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  max-width: 100%; /* Ensure responsiveness */
+  box-sizing: border-box;
+  gap: 10px;
+}
+
+# create-post h2 {
+  display: none; /* Hide title for a minimalist look */
+}
+
+# new-post-caption {
+  flex: 2;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+# new-post-caption::placeholder {
+  color: #999; /* Subtle placeholder color */
+}
+
+# new-post-image {
+  flex: 1;
+  font-size: 14px;
+  padding: 5px;
+}
+
+# upload-progress {
+  display: none;
+  flex: 1;
+  font-size: 12px;
+  color: #555;
+}
+
+# create-post-button {
+  flex: 0.5;
+  padding: 8px 15px;
+  background-color: #1877f2; /* Facebook-style blue */
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+# create-post-button:hover {
+  background-color: #155db8;
+}
+
+@media (max-width: 600px) {
+  # create-post {
+    flex-wrap: wrap; /* Stack items on smaller screens */
+    gap: 8px;
+  }
+
+  # new-post-caption,
+  # new-post-image,
+  # create-post-button {
+    flex: 1;
+  }
+
+  # create-post-button {
+    text-align: center;
+  }
+}.post-time-2 {
 	font-size: 13px;
 	color: #888;
 	font-size: 13px;
