@@ -70,7 +70,7 @@
 .edit-btn {
     padding: 10px;
     background-color: black;
-    color: white;
+    color: green;
     border-radius: 6px;
 }
 </style>
@@ -164,7 +164,7 @@
       </div>
       <div class="post-actions">
         <i class="ri-heart-line ri-2xl like-btn" data-id="${post.postId}"></i>
-         ${isMyPost ? `<i class="ri-pencil-line ri-xl edit-btn" data-id="${post.postId}"></i>` : ""}
+         ${isMyPost ? `<i class="ri-pencil-fill ri-xl edit-btn" data-id="${post.postId}"></i>` : ""}
         <i class="ri-share-line ri-2xl share-btn" data-id="${post.postId}"></i>
       </div>
       <div class="like-counter">
@@ -417,12 +417,9 @@
 </div>
     </section>
   </div>
-<div id="users-container"></div>
 
-  <!-- Posts Section -->
-  <div class="post-grid">
-  <section id="posts-section">
-        <div id="allposts" class="post-list"><div class="preloader"></div>
+
+        <div id="allposts" class="post-grid"><div class="preloader"></div>
   </div>
   </section>
 </div>
@@ -1074,7 +1071,7 @@ Please Wait.....
       <button id="create-post-button">Post</button>
     </section>
 <br>
- <div id="myposts" class="post-list"><div class="preloader"></div>
+ <div id="myposts" class="post-grid"><div class="preloader"></div>
   </div>
 </div>
 
