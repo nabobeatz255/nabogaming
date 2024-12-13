@@ -69,9 +69,6 @@
 	transition: background-color 0.3s, transform 0.2s;
 }
 </style>
-
-
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -102,6 +99,24 @@
       window.location.href = "index.html";
     }
   });
+
+  const formatTimestamp = (timestamp) => {
+    const now = new Date();
+    const timeDiff = now - new Date(timestamp);
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+
+    if (seconds < 60) return `${seconds}s ago`;
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}hr ago`;
+    if (days < 30) return `${days}d ago`;
+    if (months < 12) return `${months}mo ago`;
+    return `${years}yr ago`;
+  };
 
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
@@ -143,8 +158,9 @@
         <img src="${post.imageUrl}" alt="Post content">
       </div>
       <div class="post-actions">
-        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-        <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
+        <i class="ri-heart-line ri-xl like-btn" data-id="${post.postId}"></i>
+         ${isMyPost ? `<i class="ri-pencil-line ri-xl edit-btn" data-id="${post.postId}"></i>` : ""}
+        <i class="ri-share-line ri-xl share-btn" data-id="${post.postId}"></i>
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
@@ -164,8 +180,7 @@
           <button class="submit-comment" data-post-id="${post.postId}">Send</button>
         </div>
       </div>
-      ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Delete Post</button><button class="edit-btn" data-id="${post.postId}">Edit Post</button>` : ""}
-      <button class="save-post-btn" data-id="${post.postId}">Save</button>
+      ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Delete Post</button>` : ""}
     `;
 
     container.appendChild(postElement);
@@ -190,8 +205,6 @@
       postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
       postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
     }
-
-    postElement.querySelector(".save-post-btn").addEventListener("click", () => savePost(post.postId));
   };
 
   const renderComments = (comments) => {
@@ -253,20 +266,13 @@
   };
 
   const editPost = (post) => {
-    const newContent = prompt("Edit your post:", post.content);
-    if (newContent && newContent !== post.content) {
+    const newContent = prompt("Edit your post content:", post.content);
+    if (newContent !== null) {
       const postRef = ref(db, `posts/${post.postId}`);
       update(postRef, { content: newContent });
-      alert("Post updated");
-      loadPosts();
+      alert("Post updated successfully");
+      loadPosts();  // Reload posts to show updated content
     }
-  };
-
-  const savePost = async (postId) => {
-    const savedPostsRef = ref(db, `users/${currentUser.uid}/savedPosts`);
-    const savedPostId = push(savedPostsRef).key;
-    await set(ref(db, `users/${currentUser.uid}/savedPosts/${savedPostId}`), { postId });
-    alert("Post saved for later!");
   };
 
   const createNewPost = async () => {
@@ -311,6 +317,7 @@
 
   document.getElementById("create-post-button").addEventListener("click", createNewPost);
 </script>
+
 
 
 
