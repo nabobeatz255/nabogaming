@@ -26,8 +26,8 @@
 	font-size: 13px;
 	color: #888;
 	margin-top: 6px;
-}.like-btn { font-size: 18px; }
-.share-btn { font-size: 18px; }.instagram-post-2 {
+}.like-btn { font-size: 28px; }
+.share-btn { font-size: 28px; }.instagram-post-2 {
 	width: 100%;
 	max-width: 600px;
 	background-color: #fff;
@@ -66,6 +66,12 @@
 	cursor: pointer;
 	outline: none;width: 100%;
 	transition: background-color 0.3s, transform 0.2s;
+}
+.edit-btn {
+    color: green;
+    border: 1px solid #f0f0f0;
+    padding: 10px;
+    border-radius: 6px;
 }
 </style>
 <script type="module">
@@ -158,8 +164,8 @@
       </div>
       <div class="post-actions">
         <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+        ${isMyPost ? `<i class="ri-pencil-fill edit-btn" data-id="${post.postId}"></i>` : ""}
         <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
-        ${isMyPost ? `<i class="ri-pencil-line edit-btn" data-id="${post.postId}"></i>` : ""}
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
