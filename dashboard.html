@@ -67,13 +67,6 @@
 	outline: none;width: 100%;
 	transition: background-color 0.3s, transform 0.2s;
 }
-.edit-btn {
-    padding: 10px;
-    background-color: none;
-    border: 1px solid #ccc;
-    color: green;
-    border-radius: 6px;
-}
 </style>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -164,9 +157,9 @@
         <img src="${post.imageUrl}" alt="Post content">
       </div>
       <div class="post-actions">
-        <i class="ri-heart-line ri-2xl like-btn" data-id="${post.postId}"></i>
-         ${isMyPost ? `<i class="ri-pencil-fill ri-xl edit-btn" data-id="${post.postId}"></i>` : ""}
-        <i class="ri-share-line ri-2xl share-btn" data-id="${post.postId}"></i>
+        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+        <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
+        ${isMyPost ? `<i class="ri-pencil-line edit-btn" data-id="${post.postId}"></i>` : ""}
       </div>
       <div class="like-counter">
         <span class="like-count">${Object.keys(post.likes || {}).length} likes</span>
@@ -329,7 +322,7 @@
 
  </head>
   <body>
-    <div class=dashboard>
+    <div class=dashboard  id="app">
     <nav class="sidebar desktop-sidebar">
 <h2>Dashboard</h2>
 <ul>
@@ -419,8 +412,10 @@
     </section>
   </div>
 
-
-        <div id="allposts" class="post-grid"><div class="preloader"></div>
+  <!-- Posts Section -->
+  <div class="post-grid">
+  <section id="posts-section">
+        <div id="allposts" class="post-list"><div class="preloader"></div>
   </div>
   </section>
 </div>
@@ -1072,7 +1067,7 @@ Please Wait.....
       <button id="create-post-button">Post</button>
     </section>
 <br>
- <div id="myposts" class="post-grid"><div class="preloader"></div>
+ <div id="myposts" class="post-list"><div class="preloader"></div>
   </div>
 </div>
 
@@ -1189,7 +1184,8 @@ Please Wait.....
 </li>
     </ul>
   </section>
-</div></div>
+</div>
+    </div>
     <script>
 // Function to navigate to a specific section
 function navigateTo(pageId) {
