@@ -243,7 +243,7 @@ const sharePost = (post, postElement) => {
       title: `${post.authorName}'s post`,  // Title of the post
       text: post.content,  // Caption of the post
       url: `https://nabogaming.com`,  // Link to your website
-      files: [new File([post.imageUrl], 'post-image.jpg', { type: 'image/jpeg' })]  // Post image as file
+      files: [new File([post.imageUrl],  { type: 'image/jpeg' })]  // Post image as file
     })
     .then(() => console.log("Post shared"))
     .catch((error) => console.error("Error sharing post:", error));
