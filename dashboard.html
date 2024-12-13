@@ -237,19 +237,21 @@
     loadPosts();  // Reload to reflect the changes
   };
 
-  const sharePost = (post, postElement) => {
-    if (navigator.share) {
-      navigator.share({
-        title: `${post.authorName}'s post`,
-        text: post.content,
-        url: post.imageUrl,
-      })
-        .then(() => console.log("Post shared"))
-        .catch((error) => console.error("Error sharing post:", error));
-    } else {
-      alert("Sharing not supported in this browser.");
-    }
-  };
+const sharePost = (post, postElement) => {
+  if (navigator.share) {
+    navigator.share({
+      title: `${post.authorName}'s post`,  // Title of the post
+      text: post.content,  // Caption of the post
+      url: `https://nabogaming.com`,  // Link to your website
+      files: [new File([post.imageUrl], 'post-image.jpg', { type: 'image/jpeg' })]  // Post image as file
+    })
+    .then(() => console.log("Post shared"))
+    .catch((error) => console.error("Error sharing post:", error));
+  } else {
+    alert("Sharing not supported in this browser.");
+  }
+};
+
 
   const submitComment = async (postId, commentText) => {
     const commentData = {
