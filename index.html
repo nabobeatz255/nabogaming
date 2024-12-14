@@ -284,10 +284,10 @@
       background: none;
     }
   </style>
-     <!-- Firebase SDK -->
   <script defer type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -302,6 +302,7 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
+  const database = getDatabase(app);
 
   // Check if user is already signed in
   onAuthStateChanged(auth, (user) => {
@@ -315,15 +316,33 @@
   document.getElementById("google-sign-in").addEventListener("click", () => {
     signInWithPopup(auth, provider)
       .then((result) => {
-        // User successfully signed in, redirect to dashboard
-        window.location.href = "dashboard.html";
+        // Get user information from the result
+        const user = result.user;
+        
+        // Save user data to Firebase Realtime Database
+        const userRef = ref(database, 'users/' + user.uid); // Create a unique reference for the user by their UID
+        set(userRef, {
+          username: user.displayName,
+          email: user.email,
+          profilePic: user.photoURL,
+          uid: user.uid
+        })
+        .then(() => {
+          // Data has been saved successfully, redirect to dashboard
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          console.error("Error saving user data to Realtime Database:", error);
+          alert("Error saving user data.");
+        });
       })
       .catch((error) => {
-        console.error(error);
+        console.error("Sign-in failed:", error);
         alert("Sign-in failed.");
       });
   });
 </script>
+
 </head>
 <body>
     <div class="main">
