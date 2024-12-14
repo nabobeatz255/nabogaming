@@ -171,50 +171,27 @@
 
   let currentUser = null;
 
-  // Define an array of special (premium) user IDs
-  const premiumUserIds = [
-    "332004Sw9NB",  // Example special ID 1
-   
-    // Add more IDs as needed
-  ];
-
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     if (user) {
+      const userRef = ref(db, `users/${user.uid}`);
+      const userSnapshot = await get(userRef);
+
+      // If user does not exist in database, create their profile with premium status set to false
+      if (!userSnapshot.exists()) {
+        await set(userRef, {
+          uid: user.uid,
+          premium: false, // Default to false
+        });
+      }
+
       loadPosts();  // Load posts after successful login
       displayUserDetails(); // Display user details if available
-      displayUniqueId(user.uid);  // Display the unique ID of the user
     } else {
       showToast("You are not signed in. Redirecting to login...", 'error');
       window.location.href = "index.html";
     }
   });
-
-  const generateUniqueId = (uid) => {
-    // Generate a unique ID in the format "332004<uid>NB"
-    return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
-  };
-
-const displayUniqueId = (uid) => {
-  const uniqueId = generateUniqueId(uid);
-
-  document.querySelectorAll('.user-name').forEach(element => {
-    // Reset the content before appending any badges to prevent conflicts
-    const userName = currentUser.displayName || "Anonymous"; 
-    element.textContent = userName; 
-
-    // Check if the unique ID is in the premium list
-    if (premiumUserIds.includes(uniqueId)) {
-      // Add the badge only if it does not already exist
-      if (!element.querySelector('.badge.premium')) {
-        const badge = document.createElement('span');
-        badge.classList.add('badge', 'premium');
-        badge.innerHTML = '<i class="ri-vip-crown-fill"></i>';
-        element.appendChild(badge);
-      }
-    }
-  });
-};
 
   // Toast function to display notifications
   const showToast = (message, type = 'info') => {
