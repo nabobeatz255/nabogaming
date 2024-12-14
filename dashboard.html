@@ -198,20 +198,18 @@
 const displayUniqueId = (uid) => {
   const uniqueId = generateUniqueId(uid);
 
-  // Assuming you have an element with class 'user-name' to display the user name
   document.querySelectorAll('.user-name').forEach(element => {
-    // Avoid duplicate badges by resetting the innerHTML first
-    element.textContent = currentUser.displayName || "Anonymous";  // Set the username
+    // Reset the content before appending any badges to prevent conflicts
+    const userName = currentUser.displayName || "Anonymous"; 
+    element.textContent = userName; 
 
-    // Check if the unique ID is in the list of premium user IDs
+    // Check if the unique ID is in the premium list
     if (premiumUserIds.includes(uniqueId)) {
-      // Create the premium badge element
-      const badge = document.createElement('span');
-      badge.classList.add('badge', 'premium');
-      badge.innerHTML = '<i class="ri-vip-crown-fill"></i>';  // Crown icon for premium users
-
-      // Append the badge next to the username if not already appended
+      // Add the badge only if it does not already exist
       if (!element.querySelector('.badge.premium')) {
+        const badge = document.createElement('span');
+        badge.classList.add('badge', 'premium');
+        badge.innerHTML = '<i class="ri-vip-crown-fill"></i>';
         element.appendChild(badge);
       }
     }
