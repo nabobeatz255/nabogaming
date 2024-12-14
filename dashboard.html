@@ -171,32 +171,51 @@
   const storage = getStorage(app);
 
   let currentUser = null;
- onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-  if (user) {
-    loadPosts();  // Load posts after successful login
-    displayUserDetails(); // Display user details if available
-    displayUniqueId(user.uid);  // Display the unique ID of the user
-  } else {
-    showToast("You are not signed in. Redirecting to login...", 'error');
-    window.location.href = "index.html";
-  }
-});
-const generateUniqueId = (uid) => {
-  // Generate a unique ID in the format "332004<uid>NB"
-  return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
-};
 
-// Function to display the unique ID in HTML
-const displayUniqueId = (uid) => {
-  const uniqueId = generateUniqueId(uid);
-  
-  // Assuming you have an element with class 'user-uid' to display the ID
-  document.querySelectorAll('.user-uid').forEach(element => {
-    element.textContent = uniqueId;  // Set the unique ID
+  // Define an array of special (premium) user IDs
+  const premiumUserIds = [
+    "332004Sw9NB",  // Example special ID 1
+   
+    // Add more IDs as needed
+  ];
+
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      loadPosts();  // Load posts after successful login
+      displayUserDetails(); // Display user details if available
+      displayUniqueId(user.uid);  // Display the unique ID of the user
+    } else {
+      showToast("You are not signed in. Redirecting to login...", 'error');
+      window.location.href = "index.html";
+    }
   });
-};
 
+  const generateUniqueId = (uid) => {
+    // Generate a unique ID in the format "332004<uid>NB"
+    return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
+  };
+
+  // Function to display the unique ID in HTML and add the premium badge if applicable
+  const displayUniqueId = (uid) => {
+    const uniqueId = generateUniqueId(uid);
+
+    // Assuming you have an element with class 'user-uid' to display the ID
+    document.querySelectorAll('.user-uid').forEach(element => {
+      element.textContent = uniqueId;  // Set the unique ID
+
+      // Check if the unique ID is in the list of premium user IDs
+      if (premiumUserIds.includes(uniqueId)) {
+        // Create the premium badge element
+        const badge = document.createElement('span');
+        badge.classList.add('badge', 'premium');
+        badge.innerHTML = '<i class="ri-vip-crown-fill"></i>';  // Crown icon for premium users
+
+        // Append the badge next to the username
+        element.appendChild(badge);
+      }
+    });
+  };
 
   // Toast function to display notifications
   const showToast = (message, type = 'info') => {
@@ -213,25 +232,28 @@ const displayUniqueId = (uid) => {
     }, 3000);
   };
 
-  // CSS Styles for Toast notifications
+  // CSS Styles for Toast notifications and Premium Badge
   const style = document.createElement('style');
   style.textContent = `
     .toast {
       position: fixed;
       bottom: 0;
       left: 50%;
-      padding-top:16px;
-      padding-left:10px;
-      padding-bottom:10px;
-      padding-right:10px;
+      padding-top: 16px;
+      padding-left: 10px;
+      padding-bottom: 10px;
+      padding-right: 10px;
       transform: translateX(-50%);
-      width: 100%;height:50px;
-      color: white;text-align: center;
+      width: 100%;
+      height: 50px;
+      color: white;
+      text-align: center;
       font-size: 14px;
-      opacity: 0;z-index: 999999;
+      opacity: 0;
+      z-index: 999999;
       animation: fadeIn 0.5s forwards;
     }
-    
+
     .toast.success {
       background-color: #4CAF50; /* Green */
     }
@@ -499,6 +521,7 @@ const displayUniqueId = (uid) => {
 
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
 </script>
+
 
 
 
