@@ -197,25 +197,27 @@
   };
 
   // Function to display the unique ID in HTML and add the premium badge if applicable
-  const displayUniqueId = (uid) => {
-    const uniqueId = generateUniqueId(uid);
+const displayUniqueId = (uid) => {
+  const uniqueId = generateUniqueId(uid);
 
-    // Assuming you have an element with class 'user-uid' to display the ID
-    document.querySelectorAll('.user-uid').forEach(element => {
-      element.textContent = uniqueId;  // Set the unique ID
+  // Assuming you have an element with class 'user-name' to display the user name
+  document.querySelectorAll('.user-name').forEach(element => {
+    // Check if the element is displaying the username
+    element.textContent = currentUser.displayName || "Anonymous";  // Set the username
 
-      // Check if the unique ID is in the list of premium user IDs
-      if (premiumUserIds.includes(uniqueId)) {
-        // Create the premium badge element
-        const badge = document.createElement('span');
-        badge.classList.add('badge', 'premium');
-        badge.innerHTML = '<i class="ri-vip-crown-fill"></i>';  // Crown icon for premium users
+    // Check if the unique ID is in the list of premium user IDs
+    if (premiumUserIds.includes(uniqueId)) {
+      // Create the premium badge element
+      const badge = document.createElement('span');
+      badge.classList.add('badge', 'premium');
+      badge.innerHTML = '<i class="ri-vip-crown-fill"></i>';  // Crown icon for premium users
 
-        // Append the badge next to the username
-        element.appendChild(badge);
-      }
-    });
-  };
+      // Append the badge next to the username
+      element.appendChild(badge);
+    }
+  });
+};
+
 
   // Toast function to display notifications
   const showToast = (message, type = 'info') => {
