@@ -149,7 +149,6 @@
 
 
 
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -234,28 +233,25 @@ const displayUniqueId = (uid) => {
     }, 3000);
   };
 
-  // CSS Styles for Toast notifications and Premium Badge
+  // CSS Styles for Toast notifications
   const style = document.createElement('style');
   style.textContent = `
     .toast {
       position: fixed;
       bottom: 0;
       left: 50%;
-      padding-top: 16px;
-      padding-left: 10px;
-      padding-bottom: 10px;
-      padding-right: 10px;
+      padding-top:16px;
+      padding-left:10px;
+      padding-bottom:10px;
+      padding-right:10px;
       transform: translateX(-50%);
-      width: 100%;
-      height: 50px;
-      color: white;
-      text-align: center;
+      width: 100%;height:50px;
+      color: white;text-align: center;
       font-size: 14px;
-      opacity: 0;
-      z-index: 999999;
+      opacity: 0;z-index: 999999;
       animation: fadeIn 0.5s forwards;
     }
-
+    
     .toast.success {
       background-color: #4CAF50; /* Green */
     }
@@ -331,21 +327,28 @@ const displayUniqueId = (uid) => {
     });
   };
 
-  const displayPost = (post, container, isMyPost) => {
+  const displayPost = async (post, container, isMyPost) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
+
+    // Get the author's premium status
+    const authorRef = ref(db, `users/${post.authorUID}`);
+    const authorSnapshot = await get(authorRef);
+    const authorData = authorSnapshot.val();
+    const isPremium = authorData && authorData.premium;
+
     postElement.innerHTML = `
       <div class="post-header">
         <div class="profile-picture">
           <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
         <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+          <div class="profile-name">${post.authorName}${isPremium ? ' <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>' : ''}</div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
         </div>
         <div class="post-options">
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-            ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+          ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         </div>
       </div>
       <div class="post-image">
@@ -411,120 +414,53 @@ const displayUniqueId = (uid) => {
       const comment = comments[commentId];
       return `
         <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+          <span class="comment-author">${comment.authorName}</span>: ${comment.content}
         </div>
       `;
     }).join("");
   };
 
-  const likePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-    const snapshot = await get(postRef);
-    if (snapshot.exists()) {
-      await remove(postRef);  // Remove like
-      showToast("unliked", 'info');
-    } else {
-      await set(postRef, true);  // Add like
-      showToast("you liked the post", 'success');
-    }
-    loadPosts();  // Reload to reflect the changes
-  };
-
-  const submitComment = async (postId, commentText) => {
-    const commentData = {
-      username: currentUser.displayName,
-      message: commentText,
-    };
-
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showToast("comment added", 'success');
-    loadPosts();  // Reload posts to show the new comment
-  };
-
-  const deletePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}`);
-    await remove(postRef);  // Delete the post
-    loadPosts();  // Reload posts to remove the deleted post
-    showToast("post imefutwa", 'success');
-  };
-
-  const editPost = (post) => {
-    const newContent = prompt("Edit your post content:", post.content);
-    if (newContent !== null) {
-      const postRef = ref(db, `posts/${post.postId}`);
-      update(postRef, { content: newContent });
-      showToast("post imeupdatiwa", 'success');
-      loadPosts();  // Reload posts to show updated content
-    }
-  };
-
-  const createNewPost = async () => {
-    const caption = document.getElementById("new-post-caption")?.value;
-    const fileInput = document.getElementById("new-post-image");
-    const file = fileInput?.files[0];
-
-    if (!caption && !file) {
-      showToast("tafadhari weka caption na image.", 'warning');
-      return;
-    }
-
-    try {
-      let imageUrl = "";
-      showToast("Uploading post yako...Tafadhari subiri", 'info');
-
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        await uploadBytes(storageReference, file);
-        imageUrl = await getDownloadURL(storageReference);
-        showToast("ukaguzi wa post umekamilika", 'info');
-      }
-
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-      });
-
-      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
-      window.location.reload();  // Reload the page after successful upload
-    } catch (error) {
-      console.error("Error creating post:", error);
-      showToast("Error creating post", 'error');
-    }
-  };
-
-  // Display user details
-  const displayUserDetails = () => {
+  const displayUserDetails = async () => {
     if (!currentUser) return;
 
     const userName = currentUser.displayName || "Anonymous";
     const userEmail = currentUser.email || "No email available";
-    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";
+
+    const userRef = ref(db, `users/${currentUser.uid}`);
+    const userSnapshot = await get(userRef);
+    const userData = userSnapshot.val();
+
+    const isPremium = userData && userData.premium;
 
     document.querySelectorAll('.user-name').forEach(element => {
-      element.textContent = userName;  // Set user name
+      element.textContent = userName;
+      if (isPremium) {
+        element.innerHTML += ' <span class="badge premium"><i class="ri-vip-crown-fill"></i></span>';
+      }
     });
 
     document.querySelectorAll('.user-email').forEach(element => {
-      element.textContent = userEmail;  // Set user email
+      element.textContent = userEmail;
     });
 
     document.querySelectorAll('.profile-picture').forEach(element => {
-      element.src = userProfilePic;  // Set user profile picture
+      element.src = userProfilePic;
     });
   };
 
-  document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
+  // Change user to premium manually
+  const setPremiumStatus = async (userId, isPremium) => {
+    const userRef = ref(db, `users/${userId}`);
+    await update(userRef, {
+      premium: isPremium,
+    });
+  };
+
+  // For example, set the current user as premium
+  setPremiumStatus(currentUser.uid, false);  // Set to true or false as needed
+
 </script>
-
-
 
 
 
@@ -620,9 +556,6 @@ const displayUniqueId = (uid) => {
 </div>
     </section>
   </div>
-<div class="user-details">
-  <p>User Unique ID: <span class="user-uid"></span></p>
-</div>
 
   <!-- Posts Section -->
 
@@ -733,7 +666,7 @@ const displayUniqueId = (uid) => {
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time">
 Sponsored
@@ -778,7 +711,7 @@ Sponsored
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -821,7 +754,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -864,7 +797,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -1036,7 +969,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -1078,7 +1011,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -1121,7 +1054,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -1164,7 +1097,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
