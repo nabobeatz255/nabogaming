@@ -195,13 +195,12 @@
     return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
   };
 
-  // Function to display the unique ID in HTML and add the premium badge if applicable
 const displayUniqueId = (uid) => {
   const uniqueId = generateUniqueId(uid);
 
   // Assuming you have an element with class 'user-name' to display the user name
   document.querySelectorAll('.user-name').forEach(element => {
-    // Check if the element is displaying the username
+    // Avoid duplicate badges by resetting the innerHTML first
     element.textContent = currentUser.displayName || "Anonymous";  // Set the username
 
     // Check if the unique ID is in the list of premium user IDs
@@ -211,12 +210,13 @@ const displayUniqueId = (uid) => {
       badge.classList.add('badge', 'premium');
       badge.innerHTML = '<i class="ri-vip-crown-fill"></i>';  // Crown icon for premium users
 
-      // Append the badge next to the username
-      element.appendChild(badge);
+      // Append the badge next to the username if not already appended
+      if (!element.querySelector('.badge.premium')) {
+        element.appendChild(badge);
+      }
     }
   });
 };
-
 
   // Toast function to display notifications
   const showToast = (message, type = 'info') => {
