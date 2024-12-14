@@ -171,16 +171,32 @@
   const storage = getStorage(app);
 
   let currentUser = null;
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      loadPosts();  // Load posts after successful login
-      displayUserDetails(); // Display user details if available
-    } else {
-      showToast("You are not signed in. Redirecting to login...", 'error');
-      window.location.href = "index.html";
-    }
+ onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (user) {
+    loadPosts();  // Load posts after successful login
+    displayUserDetails(); // Display user details if available
+    displayUniqueId(user.uid);  // Display the unique ID of the user
+  } else {
+    showToast("You are not signed in. Redirecting to login...", 'error');
+    window.location.href = "index.html";
+  }
+});
+const generateUniqueId = (uid) => {
+  // Generate a unique ID in the format "332004<uid>NB"
+  return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
+};
+
+// Function to display the unique ID in HTML
+const displayUniqueId = (uid) => {
+  const uniqueId = generateUniqueId(uid);
+  
+  // Assuming you have an element with class 'user-uid' to display the ID
+  document.querySelectorAll('.user-uid').forEach(element => {
+    element.textContent = uniqueId;  // Set the unique ID
   });
+};
+
 
   // Toast function to display notifications
   const showToast = (message, type = 'info') => {
@@ -579,6 +595,9 @@
 </div>
     </section>
   </div>
+<div class="user-details">
+  <p>User Unique ID: <span class="user-uid"></span></p>
+</div>
 
   <!-- Posts Section -->
 
