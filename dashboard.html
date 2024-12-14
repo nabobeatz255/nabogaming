@@ -142,266 +142,313 @@
 	outline: none;width: 100%;
 	transition: background-color 0.3s, transform 0.2s;
 }
-.like-btn {
-    color: #121212;
-}
+
 </style>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+      authDomain: "register-71bde.firebaseapp.com",
+      projectId: "register-71bde",
+      storageBucket: "register-71bde.appspot.com",
+      messagingSenderId: "412548441298",
+      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+    };
 
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getDatabase(app);
+    const storage = getStorage(app);
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-  import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-    authDomain: "register-71bde.firebaseapp.com",
-    projectId: "register-71bde",
-    storageBucket: "register-71bde.appspot.com",
-    messagingSenderId: "412548441298",
-    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getDatabase(app);
-  const storage = getStorage(app);
-
-  let currentUser = null;
-  
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      loadPosts();  // Load posts after successful login
-      displayUserDetails(); // Display user details if available
-      displayUniqueId(user.uid);  // Display the unique ID of the user
-    } else {
-      showToast("You are not signed in. Redirecting to login...", 'error');
-      window.location.href = "index.html";
-    }
-  });
-
-  const generateUniqueId = (uid) => {
-    return `332004${uid.slice(0, 3)}NB`;  
-  };
-
-  const displayUniqueId = (uid) => {
-    const uniqueId = generateUniqueId(uid);
-    document.querySelectorAll('.user-uid').forEach(element => {
-      element.textContent = uniqueId; 
+    let currentUser = null;
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (user) {
+        loadPosts();  // Load posts after successful login
+        displayUserDetails(); // Display user details
+      } else {
+        showToast("You are not signed in. Redirecting to login...", 'error');
+        window.location.href = "index.html";
+      }
     });
-  };
 
-  const showToast = (message, type = 'info') => {
-    const toast = document.createElement('div');
-    toast.classList.add('toast', type);
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  };
+    // Toast function to display notifications
+    const showToast = (message, type = 'info') => {
+      const toast = document.createElement('div');
+      toast.classList.add('toast', type);
+      toast.textContent = message;
 
-  const formatTimestamp = (timestamp) => {
-    const now = new Date();
-    const timeDiff = now - new Date(timestamp);
-    const seconds = Math.floor(timeDiff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(months / 12);
+      // Append to the body
+      document.body.appendChild(toast);
 
-    if (seconds < 60) return `just now`;
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}hr ago`;
-    if (days < 30) return `${days}d ago`;
-    if (months < 12) return `${months}mo ago`;
-    return `${years}yr ago`;
-  };
+      // Remove toast after 3 seconds
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    };
 
-  const loadPosts = () => {
-    const allPostsContainer = document.getElementById("allposts");
-    const myPostsContainer = document.getElementById("myposts");
-
-    if (!allPostsContainer || !myPostsContainer) return;
-
-    allPostsContainer.innerHTML = "";
-    myPostsContainer.innerHTML = "";
-
-    const postsRef = ref(db, "posts");
-    onValue(postsRef, (snapshot) => {
-      const posts = [];
-      snapshot.forEach((childSnapshot) => {
-        const post = childSnapshot.val();
-        const postId = childSnapshot.key;
-        posts.push({ postId, ...post });
-      });
-
-      posts.sort((a, b) => b.timestamp - a.timestamp);
-
-      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts;
-
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true));
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false));
-    });
-  };
-
-  const displayPost = (post, container, isMyPost) => {
-    const postElement = document.createElement("div");
-    postElement.className = "instagram-post-2";
-    postElement.innerHTML = `
-      <div class="post-header">
-        <div class="profile-picture">
-          <img src="${post.authorPhoto}" alt="User profile picture">
-        </div>
-        <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
-        </div>
-        <div class="post-options">
-          <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-          ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
-        </div>
-      </div>
-      <div class="post-image">
-        <img src="${post.imageUrl}" alt="Post content">
-      </div>
-      <div class="caption">
-        <span class="username">${post.authorName}</span> ${post.content}
-      </div>
-      <div class="post-comments">
-        <button class="toggle-comments" data-target="comments-container-${post.postId}">
-          Comments
-        </button>
-        <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
-          ${renderComments(post.comments)}
-        </div>
-        <div class="comment-input-container">
-          <input class="comment-input" placeholder="Write a comment...">
-          <button class="submit-comment" data-post-id="${post.postId}">Send</button>
-        </div>
-      </div>
-      ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Futa Post Yangu</button>` : ""}
-    `;
-
-    container.appendChild(postElement);
-
-    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-    postElement.querySelector(".toggle-comments").addEventListener("click", () => toggleComments(postElement));
-    postElement.querySelector(".submit-comment").addEventListener("click", () => submitComment(post.postId));
-    if (isMyPost) {
-      postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
-      postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
-    }
-  };
-
-  const toggleComments = (postElement) => {
-    const targetId = postElement.querySelector(".toggle-comments").dataset.target;
-    const commentsContainer = document.getElementById(targetId);
-    commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-  };
-
-  const renderComments = (comments) => {
-    if (!comments) return "";
-    return Object.keys(comments).map(commentId => {
-      const comment = comments[commentId];
-      return `
-        <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
-        </div>
-      `;
-    }).join("");
-  };
-
-  const likePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-    const snapshot = await get(postRef);
-    if (snapshot.exists()) {
-      await remove(postRef);  
-      showToast("Unliked", 'info');
-    } else {
-      await set(postRef, true);  
-      showToast("You liked the post", 'success');
-    }
-    loadPosts();
-  };
-
-  const submitComment = async (postId) => {
-    const commentInput = document.querySelector(`.comment-input[data-post-id="${postId}"]`);
-    const commentText = commentInput.value.trim();
-    if (commentText !== "") {
-      const commentData = { username: currentUser.displayName, message: commentText };
-      const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-      await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-      showToast("Comment added", 'success');
-      loadPosts();
-      commentInput.value = ""; 
-    }
-  };
-
-  const deletePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}`);
-    await remove(postRef);
-    loadPosts();
-    showToast("Post deleted", 'success');
-  };
-
-  const editPost = (post) => {
-    const newContent = prompt("Edit your post content:", post.content);
-    if (newContent !== null) {
-      const postRef = ref(db, `posts/${post.postId}`);
-      update(postRef, { content: newContent });
-      showToast("Post updated", 'success');
-      loadPosts();
-    }
-  };
-
-  const createNewPost = async () => {
-    const caption = document.getElementById("new-post-caption")?.value;
-    const fileInput = document.getElementById("new-post-image");
-    const file = fileInput?.files[0];
-
-    if (!caption && !file) {
-      showToast("Please add a caption or image.", 'warning');
-      return;
-    }
-
-    try {
-      let imageUrl = "";
-      showToast("Uploading post...", 'info');
-
-      if (file) {
-        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        await uploadBytes(storageReference, file);
-        imageUrl = await getDownloadURL(storageReference);
+    // CSS Styles for Toast notifications
+    const style = document.createElement('style');
+    style.textContent = `
+      .toast {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        margin-bottom: 10px;
+        width: 100%;
+        color: white;text-align: center;
+        font-size: 14px;
+        opacity: 0;z-index: 999999;
+        animation: fadeIn 0.5s forwards;
+      }
+      
+      .toast.success {
+        background-color: #4CAF50; /* Green */
       }
 
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
+      .toast.error {
+        background-color: #f44336; /* Red */
+      }
+
+      .toast.info {
+        background-color: #2196F3; /* Blue */
+      }
+
+      .toast.warning {
+        background-color: #ff9800; /* Orange */
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    const formatTimestamp = (timestamp) => {
+      const now = new Date();
+      const timeDiff = now - new Date(timestamp);
+      const seconds = Math.floor(timeDiff / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+      const months = Math.floor(days / 30);
+      const years = Math.floor(months / 12);
+
+      if (seconds < 60) return `just now`;
+      if (minutes < 60) return `${minutes}m ago`;
+      if (hours < 24) return `${hours}hr ago`;
+      if (days < 30) return `${days}d ago`;
+      if (months < 12) return `${months}mo ago`;
+      return `${years}yr ago`;
+    };
+
+    const loadPosts = () => {
+      const allPostsContainer = document.getElementById("allposts");
+      const myPostsContainer = document.getElementById("myposts");
+      allPostsContainer.innerHTML = "";
+      myPostsContainer.innerHTML = "";
+
+      const postsRef = ref(db, "posts");
+      onValue(postsRef, (snapshot) => {
+        const posts = [];
+        snapshot.forEach((childSnapshot) => {
+          const post = childSnapshot.val();
+          const postId = childSnapshot.key;
+          posts.push({ postId, ...post });
+        });
+
+        // Sort posts by timestamp from new to old
+        posts.sort((a, b) => b.timestamp - a.timestamp);
+
+        const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+        const allPosts = posts;
+
+        myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+        allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+      });
+    };
+
+    const displayPost = (post, container, isMyPost) => {
+      const postElement = document.createElement("div");
+      postElement.className = "instagram-post-2";
+      postElement.innerHTML = `
+        <div class="post-header">
+          <div class="profile-picture">
+            <img src="${post.authorPhoto}" alt="User profile picture">
+          </div>
+          <div class="profile-details">
+            <div class="profile-name">${post.authorName}</div>
+            <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+          </div>
+          <div class="post-options">
+            <i class="ri-more-fill"></i>
+            <div class="options-menu">
+              <ul>
+                <li>Report ${post.authorName}'s Post</li>
+                <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post</li>
+                <li class="share-btn" data-id="${post.postId}">Share The Post</li>
+                ${isMyPost ? `<li class="edit-btn" data-id="${post.postId}"> Edit Your Post</li>` : ""}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="post-image">
+          <img src="${post.imageUrl}" alt="Post content">
+        </div>
+        <div class="caption">
+          <span class="username">${post.authorName}</span> ${post.content}
+        </div>
+        <div class="post-comments">
+          <button class="toggle-comments" data-target="comments-container-${post.postId}">
+            Comments
+          </button>
+          <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
+            ${renderComments(post.comments)}
+          </div>
+          <div class="comment-input-container">
+            <input class="comment-input" placeholder="Write a comment...">
+            <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+          </div>
+        </div>
+        ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Futa Post Yangu</button>` : ""}
+      `;
+
+      container.appendChild(postElement);
+
+      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+      postElement.querySelector(".share-btn").addEventListener("click", () => sharePost(post, postElement));
+      postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+        const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+        commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
       });
 
-      showToast("Post created", 'success');
-      loadPosts();
-    } catch (error) {
-      console.error("Error creating post:", error);
-      showToast("Error creating post", 'error');
-    }
-  };
+      postElement.querySelector(".submit-comment").addEventListener("click", () => {
+        const commentInput = postElement.querySelector(".comment-input");
+        const commentText = commentInput.value.trim();
+        if (commentText !== "") {
+          submitComment(post.postId, commentText);
+          commentInput.value = "";
+        }
+      });
 
-  document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
-</script>
+      if (isMyPost) {
+        postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
+        postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
+      }
+    };
+
+    const renderComments = (comments) => {
+      if (!comments) return "";
+      return Object.keys(comments).map(commentId => {
+        const comment = comments[commentId];
+        return `
+          <div class="comment">
+            <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+          </div>
+        `;
+      }).join("");
+    };
+
+    const likePost = async (postId) => {
+      const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+      const snapshot = await get(postRef);
+      if (snapshot.exists()) {
+        await remove(postRef);  // Remove like
+        showToast("unliked", 'info');
+      } else {
+        await set(postRef, true);  // Add like
+        showToast("you liked the post", 'success');
+      }
+      loadPosts();  // Reload to reflect the changes
+    };
+
+    const submitComment = async (postId, commentText) => {
+      const commentData = {
+        username: currentUser.displayName,
+        message: commentText,
+      };
+
+      const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+      await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+      showToast("comment added", 'success');
+      loadPosts();  // Reload posts to show the new comment
+    };
+
+    const deletePost = async (postId) => {
+      const postRef = ref(db, `posts/${postId}`);
+      await remove(postRef);  // Delete the post
+      loadPosts();  // Reload posts to remove the deleted post
+      showToast("post imefutwa", 'success');
+    };
+
+    const editPost = (post) => {
+      const newContent = prompt("Edit your post content:", post.content);
+      if (newContent !== null) {
+        const postRef = ref(db, `posts/${post.postId}`);
+        update(postRef, { content: newContent });
+        showToast("post imeupdatiwa", 'success');
+        loadPosts();  // Reload posts to show updated content
+      }
+    };
+
+    const createNewPost = async () => {
+      const caption = document.getElementById("new-post-caption").value;
+      const fileInput = document.getElementById("new-post-image");
+      const file = fileInput.files[0];
+
+      if (!caption && !file) {
+        showToast("tafadhari weka caption na image.", 'warning');
+        return;
+      }
+
+      try {
+        let imageUrl = "";
+        showToast("Uploading post yako...Tafadhari subiri", 'info');
+
+        if (file) {
+          // Upload image to Firebase Storage
+          const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+          await uploadBytes(storageReference, file);
+          imageUrl = await getDownloadURL(storageReference);
+          showToast("ukaguzi wa post umekamilika", 'info');
+        }
+
+        const postId = push(ref(db, "posts")).key;
+        await set(ref(db, `posts/${postId}`), {
+          authorName: currentUser.displayName || "Anonymous",
+          authorPhoto: currentUser.photoURL || "default.jpg",
+          content: caption,
+          imageUrl,
+          timestamp: serverTimestamp(),
+          likes: {},
+          comments: {},
+        });
+
+        showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+        window.location.reload();  // Reload the page after successful upload
+      } catch (error) {
+        console.error("Error creating post:", error);
+        showToast("Error creating post", 'error');
+      }
+    };
+
+    document.getElementById("create-post-button").addEventListener("click", createNewPost);
+  </script>
+
+
+
 
 
 
@@ -409,7 +456,7 @@
 
  </head>
   <body>
-    <div class=dashboard>
+    <div class=dashboard  id="app">
     <nav class="sidebar desktop-sidebar">
 <h2>Dashboard</h2>
 <ul>
@@ -498,9 +545,6 @@
 </div>
     </section>
   </div>
-<div class="user-details">
-  <p>User Unique ID: <span class="user-uid"></span></p>
-</div>
 
   <!-- Posts Section -->
 
@@ -528,9 +572,9 @@
 <div id="shop" class="hidden">
         <header class="header headec">
         <div class="logo"><h1>ShopMall</h1></div>
-        <!--div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
+        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
          <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
-        </div!-->
+        </div>
     </header>
   <nav class="sidebar mobile-sidebar">
     <ul>
@@ -608,13 +652,16 @@
     
        <div class="instagram-post">
 <div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
-    <div class="post-time">
-Sponsored
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
     </div>
   </div>
   <div class="post-options">
@@ -656,7 +703,49 @@ Sponsored
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Report Nabobeatz Post</li>
+  <li>Share The Post</li>
+  <li>Message Nabobeatz</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Save</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -699,7 +788,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -742,7 +831,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -914,7 +1003,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -956,7 +1045,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -999,7 +1088,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -1042,7 +1131,7 @@ Please Wait.....
   <div class="profile-details">
     <div class="profile-name">
 Nabobeatz
-
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
     </div>
     <div class="post-time" data-timestamp="2024-10-20T11:48:00">
 Please Wait.....
@@ -1115,6 +1204,93 @@ Please Wait.....
 
 
 
+<div id="sell" class="hidden">
+  <header class=header>
+    <div class=logo>
+<img src=logo.png alt=Logo>
+<img class="profile-picture" src=5.png alt=Logo>
+    </div>
+    <div class=search-bar>
+<span style="background-color:#121212;padding:5px 6px;border-radius:10px;color:white;font-size:13px">
+Create New Post
+</span>
+    </div>
+    <div class=icons>
+<span class=" open-modal" data-modal="modal2" style="color:red">Log Out</span>
+    </div>
+  </header>
+
+    <header class="header headec">
+        <div class="logo"><h1>Seller <span class="user-name">nabogaming</span>, </h1>
+        </div>
+    </header>
+<!-- Modal 2 -->
+<div id="modal2" class="modal">
+  <div class="modal-content">
+       <div class="btn-primary headec-nav" style="background-color: white;">&nbsp; 
+         <i class="ri-vip-crown-fill" style=" color: black;"></i>&nbsp;   <a href="#" style=" color: black;"> Upgraded Selling Experience&nbsp; </a>
+        </div>
+    <h3 class="modal-title"></h3>
+    <p class="modal-body">Habari <span class="user-name">nabogaming</span>, Ungependelea Kuswitch Back Kwenye Normal ShopMall?</p>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel-btn">Hapana</button>
+      <button class="modal-btn ok-btn"  onclick="navigateTo('games')">Ndiyo</button>
+    </div>
+  </div>
+</div>
+
+
+ <div class=post-grid>
+       <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-picture">
+    <img class="profile-picture" src="5.png" alt="User profile picture">
+  </div>
+  <div class="profile-details">
+    <div class="profile-name user-name">
+Nabobeatz
+<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
+<!--<span class="badge" style="color: red">NOT APPROVED</span>-->
+<span class="badge" style="color: green">APPROVED</span>
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Save Post</li>
+  <li>Delete My Post</li>
+  <li>Share My Post</li>
+  <li>Create New Post</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
+</div>
+<div class="caption">
+  <span class="username user-name">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Save</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
+</div>
+
+</div>
+
+
+
 <!-- Notification -->
 <div class="hidden" id="notifyPopup">
   <div class="header-2">
@@ -1140,7 +1316,6 @@ Please Wait.....
     </ul>
   </section>
 </div>
-    </div>
     </div>
     <script>
 // Function to navigate to a specific section
