@@ -171,12 +171,10 @@
   const storage = getStorage(app);
 
   let currentUser = null;
-
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
-      loadPosts(); // Load posts after successful login
-      loadPremiumUsers(); // Load premium user list
+      loadPosts();  // Load posts after successful login
       displayUserDetails(); // Display user details if available
     } else {
       showToast("You are not signed in. Redirecting to login...", 'error');
@@ -199,59 +197,70 @@
     }, 3000);
   };
 
-  // Premium user management
-  const premiumUsersRef = ref(db, "premiumUsers");
-
-  /**
-   * Add a user to the premium list
-   */
-  const addPremiumUser = async (userId) => {
-    try {
-      // Add the user ID to the premium users node
-      await update(premiumUsersRef, { [userId]: true });
-      showToast("User added as premium!", "success");
-    } catch (error) {
-      console.error("Error adding premium user:", error);
-      showToast("Error adding premium user.", "error");
+  // CSS Styles for Toast notifications
+  const style = document.createElement('style');
+  style.textContent = `
+    .toast {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      padding-top:16px;
+      padding-left:10px;
+      padding-bottom:10px;
+      padding-right:10px;
+      transform: translateX(-50%);
+      width: 100%;height:50px;
+      color: white;text-align: center;
+      font-size: 14px;
+      opacity: 0;z-index: 999999;
+      animation: fadeIn 0.5s forwards;
     }
-  };
+    
+    .toast.success {
+      background-color: #4CAF50; /* Green */
+    }
 
-  /**
-   * Load the list of premium users and store it in memory
-   */
-  const loadPremiumUsers = async () => {
-    onValue(premiumUsersRef, (snapshot) => {
-      const premiumUsers = snapshot.val() || {};
-      updateUIWithPremiumUsers(Object.keys(premiumUsers)); // Update the UI
-    });
-  };
+    .toast.error {
+      background-color: #f44336; /* Red */
+    }
 
-  /**
-   * Update the UI with the premium badge for premium users
-   */
-  const updateUIWithPremiumUsers = (premiumUserIds) => {
-    const userElements = document.querySelectorAll(".user-profile");
+    .toast.info {
+      background-color: #2196F3; /* Blue */
+    }
 
-    userElements.forEach((userElement) => {
-      const userId = userElement.dataset.userId;
+    .toast.warning {
+      background-color: #ff9800; /* Orange */
+    }
 
-      if (premiumUserIds.includes(userId)) {
-        // Add premium badge if user is premium
-        if (!userElement.querySelector(".badge.premium")) {
-          const badge = document.createElement("span");
-          badge.className = "badge premium";
-          badge.innerHTML = '<i class="ri-vip-crown-fill"></i>';
-          userElement.querySelector(".profile-name").appendChild(badge);
-        }
-      } else {
-        // Remove premium badge if not premium
-        const badge = userElement.querySelector(".badge.premium");
-        if (badge) badge.remove();
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
       }
-    });
+      to {
+        opacity: 1;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  const formatTimestamp = (timestamp) => {
+    const now = new Date();
+    const timeDiff = now - new Date(timestamp);
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+
+    if (seconds < 60) return `just now`;
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}hr ago`;
+    if (days < 30) return `${days}d ago`;
+    if (months < 12) return `${months}mo ago`;
+    return `${years}yr ago`;
   };
 
-  // Load posts (existing functionality)
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
@@ -282,7 +291,6 @@
     });
   };
 
-  // Display post (existing functionality)
   const displayPost = (post, container, isMyPost) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
@@ -357,24 +365,6 @@
     }
   };
 
-  const formatTimestamp = (timestamp) => {
-    const now = new Date();
-    const timeDiff = now - new Date(timestamp);
-    const seconds = Math.floor(timeDiff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(months / 12);
-
-    if (seconds < 60) return `just now`;
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}hr ago`;
-    if (days < 30) return `${days}d ago`;
-    if (months < 12) return `${months}mo ago`;
-    return `${years}yr ago`;
-  };
-
   const renderComments = (comments) => {
     if (!comments) return "";
     return Object.keys(comments).map(commentId => {
@@ -385,6 +375,89 @@
         </div>
       `;
     }).join("");
+  };
+
+  const likePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await remove(postRef);  // Remove like
+      showToast("unliked", 'info');
+    } else {
+      await set(postRef, true);  // Add like
+      showToast("you liked the post", 'success');
+    }
+    loadPosts();  // Reload to reflect the changes
+  };
+
+  const submitComment = async (postId, commentText) => {
+    const commentData = {
+      username: currentUser.displayName,
+      message: commentText,
+    };
+
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    showToast("comment added", 'success');
+    loadPosts();  // Reload posts to show the new comment
+  };
+
+  const deletePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}`);
+    await remove(postRef);  // Delete the post
+    loadPosts();  // Reload posts to remove the deleted post
+    showToast("post imefutwa", 'success');
+  };
+
+  const editPost = (post) => {
+    const newContent = prompt("Edit your post content:", post.content);
+    if (newContent !== null) {
+      const postRef = ref(db, `posts/${post.postId}`);
+      update(postRef, { content: newContent });
+      showToast("post imeupdatiwa", 'success');
+      loadPosts();  // Reload posts to show updated content
+    }
+  };
+
+  const createNewPost = async () => {
+    const caption = document.getElementById("new-post-caption")?.value;
+    const fileInput = document.getElementById("new-post-image");
+    const file = fileInput?.files[0];
+
+    if (!caption && !file) {
+      showToast("tafadhari weka caption na image.", 'warning');
+      return;
+    }
+
+    try {
+      let imageUrl = "";
+      showToast("Uploading post yako...Tafadhari subiri", 'info');
+
+      if (file) {
+        // Upload image to Firebase Storage
+        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+        await uploadBytes(storageReference, file);
+        imageUrl = await getDownloadURL(storageReference);
+        showToast("ukaguzi wa post umekamilika", 'info');
+      }
+
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: currentUser.displayName || "Anonymous",
+        authorPhoto: currentUser.photoURL || "default.jpg",
+        content: caption,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
+      });
+
+      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      window.location.reload();  // Reload the page after successful upload
+    } catch (error) {
+      console.error("Error creating post:", error);
+      showToast("Error creating post", 'error');
+    }
   };
 
   // Display user details
@@ -506,9 +579,7 @@
 </div>
     </section>
   </div>
-<div class="user-actions">
-      <button id="add-premium-btn">Add as Premium</button>
-    </div>
+
   <!-- Posts Section -->
 
         <div id="allposts" class="post-grid"><div class="preloader"></div>
