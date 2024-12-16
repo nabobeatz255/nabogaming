@@ -432,16 +432,7 @@ a:focus {
 }
 
 .toggle-comments {
-	background: none;
-	border: none;
-	color: #007bff;
-	font-size: 14px;
-	font-weight: bold;
 	cursor: pointer;
-	padding: 0;
-	display: flex;
-	align-items: right;
-	gap: 5px;
 }
 
 .toggle-comments:hover {
