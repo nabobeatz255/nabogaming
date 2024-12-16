@@ -22,6 +22,28 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <style>
+    #suggestions-list {
+        display: none;
+        position: fixed;
+        text-align: left;
+        right: 15px;
+        top: 60px;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: auto;
+        width: 183px;
+    }
+
+    .suggestion-item {
+        padding: 8px;
+        border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+    }
+
+    .suggestion-item:hover {
+        background-color: #f0f0f0;
+    }
 @keyframes dots {
   0% { content: '.'; }
   33% { content: '..'; }
@@ -520,9 +542,10 @@
     <div class=logo>
 <img src=logo.png alt=Logo>
     </div>
-    <div class=search-bar>
-<input placeholder="Search games, players...">
-    </div>
+   <div class="search-bar">
+ <input type="text" id="search-input" placeholder="Search Events..." oninput="showSuggestions()">
+    <div id="suggestions-list"></div>
+</div>
     <div class=icons>
 <i class=ri-notification-line  id="toggleNotify"></i>
 <i onclick='navigateTo("sharing")' class="ri-whatsapp-line mark"></i>
@@ -565,7 +588,7 @@
     <section class=hero>
 <div class=hero-content>
   <h1>Nabogaming Tournament 2025</h1>
-  <p> Habari <span class="user-name"></span>, Jiandae Kikamilimifu Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
+  <p> Habari <span class="user-name"></span>, Jiandae Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
   <a href=#games class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
 </div>
     </section>
@@ -1471,6 +1494,47 @@ initializeModals();
   }, 1000000);  // Reset after 5 seconds (you can adjust this duration)
 });
 </script>
+    <script>
+        // Sample data for search suggestions
+        const searchableItems = [
+            "Pubg 1v1", "League of Legends"
+        ];
+
+        function showSuggestions() {
+            const input = document.getElementById("search-input").value.toLowerCase();
+            const suggestionsList = document.getElementById("suggestions-list");
+            
+            // Clear previous suggestions
+            suggestionsList.innerHTML = '';
+
+            // Filter suggestions based on input
+            if (input) {
+                const filteredItems = searchableItems.filter(item => item.toLowerCase().includes(input));
+                
+                // If there are matching items, show them
+                if (filteredItems.length > 0) {
+                    suggestionsList.style.display = 'block';
+                    filteredItems.forEach(item => {
+                        const div = document.createElement('div');
+                        div.classList.add('suggestion-item');
+                        div.textContent = item;
+                        div.onclick = () => selectSuggestion(item);
+                        suggestionsList.appendChild(div);
+                    });
+                } else {
+                    suggestionsList.style.display = 'none';
+                }
+            } else {
+                suggestionsList.style.display = 'none';
+            }
+        }
+
+        function selectSuggestion(item) {
+            // Set the input value to the selected suggestion
+            document.getElementById("search-input").value = item;
+            document.getElementById("suggestions-list").style.display = 'none';
+        }
+    </script>
   </body>
 </html>
  
