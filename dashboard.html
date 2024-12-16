@@ -165,6 +165,7 @@
     currentUser = user;
     if (user) {
       loadPosts();  // Load posts after successful login
+      loadSharedPosts();  // Load shared posts
       displayUserDetails(); // Display user details if available
       displayUniqueId(user.uid);  // Display the unique ID of the user
     } else {
@@ -266,13 +267,11 @@
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
-    const sharedPostsContainer = document.getElementById("shared");  // The shared posts container
 
-    if (!allPostsContainer || !myPostsContainer || !sharedPostsContainer) return;
+    if (!allPostsContainer || !myPostsContainer) return;
 
     allPostsContainer.innerHTML = "";
     myPostsContainer.innerHTML = "";
-    sharedPostsContainer.innerHTML = "";
 
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -294,6 +293,27 @@
     });
   };
 
+  const loadSharedPosts = () => {
+    const sharedPostsContainer = document.getElementById("shared");
+
+    if (!sharedPostsContainer) return;
+
+    sharedPostsContainer.innerHTML = "";  // Clear existing shared posts
+
+    const sharedPostsRef = ref(db, "sharedPosts");
+    onValue(sharedPostsRef, (snapshot) => {
+      const sharedPosts = [];
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        sharedPosts.push({ postId, ...post });
+      });
+
+      // Display each shared post
+      sharedPosts.forEach(post => displayPost(post, sharedPostsContainer, false));
+    });
+  };
+
   const displayPost = (post, container, isMyPost) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
@@ -312,7 +332,7 @@
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
             ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
               ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
-              <i class="ri-share-line share-btn" data-id="${post.postId}"></i> <!-- Add share button -->
+              <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
         </div>
       </div>
       <div class="post-image">
@@ -387,7 +407,7 @@
   };
 
   const sharePost = (post) => {
-    // Create a new post in the "shared" section
+    // Create a new post in the "sharedPosts" section
     const sharedPostId = push(ref(db, "sharedPosts")).key;
     set(ref(db, `sharedPosts/${sharedPostId}`), {
       ...post,
@@ -397,7 +417,7 @@
 
     // Reload posts to display shared posts
     showToast("Post shared successfully!", 'success');
-    loadPosts();  // Reload posts to reflect the changes
+    loadSharedPosts();  // Reload shared posts
   };
 
   const likePost = async (postId) => {
