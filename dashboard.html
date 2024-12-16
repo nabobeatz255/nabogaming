@@ -22,6 +22,17 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <style>
+@keyframes dots {
+  0% { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
+  100% { content: '.'; }
+}
+
+#loading-dots::after {
+  content: '';
+  animation: dots 1.5s infinite;
+}
 .heading {
     margin-bottom: 15px;padding: 10px;
 }
@@ -1483,6 +1494,23 @@ function closeModal(modal) {
 // Initialize modals on page load
 initializeModals();
   </script>
+  <script>
+  document.getElementById('create-post-button').addEventListener('click', function() {
+  // Change text to "Uploading"
+  this.textContent = 'Uploading';
+  
+  // Add dynamic loading dots
+  let loadingDots = document.createElement('span');
+  loadingDots.id = 'loading-dots';
+  this.appendChild(loadingDots);
+  
+  // Optionally, you can simulate some delay to change back after a while
+  setTimeout(() => {
+    this.textContent = 'Upload Post Now';
+    this.removeChild(loadingDots);
+  }, 10000);  // Reset after 5 seconds (you can adjust this duration)
+});
+</script>
   </body>
 </html>
  
