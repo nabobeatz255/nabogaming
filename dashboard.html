@@ -152,7 +152,6 @@
 
 
 
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -178,7 +177,6 @@
     currentUser = user;
     if (user) {
       loadPosts();  // Load posts after successful login
-      loadSharedPosts();  // Load shared posts
       displayUserDetails(); // Display user details if available
       displayUniqueId(user.uid);  // Display the unique ID of the user
     } else {
@@ -309,27 +307,6 @@
     });
   };
 
-  const loadSharedPosts = () => {
-    const sharedPostsContainer = document.getElementById("shared");
-
-    if (!sharedPostsContainer) return;
-
-    sharedPostsContainer.innerHTML = "";  // Clear existing shared posts
-
-    const sharedPostsRef = ref(db, "sharedPosts");
-    onValue(sharedPostsRef, (snapshot) => {
-      const sharedPosts = [];
-      snapshot.forEach((childSnapshot) => {
-        const post = childSnapshot.val();
-        const postId = childSnapshot.key;
-        sharedPosts.push({ postId, ...post });
-      });
-
-      // Display each shared post
-      sharedPosts.forEach(post => displayPost(post, sharedPostsContainer, false));
-    });
-  };
-
   const displayPost = (post, container, isMyPost) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
@@ -348,7 +325,6 @@
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
             ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
               ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
-              <i class="ri-share-line share-btn" data-id="${post.postId}"></i>
         </div>
       </div>
       <div class="post-image">
@@ -371,7 +347,7 @@
     container.appendChild(postElement);
 
     if (postElement.querySelector(".like-btn")) {
-      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId, post.authorName, post.authorPhoto));
     }
 
     if (postElement.querySelector(".toggle-comments")) {
@@ -402,12 +378,6 @@
         editButton.addEventListener("click", () => editPost(post));
       }
     }
-
-    // Share button functionality
-    const shareButton = postElement.querySelector(".share-btn");
-    if (shareButton) {
-      shareButton.addEventListener("click", () => sharePost(post));
-    }
   };
 
   const renderComments = (comments) => {
@@ -422,31 +392,42 @@
     }).join("");
   };
 
-  const sharePost = (post) => {
-    // Create a new post in the "sharedPosts" section
-    const sharedPostId = push(ref(db, "sharedPosts")).key;
-    set(ref(db, `sharedPosts/${sharedPostId}`), {
-      ...post,
-      sharedBy: currentUser.displayName,
-      sharedAt: serverTimestamp(),
-    });
-
-    // Reload posts to display shared posts
-    showToast("Post shared successfully!", 'success');
-    loadSharedPosts();  // Reload shared posts
-  };
-
-  const likePost = async (postId) => {
+  const likePost = async (postId, authorName, authorPhoto) => {
     const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
     const snapshot = await get(postRef);
     if (snapshot.exists()) {
       await remove(postRef);  // Remove like
-      showToast("unliked", 'info');
+      showToast("Unliked", 'info');
     } else {
       await set(postRef, true);  // Add like
-      showToast("you liked the post", 'success');
+      showToast("You liked the post", 'success');
+      showLikeNotification(authorName, authorPhoto);
     }
     loadPosts();  // Reload to reflect the changes
+  };
+
+  const showLikeNotification = (authorName, authorPhoto) => {
+    const notifyPopup = document.getElementById("notifyPopup");
+    const notifyList = document.querySelector(".notify-list");
+
+    const notifyItem = document.createElement("li");
+    notifyItem.classList.add("notify-item");
+    notifyItem.innerHTML = `
+      <div class="notify-icon">
+        <img src="${authorPhoto}" alt="User image" class="notify-img">
+      </div>
+      <div class="notify-content">
+        <h3>${authorName} liked your post <span class="notify-time">${new Date().toLocaleString()}</span></h3>
+        <p>Your post received a like!</p>
+      </div>
+    `;
+    notifyList.appendChild(notifyItem);
+
+    // Show notification popup
+    notifyPopup.classList.remove("hidden");
+    setTimeout(() => {
+      notifyPopup.classList.add("hidden");
+    }, 5000);
   };
 
   const submitComment = async (postId, commentText) => {
@@ -457,7 +438,7 @@
 
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showToast("comment added", 'success');
+    showToast("Comment added", 'success');
     loadPosts();  // Reload posts to show the new comment
   };
 
@@ -465,7 +446,7 @@
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
     loadPosts();  // Reload posts to remove the deleted post
-    showToast("post imefutwa", 'success');
+    showToast("Post deleted", 'success');
   };
 
   const editPost = (post) => {
@@ -473,7 +454,7 @@
     if (newContent !== null) {
       const postRef = ref(db, `posts/${post.postId}`);
       update(postRef, { content: newContent });
-      showToast("post imeupdatiwa", 'success');
+      showToast("Post updated", 'success');
       loadPosts();  // Reload posts to show updated content
     }
   };
@@ -484,20 +465,20 @@
     const file = fileInput?.files[0];
 
     if (!caption && !file) {
-      showToast("tafadhari weka caption na image.", 'warning');
+      showToast("Please provide a caption and image.", 'warning');
       return;
     }
 
     try {
       let imageUrl = "";
-      showToast("Uploading post yako...Tafadhari subiri", 'info');
+      showToast("Uploading your post... Please wait", 'info');
 
       if (file) {
         // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
-        showToast("ukaguzi wa post umekamilika", 'info');
+        showToast("Post upload completed", 'info');
       }
 
       const postId = push(ref(db, "posts")).key;
@@ -511,7 +492,7 @@
         comments: {},
       });
 
-      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      showToast("Your post is created... Reloading!", 'success');
       window.location.reload();  // Reload the page after successful upload
     } catch (error) {
       console.error("Error creating post:", error);
