@@ -17,6 +17,8 @@
 	padding: 0;
 	box-sizing: border-box;
 }
+
+
 .join {
     margin-right: 16px;
 	background: black;float: right;
@@ -220,13 +222,12 @@ a:focus {
 	align-items: center;
 	gap: 10px;
 	margin-left: 10px;
-	margin-right: 10px;
+	margin-right: 0px;
 	flex-shrink: 0;
 }
 
 .header .icons i {
 	background: none;
-	font-size: 20px;
 	color: black;
 	transition: color 0.3s;
 }
