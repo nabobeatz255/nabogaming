@@ -255,10 +255,13 @@
       posts.sort((a, b) => b.timestamp - a.timestamp);  // Sort by timestamp (new to old)
 
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts;
+      const allPosts = posts.filter(post => post.authorName !== currentUser.displayName);
 
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true));  // Show delete button for my posts
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false));  // No delete button for others' posts
+      // Render my posts
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true));
+
+      // Render all posts
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false));
     });
   };
 
@@ -426,7 +429,6 @@
 
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
 </script>
-
 
 
 
