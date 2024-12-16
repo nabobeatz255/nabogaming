@@ -240,7 +240,7 @@ const displayUniqueId = (uid) => {
 
     .toast.warning {
       background-color: #fff;
-      color: #ff9800/* Orange */
+      color: red/* Orange */
     }
 
     @keyframes fadeIn {
@@ -435,7 +435,7 @@ const displayUniqueId = (uid) => {
     const file = fileInput?.files[0];
 
     if (!caption && !file) {
-      showToast("tafadhari weka caption na image.", 'warning');
+      showToast("tafadhari weka description na image.", 'warning');
       return;
     }
 
@@ -448,7 +448,7 @@ const displayUniqueId = (uid) => {
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
-        showToast("ukaguzi wa post umekamilika", 'info');
+        showToast("ukaguzi wa post umekamilika", 'error');
       }
 
       const postId = push(ref(db, "posts")).key;
@@ -572,9 +572,9 @@ const displayUniqueId = (uid) => {
       <h3 style="color:black">Create Your New  <span class="user-name"></span>'s Post</h3></div>
      <input type="text" id="new-post-caption" placeholder="Write a description...">
       <input type="file" id="new-post-image">
-<button id="create-post-button">Upload Post</button>
-<div style="display: none;">
-    <p>Uploading...<span class="preloader"></span></p>
+<button id="create-post-button">Upload Post Now</button>
+<div class="preloader" style="display: none;">
+   
 </div>
 </div>
     </section>
