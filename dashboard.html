@@ -25,7 +25,9 @@
 @keyframes dots {
   0% { content: '.'; }
   33% { content: '..'; }
-  66% { content: '...'; }
+  55% { content: '...'; }
+  66% { content: '....'; }
+  77% { content: '.....'; }
   100% { content: '.'; }
 }
 
@@ -1508,7 +1510,7 @@ initializeModals();
   setTimeout(() => {
     this.textContent = 'Upload Post Now';
     this.removeChild(loadingDots);
-  }, 10000);  // Reset after 5 seconds (you can adjust this duration)
+  }, 1000000);  // Reset after 5 seconds (you can adjust this duration)
 });
 </script>
   </body>
