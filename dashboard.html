@@ -241,20 +241,14 @@ const displayUniqueId = (uid) => {
       background-color: #ff9800; /* Orange */
     }
 
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(100%); /* Start below the screen */
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(0); /* Element reaches its final position */
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(100%); /* Element goes back to the bottom */
-  }
-}
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
   `;
   document.head.appendChild(style);
 
