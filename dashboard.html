@@ -140,6 +140,7 @@
 
 
 
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -161,63 +162,90 @@
   const storage = getStorage(app);
 
   let currentUser = null;
+ onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (user) {
+    loadPosts();  // Load posts after successful login
+    displayUserDetails(); // Display user details if available
+    displayUniqueId(user.uid);  // Display the unique ID of the user
+  } else {
+    showToast("You are not signed in. Redirecting to login...", 'error');
+    window.location.href = "index.html";
+  }
+});
+const generateUniqueId = (uid) => {
+  // Generate a unique ID in the format "332004<uid>NB"
+  return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
+};
 
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      loadPosts();  // Load posts after successful login
-      displayUserDetails(); // Display user details if available
-      displayUniqueId(user.uid);  // Display the unique ID of the user
-    } else {
-      showToast("You are not signed in. Redirecting to login...", 'error');
-      window.location.href = "index.html";
-    }
+// Function to display the unique ID in HTML
+const displayUniqueId = (uid) => {
+  const uniqueId = generateUniqueId(uid);
+  
+  // Assuming you have an element with class 'user-uid' to display the ID
+  document.querySelectorAll('.user-uid').forEach(element => {
+    element.textContent = uniqueId;  // Set the unique ID
   });
+};
 
-  const generateUniqueId = (uid) => {
-    return `332004${uid.slice(0, 3)}NB`;  // Generate unique ID based on UID
-  };
 
-  const displayUniqueId = (uid) => {
-    const uniqueId = generateUniqueId(uid);
-    document.querySelectorAll('.user-uid').forEach(element => {
-      element.textContent = uniqueId;  // Set the unique ID
-    });
-  };
-
+  // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
     toast.textContent = message;
 
-    // Append to the body and remove after 3 seconds
+    // Append to the body
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
   };
 
-  // Toast notification styles
+  // CSS Styles for Toast notifications
   const style = document.createElement('style');
   style.textContent = `
     .toast {
       position: fixed;
       bottom: 0;
       left: 50%;
-      padding: 10px;
+      padding-top:16px;
+      padding-left:10px;
+      padding-bottom:10px;
+      padding-right:10px;
       transform: translateX(-50%);
-      width: 100%;
-      color: white;
-      text-align: center;
+      width: 100%;height:50px;
+      color: white;text-align: center;
       font-size: 14px;
-      opacity: 0;
-      z-index: 999999;
+      opacity: 0;z-index: 999999;
       animation: fadeIn 0.5s forwards;
     }
-    .toast.success { background-color: #4CAF50; }
-    .toast.error { background-color: red; }
-    .toast.info { background-color: #2196F3; }
+    
+    .toast.success {
+      background-color: #4CAF50; /* Green */
+    }
+
+    .toast.error {
+      background-color: #f44336; /* Red */
+    }
+
+    .toast.info {
+      background-color: #2196F3; /* Blue */
+    }
+
+    .toast.warning {
+      background-color: #ff9800; /* Orange */
+    }
+
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
   `;
   document.head.appendChild(style);
@@ -225,19 +253,26 @@
   const formatTimestamp = (timestamp) => {
     const now = new Date();
     const timeDiff = now - new Date(timestamp);
-    const minutes = Math.floor(timeDiff / 60000);
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
 
+    if (seconds < 60) return `just now`;
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}hr ago`;
-    return `${days}d ago`;
+    if (days < 30) return `${days}d ago`;
+    if (months < 12) return `${months}mo ago`;
+    return `${years}yr ago`;
   };
 
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
 
+    // Only proceed if the containers are present
     if (!allPostsContainer || !myPostsContainer) return;
 
     allPostsContainer.innerHTML = "";
@@ -252,16 +287,14 @@
         posts.push({ postId, ...post });
       });
 
-      posts.sort((a, b) => b.timestamp - a.timestamp);  // Sort by timestamp (new to old)
+      // Sort posts by timestamp from new to old
+      posts.sort((a, b) => b.timestamp - a.timestamp);
 
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts.filter(post => post.authorName !== currentUser.displayName);
+      const allPosts = posts;
 
-      // Render my posts
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true));
-
-      // Render all posts
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false));
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
     });
   };
 
@@ -270,20 +303,29 @@
     postElement.className = "instagram-post-2";
     postElement.innerHTML = `
       <div class="post-header">
-        <div class="profile-picture"><img src="${post.authorPhoto}" alt="User profile picture"></div>
+        <div class="profile-picture">
+          <img src="${post.authorPhoto}" alt="User profile picture">
+        </div>
         <div class="profile-details">
           <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
         </div>
         <div class="post-options">
-          <i class="ri-message-2-line toggle-comments" data-target="comments-container-${post.postId}"></i>
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-          ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
+            ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+              ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
         </div>
       </div>
-      <div class="post-image"><img src="${post.imageUrl}" alt="Post content"></div>
-      <div class="caption"><span class="username">${post.authorName}</span> ${post.content}</div>
+      <div class="post-image">
+        <img src="${post.imageUrl}" alt="Post content">
+      </div>
+      <div class="caption">
+        <span class="username">${post.authorName}</span> ${post.content}
+      </div>
       <div class="post-comments">
+        <button class="toggle-comments" data-target="comments-container-${post.postId}">
+          Comments
+        </button>
         <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
           ${renderComments(post.comments)}
         </div>
@@ -323,6 +365,10 @@
       if (deleteButton) {
         deleteButton.addEventListener("click", () => deletePost(post.postId));
       }
+      const editButton = postElement.querySelector(".edit-btn");
+      if (editButton) {
+        editButton.addEventListener("click", () => editPost(post));
+      }
     }
   };
 
@@ -330,7 +376,11 @@
     if (!comments) return "";
     return Object.keys(comments).map(commentId => {
       const comment = comments[commentId];
-      return `<div class="comment"><span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span></div>`;
+      return `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+        </div>
+      `;
     }).join("");
   };
 
@@ -363,7 +413,17 @@
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
     loadPosts();  // Reload posts to remove the deleted post
-    showToast("Post deleted", 'success');
+    showToast("post imefutwa", 'success');
+  };
+
+  const editPost = (post) => {
+    const newContent = prompt("Edit your post content:", post.content);
+    if (newContent !== null) {
+      const postRef = ref(db, `posts/${post.postId}`);
+      update(postRef, { content: newContent });
+      showToast("post imeupdatiwa", 'success');
+      loadPosts();  // Reload posts to show updated content
+    }
   };
 
   const createNewPost = async () => {
@@ -372,19 +432,20 @@
     const file = fileInput?.files[0];
 
     if (!caption && !file) {
-      showToast("Please provide a description and image.", 'warning');
+      showToast("tafadhari weka caption na image.", 'warning');
       return;
     }
 
     try {
       let imageUrl = "";
-      showToast("Uploading post... please wait", 'info');
+      showToast("Uploading post yako...Tafadhari subiri", 'info');
 
       if (file) {
+        // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
-        showToast("Post upload complete", 'success');
+        showToast("ukaguzi wa post umekamilika", 'info');
       }
 
       const postId = push(ref(db, "posts")).key;
@@ -398,8 +459,8 @@
         comments: {},
       });
 
-      showToast("Post created, reloading!", 'success');
-      window.location.reload();
+      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      window.location.reload();  // Reload the page after successful upload
     } catch (error) {
       console.error("Error creating post:", error);
       showToast("Error creating post", 'error');
@@ -412,7 +473,7 @@
 
     const userName = currentUser.displayName || "Anonymous";
     const userEmail = currentUser.email || "No email available";
-    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";
+    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
     document.querySelectorAll('.user-name').forEach(element => {
       element.textContent = userName;  // Set user name
@@ -432,6 +493,7 @@
 
 
 
+
  </head>
   <body>
     <div class=dashboard  id="app">
@@ -446,7 +508,7 @@
 </ul>
     </nav>
     <div class=main-content>
-<div id=home>
+<div id=home class=visible>
   <header class=header>
     <div class=logo>
 <img src=logo.png alt=Logo>
@@ -462,7 +524,7 @@
   <nav class="sidebar mobile-sidebar">
     <ul>
 <li>
-  <a href="games">
+  <a onclick='navigateTo("games")'>
   <i class=ri-gamepad-fill></i>
   <span>Events</span>
   </a>
@@ -500,21 +562,18 @@
   <a href=#games class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
 </div>
     </section>
-<section class="hero" style="background: #fff;border:1px solid #ddd" id="create-post">
-           
+      <section class="hero" id="create-post">
 <div class=hero-content>
-    <div class="heading">
-      <h3 style="color:black">Create Your New  <span class="user-name"></span>'s Post</h3></div>
-     <input type="text" id="new-post-caption" placeholder="Write a description...">
+  <h3>Create Your New <span class="user-name"></span>'s Post</h3>
+<input type="text" id="new-post-caption" placeholder="Write a caption...">
       <input type="file" id="new-post-image">
- <button id="create-post-button">Upload Post Now <div class="preloader" style="display: none;"></div></button>
-
-   
-</div>
+      <button id="create-post-button">Post</button>
 </div>
     </section>
-  
+
   </div>
+
+  <!-- Posts Section -->
 
         <div id="allposts" class="post-grid"><div class="preloader"></div>
   </div>
@@ -537,7 +596,7 @@
 </div>
 
 
-<div id="shop">
+<div id="shop" class="hidden">
         <header class="header headec">
         <div class="logo"><h1>ShopMall</h1></div>
         <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
@@ -838,7 +897,7 @@ Please Wait.....
 </div>
 
 
-<div id="policy">
+<div id="policy" class="hidden">
       <header class="header headec">
         <div class="logo"><h1>Sheria</h1></div>
         <div class="btn-primary riri" style="font-weight:500">&nbsp; 
@@ -922,7 +981,7 @@ Please Wait.....
 </div>
 
 
-<div id="games">
+<div id="games" class="hidden">
     <header class="header headec">
         <div class="logo"><h1>Events</h1></div>
         <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
@@ -1138,7 +1197,7 @@ Please Wait.....
 </div>
 
 
-<div id="profile">
+<div id="profile" class="hidden">
   <header class="page-header">
     <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
     <h1>Profile (<span class="user-name"> No data </span>)</h1>
@@ -1277,23 +1336,25 @@ Please Wait.....
   </section>
 </div>
     </div>
-<script>
+    <script>
 // Function to navigate to a specific section
 function navigateTo(pageId) {
   // Hide all sections
   document.querySelectorAll(".main-content > div").forEach((div) => {
-    div.style.display = "none"; // Hide section
+    div.classList.add("hidden");
+    div.classList.remove("visible");
   });
 
   // Show the target section
   const target = document.getElementById(pageId);
   if (target) {
-    target.style.display = "block"; // Show section
+    target.classList.remove("hidden");
+    target.classList.add("visible");
     
     // Reset scroll position to the top of the section
     window.scrollTo({
-      top: 0,
-      behavior: "smooth", // Optional: Adds smooth scrolling effect
+top: 0,
+behavior: "smooth", // Optional: Adds smooth scrolling effect
     });
   }
 }
@@ -1302,37 +1363,13 @@ function navigateTo(pageId) {
 document.querySelectorAll('.sidebar a').forEach(link => {
   link.addEventListener('click', function(event) {
     event.preventDefault(); // Prevent default link behavior
-  
-    const targetId = this.getAttribute('href').replace('#', '');
+    const targetId = this.getAttribute('onclick').match(/navigateTo\("(\w+)"\)/)[1];
     navigateTo(targetId);
   });
 });
 
-// Optionally, you can use the following to initialize the first visible section
-document.addEventListener('DOMContentLoaded', function() {
-  // Optionally navigate to the default section on page load (e.g., first page)
-  navigateTo('home'); // Assuming 'home' is the ID of your default section
-});
-</script>
-
-<script>
-document.getElementById("create-post-button").addEventListener("click", function() {
-    var preloader = document.querySelector(".preloader");
-    var button = document.getElementById("create-post-button");
-
-    // Hide the text inside the button when clicked
-    button.innerHTML = '<div class="preloader" style="display: block;"></div>';
-
-    // Show the preloader immediately
-    preloader.style.display = "block";
-    
-    // You can hide the preloader after some time, like a simulated process
-    setTimeout(function() {
-        preloader.style.display = "none";
-        button.innerHTML = 'Upload Post Now'; // Restore the button text after process
-    }, 6000); // Adjust the delay time as needed (3 seconds in this case)
-});
-</script>
+    </script>
+    <script>let currentSlide=0;function showNextSlide(){const e=document.querySelectorAll(".carousel-slide");e[currentSlide].style.display="none",currentSlide=(currentSlide+1)%e.length,e[currentSlide].style.display="block"}document.querySelectorAll(".carousel-slide").forEach(((e,l)=>{e.style.display=0===l?"block":"none"})),setInterval(showNextSlide,3e3)</script>
     <script>function showTab(e){document.querySelectorAll(".tab-content").forEach((e=>{e.classList.add("hidden"),e.classList.remove("visible")})),document.getElementById(e).classList.add("visible")}</script>
     <script>const toggleCommentsButtons=document.querySelectorAll(".toggle-comments");toggleCommentsButtons.forEach((t=>{t.addEventListener("click",(function(){const t=this.getAttribute("data-target"),e=document.getElementById(t);"flex"===e.style.display?(e.style.display="none",this.innerHTML='<i class="ri-arrow-down-s-line"></i> View Comments'):(e.style.display="flex",this.innerHTML='<i class="ri-arrow-up-s-line"></i> Hide Comments')}))}))</script>
     <script>
