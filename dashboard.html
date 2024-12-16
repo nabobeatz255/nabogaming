@@ -31,7 +31,8 @@
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255,255,255,0.9443);
+  backdrop-filter: blur(4px);
+  background-color: rgba(255,255,255,.8);
   overflow: auto;
   padding-top: 50px;
   text-align: center;
@@ -39,11 +40,10 @@
 
 /* Modal content box */
 .create-modal-content {
-  margin: 50% auto;
+  margin: 40% auto;
   width: 320px;
   border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    animation: fad 1s forwards;
+  animation: fad 1s forwards;
 }
     @keyframes fad {
       from {
@@ -613,6 +613,7 @@
   <li><a onclick='navigateTo("policy")'>Sheria</a></li>
   <li><a onclick='navigateTo("profile")'>Profile</a></li>
 </ul>
+
     </nav>
     <div class=main-content>
 <div id=home class=visible>
@@ -670,11 +671,10 @@
   <a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
 </div>
     </section>
-      <section class=hero style="background: white; color:black;box-shadow:none">
+      <section class=hero style="background: white; color:black;box-shadow:none;border:1px solid #ddd;">
 <div class=hero-content>
-  <h1>Nabogaming Tournament 2025</h1>
-  <p> Habari <span class="user-name"></span>, Jiandae Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
-  <a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
+  <h1>Pubg Mobile TDM 1v1 Rooms</h1>
+  <p>Mashindano Haya Yatahusisha Gemu La PUBG Mobile, 1 vs 1 - Sniper M416 AKM e.t.c - Kaa Tayari Kwa Ushindani Zaidi</p>
 </div>
     </section>
 
@@ -752,16 +752,13 @@ Admin 1.0
 
     </div>
  <span class="post-time">
-Seller
+Approved Seller
     </span>
   </div>
 </div>
 <div class="post-image">
   <img src="1.jpeg" alt="Post content">
   <div class="post-badges">
-    <span class="badge new">PUBGM</span>
-  </div>
-  <div class="bottom-left-icon">
   </div>
 </div>
 <div class="caption2">
@@ -938,30 +935,20 @@ Admin 1.0
 Please Wait.....
     </div>
   </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Report Nabobeatz Post</li>
-  <li>Share The Post</li>
-  <li>Message Nabobeatz</li>
-</ul>
-    </div>
-  </div>
 </div>
 <div class="post-image">
-  <img src="1.jpeg" alt="Post content">
+  <img src="post1.png" alt="Post content">
   <div class="post-badges">
-    <span class="badge new">PUBGM</span>
+    <span class="badge new"><strong>PUBGM</strong></span>
   </div>
-  <div class="bottom-left-icon">
-  </div>
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
 </div>
 <div class="caption">
   <span class="username">Nabobeatz</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
 </div>
-<button class="join">Jiunge Sasa</button>
+<!--button class="join">Jiunge Sasa</button-->
     </div>
   </div>
 </div>
@@ -1039,7 +1026,7 @@ Please Wait.....
       <span class="close-btn" onclick="closeCreateModal()"></span>
       <section class="hero" style="background:white" id="create-post">
           <div class="hero-content">
-        <h3 style="color: black;">Create Your New <span class="user-name"></span>'s Post</h3><br>
+        <h3 style="color: black;    margin-top: 10px;">Create Your New <span class="user-name"></span>'s Post</h3><br>
         <input type="text" id="new-post-caption" placeholder="Write a caption...">
         <div class="file-upload-container">
   <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()" class="file-input">
@@ -1287,6 +1274,42 @@ window.onclick = function(event) {
     closeCreateModal();
   }
 }
+  </script>
+  <script>
+      function startCountdown() {
+    const countdownElement = document.getElementById("countdown");
+    
+    // Set the date we're counting down to
+    const countDownDate = new Date("Dec 31, 2024 23:59:59").getTime();
+
+    // Update the countdown every 1 second
+    const x = setInterval(function() {
+
+        // Get the current time
+        const now = new Date().getTime();
+        
+        // Find the time remaining
+        const distance = countDownDate - now;
+        
+        // Time calculations for days, hours, minutes, and seconds
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Display the result
+        countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+        // If the countdown is over
+        if (distance < 0) {
+            clearInterval(x);
+            countdownElement.innerHTML = "EXPIRED";
+        }
+    }, 1000);
+}
+
+// Call the function to start the countdown
+startCountdown();
   </script>
   </body>
 </html>
