@@ -151,7 +151,6 @@
 </style>
 
 
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -347,7 +346,7 @@
     container.appendChild(postElement);
 
     if (postElement.querySelector(".like-btn")) {
-      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId, post.authorName, post.authorPhoto));
+      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
     }
 
     if (postElement.querySelector(".toggle-comments")) {
@@ -392,7 +391,7 @@
     }).join("");
   };
 
-  const likePost = async (postId, authorName, authorPhoto) => {
+  const likePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
     const snapshot = await get(postRef);
     if (snapshot.exists()) {
@@ -401,33 +400,8 @@
     } else {
       await set(postRef, true);  // Add like
       showToast("You liked the post", 'success');
-      showLikeNotification(authorName, authorPhoto);
     }
     loadPosts();  // Reload to reflect the changes
-  };
-
-  const showLikeNotification = (authorName, authorPhoto) => {
-    const notifyPopup = document.getElementById("notifyPopup");
-    const notifyList = document.querySelector(".notify-list");
-
-    const notifyItem = document.createElement("li");
-    notifyItem.classList.add("notify-item");
-    notifyItem.innerHTML = `
-      <div class="notify-icon">
-        <img src="${authorPhoto}" alt="User image" class="notify-img">
-      </div>
-      <div class="notify-content">
-        <h3>${authorName} liked your post <span class="notify-time">${new Date().toLocaleString()}</span></h3>
-        <p>New Like!</p>
-      </div>
-    `;
-    notifyList.appendChild(notifyItem);
-
-    // Show notification popup
-    notifyPopup.classList.remove("hidden");
-    setTimeout(() => {
-      notifyPopup.classList.add("hidden");
-    }, 5000);
   };
 
   const submitComment = async (postId, commentText) => {
