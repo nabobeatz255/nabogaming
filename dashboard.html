@@ -22,12 +22,14 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <style>
+.heading {
+    margin-bottom: 15px;padding: 10px;
+}
     #create-post {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 15px;
-  background-color: #f9f9f9; /* Light background for a clean look */
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   max-width: 100%; /* Ensure responsiveness */
@@ -36,15 +38,16 @@
 }
 
 #new-post-caption {
-  flex: 2;
+  flex: 2;width: 100%;
   padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 20px;
+  border-radius: 10px;
   font-size: 14px;
-  outline: none;
-  box-sizing: border-box;
+   border: 1px solid #ddd;
+   margin-bottom: 10px;
 }
-
+#new-post-caption:hover {
+    outline: none;
+}
 #new-post-caption::placeholder {
   color: #999; /* Subtle placeholder color */
 }
@@ -53,9 +56,10 @@
   outline: 1px solid #ddd;
   font-size: 14px;
   background: white;
-    border-radius: 20px;
+    border-radius: 10px;
  width: 100%;max-width: 490px;
   padding: 10px 10px 60px;
+     margin-bottom: 10px;
 }
 
 #create-post-button {
@@ -63,7 +67,7 @@
   background-color: black; /* Facebook-style blue */
   color: #fff;    width: 100%;max-width: 490px;
   border: none;
-  border-radius: 20px;
+  border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -561,34 +565,18 @@ const displayUniqueId = (uid) => {
   <a href=#games class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
 </div>
     </section>
-     <section id="create-post">
-      <h2 style=" text-align: center;" >Create a New Post</h2>
-      <input type="text" id="new-post-caption" placeholder="Write a caption...">
+<section class="hero" style="background: #fff;border:1px solid #ddd" id="create-post">
+           
+<div class=hero-content>
+    <div class="heading">
+      <h3 style="color:black">Create a New  <span class="user-name"></span>'s Post</h3></div>
+     <input type="text" id="new-post-caption" placeholder="Write a caption...">
       <input type="file" id="new-post-image">
-      <button id="create-post-button">Post</button>
-    </section>
-    <section class=carousel>
-<div class=carousel-slide>
-  <img src=1.png alt="Featured Game 1">
-  <h3>Nabogaming Kivingine..!</h3>
-  <p>Mechi Zaidi, Ushindani Na Wachezaji Kibao</p>
-</div>
-<div class=carousel-slide>
-  <img src=2.png alt="Featured Game 2">
-  <h3>Featured Game 2</h3>
-  <p>Embark on an epic adventure today.</p>
-</div>
-<div class=carousel-slide>
-  <img src=3.png alt="Featured Game 3">
-  <h3>Featured Game 3</h3>
-  <p>Experience the thrill of the battle arena.</p>
-</div>
-<div class=carousel-slide>
-  <img src=4.png alt="Featured Game 3">
-  <h3>Featured Game 3</h3>
-  <p>Experience the thrill of the battle arena.</p>
+
+  <button id="create-post-button">Post</button>
 </div>
     </section>
+  
   </div>
 
   <!-- Posts Section -->
