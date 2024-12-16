@@ -31,7 +31,7 @@
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0,0.94);
+  background-color: rgba(255,255,255,0.9443);
   overflow: auto;
   padding-top: 50px;
   text-align: center;
@@ -43,12 +43,19 @@
   width: 320px;
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  transition: 1s ease-in;
+    animation: fad 1s forwards;
 }
-
+    @keyframes fad {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
 /* Close button */
 .close-btn {
-  color: #aaa;
+  color: #000;
   font-size: 28px;
   font-weight: bold;
   position: absolute;
@@ -119,8 +126,8 @@
 }
 
 #new-post-caption {
-  flex: 2;width: 100%;
-  padding: 8px 12px;
+  width: 100%;
+  padding: 0 8px 3px;height: 80px;
   border-radius: 10px;
   font-size: 14px;
    border: 1px solid #ddd;
@@ -130,17 +137,42 @@
     outline: none;
 }
 #new-post-caption::placeholder {
-  color: #999; /* Subtle placeholder color */
+  color: #999;padding: 0;margin: 0;
 }
 
-#new-post-image {
-  outline: 1px solid #ddd;
-  font-size: 14px;
-  background: white;
-    border-radius: 10px;
- width: 100%;max-width: 490px;
-  padding: 10px 10px 60px;
-     margin-bottom: 10px;
+/* Container for file input */
+.file-upload-container {
+  position: relative;
+  display: inline-block;
+  width: 233px;border-radius: 10px;
+  margin-bottom: 10px;overflow: hidden;
+}
+
+/* Hide the default file input */
+.file-input {
+  display: none;
+}
+
+/* Custom file upload button */
+.custom-file-upload {
+    overflow: hidden;
+  background-color: white;
+  color: white;
+  padding: 25px 20px 10px;color: grey;
+  font-size: 50px;
+  border-radius: 5px; width: 233px;height: 80px;
+  display: inline-block;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+
+/* Display the selected file name */
+.file-name {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;overflow: hidden;
+  color: #555;
 }
 
 #create-post-button {
@@ -593,8 +625,8 @@
     <div id="suggestions-list"></div>
 </div>
     <div class=icons>
-<i class=ri-notification-line  id="toggleNotify"></i>
-<i onclick="openCreateModal()" class="ri-whatsapp-line"></i>
+<i class=ri-notification-line  id="toggleNotify" style="	font-size: 20px;"></i>
+<i style="color: black;	font-size: 33px;" onclick="openCreateModal()" class="ri-add-circle-fill"></i>
     </div>
   </header>
   <nav class="sidebar mobile-sidebar">
@@ -638,7 +670,7 @@
   <a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
 </div>
     </section>
-      <section class=hero>
+      <section class=hero style="background: white; color:black;box-shadow:none">
 <div class=hero-content>
   <h1>Nabogaming Tournament 2025</h1>
   <p> Habari <span class="user-name"></span>, Jiandae Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
@@ -1004,12 +1036,18 @@ Please Wait.....
   <!-- Create Modal -->
   <div id="createModal" class="create-modal">
     <div class="create-modal-content">
-      <span class="close-btn" onclick="closeCreateModal()">&times;</span>
+      <span class="close-btn" onclick="closeCreateModal()"></span>
       <section class="hero" style="background:white" id="create-post">
           <div class="hero-content">
-        <h3 style="color: black">Create Your New <span class="user-name"></span>'s Post</h3><br>
+        <h3 style="color: black;">Create Your New <span class="user-name"></span>'s Post</h3><br>
         <input type="text" id="new-post-caption" placeholder="Write a caption...">
-        <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()">
+        <div class="file-upload-container">
+  <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()" class="file-input">
+  <label for="new-post-image" class="custom-file-upload">
+   <i class="ri-add-circle-fill ri-2xl"></i>
+  </label>
+  <span id="file-name" class="file-name"> add photo</span>
+</div>
         <button id="create-post-button">Upload Post Now</button>
       </div></section>
     </div>
@@ -1221,27 +1259,14 @@ notifyPopup.classList.add("hidden");
         }
     </script>
     <script>
-        function checkImage() {
-    const fileInput = document.getElementById('new-post-image');
-    const file = fileInput.files[0];
-
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                // Check if the image is landscape (width > height)
-                if (img.width > img.height) {
-                    console.log("Valid landscape image.");
-                } else {
-                    showToast("Please upload a landscape image.");
-                    fileInput.value = '';  // Clear the file input
-                }
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
+     function checkImage() {
+  const fileInput = document.getElementById('new-post-image');
+  const fileNameDisplay = document.getElementById('file-name');
+  if (fileInput.files.length > 0) {
+    fileNameDisplay.textContent = fileInput.files[0].name;
+  } else {
+    fileNameDisplay.textContent = 'Please add an image...';
+  }
 }
     </script>
  <script>
