@@ -188,7 +188,8 @@ a:focus {
 .header .search-bar {
 	flex-grow: 1;
 	margin-left: 10px;
-	text-align: right;
+	z-index: 9999;
+	text-align: right; position: relative; 
 }
 
 .header .search-bar input {
@@ -198,7 +199,7 @@ a:focus {
 	border-radius: 20px;
 	background-color: #f0f0f0;
 	border: none;
-	font-size: 14px;
+	font-size: 14px; position: relative; 
 }
 
 .header .search-bar input:hover {
