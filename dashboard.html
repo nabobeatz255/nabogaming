@@ -412,7 +412,7 @@
       const comment = comments[commentId];
       return `
         <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+          <span class="comment-username">From ${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
         </div>
       `;
     }).join("");
@@ -599,7 +599,7 @@
     </section>
       <section class="hero" style="background:white" id="create-post">
 <div class=hero-content>
-  <h3 style="color: black">Create New <span class="user-name"></span>'s Post</h3><br>
+  <h3 style="color: black">Create Your New <span class="user-name"></span>'s Post</h3>
 <input type="text" id="new-post-caption" placeholder="Write a caption...">
      <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()">
       <button id="create-post-button">Upload Post Now</button>
@@ -795,7 +795,7 @@ Please Wait.....
     <ul>
       <li>Kwa kutumia NaboGaming, unakubali kufuata sheria na masharti yaliyowekwa.</li>
       <li>Watumiaji lazima wawe na utii wa sheria zaidi ili kujiandikisha na kutumia huduma zetu.</li>
-      <li>Ni marufuku kutumia lugha chafu, matusi, au vitendo vyovyote vya udanganyifu, Hii Itapelekea akaunti yako kufungiwa.</li>
+      <li>Ni marufuku kutumia lugha chafu, matusi, au vitendo vyovyote vya udanganyifu, Hii Itapelekea akaunti yako <span id="user-name" style="font-weight:bold"></span> na email <span id="user-email"style="font-weight:bold"></span>kufungiwa.</li>
     </ul>
 
     <h2>2. Faragha</h2>
@@ -810,26 +810,17 @@ Please Wait.....
       <li>Unawajibika kwa usalama wa akaunti yako na nywila.</li>
       <li>Akaunti yoyote itakayobainika ikivunja sheria zetu itafungwa mara moja.</li>
     </ul>
-     <h2>4. Wauzaji ShopMall</h2>
+     <h2>4. Wachezaji</h2>
     <ul>
-      <li>Weka Taarifa Kamilifu Kuhusu Unachouza, Unaruhusa ya Kupost mauzo ya akaunti, mauzo ya skin(maleo e.t.c) na si vinginevyo.</li>
-      <li>Tumia OTP yako Mara Moja Kwa Siku Hakikisha Unaitunza Maana OTP yako Ndiyo Soko Lako</li>
-      <li>Akaunti yoyote itakayobainika ikikiuka maagizo haya itazuiliwa mara moja.</li>
+      <li>Weka Taarifa Kamilifu Kuhusu Wewe Mahala Sahihi, Iwe Kwenye Tournament Ama Shindano Lolote Lile
     </ul>
 
     <h2>FAQs (Maswali Yanayoulizwa Mara kwa Mara)</h2>
     <div class="faq">
       <h3>1. Je, NaboGaming ni nini?</h3>
-      <p>NaboGaming ni jukwaa la michezo ya mtandaoni linalowapa watumiaji fursa ya kushindana na kushirikiana na wachezaji wengine duniani kote.</p>
+      <p>NaboGaming ni jukwaa la michezo ya mtandaoni linalowapa watumiaji fursa ya kushindana na kushirikiana na wachezaji wengine hapahapa nchini.</p>
     </div>
-    <div class="faq">
-      <h3>2. Ninawezaje kufungua akaunti?</h3>
-      <p>Bofya kitufe cha "Jiandikishe" na ujaze taarifa zako. Kumbuka kuwa lazima uwe na umri wa miaka 18 au zaidi.</p>
-    </div>
-    <div class="faq">
-      <h3>3. Nifanye nini ikiwa nimesahau nenosiri langu?</h3>
-      <p>Bonyeza "Umesahau Nenosiri?" kwenye ukurasa wa kuingia na ufuate maelekezo ya kurejesha akaunti yako.</p>
-    </div>
+ 
   </main>
 </div>
 
