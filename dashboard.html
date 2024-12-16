@@ -31,11 +31,8 @@
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   max-width: 100%; /* Ensure responsiveness */
-  box-sizing: border-box;
+  box-sizing: border-box;  
   gap: 10px;
-}
-#create-post h2 {
-    text-align: center;
 }
 
 #new-post-caption {
@@ -53,23 +50,18 @@
 }
 
 #new-post-image {
-  flex: 1;
+  outline: 1px solid #ddd;
   font-size: 14px;
-  padding: 5px;
-}
-
-#upload-progress {
-  display: none;
-  flex: 1;
-  font-size: 12px;
-  color: #555;
+  background: white;
+    border-radius: 20px;
+ width: 100%;max-width: 490px;
+  padding: 10px 10px 60px;
 }
 
 #create-post-button {
-  flex: 0.5;
   padding: 8px 15px;
   background-color: black; /* Facebook-style blue */
-  color: #fff;
+  color: #fff;    width: 100%;max-width: 490px;
   border: none;
   border-radius: 20px;
   font-size: 14px;
@@ -89,7 +81,7 @@
 
   #new-post-caption,
   #new-post-image,
-  #create-post-button {
+  {
     flex: 1;
   }
 
@@ -147,7 +139,7 @@
 
 
 
-
+<!--
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -175,11 +167,29 @@
   if (user) {
     loadPosts();  // Load posts after successful login
     displayUserDetails(); // Display user details if available
+    displayUniqueId(user.uid);  // Display the unique ID of the user
   } else {
     showToast("You are not signed in. Redirecting to login...", 'error');
     window.location.href = "index.html";
   }
-});  // Toast function to display notifications
+});
+const generateUniqueId = (uid) => {
+  // Generate a unique ID in the format "332004<uid>NB"
+  return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
+};
+
+// Function to display the unique ID in HTML
+const displayUniqueId = (uid) => {
+  const uniqueId = generateUniqueId(uid);
+  
+  // Assuming you have an element with class 'user-uid' to display the ID
+  document.querySelectorAll('.user-uid').forEach(element => {
+    element.textContent = uniqueId;  // Set the unique ID
+  });
+};
+
+
+  // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
@@ -480,7 +490,7 @@
 
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
 </script>
-
+-->
 
 
 
@@ -552,6 +562,12 @@
   <p> Habari <span class="user-name"></span>, Jiandae Kikamilimifu Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
   <a href=#games class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
 </div>
+    </section>
+     <section id="create-post">
+      <h2 style=" text-align: center;" >Create a New Post</h2>
+      <input type="text" id="new-post-caption" placeholder="Write a caption...">
+      <input type="file" id="new-post-image">
+      <button id="create-post-button">Post</button>
     </section>
     <section class=carousel>
 <div class=carousel-slide>
@@ -1201,7 +1217,7 @@ Please Wait.....
 </div>
 
 
-        <div id="profile" class="hidden">
+<div id="profile" class="hidden">
   <header class="page-header">
     <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
     <h1>Profile (<span class="user-name"> No data </span>)</h1>
@@ -1220,14 +1236,6 @@ Please Wait.....
 </div>
     </div>
     </div> 
-
- <section id="create-post">
-      <h2>Create a New Post</h2>
-      <input type="text" id="new-post-caption" placeholder="Write a caption...">
-      <input type="file" id="new-post-image">
-      <div id="upload-progress" style="display: none;">Uploading: <span id="upload-percentage">0</span>%</div>
-      <button id="create-post-button">Post</button>
-    </section>
 <br>
  <div id="myposts" class="post-grid"><div class="preloader"></div>
   </div>
