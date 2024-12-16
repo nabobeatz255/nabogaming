@@ -22,7 +22,46 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <style>
+/* Modal background */
+.create-modal {
+  display: none;
+  position: fixed;
+  z-index: 99999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0,0.94);
+  overflow: auto;
+  padding-top: 50px;
+  text-align: center;
+}
 
+/* Modal content box */
+.create-modal-content {
+  margin: 50% auto;
+  width: 320px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: 1s ease-in;
+}
+
+/* Close button */
+.close-btn {
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+  color: black;
+  text-decoration: none;
+}
 
 .caption2 {
 	padding: 10px 15px;
@@ -555,7 +594,7 @@
 </div>
     <div class=icons>
 <i class=ri-notification-line  id="toggleNotify"></i>
-<i onclick='navigateTo("sharing")' class="ri-whatsapp-line mark"></i>
+<i onclick="openCreateModal()" class="ri-whatsapp-line"></i>
     </div>
   </header>
   <nav class="sidebar mobile-sidebar">
@@ -599,13 +638,13 @@
   <a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
 </div>
     </section>
-    <section class="hero" style="background:white" id="create-post">
-          <div class="hero-content">
-        <h3 style="color: black">Create Your New <span class="user-name"></span>'s Post</h3><br>
-        <input type="text" id="new-post-caption" placeholder="Write a caption...">
-        <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()">
-        <button id="create-post-button">Upload Post Now</button>
-      </div></section>
+      <section class=hero>
+<div class=hero-content>
+  <h1>Nabogaming Tournament 2025</h1>
+  <p> Habari <span class="user-name"></span>, Jiandae Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
+  <a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
+</div>
+    </section>
 
   </div>
         <div id="allposts" class="post-grid"><div class="preloader"></div>
@@ -961,6 +1000,22 @@ Please Wait.....
 </div>
     </div>
 
+
+  <!-- Create Modal -->
+  <div id="createModal" class="create-modal">
+    <div class="create-modal-content">
+      <span class="close-btn" onclick="closeCreateModal()">&times;</span>
+      <section class="hero" style="background:white" id="create-post">
+          <div class="hero-content">
+        <h3 style="color: black">Create Your New <span class="user-name"></span>'s Post</h3><br>
+        <input type="text" id="new-post-caption" placeholder="Write a caption...">
+        <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()">
+        <button id="create-post-button">Upload Post Now</button>
+      </div></section>
+    </div>
+  </div>
+
+
     </div>
     <script>
 // Function to navigate to a specific section
@@ -1189,7 +1244,25 @@ notifyPopup.classList.add("hidden");
     }
 }
     </script>
+ <script>
+      // Open the Create Modal
+function openCreateModal() {
+  document.getElementById("createModal").style.display = "block";
+}
 
+// Close the Create Modal
+function closeCreateModal() {
+  document.getElementById("createModal").style.display = "none";
+}
+
+// Close the modal if the user clicks outside the modal content
+window.onclick = function(event) {
+  var modal = document.getElementById("createModal");
+  if (event.target == modal) {
+    closeCreateModal();
+  }
+}
+  </script>
   </body>
 </html>
  
