@@ -228,6 +228,8 @@ const displayUniqueId = (uid) => {
     }
 
     .toast.error {
+    height: 100vh;
+    padding-top: 50vh;
       background-color: #f44336; /* Red */
     }
 
@@ -239,14 +241,20 @@ const displayUniqueId = (uid) => {
       background-color: #ff9800; /* Orange */
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(100%); /* Start below the screen */
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0); /* Element reaches its final position */
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%); /* Element goes back to the bottom */
+  }
+}
   `;
   document.head.appendChild(style);
 
@@ -562,12 +570,12 @@ const displayUniqueId = (uid) => {
   <a href=#games class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
 </div>
     </section>
-      <section class="hero" id="create-post">
+      <section class="hero" style="background:white" id="create-post">
 <div class=hero-content>
-  <h3>Create Your New <span class="user-name"></span>'s Post</h3>
+  <h3 style="color: black">Create Your New <span class="user-name"></span>'s Post</h3>
 <input type="text" id="new-post-caption" placeholder="Write a caption...">
       <input type="file" id="new-post-image">
-      <button id="create-post-button">Post</button>
+      <button id="create-post-button">Upload Post Now</button>
 </div>
     </section>
 
