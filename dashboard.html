@@ -22,6 +22,8 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <style>
+
+
 .caption2 {
 	padding: 10px 15px;
 	font-size: 14px;
@@ -594,24 +596,18 @@
 <div class=hero-content>
   <h1>Nabogaming Tournament 2025</h1>
   <p> Habari <span class="user-name"></span>, Jiandae Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
-  <a href=#games class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
+  <a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a>
 </div>
     </section>
-      <section class="hero" style="background:white" id="create-post">
-<div class=hero-content>
-  <h3 style="color: black">Create Your New <span class="user-name"></span>'s Post</h3>
-<input type="text" id="new-post-caption" placeholder="Write a caption...">
-     <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()">
-      <button id="create-post-button">Upload Post Now</button>
-</div>
-    </section>
+    <section class="hero" style="background:white" id="create-post">
+          <div class="hero-content">
+        <h3 style="color: black">Create Your New <span class="user-name"></span>'s Post</h3><br>
+        <input type="text" id="new-post-caption" placeholder="Write a caption...">
+        <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()">
+        <button id="create-post-button">Upload Post Now</button>
+      </div></section>
 
   </div>
-
-  <!-- Posts Section -->
-<div id="shared">
-
-</div>
         <div id="allposts" class="post-grid"><div class="preloader"></div>
   </div>
  <!-- <section class=tabs>
@@ -636,9 +632,7 @@
 <div id="shop" class="hidden">
         <header class="header headec">
         <div class="logo"><h1>ShopMall</h1></div>
-        <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
-         <i class="ri-vip-crown-fill"></i>&nbsp;   <a href="#"> Upgrade Experience&nbsp; </a>
-        </div>
+      
     </header>
   <nav class="sidebar mobile-sidebar">
     <ul>
@@ -958,13 +952,15 @@ Please Wait.....
     <i class="ri--line"></i>
   </div>-->
   <div class="notify-content">
-    <h3>No New Notifications <span class="notify-time"  data-timestamp=2024-12-08T10:37:00></span></h3>
+    <h3>No New Notifications <!--span class="notify-time"  data-timestamp=2024-12-08T10:37:00></span--></h3>
     <p>Hakuna taarifa kwa sasa </p>
   </div>
 </li>
     </ul>
   </section>
 </div>
+    </div>
+
     </div>
     <script>
 // Function to navigate to a specific section
@@ -1110,46 +1106,7 @@ notifyPopup.classList.add("hidden");
       });
     });
   </script>
-  <script>
-      // Function to initialize modals
-function initializeModals() {
-  // Add event listeners to all modal trigger buttons
-  document.querySelectorAll('.open-modal').forEach((button) => {
-    button.addEventListener('click', (e) => {
-      const modalId = button.dataset.modal;
-      const modal = document.getElementById(modalId);
-      if (modal) {
-        openModal(modal);
-      }
-    });
-  });
 
-  // Add event listeners to all modal buttons (Cancel/OK)
-  document.querySelectorAll('.modal .modal-btn').forEach((button) => {
-    button.addEventListener('click', (e) => {
-      const modal = button.closest('.modal');
-      if (modal) {
-        closeModal(modal);
-      }
-    });
-  });
-}
-
-// Function to open a modal
-function openModal(modal) {
-  modal.style.display = 'flex';
-  setTimeout(() => modal.classList.add('show'), 10); // Smooth animation
-}
-
-// Function to close a modal
-function closeModal(modal) {
-  modal.classList.remove('show');
-  setTimeout(() => (modal.style.display = 'none'), 300); // Wait for animation to complete
-}
-
-// Initialize modals on page load
-initializeModals();
-  </script>
   <script>
   document.getElementById('create-post-button').addEventListener('click', function() {
   // Change text to "Uploading"
@@ -1232,6 +1189,7 @@ initializeModals();
     }
 }
     </script>
+
   </body>
 </html>
  
