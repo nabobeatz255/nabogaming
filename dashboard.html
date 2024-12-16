@@ -125,13 +125,9 @@
   }
 }
 .delete-post-btn {
-    padding: 8px 16px;
-	font-size: 14px;
-	font-weight: bold;
-	color: white;background: #FF8669;
-	border: none;
+    color: red;
 	cursor: pointer;
-	outline: none;width: 100%;
+	outline: none;
 	transition: background-color 0.3s, transform 0.2s;
 }
 
@@ -313,6 +309,7 @@ const displayUniqueId = (uid) => {
         <div class="post-options">
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
             ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+              ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
         </div>
       </div>
       <div class="post-image">
@@ -333,7 +330,6 @@ const displayUniqueId = (uid) => {
           <button class="submit-comment" data-post-id="${post.postId}">Send</button>
         </div>
       </div>
-      ${isMyPost ? `<button class="delete-post-btn" data-id="${post.postId}">Futa Post Yangu</button>` : ""}
     `;
 
     container.appendChild(postElement);
@@ -518,7 +514,7 @@ const displayUniqueId = (uid) => {
     </div>
     <div class=icons>
 <i class=ri-notification-line  id="toggleNotify"></i>
-<i class="ri-bookmark-fill mark"></i>
+<i class="ri-whatsapp-line mark"></i>
     </div>
   </header>
   <nav class="sidebar mobile-sidebar">
