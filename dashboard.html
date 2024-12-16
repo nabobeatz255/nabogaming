@@ -140,7 +140,6 @@
 
 
 
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -162,34 +161,29 @@
   const storage = getStorage(app);
 
   let currentUser = null;
- onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-  if (user) {
-    loadPosts();  // Load posts after successful login
-    displayUserDetails(); // Display user details if available
-    displayUniqueId(user.uid);  // Display the unique ID of the user
-  } else {
-    showToast("You are not signed in. Redirecting to login...", 'error');
-    window.location.href = "index.html";
-  }
-});
-const generateUniqueId = (uid) => {
-  // Generate a unique ID in the format "332004<uid>NB"
-  return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
-};
-
-// Function to display the unique ID in HTML
-const displayUniqueId = (uid) => {
-  const uniqueId = generateUniqueId(uid);
-  
-  // Assuming you have an element with class 'user-uid' to display the ID
-  document.querySelectorAll('.user-uid').forEach(element => {
-    element.textContent = uniqueId;  // Set the unique ID
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      loadPosts();  // Load posts after successful login
+      displayUserDetails(); // Display user details if available
+      displayUniqueId(user.uid);  // Display the unique ID of the user
+    } else {
+      showToast("You are not signed in. Redirecting to login...", 'error');
+      window.location.href = "index.html";
+    }
   });
-};
 
+  const generateUniqueId = (uid) => {
+    return `332004${uid.slice(0, 3)}NB`;  // Generate a unique ID in the format "332004<uid>NB"
+  };
 
-  // Toast function to display notifications
+  const displayUniqueId = (uid) => {
+    const uniqueId = generateUniqueId(uid);
+    document.querySelectorAll('.user-uid').forEach(element => {
+      element.textContent = uniqueId;  // Set the unique ID
+    });
+  };
+
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
@@ -204,7 +198,6 @@ const displayUniqueId = (uid) => {
     }, 3000);
   };
 
-  // CSS Styles for Toast notifications
   const style = document.createElement('style');
   style.textContent = `
     .toast {
@@ -224,21 +217,21 @@ const displayUniqueId = (uid) => {
     }
     
     .toast.success {
-      background-color: #4CAF50; /* Green */
+      background-color: #4CAF50;
     }
 
     .toast.error {
-    height: 100vh;
-    padding-top: 50vh;
-      background-color: #f44336; /* Red */
+      height: 100vh;
+      padding-top: 50vh;
+      background-color: #f44336;
     }
 
     .toast.info {
-      background-color: #2196F3; /* Blue */
+      background-color: #2196F3;
     }
 
     .toast.warning {
-      background-color: #ff9800; /* Orange */
+      background-color: #ff9800;
     }
 
     @keyframes fadeIn {
@@ -273,12 +266,13 @@ const displayUniqueId = (uid) => {
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
+    const sharedPostsContainer = document.getElementById("shared");  // The shared posts container
 
-    // Only proceed if the containers are present
-    if (!allPostsContainer || !myPostsContainer) return;
+    if (!allPostsContainer || !myPostsContainer || !sharedPostsContainer) return;
 
     allPostsContainer.innerHTML = "";
     myPostsContainer.innerHTML = "";
+    sharedPostsContainer.innerHTML = "";
 
     const postsRef = ref(db, "posts");
     onValue(postsRef, (snapshot) => {
@@ -318,6 +312,7 @@ const displayUniqueId = (uid) => {
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
             ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
               ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
+              <i class="ri-share-line share-btn" data-id="${post.postId}"></i> <!-- Add share button -->
         </div>
       </div>
       <div class="post-image">
@@ -327,7 +322,6 @@ const displayUniqueId = (uid) => {
         <span class="username">${post.authorName}</span> ${post.content}
       </div>
       <div class="post-comments">
-      
         <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
           ${renderComments(post.comments)}
         </div>
@@ -372,6 +366,12 @@ const displayUniqueId = (uid) => {
         editButton.addEventListener("click", () => editPost(post));
       }
     }
+
+    // Share button functionality
+    const shareButton = postElement.querySelector(".share-btn");
+    if (shareButton) {
+      shareButton.addEventListener("click", () => sharePost(post));
+    }
   };
 
   const renderComments = (comments) => {
@@ -384,6 +384,20 @@ const displayUniqueId = (uid) => {
         </div>
       `;
     }).join("");
+  };
+
+  const sharePost = (post) => {
+    // Create a new post in the "shared" section
+    const sharedPostId = push(ref(db, "sharedPosts")).key;
+    set(ref(db, `sharedPosts/${sharedPostId}`), {
+      ...post,
+      sharedBy: currentUser.displayName,
+      sharedAt: serverTimestamp(),
+    });
+
+    // Reload posts to display shared posts
+    showToast("Post shared successfully!", 'success');
+    loadPosts();  // Reload posts to reflect the changes
   };
 
   const likePost = async (postId) => {
@@ -478,15 +492,15 @@ const displayUniqueId = (uid) => {
     const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
     document.querySelectorAll('.user-name').forEach(element => {
-      element.textContent = userName;  // Set user name
+      element.textContent = userName;
     });
 
     document.querySelectorAll('.user-email').forEach(element => {
-      element.textContent = userEmail;  // Set user email
+      element.textContent = userEmail;
     });
 
     document.querySelectorAll('.profile-picture').forEach(element => {
-      element.src = userProfilePic;  // Set user profile picture
+      element.src = userProfilePic;
     });
   };
 
@@ -520,7 +534,7 @@ const displayUniqueId = (uid) => {
     </div>
     <div class=icons>
 <i class=ri-notification-line  id="toggleNotify"></i>
-<i class="ri-whatsapp-line mark"></i>
+<i onclick='navigateTo("shared")' class="ri-whatsapp-line mark"></i>
     </div>
   </header>
   <nav class="sidebar mobile-sidebar">
@@ -1225,88 +1239,8 @@ Please Wait.....
 
 
 
-<div id="sell" class="hidden">
-  <header class=header>
-    <div class=logo>
-<img src=logo.png alt=Logo>
-<img class="profile-picture" src=5.png alt=Logo>
-    </div>
-    <div class=search-bar>
-<span style="background-color:#121212;padding:5px 6px;border-radius:10px;color:white;font-size:13px">
-Create New Post
-</span>
-    </div>
-    <div class=icons>
-<span class=" open-modal" data-modal="modal2" style="color:red">Log Out</span>
-    </div>
-  </header>
+<div id="shared" class="hidden">
 
-    <header class="header headec">
-        <div class="logo"><h1>Seller <span class="user-name">nabogaming</span>, </h1>
-        </div>
-    </header>
-<!-- Modal 2 -->
-<div id="modal2" class="modal">
-  <div class="modal-content">
-       <div class="btn-primary headec-nav" style="background-color: white;">&nbsp; 
-         <i class="ri-vip-crown-fill" style=" color: black;"></i>&nbsp;   <a href="#" style=" color: black;"> Upgraded Selling Experience&nbsp; </a>
-        </div>
-    <h3 class="modal-title"></h3>
-    <p class="modal-body">Habari <span class="user-name">nabogaming</span>, Ungependelea Kuswitch Back Kwenye Normal ShopMall?</p>
-    <div class="modal-buttons">
-      <button class="modal-btn cancel-btn">Hapana</button>
-      <button class="modal-btn ok-btn"  onclick="navigateTo('games')">Ndiyo</button>
-    </div>
-  </div>
-</div>
-
-
- <div class=post-grid>
-       <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-picture">
-    <img class="profile-picture" src="5.png" alt="User profile picture">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name user-name">
-Nabobeatz
-<span class="badge premium"><i class="ri-vip-crown-fill"></i></span>
-<!--<span class="badge" style="color: red">NOT APPROVED</span>-->
-<span class="badge" style="color: green">APPROVED</span>
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-  <div class="post-options">
-    <i class="ri-more-fill"></i>
-    <div class="options-menu">
-<ul>
-  <li>Save Post</li>
-  <li>Delete My Post</li>
-  <li>Share My Post</li>
-  <li>Create New Post</li>
-</ul>
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="1.jpeg" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new">PUBGM</span>
-  </div>
-  <div class="bottom-left-icon">
-  </div>
-</div>
-<div class="caption">
-  <span class="username user-name">Nabobeatz</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
-</div>
-<div class="post-cta-buttons">
-  <button class="cta-btn primary">Save</button>
-  <button class="cta-btn secondary">Buy Now</button>
-</div>
-    </div>
-</div>
 
 </div>
 
