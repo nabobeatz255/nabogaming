@@ -446,7 +446,7 @@
 </ul>
     </nav>
     <div class=main-content>
-<div id=home class=visible>
+<div id=home>
   <header class=header>
     <div class=logo>
 <img src=logo.png alt=Logo>
@@ -462,7 +462,7 @@
   <nav class="sidebar mobile-sidebar">
     <ul>
 <li>
-  <a onclick='navigateTo("games")'>
+  <a href="games">
   <i class=ri-gamepad-fill></i>
   <span>Events</span>
   </a>
@@ -516,8 +516,6 @@
   
   </div>
 
-  <!-- Posts Section -->
-
         <div id="allposts" class="post-grid"><div class="preloader"></div>
   </div>
  <!-- <section class=tabs>
@@ -539,7 +537,7 @@
 </div>
 
 
-<div id="shop" class="hidden">
+<div id="shop">
         <header class="header headec">
         <div class="logo"><h1>ShopMall</h1></div>
         <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
@@ -840,7 +838,7 @@ Please Wait.....
 </div>
 
 
-<div id="policy" class="hidden">
+<div id="policy">
       <header class="header headec">
         <div class="logo"><h1>Sheria</h1></div>
         <div class="btn-primary riri" style="font-weight:500">&nbsp; 
@@ -924,7 +922,7 @@ Please Wait.....
 </div>
 
 
-<div id="games" class="hidden">
+<div id="games">
     <header class="header headec">
         <div class="logo"><h1>Events</h1></div>
         <div class="btn-primary headec-nav open-modal" data-modal="modal1">&nbsp; 
@@ -1140,7 +1138,7 @@ Please Wait.....
 </div>
 
 
-<div id="profile" class="hidden">
+<div id="profile">
   <header class="page-header">
     <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
     <h1>Profile (<span class="user-name"> No data </span>)</h1>
@@ -1279,25 +1277,23 @@ Please Wait.....
   </section>
 </div>
     </div>
-    <script>
+<script>
 // Function to navigate to a specific section
 function navigateTo(pageId) {
   // Hide all sections
   document.querySelectorAll(".main-content > div").forEach((div) => {
-    div.classList.add("hidden");
-    div.classList.remove("visible");
+    div.style.display = "none"; // Hide section
   });
 
   // Show the target section
   const target = document.getElementById(pageId);
   if (target) {
-    target.classList.remove("hidden");
-    target.classList.add("visible");
+    target.style.display = "block"; // Show section
     
     // Reset scroll position to the top of the section
     window.scrollTo({
-top: 0,
-behavior: "smooth", // Optional: Adds smooth scrolling effect
+      top: 0,
+      behavior: "smooth", // Optional: Adds smooth scrolling effect
     });
   }
 }
@@ -1306,13 +1302,18 @@ behavior: "smooth", // Optional: Adds smooth scrolling effect
 document.querySelectorAll('.sidebar a').forEach(link => {
   link.addEventListener('click', function(event) {
     event.preventDefault(); // Prevent default link behavior
-    const targetId = this.getAttribute('onclick').match(/navigateTo\("(\w+)"\)/)[1];
+  
+    const targetId = this.getAttribute('href').replace('#', '');
     navigateTo(targetId);
   });
 });
 
-    </script>
-
+// Optionally, you can use the following to initialize the first visible section
+document.addEventListener('DOMContentLoaded', function() {
+  // Optionally navigate to the default section on page load (e.g., first page)
+  navigateTo('home'); // Assuming 'home' is the ID of your default section
+});
+</script>
 
 <script>
 document.getElementById("create-post-button").addEventListener("click", function() {
