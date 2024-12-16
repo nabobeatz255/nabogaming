@@ -231,7 +231,9 @@
     }
     
     .toast.success {
-      background-color: #4CAF50;
+      color: #4CAF50;
+      background-color: rgba(255,255,255,0.7);
+      backdrop-filter: blur(4px)
     }
 
     .toast.error {
@@ -241,11 +243,15 @@
     }
 
     .toast.info {
-      background-color: #2196F3;
+      color: #2196F3;
+      background-color: rgba(255,255,255,0.7);
+      backdrop-filter: blur(4px)
     }
 
     .toast.warning {
-      background-color: #ff9800;
+    color: red;
+      background-color: rgba(255,255,255,0.7);
+      backdrop-filter: blur(4px)
     }
 
     @keyframes fadeIn {
@@ -1499,7 +1505,7 @@ initializeModals();
   <script>
   document.getElementById('create-post-button').addEventListener('click', function() {
   // Change text to "Uploading"
-  this.textContent = 'Uploading';
+  this.textContent = 'Uploading Please Wait';
   
   // Add dynamic loading dots
   let loadingDots = document.createElement('span');
