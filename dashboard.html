@@ -596,7 +596,7 @@
 <div class=hero-content>
   <h3 style="color: black">Create Your New <span class="user-name"></span>'s Post</h3>
 <input type="text" id="new-post-caption" placeholder="Write a caption...">
-      <input type="file" id="new-post-image">
+     <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()">
       <button id="create-post-button">Upload Post Now</button>
 </div>
     </section>
@@ -1534,6 +1534,30 @@ initializeModals();
             document.getElementById("search-input").value = item;
             document.getElementById("suggestions-list").style.display = 'none';
         }
+    </script>
+    <script>
+        function checkImage() {
+    const fileInput = document.getElementById('new-post-image');
+    const file = fileInput.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // Check if the image is landscape (width > height)
+                if (img.width > img.height) {
+                    console.log("Valid landscape image.");
+                } else {
+                    showToast("Please upload a landscape image.");
+                    fileInput.value = '';  // Clear the file input
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
     </script>
   </body>
 </html>
