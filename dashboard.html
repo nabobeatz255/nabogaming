@@ -569,11 +569,13 @@ const displayUniqueId = (uid) => {
            
 <div class=hero-content>
     <div class="heading">
-      <h3 style="color:black">Create a New  <span class="user-name"></span>'s Post</h3></div>
-     <input type="text" id="new-post-caption" placeholder="Write a caption...">
+      <h3 style="color:black">Create Your New  <span class="user-name"></span>'s Post</h3></div>
+     <input type="text" id="new-post-caption" placeholder="Write a description...">
       <input type="file" id="new-post-image">
-
-  <button id="create-post-button">Post</button>
+<button id="create-post-button">Upload Post</button>
+<div style="display: none;">
+    <p>Uploading...<span class="preloader"></span></p>
+</div>
 </div>
     </section>
   
@@ -1375,7 +1377,16 @@ document.querySelectorAll('.sidebar a').forEach(link => {
 });
 
     </script>
-    <script>let currentSlide=0;function showNextSlide(){const e=document.querySelectorAll(".carousel-slide");e[currentSlide].style.display="none",currentSlide=(currentSlide+1)%e.length,e[currentSlide].style.display="block"}document.querySelectorAll(".carousel-slide").forEach(((e,l)=>{e.style.display=0===l?"block":"none"})),setInterval(showNextSlide,3e3)</script>
+   <script>document.getElementById("create-post-button").addEventListener("click", function() {
+    var preloader = document.querySelector(".preloader");
+    // Display the preloader when the button is clicked
+    preloader.style.display = "block";
+    
+    // You can hide the preloader after some time, like a simulated process
+    setTimeout(function() {
+        preloader.style.display = "none";
+    }, 93000); // Hide after 3 seconds (adjust as needed)
+});</script>
     <script>function showTab(e){document.querySelectorAll(".tab-content").forEach((e=>{e.classList.add("hidden"),e.classList.remove("visible")})),document.getElementById(e).classList.add("visible")}</script>
     <script>const toggleCommentsButtons=document.querySelectorAll(".toggle-comments");toggleCommentsButtons.forEach((t=>{t.addEventListener("click",(function(){const t=this.getAttribute("data-target"),e=document.getElementById(t);"flex"===e.style.display?(e.style.display="none",this.innerHTML='<i class="ri-arrow-down-s-line"></i> View Comments'):(e.style.display="flex",this.innerHTML='<i class="ri-arrow-up-s-line"></i> Hide Comments')}))}))</script>
     <script>
