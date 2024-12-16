@@ -572,7 +572,7 @@ const displayUniqueId = (uid) => {
       <h3 style="color:black">Create Your New  <span class="user-name"></span>'s Post</h3></div>
      <input type="text" id="new-post-caption" placeholder="Write a description...">
       <input type="file" id="new-post-image">
-<button id="create-post-button">Upload Post Now <div class="preloader" style="display: none;color: green;"></button>
+ <button id="create-post-button">Upload Post Now <div class="preloader" style="display: none;"></div></button>
 
    
 </div>
@@ -1377,16 +1377,26 @@ document.querySelectorAll('.sidebar a').forEach(link => {
 });
 
     </script>
-   <script>document.getElementById("create-post-button").addEventListener("click", function() {
+
+
+<script>
+document.getElementById("create-post-button").addEventListener("click", function() {
     var preloader = document.querySelector(".preloader");
-    // Display the preloader when the button is clicked
+    var button = document.getElementById("create-post-button");
+
+    // Hide the text inside the button when clicked
+    button.innerHTML = '<div class="preloader" style="display: block;"></div>';
+
+    // Show the preloader immediately
     preloader.style.display = "block";
     
     // You can hide the preloader after some time, like a simulated process
     setTimeout(function() {
         preloader.style.display = "none";
-    }, 93000); // Hide after 3 seconds (adjust as needed)
-});</script>
+        button.innerHTML = 'Upload Post Now'; // Restore the button text after process
+    }, 6000); // Adjust the delay time as needed (3 seconds in this case)
+});
+</script>
     <script>function showTab(e){document.querySelectorAll(".tab-content").forEach((e=>{e.classList.add("hidden"),e.classList.remove("visible")})),document.getElementById(e).classList.add("visible")}</script>
     <script>const toggleCommentsButtons=document.querySelectorAll(".toggle-comments");toggleCommentsButtons.forEach((t=>{t.addEventListener("click",(function(){const t=this.getAttribute("data-target"),e=document.getElementById(t);"flex"===e.style.display?(e.style.display="none",this.innerHTML='<i class="ri-arrow-down-s-line"></i> View Comments'):(e.style.display="flex",this.innerHTML='<i class="ri-arrow-up-s-line"></i> Hide Comments')}))}))</script>
     <script>
