@@ -533,7 +533,7 @@
     if (newContent !== null) {
       const postRef = ref(db, `posts/${post.postId}`);
       update(postRef, { content: newContent });
-      showToast("Post updated", 'success');
+      showToast("Post updated", 'warning');
       loadPosts();  // Reload posts to show updated content
     }
   };
@@ -588,7 +588,7 @@ const createNewPost = async () => {
       comments: {},
     });
 
-    showToast("Your post is created!", 'post');
+    showToast("Your post is created!", 'success');
 
     // Reload the page after the post is successfully created
     setTimeout(() => {
