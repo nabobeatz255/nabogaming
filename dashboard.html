@@ -425,11 +425,11 @@
           <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
         </div>
         <div class="post-options">
-          <i class="ri-message-2-line toggle-comments" data-target="comments-container-${post.postId}">
-        </i>
+          <i class="ri-message-2-line toggle-comments" data-target="comments-container-${post.postId}"></i>
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
             ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
               ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
+              <i class="ri-bookmark-line save-post-btn" data-id="${post.postId}"></i>
         </div>
       </div>
       <div class="post-image">
@@ -483,154 +483,52 @@
         editButton.addEventListener("click", () => editPost(post));
       }
     }
+
+    // Save post functionality
+    const saveButton = postElement.querySelector(".save-post-btn");
+    if (saveButton) {
+      saveButton.addEventListener("click", () => savePost(post.postId));
+    }
   };
 
-  const renderComments = (comments) => {
-    if (!comments) return "";
-    return Object.keys(comments).map(commentId => {
-      const comment = comments[commentId];
-      return `
-        <div class="comment">
-          <span class="comment-username">From ${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
-        </div>
-      `;
-    }).join("");
-  };
-
-  const likePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-    const snapshot = await get(postRef);
+  const savePost = async (postId) => {
+    const savedPostsRef = ref(db, `savedPosts/${currentUser.uid}/${postId}`);
+    const snapshot = await get(savedPostsRef);
     if (snapshot.exists()) {
-      await remove(postRef);  // Remove like
-      showToast("Unliked", 'info');
+      showToast("Post already saved", 'info');
     } else {
-      await set(postRef, true);  // Add like
-      showToast("You liked the post", 'success');
-    }
-    loadPosts();  // Reload to reflect the changes
-  };
-
-  const submitComment = async (postId, commentText) => {
-    const commentData = {
-      username: currentUser.displayName,
-      message: commentText,
-    };
-
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showToast("Comment added", 'success');
-    loadPosts();  // Reload posts to show the new comment
-  };
-
-  const deletePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}`);
-    await remove(postRef);  // Delete the post
-    loadPosts();  // Reload posts to remove the deleted post
-    showToast("Post deleted", 'success');
-  };
-
-  const editPost = (post) => {
-    const newContent = prompt("Edit your post content:", post.content);
-    if (newContent !== null) {
-      const postRef = ref(db, `posts/${post.postId}`);
-      update(postRef, { content: newContent });
-      showToast("Post updated", 'warning');
-      loadPosts();  // Reload posts to show updated content
+      await set(savedPostsRef, true);
+      showToast("Post saved", 'success');
     }
   };
 
-  const createNewPost = async () => {
-    const caption = document.getElementById("new-post-caption")?.value;
-    const fileInput = document.getElementById("new-post-image");
-    const file = fileInput?.files[0];
+  const loadSavedPosts = () => {
+    const sharingContainer = document.getElementById("sharing");
+    if (!sharingContainer) return;
 
-    if (!caption && !file) {
-      showToast("Please provide a caption and image.", 'warning');
-      return;
-    }
-
-    try {
-      let imageUrl = "";
-      showToast("Uploading your post... Please wait", 'info');
-
-      if (file) {
-        // Get the file reference
-        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        
-        // Create an upload task and track progress
-        const uploadTask = uploadBytesResumable(storageReference, file);
-        
-        // Show the progress bar
-        const progressBar = document.getElementById("progress-bar");
-        progressBar.style.display = "block"; // Make progress bar visible
-        uploadTask.on('state_changed', (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressBar.style.width = `${progress}%`;
-          progressBar.innerText = `${Math.round(progress)}%`;
+    sharingContainer.innerHTML = "";
+    const savedPostsRef = ref(db, `savedPosts/${currentUser.uid}`);
+    onValue(savedPostsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        snapshot.forEach((childSnapshot) => {
+          const postId = childSnapshot.key;
+          const postRef = ref(db, `posts/${postId}`);
+          get(postRef).then(postSnapshot => {
+            const post = postSnapshot.val();
+            displayPost(post, sharingContainer, false);  // Display saved post
+          });
         });
-
-        // Wait for the upload to complete
-        await uploadTask;
-        
-        // Get the download URL of the image
-        imageUrl = await getDownloadURL(storageReference);
-        showToast("Inspecting your post....", 'warning');
+      } else {
+        sharingContainer.innerHTML = "<p>No saved posts.</p>";
       }
-
-      // Create a new post in the Firebase Realtime Database
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-      });
-
-      showToast("Your post is created!", 'success');
-
-      // Reload the page after the post is successfully created
-      setTimeout(() => {
-        location.reload(); // Reloads the page
-      }, 1000); // Delay to ensure user sees success toast message
-
-    } catch (error) {
-      console.error("Error creating post:", error);
-      showToast("Error creating post", 'error');
-    } finally {
-      // Hide the progress bar once the process is finished
-      const progressBar = document.getElementById("progress-bar");
-      progressBar.style.display = "none";
-    }
-  };
-  
-  // Display user details
-  const displayUserDetails = () => {
-    if (!currentUser) return;
-
-    const userName = currentUser.displayName || "Anonymous";
-    const userEmail = currentUser.email || "No email available";
-    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
-
-    document.querySelectorAll('.user-name').forEach(element => {
-      element.textContent = userName;
-    });
-
-    document.querySelectorAll('.user-email').forEach(element => {
-      element.textContent = userEmail;
-    });
-
-    document.querySelectorAll('.profile-picture').forEach(element => {
-      element.src = userProfilePic;
     });
   };
 
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
+
+  // Load saved posts on page load
+  loadSavedPosts();
 </script>
-
-
 
 
  </head>
@@ -980,7 +878,7 @@ Please Wait.....
 <div class="caption">
   <span class="username">Nabobeatz</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
 </div>
-<!--button class="join">Jiunge Sasa</button-->
+<button class="join"  onclick='navigateTo("saved")'>Jiunge Sasa</button>
     </div>
   </div>
 </div>
@@ -1010,7 +908,7 @@ Please Wait.....
   </div>
 </div>
 
-<div id="sharing" class="hidden">
+<div id="saved" class="hidden">
   <div class="header-2">
     <div class="logo">
 <i class="ri-notification-fill"></i>
@@ -1018,6 +916,9 @@ Please Wait.....
     <div class="title-center">
 <h2>Saved posts</h2>
     </div>
+  </div>
+  <di class="post-grid" id="sharing">
+      
   </div>
 
 </div>
