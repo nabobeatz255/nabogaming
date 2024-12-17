@@ -382,36 +382,41 @@ const displayUniqueId = (uid) => {
     return `${years}yr ago`;
   };
 
-  const loadPosts = () => {
-    const allPostsContainer = document.getElementById("allposts");
-    const myPostsContainer = document.getElementById("myposts");
+ const loadPosts = () => {
+  const allPostsContainer = document.getElementById("allposts");
+  const myPostsContainer = document.getElementById("myposts");
 
-    // Only proceed if the containers are present
-    if (!allPostsContainer || !myPostsContainer) return;
+  // Only proceed if the containers are present
+  if (!allPostsContainer || !myPostsContainer) return;
 
-    allPostsContainer.innerHTML = "";
-    myPostsContainer.innerHTML = "";
+  // Clear the containers before adding new posts
+  allPostsContainer.innerHTML = "";
+  myPostsContainer.innerHTML = "";
 
-    const postsRef = ref(db, "posts");
-    onValue(postsRef, (snapshot) => {
-      const posts = [];
-      snapshot.forEach((childSnapshot) => {
-        const post = childSnapshot.val();
-        const postId = childSnapshot.key;
-        posts.push({ postId, ...post });
-      });
-
-      // Sort posts by timestamp from new to old
-      posts.sort((a, b) => b.timestamp - a.timestamp);
-
-      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts;
-
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+  const postsRef = ref(db, "posts");
+  onValue(postsRef, (snapshot) => {
+    const posts = [];
+    snapshot.forEach((childSnapshot) => {
+      const post = childSnapshot.val();
+      const postId = childSnapshot.key;
+      posts.push({ postId, ...post });
     });
-  };
-  // Function to load liked posts and exclude posts from the user's "myposts"
+
+    // Sort posts by timestamp from new to old
+    posts.sort((a, b) => b.timestamp - a.timestamp);
+
+    // Filter posts for my posts and all posts
+    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+    const allPosts = posts;
+
+    // Display my posts (with edit/delete options)
+    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+
+    // Display all posts (without edit/delete options)
+    allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+  });
+};
+ 
   const loadLikedPosts = () => {
     const likedPostsContainer = document.getElementById("likedposts");
     if (!likedPostsContainer) return;
@@ -436,8 +441,14 @@ const displayUniqueId = (uid) => {
   };
 
 const displayPost = (post, container, isMyPost) => {
+  // Check if the post already exists in the container to avoid duplicates
+  const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
+  if (existingPost) return; // If post already exists, don't append again
+
   const postElement = document.createElement("div");
   postElement.className = "instagram-post-2";
+  postElement.setAttribute("data-post-id", post.postId); // Store the post ID as a data attribute
+
   postElement.innerHTML = `
     <div class="post-header">
       <div class="profile-picture">
@@ -1051,7 +1062,7 @@ Please Wait.....
     <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
     <h1>Liked Posts (<span class="user-name"> No data </span>)</h1>
   </header>
-  <br><br><br><br>
+  <br><br>
   <div class="post-grid" id="likedposts">
       
   </div>
