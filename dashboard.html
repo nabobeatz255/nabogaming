@@ -658,6 +658,7 @@ const displayPost = (post, container, isMyPost) => {
     <div class=icons>
 <i class=ri-notification-line  id="toggleNotify" style="	font-size: 20px;"></i>
 <i style="color: black;	font-size: 33px;" onclick="openCreateModal()" class="ri-add-circle-fill"></i>
+<i class=ri-heart-line   onclick='navigateTo("saved")' style="	font-size: 20px;"></i>
     </div>
   </header>
   <nav class="sidebar mobile-sidebar">
@@ -1048,8 +1049,9 @@ Please Wait.....
 <div id="saved" class="hidden">
   <header class="page-header">
     <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
-    <h1>Saved Posts (<span class="user-name"> No data </span>)</h1>
+    <h1>Liked Posts (<span class="user-name"> No data </span>)</h1>
   </header>
+  <br><br>
   <div class="post-grid" id="likedposts">
       
   </div>
