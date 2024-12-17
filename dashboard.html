@@ -279,140 +279,96 @@
   const storage = getStorage(app);
 
   let currentUser = null;
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      loadPosts();  // Load posts after successful login
-      loadLikedPosts();  // Load liked posts
-      displayUserDetails(); // Display user details if available
-      displayUniqueId(user.uid);  // Display the unique ID of the user
-    } else {
-      showToast("You are not signed in. Redirecting to login...", 'error');
-      window.location.href = "index.html";
-    }
-  });
+ onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (user) {
+    loadPosts();  // Load posts after successful login
+    loadLikedPosts();  // Load liked posts
+    displayUserDetails(); // Display user details if available
+    displayUniqueId(user.uid);  // Display the unique ID of the user
+  } else {
+    showToast("You are not signed in. Redirecting to login...", 'error');
+    window.location.href = "index.html";
+  }
+});
+const generateUniqueId = (uid) => {
+  // Generate a unique ID in the format "332004<uid>NB"
+  return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
+};
 
+// Function to display the unique ID in HTML
+const displayUniqueId = (uid) => {
+  const uniqueId = generateUniqueId(uid);
+  
+  // Assuming you have an element with class 'user-uid' to display the ID
+  document.querySelectorAll('.user-uid').forEach(element => {
+    element.textContent = uniqueId;  // Set the unique ID
+  });
+};
+
+
+  // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
     toast.textContent = message;
+
+    // Append to the body
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
   };
 
-  const displayUserDetails = () => {
-    if (!currentUser) return;
-
-    const userName = currentUser.displayName || "Anonymous";
-    const userEmail = currentUser.email || "No email available";
-    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
-    const userUid = currentUser.uid;
-
-    document.querySelector('.user-name').textContent = userName;
-
-    if (isVipUser(userUid)) {
-      document.querySelector('.user-name').innerHTML = `${userName} <i class="ri-vip-crown-fill vip-user">VIP</i>`;
+  // CSS Styles for Toast notifications
+  const style = document.createElement('style');
+  style.textContent = `
+    .toast {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      padding-top:16px;
+      padding-left:10px;
+      padding-bottom:10px;
+      padding-right:10px;
+      transform: translateX(-50%);
+      width: 100%;height:50px;
+      color: white;text-align: center;
+      font-size: 14px;
+      opacity: 0;z-index: 999999;
+      animation: fadeIn 0.5s forwards;
+    }
+    
+    .toast.success {
+      background-color: #4CAF50; /* Green */
     }
 
-    document.querySelector('.user-email').textContent = userEmail;
-    document.querySelector('.profile-picture').src = userProfilePic;
-  };
+    .toast.error {
+    height: 100vh;
+    padding-top: 50vh;
+      background-color: #f44336; /* Red */
+    }
 
-  const isVipUser = (uid) => {
-    const vipUids = ["Sw9hx2GrwMYPkmzimgOMsTEbKK53", "uid2", "uid3"];  // Replace with actual UIDs
-    return vipUids.includes(uid);
-  };
+    .toast.info {
+      background-color: #2196F3; /* Blue */
+    }
 
-  const generateUniqueId = (uid) => {
-    return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
-  };
+    .toast.warning {
+      background-color: #ff9800; /* Orange */
+    }
 
-  const displayUniqueId = (uid) => {
-    const uniqueId = generateUniqueId(uid);
-    document.querySelectorAll('.user-uid').forEach(element => {
-      element.textContent = uniqueId;  // Set the unique ID
-    });
-  };
-
-  const loadPosts = () => {
-    const allPostsContainer = document.getElementById("allposts");
-    const myPostsContainer = document.getElementById("myposts");
-
-    if (!allPostsContainer || !myPostsContainer) return;
-
-    allPostsContainer.innerHTML = "";
-    myPostsContainer.innerHTML = "";
-
-    const postsRef = ref(db, "posts");
-    onValue(postsRef, (snapshot) => {
-      const posts = [];
-      snapshot.forEach((childSnapshot) => {
-        const post = childSnapshot.val();
-        const postId = childSnapshot.key;
-        posts.push({ postId, ...post });
-      });
-
-      posts.sort((a, b) => b.timestamp - a.timestamp);
-
-      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts;
-
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true));
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false));
-    });
-  };
-
-  const displayPost = (post, container, isMyPost) => {
-    const postElement = document.createElement("div");
-    postElement.className = "instagram-post-2";
-    postElement.setAttribute("data-post-id", post.postId);
-
-    postElement.innerHTML = `
-      <div class="post-header">
-        <div class="profile-picture">
-          <img src="${post.authorPhoto}" alt="User profile picture">
-        </div>
-        <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
-        </div>
-        <div class="post-options">
-          <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
-          <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-          ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
-          ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
-        </div>
-      </div>
-      <div class="post-image">
-        <img src="${post.imageUrl}" alt="Post content">
-      </div>
-      <div class="caption">
-        <span class="username">${post.authorName}</span> ${post.content}
-      </div>
-      <div class="post-comments">
-        <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
-          ${renderComments(post.comments)}
-        </div>
-        <div class="comment-input-container">
-          <input class="comment-input" placeholder="Write a comment...">
-          <button class="submit-comment" data-post-id="${post.postId}">Send</button>
-        </div>
-      </div>
-    `;
-    container.appendChild(postElement);
-  };
-
-  const renderComments = (comments) => {
-    if (!comments) return "";
-    return Object.keys(comments).map(commentId => {
-      const comment = comments[commentId];
-      return `
-        <div class="comment">
-          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
-        </div>
-      `;
-    }).join("");
-  };
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  `;
+  document.head.appendChild(style);
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -432,39 +388,228 @@
     return `${years}yr ago`;
   };
 
-  document.getElementById("create-post-button")?.addEventListener("click", async () => {
+  const loadPosts = () => {
+    const allPostsContainer = document.getElementById("allposts");
+    const myPostsContainer = document.getElementById("myposts");
+
+    // Only proceed if the containers are present
+    if (!allPostsContainer || !myPostsContainer) return;
+
+    allPostsContainer.innerHTML = "";
+    myPostsContainer.innerHTML = "";
+
+    const postsRef = ref(db, "posts");
+    onValue(postsRef, (snapshot) => {
+      const posts = [];
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
+      });
+
+      // Sort posts by timestamp from new to old
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+
+      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+      const allPosts = posts;
+
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+    });
+  };
+  // Function to load liked posts and exclude posts from the user's "myposts"
+  const loadLikedPosts = () => {
+    const likedPostsContainer = document.getElementById("likedposts");
+    if (!likedPostsContainer) return;
+
+    likedPostsContainer.innerHTML = "";
+
+    const postsRef = ref(db, "posts");
+    onValue(postsRef, (snapshot) => {
+      const posts = [];
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
+      });
+
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+
+      // Filter liked posts (exclude posts by the current user)
+      const likedPosts = posts.filter(post => post.likes && post.likes[currentUser.uid] && post.authorName !== currentUser.displayName);
+      likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));  // No delete button for liked posts
+    });
+  };
+
+  const displayPost = (post, container, isMyPost) => {
+    const postElement = document.createElement("div");
+    postElement.className = "instagram-post-2";
+    postElement.innerHTML = `
+      <div class="post-header">
+        <div class="profile-picture">
+          <img src="${post.authorPhoto}" alt="User profile picture">
+        </div>
+        <div class="profile-details">
+          <div class="profile-name">${post.authorName}</div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+        </div>
+        <div class="post-options">
+          <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}">
+        </i>
+          <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+            ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+              ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
+        </div>
+      </div>
+      <div class="post-image">
+        <img src="${post.imageUrl}" alt="Post content">
+      </div>
+      <div class="caption">
+        <span class="username">${post.authorName}</span> ${post.content}
+      </div>
+      <div class="post-comments">
+      
+        <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
+          ${renderComments(post.comments)}
+        </div>
+        <div class="comment-input-container">
+          <input class="comment-input" placeholder="Write a comment...">
+          <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(postElement);
+
+    if (postElement.querySelector(".like-btn")) {
+      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+    }
+
+    if (postElement.querySelector(".toggle-comments")) {
+      postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+        const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+        commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+      });
+    }
+
+    if (postElement.querySelector(".submit-comment")) {
+      postElement.querySelector(".submit-comment").addEventListener("click", () => {
+        const commentInput = postElement.querySelector(".comment-input");
+        const commentText = commentInput.value.trim();
+        if (commentText !== "") {
+          submitComment(post.postId, commentText);
+          commentInput.value = "";
+        }
+      });
+    }
+
+    if (isMyPost) {
+      const deleteButton = postElement.querySelector(".delete-post-btn");
+      if (deleteButton) {
+        deleteButton.addEventListener("click", () => deletePost(post.postId));
+      }
+      const editButton = postElement.querySelector(".edit-btn");
+      if (editButton) {
+        editButton.addEventListener("click", () => editPost(post));
+      }
+    }
+  };
+
+  const renderComments = (comments) => {
+    if (!comments) return "";
+    return Object.keys(comments).map(commentId => {
+      const comment = comments[commentId];
+      return `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+        </div>
+      `;
+    }).join("");
+  };
+
+  const likePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await remove(postRef);  // Remove like
+      showToast("unliked", 'info');
+    } else {
+      await set(postRef, true);  // Add like
+      showToast("you liked the post", 'success');
+    }
+    loadPosts();  // Reload to reflect the changes
+  };
+
+  const submitComment = async (postId, commentText) => {
+    const commentData = {
+      username: currentUser.displayName,
+      message: commentText,
+    };
+
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    showToast("comment added", 'success');
+    loadPosts();  // Reload posts to show the new comment
+  };
+
+  const deletePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}`);
+    await remove(postRef);  // Delete the post
+    loadPosts();  // Reload posts to remove the deleted post
+    showToast("post imefutwa", 'success');
+  };
+
+  const editPost = (post) => {
+    const newContent = prompt("Edit your post content:", post.content);
+    if (newContent !== null) {
+      const postRef = ref(db, `posts/${post.postId}`);
+      update(postRef, { content: newContent });
+      showToast("post imeupdatiwa", 'success');
+      loadPosts();  // Reload posts to show updated content
+    }
+  };
+
+  const createNewPost = async () => {
     const caption = document.getElementById("new-post-caption")?.value;
     const fileInput = document.getElementById("new-post-image");
     const file = fileInput?.files[0];
 
     if (!caption && !file) {
-      showToast("Please enter caption and image.", 'warning');
+      showToast("tafadhari weka caption na image.", 'warning');
       return;
     }
 
-    let imageUrl = "";
-    showToast("Uploading post... Please wait", 'info');
+    try {
+      let imageUrl = "";
+      showToast("Uploading post yako...Tafadhari subiri", 'info');
 
-    if (file) {
-      const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-      await uploadBytes(storageReference, file);
-      imageUrl = await getDownloadURL(storageReference);
+      if (file) {
+        // Upload image to Firebase Storage
+        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+        await uploadBytes(storageReference, file);
+        imageUrl = await getDownloadURL(storageReference);
+        showToast("ukaguzi wa post umekamilika", 'info');
+      }
+
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: currentUser.displayName || "Anonymous",
+        authorPhoto: currentUser.photoURL || "default.jpg",
+        content: caption,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
+      });
+
+      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      window.location.reload();  // Reload the page after successful upload
+    } catch (error) {
+      console.error("Error creating post:", error);
+      showToast("Error creating post", 'error');
     }
+  };
 
-    const postId = push(ref(db, "posts")).key;
-    await set(ref(db, `posts/${postId}`), {
-      authorName: currentUser.displayName || "Anonymous",
-      authorPhoto: currentUser.photoURL || "default.jpg",
-      content: caption,
-      imageUrl,
-      timestamp: serverTimestamp(),
-      likes: {},
-      comments: {},
-    });
-
-    showToast("Post created successfully! Reloading...", 'success');
-    window.location.reload();
-  });
   // Display user details
   const displayUserDetails = () => {
     if (!currentUser) return;
@@ -486,8 +631,8 @@
     });
   };
 
+  document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
 </script>
-
 
 
  </head>
