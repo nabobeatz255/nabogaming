@@ -249,12 +249,6 @@
 }
 
 </style>
-<style>
-    .vip-user {
-      font-weight: bold;
-      color: gold;
-    }
-  </style>
 
 
 
@@ -388,36 +382,41 @@ const displayUniqueId = (uid) => {
     return `${years}yr ago`;
   };
 
-  const loadPosts = () => {
-    const allPostsContainer = document.getElementById("allposts");
-    const myPostsContainer = document.getElementById("myposts");
+ const loadPosts = () => {
+  const allPostsContainer = document.getElementById("allposts");
+  const myPostsContainer = document.getElementById("myposts");
 
-    // Only proceed if the containers are present
-    if (!allPostsContainer || !myPostsContainer) return;
+  // Only proceed if the containers are present
+  if (!allPostsContainer || !myPostsContainer) return;
 
-    allPostsContainer.innerHTML = "";
-    myPostsContainer.innerHTML = "";
+  // Clear the containers before adding new posts
+  allPostsContainer.innerHTML = "";
+  myPostsContainer.innerHTML = "";
 
-    const postsRef = ref(db, "posts");
-    onValue(postsRef, (snapshot) => {
-      const posts = [];
-      snapshot.forEach((childSnapshot) => {
-        const post = childSnapshot.val();
-        const postId = childSnapshot.key;
-        posts.push({ postId, ...post });
-      });
-
-      // Sort posts by timestamp from new to old
-      posts.sort((a, b) => b.timestamp - a.timestamp);
-
-      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts;
-
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+  const postsRef = ref(db, "posts");
+  onValue(postsRef, (snapshot) => {
+    const posts = [];
+    snapshot.forEach((childSnapshot) => {
+      const post = childSnapshot.val();
+      const postId = childSnapshot.key;
+      posts.push({ postId, ...post });
     });
-  };
-  // Function to load liked posts and exclude posts from the user's "myposts"
+
+    // Sort posts by timestamp from new to old
+    posts.sort((a, b) => b.timestamp - a.timestamp);
+
+    // Filter posts for my posts and all posts
+    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+    const allPosts = posts;
+
+    // Display my posts (with edit/delete options)
+    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+
+    // Display all posts (without edit/delete options)
+    allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+  });
+};
+ 
   const loadLikedPosts = () => {
     const likedPostsContainer = document.getElementById("likedposts");
     if (!likedPostsContainer) return;
@@ -441,79 +440,86 @@ const displayUniqueId = (uid) => {
     });
   };
 
-  const displayPost = (post, container, isMyPost) => {
-    const postElement = document.createElement("div");
-    postElement.className = "instagram-post-2";
-    postElement.innerHTML = `
-      <div class="post-header">
-        <div class="profile-picture">
-          <img src="${post.authorPhoto}" alt="User profile picture">
-        </div>
-        <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
-        </div>
-        <div class="post-options">
-          <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}">
-        </i>
-          <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-            ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
-              ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
-        </div>
+const displayPost = (post, container, isMyPost) => {
+  // Check if the post already exists in the container to avoid duplicates
+  const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
+  if (existingPost) return; // If post already exists, don't append again
+
+  const postElement = document.createElement("div");
+  postElement.className = "instagram-post-2";
+  postElement.setAttribute("data-post-id", post.postId); // Store the post ID as a data attribute
+
+  postElement.innerHTML = `
+    <div class="post-header">
+      <div class="profile-picture">
+        <img src="${post.authorPhoto}" alt="User profile picture">
       </div>
-      <div class="post-image">
-        <img src="${post.imageUrl}" alt="Post content">
+      <div class="profile-details">
+        <div class="profile-name">${post.authorName}</div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
       </div>
-      <div class="caption">
-        <span class="username">${post.authorName}</span> ${post.content}
+      <div class="post-options">
+        <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
+        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+        ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+        ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
       </div>
-      <div class="post-comments">
-      
-        <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
-          ${renderComments(post.comments)}
-        </div>
-        <div class="comment-input-container">
-          <input class="comment-input" placeholder="Write a comment...">
-          <button class="submit-comment" data-post-id="${post.postId}">Send</button>
-        </div>
+    </div>
+    <div class="post-image">
+      <img src="${post.imageUrl}" alt="Post content">
+    </div>
+    <div class="caption">
+      <span class="username">${post.authorName}</span> ${post.content}
+    </div>
+    <div class="post-comments">
+      <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
+        ${renderComments(post.comments)}
       </div>
-    `;
+      <div class="comment-input-container">
+        <input class="comment-input" placeholder="Write a comment...">
+        <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+      </div>
+    </div>
+  `;
 
-    container.appendChild(postElement);
+  container.appendChild(postElement);
 
-    if (postElement.querySelector(".like-btn")) {
-      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-    }
+  // Add event listeners for actions
+  if (postElement.querySelector(".like-btn")) {
+    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+  }
 
-    if (postElement.querySelector(".toggle-comments")) {
-      postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-        const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-        commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-      });
-    }
+  // Add toggle comments functionality
+  if (postElement.querySelector(".toggle-comments")) {
+    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+    });
+  }
 
-    if (postElement.querySelector(".submit-comment")) {
-      postElement.querySelector(".submit-comment").addEventListener("click", () => {
-        const commentInput = postElement.querySelector(".comment-input");
-        const commentText = commentInput.value.trim();
-        if (commentText !== "") {
-          submitComment(post.postId, commentText);
-          commentInput.value = "";
-        }
-      });
-    }
-
-    if (isMyPost) {
-      const deleteButton = postElement.querySelector(".delete-post-btn");
-      if (deleteButton) {
-        deleteButton.addEventListener("click", () => deletePost(post.postId));
+  if (postElement.querySelector(".submit-comment")) {
+    postElement.querySelector(".submit-comment").addEventListener("click", () => {
+      const commentInput = postElement.querySelector(".comment-input");
+      const commentText = commentInput.value.trim();
+      if (commentText !== "") {
+        submitComment(post.postId, commentText);
+        commentInput.value = "";
       }
-      const editButton = postElement.querySelector(".edit-btn");
-      if (editButton) {
-        editButton.addEventListener("click", () => editPost(post));
-      }
+    });
+  }
+
+  // Only show delete and edit buttons for user's own posts
+  if (isMyPost) {
+    const deleteButton = postElement.querySelector(".delete-post-btn");
+    if (deleteButton) {
+      deleteButton.addEventListener("click", () => deletePost(post.postId));
     }
-  };
+    const editButton = postElement.querySelector(".edit-btn");
+    if (editButton) {
+      editButton.addEventListener("click", () => editPost(post));
+    }
+  }
+};
 
   const renderComments = (comments) => {
     if (!comments) return "";
@@ -633,6 +639,7 @@ const displayUniqueId = (uid) => {
 
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
 </script>
+
 
 
  </head>
