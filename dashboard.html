@@ -331,7 +331,12 @@
       color: #4CAF50;
       background-color: rgba(255,255,255);
     }
-
+     .toast.post {
+      height: 100vh;
+      padding-top: 50vh;
+      color: white
+      background-color: green;
+    }
     .toast.error {
       height: 100vh;
       padding-top: 50vh;
@@ -552,7 +557,7 @@
       const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
       await uploadBytes(storageReference, file);
       imageUrl = await getDownloadURL(storageReference);
-      showToast("Post upload completed", 'info');
+      showToast("Inspecting your post....", 'warning');
     }
 
     const postId = push(ref(db, "posts")).key;
@@ -566,7 +571,7 @@
       comments: {},
     });
 
-    showToast("Your post is created!", 'success');
+    showToast("Your post is created!", 'post');
     
     // Instead of reloading, call loadPosts to fetch and display the new post
     loadPosts();
