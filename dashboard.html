@@ -429,7 +429,6 @@
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
             ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
               ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
-              <i class="ri-bookmark-line save-post-btn" data-id="${post.postId}"></i>
         </div>
       </div>
       <div class="post-image">
@@ -483,51 +482,10 @@
         editButton.addEventListener("click", () => editPost(post));
       }
     }
-
-    // Save post functionality
-    const saveButton = postElement.querySelector(".save-post-btn");
-    if (saveButton) {
-      saveButton.addEventListener("click", () => savePost(post.postId));
-    }
-  };
-
-  const savePost = async (postId) => {
-    const savedPostsRef = ref(db, `savedPosts/${currentUser.uid}/${postId}`);
-    const snapshot = await get(savedPostsRef);
-    if (snapshot.exists()) {
-      showToast("Post already saved", 'info');
-    } else {
-      await set(savedPostsRef, true);
-      showToast("Post saved", 'success');
-    }
-  };
-
-  const loadSavedPosts = () => {
-    const sharingContainer = document.getElementById("sharing");
-    if (!sharingContainer) return;
-
-    sharingContainer.innerHTML = "";
-    const savedPostsRef = ref(db, `savedPosts/${currentUser.uid}`);
-    onValue(savedPostsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        snapshot.forEach((childSnapshot) => {
-          const postId = childSnapshot.key;
-          const postRef = ref(db, `posts/${postId}`);
-          get(postRef).then(postSnapshot => {
-            const post = postSnapshot.val();
-            displayPost(post, sharingContainer, false);  // Display saved post
-          });
-        });
-      } else {
-        sharingContainer.innerHTML = "<p>No saved posts.</p>";
-      }
-    });
   };
 
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
 
-  // Load saved posts on page load
-  loadSavedPosts();
 </script>
 
 
