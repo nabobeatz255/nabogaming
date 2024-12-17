@@ -533,47 +533,49 @@
     }
   };
 
-  const createNewPost = async () => {
-    const caption = document.getElementById("new-post-caption")?.value;
-    const fileInput = document.getElementById("new-post-image");
-    const file = fileInput?.files[0];
+ const createNewPost = async () => {
+  const caption = document.getElementById("new-post-caption")?.value;
+  const fileInput = document.getElementById("new-post-image");
+  const file = fileInput?.files[0];
 
-    if (!caption && !file) {
-      showToast("Please provide a caption and image.", 'warning');
-      return;
+  if (!caption && !file) {
+    showToast("Please provide a caption and image.", 'warning');
+    return;
+  }
+
+  try {
+    let imageUrl = "";
+    showToast("Uploading your post... Please wait", 'info');
+
+    if (file) {
+      // Upload image to Firebase Storage
+      const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+      await uploadBytes(storageReference, file);
+      imageUrl = await getDownloadURL(storageReference);
+      showToast("Post upload completed", 'info');
     }
 
-    try {
-      let imageUrl = "";
-      showToast("Uploading your post... Please wait", 'info');
+    const postId = push(ref(db, "posts")).key;
+    await set(ref(db, `posts/${postId}`), {
+      authorName: currentUser.displayName || "Anonymous",
+      authorPhoto: currentUser.photoURL || "default.jpg",
+      content: caption,
+      imageUrl,
+      timestamp: serverTimestamp(),
+      likes: {},
+      comments: {},
+    });
 
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        await uploadBytes(storageReference, file);
-        imageUrl = await getDownloadURL(storageReference);
-        showToast("Post upload completed", 'info');
-      }
+    showToast("Your post is created!", 'success');
+    
+    // Instead of reloading, call loadPosts to fetch and display the new post
+    loadPosts();
 
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-      });
-
-      showToast("Your post is created... Reloading!", 'success');
-      window.location.reload();  // Reload the page after successful upload
-    } catch (error) {
-      console.error("Error creating post:", error);
-      showToast("Error creating post", 'error');
-    }
-  };
-
+  } catch (error) {
+    console.error("Error creating post:", error);
+    showToast("Error creating post", 'error');
+  }
+};
   // Display user details
   const displayUserDetails = () => {
     if (!currentUser) return;
