@@ -259,204 +259,234 @@
 
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-    import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-      authDomain: "register-71bde.firebaseapp.com",
-      projectId: "register-71bde",
-      storageBucket: "register-71bde.appspot.com",
-      messagingSenderId: "412548441298",
-      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+    authDomain: "register-71bde.firebaseapp.com",
+    projectId: "register-71bde",
+    storageBucket: "register-71bde.appspot.com",
+    messagingSenderId: "412548441298",
+    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const db = getDatabase(app);
-    const storage = getStorage(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getDatabase(app);
+  const storage = getStorage(app);
 
-    let currentUser = null;
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      if (user) {
-        loadPosts();  // Load posts after successful login
-        loadLikedPosts();  // Load liked posts
-        displayUserDetails(); // Display user details if available
-      } else {
-        showToast("You are not signed in. Redirecting to login...", 'error');
-        window.location.href = "index.html";
-      }
+  let currentUser = null;
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      loadPosts();  // Load posts after successful login
+      loadLikedPosts();  // Load liked posts
+      displayUserDetails(); // Display user details if available
+      displayUniqueId(user.uid);  // Display the unique ID of the user
+    } else {
+      showToast("You are not signed in. Redirecting to login...", 'error');
+      window.location.href = "index.html";
+    }
+  });
+
+  const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.classList.add('toast', type);
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  };
+
+  const displayUserDetails = () => {
+    if (!currentUser) return;
+
+    const userName = currentUser.displayName || "Anonymous";
+    const userEmail = currentUser.email || "No email available";
+    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+    const userUid = currentUser.uid;
+
+    document.querySelector('.user-name').textContent = userName;
+
+    if (isVipUser(userUid)) {
+      document.querySelector('.user-name').innerHTML = `${userName} <i class="ri-vip-crown-fill vip-user">VIP</i>`;
+    }
+
+    document.querySelector('.user-email').textContent = userEmail;
+    document.querySelector('.profile-picture').src = userProfilePic;
+  };
+
+  const isVipUser = (uid) => {
+    const vipUids = ["Sw9hx2GrwMYPkmzimgOMsTEbKK53", "uid2", "uid3"];  // Replace with actual UIDs
+    return vipUids.includes(uid);
+  };
+
+  const generateUniqueId = (uid) => {
+    return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
+  };
+
+  const displayUniqueId = (uid) => {
+    const uniqueId = generateUniqueId(uid);
+    document.querySelectorAll('.user-uid').forEach(element => {
+      element.textContent = uniqueId;  // Set the unique ID
     });
+  };
 
-    const showToast = (message, type = 'info') => {
-      const toast = document.createElement('div');
-      toast.classList.add('toast', type);
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    };
+  const loadPosts = () => {
+    const allPostsContainer = document.getElementById("allposts");
+    const myPostsContainer = document.getElementById("myposts");
 
-    const displayUserDetails = () => {
-      if (!currentUser) return;
+    if (!allPostsContainer || !myPostsContainer) return;
 
-      const userName = currentUser.displayName || "Anonymous";
-      const userEmail = currentUser.email || "No email available";
-      const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
-      const userUid = currentUser.uid;
+    allPostsContainer.innerHTML = "";
+    myPostsContainer.innerHTML = "";
 
-      // Display username and email
-      document.querySelector('.user-name').textContent = userName;
-
-      // Check if the user UID is in the VIP list, if so, add the crown icon
-      if (isVipUser(userUid)) {
-        document.querySelector('.user-name').innerHTML = `${userName} <i class="ri-vip-crown-fill vip-user"></i>`;
-      }
-
-      document.querySelector('.user-email').textContent = userEmail;
-      document.querySelector('.profile-picture').src = userProfilePic;
-    };
-
-    const isVipUser = (uid) => {
-      // List of VIP user UIDs (Example, replace with actual UID checks)
-      const vipUids = ["Sw9hx2GrwMYPkmzimgOMsTEbKK53", "uid2", "uid3"];  // Replace with actual UIDs
-      return vipUids.includes(uid);
-    };
-
-    const loadPosts = () => {
-      const allPostsContainer = document.getElementById("allposts");
-      const myPostsContainer = document.getElementById("myposts");
-
-      if (!allPostsContainer || !myPostsContainer) return;
-
-      allPostsContainer.innerHTML = "";
-      myPostsContainer.innerHTML = "";
-
-      const postsRef = ref(db, "posts");
-      onValue(postsRef, (snapshot) => {
-        const posts = [];
-        snapshot.forEach((childSnapshot) => {
-          const post = childSnapshot.val();
-          const postId = childSnapshot.key;
-          posts.push({ postId, ...post });
-        });
-
-        posts.sort((a, b) => b.timestamp - a.timestamp);
-
-        const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-        const allPosts = posts;
-
-        myPosts.forEach(post => displayPost(post, myPostsContainer, true));
-        allPosts.forEach(post => displayPost(post, allPostsContainer, false));
+    const postsRef = ref(db, "posts");
+    onValue(postsRef, (snapshot) => {
+      const posts = [];
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
       });
-    };
 
-    const displayPost = (post, container, isMyPost) => {
-      const postElement = document.createElement("div");
-      postElement.className = "instagram-post-2";
-      postElement.setAttribute("data-post-id", post.postId);
+      posts.sort((a, b) => b.timestamp - a.timestamp);
 
-      postElement.innerHTML = `
-        <div class="post-header">
-          <div class="profile-picture">
-            <img src="${post.authorPhoto}" alt="User profile picture">
-          </div>
-          <div class="profile-details">
-            <div class="profile-name">${post.authorName}</div>
-            <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
-          </div>
-          <div class="post-options">
-            <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
-            <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-            ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
-            ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
-          </div>
+      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+      const allPosts = posts;
+
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true));
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false));
+    });
+  };
+
+  const displayPost = (post, container, isMyPost) => {
+    const postElement = document.createElement("div");
+    postElement.className = "instagram-post-2";
+    postElement.setAttribute("data-post-id", post.postId);
+
+    postElement.innerHTML = `
+      <div class="post-header">
+        <div class="profile-picture">
+          <img src="${post.authorPhoto}" alt="User profile picture">
         </div>
-        <div class="post-image">
-          <img src="${post.imageUrl}" alt="Post content">
+        <div class="profile-details">
+          <div class="profile-name">${post.authorName}</div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
         </div>
-        <div class="caption">
-          <span class="username">${post.authorName}</span> ${post.content}
+        <div class="post-options">
+          <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
+          <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+          ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+          ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
         </div>
-        <div class="post-comments">
-          <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
-            ${renderComments(post.comments)}
-          </div>
-          <div class="comment-input-container">
-            <input class="comment-input" placeholder="Write a comment...">
-            <button class="submit-comment" data-post-id="${post.postId}">Send</button>
-          </div>
+      </div>
+      <div class="post-image">
+        <img src="${post.imageUrl}" alt="Post content">
+      </div>
+      <div class="caption">
+        <span class="username">${post.authorName}</span> ${post.content}
+      </div>
+      <div class="post-comments">
+        <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
+          ${renderComments(post.comments)}
+        </div>
+        <div class="comment-input-container">
+          <input class="comment-input" placeholder="Write a comment...">
+          <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(postElement);
+  };
+
+  const renderComments = (comments) => {
+    if (!comments) return "";
+    return Object.keys(comments).map(commentId => {
+      const comment = comments[commentId];
+      return `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
         </div>
       `;
-      container.appendChild(postElement);
-    };
+    }).join("");
+  };
 
-    const renderComments = (comments) => {
-      if (!comments) return "";
-      return Object.keys(comments).map(commentId => {
-        const comment = comments[commentId];
-        return `
-          <div class="comment">
-            <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
-          </div>
-        `;
-      }).join("");
-    };
+  const formatTimestamp = (timestamp) => {
+    const now = new Date();
+    const timeDiff = now - new Date(timestamp);
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
 
-    const formatTimestamp = (timestamp) => {
-      const now = new Date();
-      const timeDiff = now - new Date(timestamp);
-      const seconds = Math.floor(timeDiff / 1000);
-      const minutes = Math.floor(seconds / 60);
-      const hours = Math.floor(minutes / 60);
-      const days = Math.floor(hours / 24);
-      const months = Math.floor(days / 30);
-      const years = Math.floor(months / 12);
+    if (seconds < 60) return `just now`;
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}hr ago`;
+    if (days < 30) return `${days}d ago`;
+    if (months < 12) return `${months}mo ago`;
+    return `${years}yr ago`;
+  };
 
-      if (seconds < 60) return `just now`;
-      if (minutes < 60) return `${minutes}m ago`;
-      if (hours < 24) return `${hours}hr ago`;
-      if (days < 30) return `${days}d ago`;
-      if (months < 12) return `${months}mo ago`;
-      return `${years}yr ago`;
-    };
+  document.getElementById("create-post-button")?.addEventListener("click", async () => {
+    const caption = document.getElementById("new-post-caption")?.value;
+    const fileInput = document.getElementById("new-post-image");
+    const file = fileInput?.files[0];
 
-    document.getElementById("create-post-button")?.addEventListener("click", async () => {
-      const caption = document.getElementById("new-post-caption")?.value;
-      const fileInput = document.getElementById("new-post-image");
-      const file = fileInput?.files[0];
+    if (!caption && !file) {
+      showToast("Please enter caption and image.", 'warning');
+      return;
+    }
 
-      if (!caption && !file) {
-        showToast("Please enter caption and image.", 'warning');
-        return;
-      }
+    let imageUrl = "";
+    showToast("Uploading post... Please wait", 'info');
 
-      let imageUrl = "";
-      showToast("Uploading post... Please wait", 'info');
+    if (file) {
+      const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+      await uploadBytes(storageReference, file);
+      imageUrl = await getDownloadURL(storageReference);
+    }
 
-      if (file) {
-        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        await uploadBytes(storageReference, file);
-        imageUrl = await getDownloadURL(storageReference);
-      }
-
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-      });
-
-      showToast("Post created successfully! Reloading...", 'success');
-      window.location.reload();
+    const postId = push(ref(db, "posts")).key;
+    await set(ref(db, `posts/${postId}`), {
+      authorName: currentUser.displayName || "Anonymous",
+      authorPhoto: currentUser.photoURL || "default.jpg",
+      content: caption,
+      imageUrl,
+      timestamp: serverTimestamp(),
+      likes: {},
+      comments: {},
     });
-  </script>
+
+    showToast("Post created successfully! Reloading...", 'success');
+    window.location.reload();
+  });
+  // Display user details
+  const displayUserDetails = () => {
+    if (!currentUser) return;
+
+    const userName = currentUser.displayName || "Anonymous";
+    const userEmail = currentUser.email || "No email available";
+    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+
+    document.querySelectorAll('.user-name').forEach(element => {
+      element.textContent = userName;  // Set user name
+    });
+
+    document.querySelectorAll('.user-email').forEach(element => {
+      element.textContent = userEmail;  // Set user email
+    });
+
+    document.querySelectorAll('.profile-picture').forEach(element => {
+      element.src = userProfilePic;  // Set user profile picture
+    });
+  };
+
+</script>
 
 
 
