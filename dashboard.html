@@ -274,96 +274,45 @@
   const storage = getStorage(app);
 
   let currentUser = null;
- onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-  if (user) {
-    loadPosts();  // Load posts after successful login
-    displayUserDetails(); // Display user details if available
-    displayUniqueId(user.uid);  // Display the unique ID of the user
-  } else {
-    showToast("You are not signed in. Redirecting to login...", 'error');
-    window.location.href = "index.html";
-  }
-});
-const generateUniqueId = (uid) => {
-  // Generate a unique ID in the format "332004<uid>NB"
-  return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
-};
 
-// Function to display the unique ID in HTML
-const displayUniqueId = (uid) => {
-  const uniqueId = generateUniqueId(uid);
-  
-  // Assuming you have an element with class 'user-uid' to display the ID
-  document.querySelectorAll('.user-uid').forEach(element => {
-    element.textContent = uniqueId;  // Set the unique ID
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      loadPosts();  // Load posts after successful login
+      loadLikedPosts();  // Load liked posts
+      displayUserDetails(); // Display user details if available
+      displayUniqueId(user.uid);  // Display the unique ID of the user
+    } else {
+      showToast("You are not signed in. Redirecting to login...", 'error');
+      window.location.href = "index.html";
+    }
   });
-};
 
+  // Function to generate a unique ID based on the user's UID
+  const generateUniqueId = (uid) => {
+    return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
+  };
+
+  // Function to display the unique ID in HTML
+  const displayUniqueId = (uid) => {
+    const uniqueId = generateUniqueId(uid);
+    document.querySelectorAll('.user-uid').forEach(element => {
+      element.textContent = uniqueId;
+    });
+  };
 
   // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
     toast.textContent = message;
-
-    // Append to the body
     document.body.appendChild(toast);
-
-    // Remove toast after 3 seconds
     setTimeout(() => {
       toast.remove();
     }, 3000);
   };
 
-  // CSS Styles for Toast notifications
-  const style = document.createElement('style');
-  style.textContent = `
-    .toast {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      padding-top:16px;
-      padding-left:10px;
-      padding-bottom:10px;
-      padding-right:10px;
-      transform: translateX(-50%);
-      width: 100%;height:50px;
-      color: white;text-align: center;
-      font-size: 14px;
-      opacity: 0;z-index: 999999;
-      animation: fadeIn 0.5s forwards;
-    }
-    
-    .toast.success {
-      background-color: #4CAF50; /* Green */
-    }
-
-    .toast.error {
-    height: 100vh;
-    padding-top: 50vh;
-      background-color: #f44336; /* Red */
-    }
-
-    .toast.info {
-      background-color: #2196F3; /* Blue */
-    }
-
-    .toast.warning {
-      background-color: #ff9800; /* Orange */
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-
+  // Function to format timestamp
   const formatTimestamp = (timestamp) => {
     const now = new Date();
     const timeDiff = now - new Date(timestamp);
@@ -382,11 +331,11 @@ const displayUniqueId = (uid) => {
     return `${years}yr ago`;
   };
 
+  // Function to load posts and display them
   const loadPosts = () => {
     const allPostsContainer = document.getElementById("allposts");
     const myPostsContainer = document.getElementById("myposts");
 
-    // Only proceed if the containers are present
     if (!allPostsContainer || !myPostsContainer) return;
 
     allPostsContainer.innerHTML = "";
@@ -401,17 +350,41 @@ const displayUniqueId = (uid) => {
         posts.push({ postId, ...post });
       });
 
-      // Sort posts by timestamp from new to old
       posts.sort((a, b) => b.timestamp - a.timestamp);
 
       const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
       const allPosts = posts;
 
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true));
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false));
     });
   };
 
+  // Function to load liked posts and exclude posts from the user's "myposts"
+  const loadLikedPosts = () => {
+    const likedPostsContainer = document.getElementById("likedposts");
+    if (!likedPostsContainer) return;
+
+    likedPostsContainer.innerHTML = "";
+
+    const postsRef = ref(db, "posts");
+    onValue(postsRef, (snapshot) => {
+      const posts = [];
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
+      });
+
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+
+      // Filter liked posts (exclude posts by the current user)
+      const likedPosts = posts.filter(post => post.likes && post.likes[currentUser.uid] && post.authorName !== currentUser.displayName);
+      likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));  // No delete button for liked posts
+    });
+  };
+
+  // Function to display a single post in the given container
   const displayPost = (post, container, isMyPost) => {
     const postElement = document.createElement("div");
     postElement.className = "instagram-post-2";
@@ -425,7 +398,7 @@ const displayUniqueId = (uid) => {
           <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
         </div>
         <div class="post-options">
-          <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}">
+          <i class="ri-message-2-line toggle-comments" data-target="comments-container-${post.postId}">
         </i>
           <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
             ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
@@ -439,7 +412,6 @@ const displayUniqueId = (uid) => {
         <span class="username">${post.authorName}</span> ${post.content}
       </div>
       <div class="post-comments">
-      
         <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
           ${renderComments(post.comments)}
         </div>
@@ -486,6 +458,7 @@ const displayUniqueId = (uid) => {
     }
   };
 
+  // Function to render comments for a post
   const renderComments = (comments) => {
     if (!comments) return "";
     return Object.keys(comments).map(commentId => {
@@ -498,6 +471,7 @@ const displayUniqueId = (uid) => {
     }).join("");
   };
 
+  // Function to like a post
   const likePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
     const snapshot = await get(postRef);
@@ -509,76 +483,7 @@ const displayUniqueId = (uid) => {
       showToast("you liked the post", 'success');
     }
     loadPosts();  // Reload to reflect the changes
-  };
-
-  const submitComment = async (postId, commentText) => {
-    const commentData = {
-      username: currentUser.displayName,
-      message: commentText,
-    };
-
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showToast("comment added", 'success');
-    loadPosts();  // Reload posts to show the new comment
-  };
-
-  const deletePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}`);
-    await remove(postRef);  // Delete the post
-    loadPosts();  // Reload posts to remove the deleted post
-    showToast("post imefutwa", 'success');
-  };
-
-  const editPost = (post) => {
-    const newContent = prompt("Edit your post content:", post.content);
-    if (newContent !== null) {
-      const postRef = ref(db, `posts/${post.postId}`);
-      update(postRef, { content: newContent });
-      showToast("post imeupdatiwa", 'success');
-      loadPosts();  // Reload posts to show updated content
-    }
-  };
-
-  const createNewPost = async () => {
-    const caption = document.getElementById("new-post-caption")?.value;
-    const fileInput = document.getElementById("new-post-image");
-    const file = fileInput?.files[0];
-
-    if (!caption && !file) {
-      showToast("tafadhari weka caption na image.", 'warning');
-      return;
-    }
-
-    try {
-      let imageUrl = "";
-      showToast("Uploading post yako...Tafadhari subiri", 'info');
-
-      if (file) {
-        // Upload image to Firebase Storage
-        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
-        await uploadBytes(storageReference, file);
-        imageUrl = await getDownloadURL(storageReference);
-        showToast("ukaguzi wa post umekamilika", 'info');
-      }
-
-      const postId = push(ref(db, "posts")).key;
-      await set(ref(db, `posts/${postId}`), {
-        authorName: currentUser.displayName || "Anonymous",
-        authorPhoto: currentUser.photoURL || "default.jpg",
-        content: caption,
-        imageUrl,
-        timestamp: serverTimestamp(),
-        likes: {},
-        comments: {},
-      });
-
-      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
-      window.location.reload();  // Reload the page after successful upload
-    } catch (error) {
-      console.error("Error creating post:", error);
-      showToast("Error creating post", 'error');
-    }
+    loadLikedPosts();  // Reload liked posts
   };
 
   // Display user details
@@ -813,6 +718,43 @@ Please Wait.....
   <button class="cta-btn secondary">Buy Now</button>
 </div>
     </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+<span class="badge premium">OWNED BY JumaJux</span>
+    </div>
+   <div><span class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </span></div> 
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Call Seller</li>
+  <li>Report Seller</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Call</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
 
   </div>
 </div>
@@ -987,13 +929,13 @@ Please Wait.....
 <div id="saved" class="hidden">
   <div class="header-2">
     <div class="logo">
-<i class="ri-notification-fill"></i>
+<i class="ri-notification-fill" onclick="navigateTo('home')"></i>
     </div>
     <div class="title-center">
 <h2>Saved posts</h2>
     </div>
   </div>
-  <di class="post-grid" id="sharing">
+  <div class="post-grid" id="likedposts">
       
   </div>
 
