@@ -1075,7 +1075,7 @@ const sendMessage = async () => {
   messageInput.value = '';
   showToast("Message sent!", 'success');
 };
-
+document.getElementById('send-message-button')?.addEventListener('click', sendMessage);
 </script>
 
 
