@@ -710,11 +710,10 @@ const displayPost = (post, container, isMyPost) => {
     }
   };
 
- // Handle Profile Update
-const updateProfile = async () => {
-  const newUsername = document.getElementById('username').value.trim();
+ const updateProfile = async () => {
+  const newUsername = document.getElementById('username')?.value.trim();
   const profilePictureInput = document.getElementById('profile-picture-input');
-  const newProfilePicture = profilePictureInput.files[0];
+  const newProfilePicture = profilePictureInput?.files[0];
 
   if (!newUsername && !newProfilePicture) {
     showToast("Please provide a new username or profile picture.", 'warning');
@@ -723,6 +722,11 @@ const updateProfile = async () => {
 
   try {
     const user = auth.currentUser;
+
+    if (!user) {
+      showToast("User not authenticated. Please log in.", 'error');
+      return; // Exit if the user is not authenticated
+    }
 
     // Update the username if provided
     if (newUsername && newUsername !== user.displayName) {
@@ -749,7 +753,7 @@ const updateProfile = async () => {
     displayUserDetails();
   } catch (error) {
     console.error("Error updating profile:", error);
-    showToast("Error updating profile", 'error');
+    showToast("Error updating profile. Please try again.", 'error');
   }
 };
 
