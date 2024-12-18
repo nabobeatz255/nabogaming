@@ -711,7 +711,7 @@ const displayPost = (post, container, isMyPost) => {
     }
   };
 
- const updateUserProfile = async () => {
+const updateUserProfile = async () => {
   const newUsername = document.getElementById('username')?.value.trim();
   const profilePictureInput = document.getElementById('profile-picture-input');
   const newProfilePicture = profilePictureInput?.files[0];
@@ -774,8 +774,9 @@ const displayPost = (post, container, isMyPost) => {
       }
     }
 
-    // Reload the user details on the page (assuming `displayUserDetails` is a function that does this)
-    displayUserDetails();
+    // Reload the page to reflect updated details
+    window.location.reload();
+
   } catch (error) {
     console.error("Error updating profile:", error);
     showToast("Error updating profile. Please try again.", 'error');
@@ -1238,18 +1239,20 @@ Please Wait.....
 </div>
     </div>
     </div> 
-    <div id="profile-section">
-  <h2>Update Profile</h2>
-  <div class="profile-info">
-    <img id="profile-picture" src="default-profile-pic.jpg" alt="Profile Picture">
-    <input type="file" id="profile-picture-input" accept="image/*" />
-    <div class="user-details">
-      <label for="username">Username:</label>
-      <input type="text" id="username" placeholder="Enter new username" />
-    </div>
-    <button id="update-profile-button">Update Profile</button>
-  </div>
+       <section class="hero" style="background:white" id="profile-section">
+          <div class="hero-content">
+        <h3 style="color: black;    margin-top: 10px;">Create Your New <span class="user-name"></span>'s Post</h3><br>
+        <img id="profile-picture" src="blank.png" alt="Profile Picture">
+        <input type="text" id="username" placeholder="Write a caption...">
+        <div class="file-upload-container">
+  <input type="file" id="profile-picture-input"  accept="image/*" onchange="checkImage()" class="file-input">
+  <label for="new-post-image" class="custom-file-upload">
+   <i class="ri-add-circle-fill ri-2xl"></i>
+  </label>
+  <span id="file-name" class="file-name"> add photo</span>
 </div>
+        <button  id="update-profile-button">Update Profile Now</button>
+      </div></section>
  <h3 style="text-align: center">Posts Zangu (<span class="user-name"> No data </span>'s Post)</h3><br>
  <div id="myposts" class="post-grid"><div class="preloader"></div>
   </div>
