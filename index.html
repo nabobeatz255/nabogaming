@@ -94,7 +94,7 @@
 
         .label {
             font-size: 1rem;
-            color: #bbb;margin-top: -20px;
+            color: #bbb;
             text-transform: uppercase;
         }
 
@@ -181,16 +181,17 @@
             // Display the countdown in a modern format
             document.getElementById("countdown").innerHTML = `
                 <div class="time-block">
-                    <span class="time">${days}</span> <span class="label">Days</span>
+                  <span class="label">Days</span>  <span class="time">${days}</span> 
                 </div>
                 <div class="time-block">
-                    <span class="time">${hours}</span> <span class="label">Hours</span>
+                   <span class="label">Hours</span> <span class="time">${hours}</span> 
                 </div>
                 <div class="time-block">
-                    <span class="time">${minutes}</span> <span class="label">Minutes</span>
+                    <span class="label">Minutes</span>
+                    <span class="time">${minutes}</span> 
                 </div>
                 <div class="time-block">
-                    <span class="time">${seconds}</span> <span class="label">Seconds</span>
+                   <span class="label">Seconds</span> <span class="time">${seconds}</span> 
                 </div>
             `;
 
