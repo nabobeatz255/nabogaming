@@ -1397,7 +1397,39 @@ document.querySelectorAll('.sidebar a').forEach(link => {
 });
 
     </script>
-    <script>function showTab(e){document.querySelectorAll(".tab-content").forEach((e=>{e.classList.add("hidden"),e.classList.remove("visible")})),document.getElementById(e).classList.add("visible")}</script>
+    <script>
+// Function to navigate to a specific section
+function navigateTo(pageId) {
+  // Hide all sections
+  document.querySelectorAll(".main-content > div").forEach((div) => {
+    div.classList.add("hidden");
+    div.classList.remove("visible");
+  });
+
+  // Show the target section
+  const target = document.getElementById(pageId);
+  if (target) {
+    target.classList.remove("hidden");
+    target.classList.add("visible");
+    
+    // Reset scroll position to the top of the section
+    window.scrollTo({
+top: 0,
+behavior: "smooth", // Optional: Adds smooth scrolling effect
+    });
+  }
+}
+
+// Optional: Function to handle mobile navigation by listening to links
+document.querySelectorAll('.sidebar a').forEach(link => {
+  link.addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default link behavior
+    const targetId = this.getAttribute('onclick').match(/navigateTo\("(\w+)"\)/)[1];
+    navigateTo(targetId);
+  });
+});
+
+    </script>
     <script>const toggleCommentsButtons=document.querySelectorAll(".toggle-comments");toggleCommentsButtons.forEach((t=>{t.addEventListener("click",(function(){const t=this.getAttribute("data-target"),e=document.getElementById(t);"flex"===e.style.display?(e.style.display="none",this.innerHTML='<i class="ri-arrow-down-s-line"></i> View Comments'):(e.style.display="flex",this.innerHTML='<i class="ri-arrow-up-s-line"></i> Hide Comments')}))}))</script>
     <script>
 function updateTimeAgo() {
