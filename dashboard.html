@@ -513,27 +513,19 @@ const displayUniqueId = (uid) => {
     return `${years}yr ago`;
   };
 
-const loadPosts = () => {
-  if (!currentUser) {
-    console.error("User is not authenticated.");
-    return;
-  }
-
+ const loadPosts = () => {
   const allPostsContainer = document.getElementById("allposts");
   const myPostsContainer = document.getElementById("myposts");
+
+  // Only proceed if the containers are present
   if (!allPostsContainer || !myPostsContainer) return;
 
+  // Clear the containers before adding new posts
   allPostsContainer.innerHTML = "";
   myPostsContainer.innerHTML = "";
 
   const postsRef = ref(db, "posts");
-
   onValue(postsRef, (snapshot) => {
-    if (!snapshot.exists()) {
-      console.error("No posts found.");
-      return;
-    }
-
     const posts = [];
     snapshot.forEach((childSnapshot) => {
       const post = childSnapshot.val();
@@ -541,46 +533,21 @@ const loadPosts = () => {
       posts.push({ postId, ...post });
     });
 
-    posts.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); // Sort by timestamp, fallback to 0 if missing
+    // Sort posts by timestamp from new to old
+    posts.sort((a, b) => b.timestamp - a.timestamp);
 
-    // Filter posts for the current user
-    const myPosts = posts.filter(post => post.authorName && post.authorName === currentUser.displayName);
-    const allPosts = posts; // All posts will be displayed for everyone
+    // Filter posts for my posts and all posts
+    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+    const allPosts = posts;
 
-    // Display posts
-    displayPostsInRandomOrder(allPosts);
-    insertHeroSectionRandomly(allPostsContainer);
+    // Display my posts (with edit/delete options)
+    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
 
-    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); 
-  }, (error) => {
-    console.error("Error loading posts:", error);
+    // Display all posts (without edit/delete options)
+    allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
   });
 };
-
-
-const insertHeroSectionRandomly = (container) => {
  
-  const heroSection = document.createElement('section');
-  heroSection.className = 'hero';
-  heroSection.innerHTML = `
-    <div class="hero-content">
-      <h1>Nabogaming Tournament 2025</h1>
-      <p>Habari <span class="user-name"></span>, Jiandae Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
-      <a class="btn-primary">Inakujia Hivi Karibuni</a>
-    </div>
-  `;
-
-  // Get a random index position in the allposts container
-  const allPosts = container.querySelectorAll('.instagram-post-2');
-  const randomIndex = Math.floor(Math.random() * (allPosts.length + 1));
-
-  // Insert the hero section at the random index
-  if (randomIndex < allPosts.length) {
-    container.insertBefore(heroSection, allPosts[randomIndex]);
-  } else {
-    container.appendChild(heroSection);
-  }
-};
   const loadLikedPosts = () => {
     const likedPostsContainer = document.getElementById("likedposts");
     if (!likedPostsContainer) return;
@@ -1395,12 +1362,7 @@ Please Wait.....
 </div>
     </div>
   </div>
-<div id="post-1" class="post-container"></div>
-<div id="post-2" class="post-container"></div>
-<div id="post-3" class="post-container"></div>
-<div id="post-4" class="post-container"></div>
-<div id="post-5" class="post-container"></div>
-<!-- Add more post containers as needed -->
+
 
     </div>
     <script>
