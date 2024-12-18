@@ -832,122 +832,6 @@ document.getElementById('profile-picture-input')?.addEventListener('change', (ev
   }
 });
 
-const loadNotifications = () => {
-  const notificationsContainer = document.querySelector('.notify-list');
-  if (!notificationsContainer) return;
-
-  notificationsContainer.innerHTML = "";  // Clear existing notifications
-
-  const notificationsRef = ref(db, 'notifications');
-  onValue(notificationsRef, (snapshot) => {
-    const notifications = [];
-    snapshot.forEach((childSnapshot) => {
-      const notification = childSnapshot.val();
-      const notificationId = childSnapshot.key;
-      if (notification.recipientId === currentUser.uid) {
-        notifications.push({ notificationId, ...notification });
-      }
-    });
-
-    // Sort notifications by timestamp
-    notifications.sort((a, b) => b.timestamp - a.timestamp);
-
-    notifications.forEach(notification => {
-      displayNotification(notification, notificationsContainer);
-    });
-  });
-};
-
-const displayNotification = (notification, container) => {
-  const notificationElement = document.createElement('li');
-  notificationElement.classList.add('notify-item');
-
-  notificationElement.innerHTML = `
-    <div class="notify-content">
-      <h3>${notification.message}</h3>
-      <p>At ${formatTimestamp(notification.timestamp)}</p>
-    </div>
-  `;
-
-  container.appendChild(notificationElement);
-};
-
-// Call this function after the user logs in
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loadNotifications();  // Load notifications for the logged-in user
-  }
-});
-
-const sendCommentNotification = (authorId, postId) => {
-  const notificationData = {
-    recipientId: authorId,
-    message: `${currentUser.displayName} commented on your post!`,
-    timestamp: serverTimestamp(),
-  };
-
-  const newNotificationRef = push(ref(db, 'notifications'));
-  set(newNotificationRef, notificationData);
-};
-
-const submitComment = async (postId, commentText) => {
-  const commentData = {
-    username: currentUser.displayName,
-    message: commentText,
-  };
-
-  const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-  await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-  showToast("comment added", 'success');
-  sendCommentNotification(post.authorId, postId);  // Send comment notification to the post author
-  loadPosts();  // Reload posts to show the new comment
-};
-
-const sendLikeNotification = (authorId, postId) => {
-  const notificationData = {
-    recipientId: authorId,
-    message: `${currentUser.displayName} liked your post!`,
-    timestamp: serverTimestamp(),
-  };
-
-  const newNotificationRef = push(ref(db, 'notifications'));
-  set(newNotificationRef, notificationData);
-};
-
-const likePost = async (postId) => {
-  const postRef = ref(db, `posts/${postId}`);
-  const postSnapshot = await get(postRef);
-  const post = postSnapshot.val();
-  const authorId = post.authorId; // Assuming you have the author's UID
-
-  const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-  const snapshot = await get(likeRef);
-  if (snapshot.exists()) {
-    await remove(likeRef);  // Remove like
-    showToast("unliked", 'info');
-  } else {
-    await set(likeRef, true);  // Add like
-    showToast("you liked the post", 'success');
-    sendLikeNotification(authorId, postId);  // Send like notification to the post author
-  }
-  loadPosts();  // Reload posts to reflect the changes
-};
-
-await set(ref(db, `posts/${postId}`), postData);
-sendPostCreatedNotification(currentUser.uid);  // Send notification to post authorId
-
-const sendPostCreatedNotification = (authorId) => {
-  const notificationData = {
-    recipientId: authorId,
-    message: "Your post was successfully created!",
-    timestamp: serverTimestamp(),
-  };
-
-  const newNotificationRef = push(ref(db, 'notifications'));
-  set(newNotificationRef, notificationData);
-};
-
-const notificationsRef = ref(db, 'notifications');
 // Display user details
 const displayUserDetails = () => {
   const user = auth.currentUser;
@@ -977,6 +861,91 @@ onAuthStateChanged(auth, (user) => {
   }
 });
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
+  
+  // Function to load notifications
+const loadNotifications = () => {
+  const notificationsContainer = document.querySelector('.notify-list');
+  if (!notificationsContainer) return;
+
+  notificationsContainer.innerHTML = "";  // Clear existing notifications
+
+  const notificationsRef = ref(db, 'notifications');
+  onValue(notificationsRef, (snapshot) => {
+    const notifications = [];
+    snapshot.forEach((childSnapshot) => {
+      const notification = childSnapshot.val();
+      const notificationId = childSnapshot.key;
+      if (notification.recipientId === currentUser.uid) {
+        notifications.push({ notificationId, ...notification });
+      }
+    });
+
+    // Sort notifications by timestamp
+    notifications.sort((a, b) => b.timestamp - a.timestamp);
+
+    notifications.forEach(notification => {
+      displayNotification(notification, notificationsContainer);
+    });
+  });
+};
+
+// Function to display a single notification
+const displayNotification = (notification, container) => {
+  const notificationElement = document.createElement('li');
+  notificationElement.classList.add('notify-item');
+
+  notificationElement.innerHTML = `
+    <div class="notify-content">
+      <h3>${notification.message}</h3>
+      <p>At ${formatTimestamp(notification.timestamp)}</p>
+    </div>
+  `;
+
+  container.appendChild(notificationElement);
+};
+
+// Send a notification when a user likes a post
+const sendLikeNotification = (authorId, postId) => {
+  const notificationData = {
+    recipientId: authorId,
+    message: `${currentUser.displayName} liked your post!`,
+    timestamp: serverTimestamp(),
+  };
+
+  const newNotificationRef = push(ref(db, 'notifications'));
+  set(newNotificationRef, notificationData);
+};
+
+// Send a notification when a user comments on a post
+const sendCommentNotification = (authorId, postId) => {
+  const notificationData = {
+    recipientId: authorId,
+    message: `${currentUser.displayName} commented on your post!`,
+    timestamp: serverTimestamp(),
+  };
+
+  const newNotificationRef = push(ref(db, 'notifications'));
+  set(newNotificationRef, notificationData);
+};
+
+// Send a notification when a post is created
+const sendPostCreatedNotification = (authorId) => {
+  const notificationData = {
+    recipientId: authorId,
+    message: "Your post was successfully created!",
+    timestamp: serverTimestamp(),
+  };
+
+  const newNotificationRef = push(ref(db, 'notifications'));
+  set(newNotificationRef, notificationData);
+};
+
+// Call this function after the user logs in
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loadNotifications();  // Load notifications for the logged-in user
+  }
+});
 </script>
 
 
