@@ -22,100 +22,6 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <style>
-/* Style for the profile update section */
-#profile-section {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-#profile-section h2 {
-  text-align: center;
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-/* Style for the profile picture */
-.profile-info {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-#profile-picture {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 10px;
-  border: 2px solid #ddd;
-}
-
-#profile-picture-input {
-  margin-top: 10px;
-  font-size: 14px;
-  background-color: #f1f1f1;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#profile-picture-input:focus {
-  outline: none;
-  border-color: #2196f3;
-}
-
-/* Style for the username input field */
-.user-details {
-  margin-bottom: 20px;
-}
-
-#username {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-top: 10px;
-  box-sizing: border-box;
-}
-
-#username:focus {
-  outline: none;
-  border-color: #2196f3;
-}
-
-/* Style for the update button */
-#update-profile-button {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-#update-profile-button:hover {
-  background-color: #45a049;
-}
-
-#update-profile-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* Add a small margin at the bottom of the form */
-.profile-info {
-  margin-bottom: 20px;
-}
-/* Modal background */
 .create-modal {
   display: none;
   position: fixed;
@@ -1241,18 +1147,19 @@ Please Wait.....
     </div> 
        <section class="hero" style="background:white" id="profile-section">
           <div class="hero-content">
-        <h3 style="color: black;    margin-top: 10px;">Create Your New <span class="user-name"></span>'s Post</h3><br>
-        <img id="profile-picture" src="blank.png" alt="Profile Picture">
-        <input type="text" id="username" placeholder="Write a caption...">
+        <h3 style="color: black;    margin-top: 10px;">Add New Details</h3><br>
+        <img id="profile-picture" class="profile-photo" src="blank.png" alt="Profile Picture">
+        <input type="text" id="username" placeholder="Write New Username">
         <div class="file-upload-container">
   <input type="file" id="profile-picture-input"  accept="image/*" onchange="checkImage()" class="file-input">
   <label for="new-post-image" class="custom-file-upload">
    <i class="ri-add-circle-fill ri-2xl"></i>
   </label>
-  <span id="file-name" class="file-name"> add photo</span>
+  <span id="file-name" class="file-name"> add new photo</span>
 </div>
         <button  id="update-profile-button">Update Profile Now</button>
       </div></section>
+      <br>
  <h3 style="text-align: center">Posts Zangu (<span class="user-name"> No data </span>'s Post)</h3><br>
  <div id="myposts" class="post-grid"><div class="preloader"></div>
   </div>
