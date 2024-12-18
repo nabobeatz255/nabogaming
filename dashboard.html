@@ -96,10 +96,13 @@
             flex-direction: column;
             gap: 16px;
         }
-
+.entry {
+    text-align: center;
+    color: #ddd;font-size: 12px;
+}
         .message {
             max-width: 75%;
-            padding: 12px;
+            padding: 6px 8px;
             border-radius: 10px;
             font-size: 14px;
             line-height: 1.5;
@@ -107,24 +110,26 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
-        .message.left {
-            align-self: flex-start;
-            background-color: #333;
-        }
-
         .message.right {
             align-self: flex-end;
+            background-color: #000;
+            border: 0.7px solid rgba(255,255,255,.4);
+        }
+
+        .message.left {
+            align-self: flex-start;
             background-color: #444;
         }
 
         .message p {
             margin: 0;
         }
-
         .message .username {
             font-weight: 600;
-            margin-bottom: 5px;
-            color: #ccc;
+            padding-left: 5px;
+            margin-bottom: 2px;
+            background: #aaa;
+            color: black;border-radius: 5px;
         }
 
         .chat-input {
@@ -559,6 +564,7 @@
  onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (user) {
+      loadMessages();
     loadPosts();  // Load posts after successful login
     loadLikedPosts();  // Load liked posts
     displayUserDetails(); // Display user details if available
@@ -1099,6 +1105,74 @@ onAuthStateChanged(auth, (user) => {
     loadNotifications();  // Load notifications for the logged-in user
   }
 });
+// Load messages in real-time from Firebase
+const loadMessages = () => {
+  const messagesRef = ref(db, "messages");
+  const chatBox = document.getElementById("chat-box");
+
+  // Listen for new messages in real-time
+  onValue(messagesRef, (snapshot) => {
+    const messages = [];
+    snapshot.forEach((childSnapshot) => {
+      const message = childSnapshot.val();
+      messages.push(message);
+    });
+
+    // Clear chat box before displaying new messages
+    chatBox.innerHTML = '';
+
+    // Display all messages
+    messages.forEach(message => {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message', message.senderId === currentUser.uid ? 'right' : 'left');
+      messageElement.innerHTML = `
+        <p class="username">${message.senderName}</p>
+        <p>${message.text}</p>
+      `;
+      chatBox.appendChild(messageElement);
+    });
+
+    // Scroll to the bottom to show the latest message
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+};
+
+// Send a new message to Firebase
+const sendMessage = async () => {
+  const messageInput = document.getElementById("chat-message-input");
+  const messageText = messageInput.value.trim();
+
+  if (!messageText) {
+    showToast("Please enter a message.", 'warning');
+    return;
+  }
+
+  const messagesRef = ref(db, "messages");
+  const newMessageRef = push(messagesRef);
+  await set(newMessageRef, {
+    senderId: currentUser.uid,
+    senderName: currentUser.displayName || "Anonymous",
+    text: messageText,
+    timestamp: serverTimestamp(),
+  });
+
+  // Clear the input field after sending the message
+  messageInput.value = '';
+  showToast("Message sent!", 'success');
+};
+
+// Helper function to display toast messages
+const showToast = (message, type = 'info') => {
+  const toast = document.createElement('div');
+  toast.classList.add('toast', type);
+  toast.textContent = message;
+
+  // Append to the body and remove after 3 seconds
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+};
 </script>
 
 
@@ -1602,36 +1676,23 @@ Please Wait.....
   </div>
   <!-- Modal for Group Chat -->
     <section class="bode">
-    <div id="chatModal" class="modale">
-        <div class="chat-container">
-            <div class="chat-header">
-                Group Chat
-
-    <i class="ri-close-line closs" onclick="closeModale()"></i>
-
-            </div>
-            <div class="chat-box">
-                <div class="message left">
-                    <p class="username">John:</p>
-                    <p>Hello everyone!</p>
-                </div>
-                <div class="message right">
-                    <p class="username">You:</p>
-                    <p>Hi John! How's it going?</p>
-                </div>
-                <div class="message left">
-                    <p class="username">John:</p>
-                    <p>I'm good, thanks! What about you?</p>
-                </div>
-            </div>
-            <div class="chat-input">
-                <input type="text" placeholder="Type a message..." />
-                <button>Send</button>
-            </div>
-        </div>
+  <div id="chatModal" class="modale">
+    <div class="chat-container">
+      <div class="chat-header">
+        Group Chat
+        <i class="ri-close-line closs" onclick="closeModale()"></i>
+      </div><br>
+      <span class="entry">Karibu Katika ChatPlace By Nabogaming, Chati Na Gamers Mbalimbali Ndani Ya Nabogaming. Tukutakie Chatting Njema</span>
+      <div class="chat-box" id="chat-box">
+        <!-- Messages will appear here dynamically -->
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chat-message-input" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+      </div>
     </div>
-    </section>
-
+  </div>
+</section>
     </div>
       <script>
     // Function to open the modal
