@@ -517,7 +517,11 @@ const displayUniqueId = (uid) => {
 const loadPosts = () => {
   const allPostsContainer = document.getElementById("allposts");
 
-  if (!allPostsContainer) return;
+  // Exit if the posts container doesn't exist
+  if (!allPostsContainer) {
+    console.error("Posts container not found.");
+    return;
+  }
 
   // Clear the container before adding new posts
   allPostsContainer.innerHTML = "";
@@ -531,45 +535,44 @@ const loadPosts = () => {
       posts.push({ postId, ...post });
     });
 
-    // Sort posts by timestamp from new to old
+    // Sort posts by timestamp (newest first)
     posts.sort((a, b) => b.timestamp - a.timestamp);
 
-    let postCounter = 0; // Counter to track how many posts have been displayed
+    // Keep track of the number of posts displayed for inserting random content
+    let postCounter = 0;
 
-    posts.forEach((post, index) => {
-      displayPost(post, allPostsContainer, false);
+    posts.forEach((post) => {
+      // Display each post
+      displayPost(post, allPostsContainer, post.authorName === currentUser?.displayName);
       postCounter++;
 
-      // Insert random content after every 3 to 9 posts
-      if (postCounter >= getRandomNumber(3, 9)) {
+      // Insert random content after every 3 to 6 posts
+      if (postCounter >= getRandomNumber(3, 6)) {
         insertRandomContent(allPostsContainer);
         postCounter = 0; // Reset the counter
       }
     });
+
+    // Handle case where no posts are found
+    if (posts.length === 0) {
+      allPostsContainer.innerHTML = `<div class="no-posts">No posts to display.</div>`;
+    }
   });
 };
 
-// Function to insert random content
 const insertRandomContent = (container) => {
-  // Generate a random ID (e.g., content1, content2, etc.)
-  const randomContentId = `content${getRandomNumber(1, 5)}`; // Assuming you have content1, content2, ..., content5
-
-  // Fetch the element by ID
+  const randomContentId = `content${getRandomNumber(1, 5)}`; // Adjust to match your content IDs
   const randomContentElement = document.getElementById(randomContentId);
 
   if (randomContentElement) {
-    // Clone the element to avoid reusing the same node
     const clonedContent = randomContentElement.cloneNode(true);
-
-    // Optionally, add a class or modify the cloned element for styling or tracking
     clonedContent.classList.add("random-content-clone");
-
-    // Append the cloned content to the container
     container.appendChild(clonedContent);
   } else {
-    console.error(`Element with ID ${randomContentId} not found.`);
+    console.error(`Random content with ID "${randomContentId}" not found.`);
   }
 };
+
 
 // Random number generator
 const getRandomNumber = (min, max) => {
