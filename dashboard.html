@@ -351,6 +351,7 @@
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
   import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -735,7 +736,8 @@ const displayPost = (post, container, isMyPost) => {
     if (newUsername && newUsername !== user.displayName) {
       try {
         console.log("Updating username to:", newUsername);
-        await user.updateProfile({
+        // Using updateProfile from firebase/auth
+        await updateProfile(user, {
           displayName: newUsername,
         });
         showToast("Username updated successfully!", 'success');
@@ -762,7 +764,7 @@ const displayPost = (post, container, isMyPost) => {
         console.log("New profile picture URL:", newProfilePictureUrl);
 
         // Update the user's profile with the new picture
-        await user.updateProfile({
+        await updateProfile(user, {
           photoURL: newProfilePictureUrl,
         });
         showToast("Profile picture updated successfully!", 'success');
@@ -779,7 +781,6 @@ const displayPost = (post, container, isMyPost) => {
     showToast("Error updating profile. Please try again.", 'error');
   }
 };
-
 // Add event listener to the update profile button
 document.getElementById('update-profile-button')?.addEventListener('click', updateProfile);
 
