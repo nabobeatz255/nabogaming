@@ -514,26 +514,46 @@ const displayUniqueId = (uid) => {
   };
 
 const loadPosts = () => {
+  if (!currentUser) {
+    console.error("User is not authenticated.");
+    return;
+  }
+
   const allPostsContainer = document.getElementById("allposts");
   const myPostsContainer = document.getElementById("myposts");
   if (!allPostsContainer || !myPostsContainer) return;
+
   allPostsContainer.innerHTML = "";
   myPostsContainer.innerHTML = "";
 
   const postsRef = ref(db, "posts");
+
   onValue(postsRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      console.error("No posts found.");
+      return;
+    }
+
     const posts = [];
     snapshot.forEach((childSnapshot) => {
       const post = childSnapshot.val();
       const postId = childSnapshot.key;
       posts.push({ postId, ...post });
     });
-    posts.sort((a, b) => b.timestamp - a.timestamp);
-    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-    const allPosts = posts;
+
+    posts.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); // Sort by timestamp, fallback to 0 if missing
+
+    // Filter posts for the current user
+    const myPosts = posts.filter(post => post.authorName && post.authorName === currentUser.displayName);
+    const allPosts = posts; // All posts will be displayed for everyone
+
+    // Display posts
     displayPostsInRandomOrder(allPosts);
     insertHeroSectionRandomly(allPostsContainer);
+
     myPosts.forEach(post => displayPost(post, myPostsContainer, true)); 
+  }, (error) => {
+    console.error("Error loading posts:", error);
   });
 };
 
