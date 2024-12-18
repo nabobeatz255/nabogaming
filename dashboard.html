@@ -383,336 +383,514 @@
 
 
 <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
-import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js';
-import { getStorage, ref as _0x25c5aa, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js';
-import { updateProfile } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
-const firebaseConfig = {
-  'apiKey': "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-  'authDomain': 'register-71bde.firebaseapp.com',
-  'projectId': "register-71bde",
-  'storageBucket': 'register-71bde.appspot.com',
-  'messagingSenderId': "412548441298",
-  'appId': "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getDatabase(app);
-const storage = getStorage(app);
-let currentUser = null;
-onAuthStateChanged(auth, _0x59eeea => {
-  currentUser = _0x59eeea;
-  if (_0x59eeea) {
-    loadPosts();
-    loadLikedPosts();
-    displayUserDetails();
-    displayUniqueId(_0x59eeea.uid);
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+    authDomain: "register-71bde.firebaseapp.com",
+    projectId: "register-71bde",
+    storageBucket: "register-71bde.appspot.com",
+    messagingSenderId: "412548441298",
+    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getDatabase(app);
+  const storage = getStorage(app);
+
+  let currentUser = null;
+ onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (user) {
+    loadPosts();  // Load posts after successful login
+    loadLikedPosts();  // Load liked posts
+    displayUserDetails(); // Display user details if available
+    displayUniqueId(user.uid);  // Display the unique ID of the user
   } else {
-    showToast("You are not signed in. Redirecting to login...", "error");
-    window.location.href = 'index.html';
+    showToast("You are not signed in. Redirecting to login...", 'error');
+    window.location.href = "index.html";
   }
 });
-const displayUniqueId = _0x234666 => {
-  const _0x38bc13 = "332004" + _0x234666.slice(0x0, 0x3) + 'NB';
-  document.querySelectorAll(".user-uid").forEach(_0x36d555 => {
-    _0x36d555.textContent = _0x38bc13;
+const generateUniqueId = (uid) => {
+  // Generate a unique ID in the format "332004<uid>NB"
+  return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
+};
+
+// Function to display the unique ID in HTML
+const displayUniqueId = (uid) => {
+  const uniqueId = generateUniqueId(uid);
+  
+  // Assuming you have an element with class 'user-uid' to display the ID
+  document.querySelectorAll('.user-uid').forEach(element => {
+    element.textContent = uniqueId;  // Set the unique ID
   });
 };
-const showToast = (_0x5e00f5, _0x4f2fb1 = "info") => {
-  const _0x7972ce = document.createElement('div');
-  _0x7972ce.classList.add("toast", _0x4f2fb1);
-  _0x7972ce.textContent = _0x5e00f5;
-  document.body.appendChild(_0x7972ce);
-  setTimeout(() => {
-    _0x7972ce.remove();
-  }, 0xbb8);
-};
-const style = document.createElement("style");
-style.textContent = "\n    .toast {\n      position: fixed;\n      bottom: 0;\n      left: 50%;\n      padding-top:16px;\n      padding-left:10px;\n      padding-bottom:10px;\n      padding-right:10px;\n      transform: translateX(-50%);\n      width: 100%;height:50px;\n      color: white;text-align: center;\n      font-size: 14px;\n      opacity: 0;z-index: 999999;\n      animation: fadeIn 0.5s forwards;\n    }\n    \n    .toast.success {\n      background-color: #4CAF50; /* Green */\n    }\n\n    .toast.error {\n    height: 100vh;\n    padding-top: 50vh;\n      background-color: #f44336; /* Red */\n    }\n\n    .toast.info {\n      background-color: #2196F3; /* Blue */\n    }\n\n    .toast.warning {\n      background-color: #ff9800; /* Orange */\n    }\n\n    @keyframes fadeIn {\n      from {\n        opacity: 0;\n      }\n      to {\n        opacity: 1;\n      }\n    }\n  ";
-document.head.appendChild(style);
-const formatTimestamp = _0x5c8e5f => {
-  const _0x1ab7f1 = new Date();
-  const _0x46692c = _0x1ab7f1 - new Date(_0x5c8e5f);
-  const _0x4a9b9d = Math.floor(_0x46692c / 0x3e8);
-  const _0x10d5c5 = Math.floor(_0x4a9b9d / 0x3c);
-  const _0x3c0182 = Math.floor(_0x10d5c5 / 0x3c);
-  const _0x309f4a = Math.floor(_0x3c0182 / 0x18);
-  const _0x2a79b8 = Math.floor(_0x309f4a / 0x1e);
-  const _0x420cc1 = Math.floor(_0x2a79b8 / 0xc);
-  if (_0x4a9b9d < 0x3c) {
-    return "just now";
-  }
-  if (_0x10d5c5 < 0x3c) {
-    return _0x10d5c5 + "m ago";
-  }
-  if (_0x3c0182 < 0x18) {
-    return _0x3c0182 + "hr ago";
-  }
-  if (_0x309f4a < 0x1e) {
-    return _0x309f4a + "d ago";
-  }
-  if (_0x2a79b8 < 0xc) {
-    return _0x2a79b8 + "mo ago";
-  }
-  return _0x420cc1 + "yr ago";
-};
+
+
+  // Toast function to display notifications
+  const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.classList.add('toast', type);
+    toast.textContent = message;
+
+    // Append to the body
+    document.body.appendChild(toast);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  };
+
+  // CSS Styles for Toast notifications
+  const style = document.createElement('style');
+  style.textContent = `
+    .toast {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      padding-top:16px;
+      padding-left:10px;
+      padding-bottom:10px;
+      padding-right:10px;
+      transform: translateX(-50%);
+      width: 100%;height:50px;
+      color: white;text-align: center;
+      font-size: 14px;
+      opacity: 0;z-index: 999999;
+      animation: fadeIn 0.5s forwards;
+    }
+    
+    .toast.success {
+      background-color: #4CAF50; /* Green */
+    }
+
+    .toast.error {
+    height: 100vh;
+    padding-top: 50vh;
+      background-color: #f44336; /* Red */
+    }
+
+    .toast.info {
+      background-color: #2196F3; /* Blue */
+    }
+
+    .toast.warning {
+      background-color: #ff9800; /* Orange */
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  const formatTimestamp = (timestamp) => {
+    const now = new Date();
+    const timeDiff = now - new Date(timestamp);
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+
+    if (seconds < 60) return `just now`;
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}hr ago`;
+    if (days < 30) return `${days}d ago`;
+    if (months < 12) return `${months}mo ago`;
+    return `${years}yr ago`;
+  };
+
 const loadPosts = () => {
-  const _0x44eb21 = document.getElementById("allposts");
-  const _0x291f85 = document.getElementById("myposts");
-  if (!_0x44eb21 || !_0x291f85) {
-    return;
-  }
-  _0x44eb21.innerHTML = '';
-  _0x291f85.innerHTML = '';
-  const _0x21eadd = ref(db, "posts");
-  onValue(_0x21eadd, _0x474dc0 => {
-    const _0x69159e = [];
-    _0x474dc0.forEach(_0x5d57e4 => {
-      const _0x4fe55d = _0x5d57e4.val();
-      const _0x4a4c18 = _0x5d57e4.key;
-      _0x69159e.push({
-        'postId': _0x4a4c18,
-        ..._0x4fe55d
-      });
+  const allPostsContainer = document.getElementById("allposts");
+  const myPostsContainer = document.getElementById("myposts");
+
+  // Only proceed if the containers are present
+  if (!allPostsContainer || !myPostsContainer) return;
+
+  // Clear the containers before adding new posts
+  allPostsContainer.innerHTML = "";
+  myPostsContainer.innerHTML = "";
+
+  const postsRef = ref(db, "posts");
+  onValue(postsRef, (snapshot) => {
+    const posts = [];
+    snapshot.forEach((childSnapshot) => {
+      const post = childSnapshot.val();
+      const postId = childSnapshot.key;
+      posts.push({ postId, ...post });
     });
-    _0x69159e.sort((_0x21dcc9, _0x3c50ba) => _0x3c50ba.timestamp - _0x21dcc9.timestamp);
-    const _0x31f42a = _0x69159e.filter(_0x53bbf0 => _0x53bbf0.authorName === currentUser.displayName);
-    _0x31f42a.forEach(_0x514c02 => displayPost(_0x514c02, _0x291f85, true));
-    _0x69159e.forEach(_0x425b51 => displayPost(_0x425b51, _0x44eb21, false));
+
+    // Sort posts by timestamp from new to old
+    posts.sort((a, b) => b.timestamp - a.timestamp);
+
+    // Filter posts for my posts and all posts
+    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+    const allPosts = posts;
+
+    // Display posts in random positions
+    displayPostsInRandomOrder(allPosts);
+
+    // Display my posts (with edit/delete options)
+    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
   });
 };
-const loadLikedPosts = () => {
-  const _0x563b0e = document.getElementById('likedposts');
-  if (!_0x563b0e) {
-    return;
-  }
-  _0x563b0e.innerHTML = '';
-  const _0x14494e = ref(db, "posts");
-  onValue(_0x14494e, _0x59b2ca => {
-    const _0x419d2b = [];
-    _0x59b2ca.forEach(_0x2ba58e => {
-      const _0x261518 = _0x2ba58e.val();
-      const _0x156bab = _0x2ba58e.key;
-      _0x419d2b.push({
-        'postId': _0x156bab,
-        ..._0x261518
-      });
-    });
-    _0x419d2b.sort((_0x3e0385, _0x47c09a) => _0x47c09a.timestamp - _0x3e0385.timestamp);
-    const _0x5c568c = _0x419d2b.filter(_0x15720c => _0x15720c.likes && _0x15720c.likes[currentUser.uid] && _0x15720c.authorName !== currentUser.displayName);
-    _0x5c568c.forEach(_0x3bb73f => displayPost(_0x3bb73f, _0x563b0e, false));
+
+const displayPostsInRandomOrder = (posts) => {
+  // Array of all possible post container IDs (1, 2, 3, etc.)
+  const postContainers = ['post-1', 'post-2', 'post-3', 'post-4', 'post-5'];
+
+  // Shuffle the post containers array randomly
+  const shuffledContainers = shuffleArray(postContainers);
+
+  // For each post, add it to one of the shuffled containers
+  posts.forEach((post, index) => {
+    // Check if we have more posts than containers
+    if (index >= shuffledContainers.length) return;
+
+    const containerId = shuffledContainers[index];
+    const container = document.getElementById(containerId);
+    if (container) {
+      displayPost(post, container, false); // Display post in random container
+    }
   });
 };
-const displayPost = (_0x5e6148, _0x9c363b, _0x4a9475) => {
-  const _0x347935 = _0x9c363b.querySelector("[data-post-id=\"" + _0x5e6148.postId + "\"]");
-  if (_0x347935) {
-    return;
+
+const shuffleArray = (array) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
-  const _0x14a614 = document.createElement("div");
-  _0x14a614.className = "instagram-post-2";
-  _0x14a614.setAttribute("data-post-id", _0x5e6148.postId);
-  _0x14a614.innerHTML = "\n    <div class=\"post-header\">\n      <div class=\"profile-picture\">\n        <img src=\"" + _0x5e6148.authorPhoto + "\" alt=\"User profile picture\">\n      </div>\n      <div class=\"profile-details\">\n        <div class=\"profile-name\">" + _0x5e6148.authorName + "</div>\n        <div class=\"post-time-2\">" + formatTimestamp(_0x5e6148.timestamp) + " •  <span class=\"like-count\">" + Object.keys(_0x5e6148.likes || {}).length + " likes</span></div> \n      </div>\n      <div class=\"post-options\">\n        <i class=\"ri-message-3-line toggle-comments\" data-target=\"comments-container-" + _0x5e6148.postId + "\"></i>\n        <i class=\"ri-heart-line like-btn\" data-id=\"" + _0x5e6148.postId + "\"></i>\n        " + (_0x4a9475 ? "<i class=\"ri-edit-line edit-btn\" data-id=\"" + _0x5e6148.postId + "\"></i>" : '') + "\n        " + (_0x4a9475 ? "<i class=\"ri-delete-bin-4-line delete-post-btn\" data-id=\"" + _0x5e6148.postId + "\"></i>" : '') + "\n      </div>\n    </div>\n    <div class=\"post-image\">\n      <img src=\"" + _0x5e6148.imageUrl + "\" alt=\"Post content\">\n    </div>\n    <div class=\"caption\">\n      <span class=\"username\">" + _0x5e6148.authorName + "</span> " + _0x5e6148.content + "\n    </div>\n    <div class=\"post-comments\">\n      <div class=\"comments-container\" id=\"comments-container-" + _0x5e6148.postId + "\" style=\"display: none;\">\n        " + renderComments(_0x5e6148.comments) + "\n      </div>\n      <div class=\"comment-input-container\">\n        <input class=\"comment-input\" placeholder=\"Write a comment...\">\n        <button class=\"submit-comment\" data-post-id=\"" + _0x5e6148.postId + "\">Send</button>\n      </div>\n    </div>\n  ";
-  _0x9c363b.appendChild(_0x14a614);
-  if (_0x14a614.querySelector('.like-btn')) {
-    _0x14a614.querySelector('.like-btn').addEventListener("click", () => likePost(_0x5e6148.postId));
+  return array;
+};
+  const loadLikedPosts = () => {
+    const likedPostsContainer = document.getElementById("likedposts");
+    if (!likedPostsContainer) return;
+
+    likedPostsContainer.innerHTML = "";
+
+    const postsRef = ref(db, "posts");
+    onValue(postsRef, (snapshot) => {
+      const posts = [];
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
+      });
+
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+
+      // Filter liked posts (exclude posts by the current user)
+      const likedPosts = posts.filter(post => post.likes && post.likes[currentUser.uid] && post.authorName !== currentUser.displayName);
+      likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));  // No delete button for liked posts
+    });
+  };
+
+const displayPost = (post, container, isMyPost) => {
+  // Check if the post already exists in the container to avoid duplicates
+  const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
+  if (existingPost) return; // If post already exists, don't append again
+
+  const postElement = document.createElement("div");
+  postElement.className = "instagram-post-2";
+  postElement.setAttribute("data-post-id", post.postId); // Store the post ID as a data attribute
+
+  postElement.innerHTML = `
+    <div class="post-header">
+      <div class="profile-picture">
+        <img src="${post.authorPhoto}" alt="User profile picture">
+      </div>
+      <div class="profile-details">
+        <div class="profile-name">${post.authorName}</div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+      </div>
+      <div class="post-options">
+        <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
+        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+        ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+        ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
+      </div>
+    </div>
+    <div class="post-image">
+      <img src="${post.imageUrl}" alt="Post content">
+    </div>
+    <div class="caption">
+      <span class="username">${post.authorName}</span> ${post.content}
+    </div>
+    <div class="post-comments">
+      <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
+        ${renderComments(post.comments)}
+      </div>
+      <div class="comment-input-container">
+        <input class="comment-input" placeholder="Write a comment...">
+        <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+      </div>
+    </div>
+  `;
+
+  container.appendChild(postElement);
+
+  // Add event listeners for actions
+  if (postElement.querySelector(".like-btn")) {
+    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
   }
-  if (_0x14a614.querySelector('.toggle-comments')) {
-    _0x14a614.querySelector('.toggle-comments').addEventListener("click", () => {
-      const _0x58c433 = document.getElementById(_0x14a614.querySelector(".toggle-comments").dataset.target);
-      _0x58c433.style.display = _0x58c433.style.display === "none" ? "block" : "none";
+
+  // Add toggle comments functionality
+  if (postElement.querySelector(".toggle-comments")) {
+    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
     });
   }
-  if (_0x14a614.querySelector(".submit-comment")) {
-    _0x14a614.querySelector(".submit-comment").addEventListener("click", () => {
-      const _0x299bc5 = _0x14a614.querySelector(".comment-input");
-      const _0x6fe62b = _0x299bc5.value.trim();
-      if (_0x6fe62b !== '') {
-        submitComment(_0x5e6148.postId, _0x6fe62b);
-        _0x299bc5.value = '';
+
+  if (postElement.querySelector(".submit-comment")) {
+    postElement.querySelector(".submit-comment").addEventListener("click", () => {
+      const commentInput = postElement.querySelector(".comment-input");
+      const commentText = commentInput.value.trim();
+      if (commentText !== "") {
+        submitComment(post.postId, commentText);
+        commentInput.value = "";
       }
     });
   }
-  if (_0x4a9475) {
-    const _0x157e70 = _0x14a614.querySelector(".delete-post-btn");
-    if (_0x157e70) {
-      _0x157e70.addEventListener("click", () => deletePost(_0x5e6148.postId));
+
+  // Only show delete and edit buttons for user's own posts
+  if (isMyPost) {
+    const deleteButton = postElement.querySelector(".delete-post-btn");
+    if (deleteButton) {
+      deleteButton.addEventListener("click", () => deletePost(post.postId));
     }
-    const _0xba6bfa = _0x14a614.querySelector('.edit-btn');
-    if (_0xba6bfa) {
-      _0xba6bfa.addEventListener("click", () => editPost(_0x5e6148));
+    const editButton = postElement.querySelector(".edit-btn");
+    if (editButton) {
+      editButton.addEventListener("click", () => editPost(post));
     }
   }
 };
-const renderComments = _0xf703c7 => {
-  if (!_0xf703c7) {
-    return '';
-  }
-  return Object.keys(_0xf703c7).map(_0x19f740 => {
-    const _0x127b4e = _0xf703c7[_0x19f740];
-    return "\n        <div class=\"comment\">\n          <span class=\"comment-username\">" + _0x127b4e.username + "</span><br><span class=\"comment-sms\">" + _0x127b4e.message + "</span>\n        </div>\n      ";
-  }).join('');
-};
-const likePost = async _0x51206e => {
-  const _0x65824c = ref(db, "posts/" + _0x51206e + "/likes/" + currentUser.uid);
-  const _0x3ca61b = await get(_0x65824c);
-  if (_0x3ca61b.exists()) {
-    await remove(_0x65824c);
-    showToast("unliked", "info");
-  } else {
-    await set(_0x65824c, true);
-    showToast("you liked the post", "success");
-  }
-  loadPosts();
-};
-const submitComment = async (_0x20b3e7, _0x153ab3) => {
-  const _0x4d9917 = {
-    'username': currentUser.displayName,
-    'message': _0x153ab3
+
+  const renderComments = (comments) => {
+    if (!comments) return "";
+    return Object.keys(comments).map(commentId => {
+      const comment = comments[commentId];
+      return `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+        </div>
+      `;
+    }).join("");
   };
-  const _0x1b0b59 = push(ref(db, "posts/" + _0x20b3e7 + "/comments")).key;
-  await set(ref(db, "posts/" + _0x20b3e7 + "/comments/" + _0x1b0b59), _0x4d9917);
-  showToast("comment added", "success");
-  loadPosts();
-};
-const deletePost = async _0x3f55f4 => {
-  const _0x5c7430 = ref(db, "posts/" + _0x3f55f4);
-  await remove(_0x5c7430);
-  loadPosts();
-  showToast("post imefutwa", "success");
-};
-const editPost = _0xd6501 => {
-  const _0x1535da = prompt("Edit your post content:", _0xd6501.content);
-  if (_0x1535da !== null) {
-    const _0x58ddd0 = ref(db, "posts/" + _0xd6501.postId);
-    update(_0x58ddd0, {
-      'content': _0x1535da
-    });
-    showToast("post imeupdatiwa", "success");
-    loadPosts();
-  }
-};
-const createNewPost = async () => {
-  const _0x2521c4 = document.getElementById("new-post-caption")?.["value"];
-  const _0x2fa9c7 = document.getElementById('new-post-image');
-  const _0x44cbbd = _0x2fa9c7?.["files"][0x0];
-  if (!_0x2521c4 && !_0x44cbbd) {
-    showToast("tafadhari weka caption na image.", "warning");
-    return;
-  }
-  try {
-    let _0x1fc3ad = '';
-    showToast("Uploading post yako...Tafadhari subiri", "info");
-    if (_0x44cbbd) {
-      const _0x4c3ca5 = _0x25c5aa(storage, "post_images/" + currentUser.uid + '/' + _0x44cbbd.name);
-      await uploadBytes(_0x4c3ca5, _0x44cbbd);
-      _0x1fc3ad = await getDownloadURL(_0x4c3ca5);
-      showToast("ukaguzi wa post umekamilika", "info");
+
+  const likePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await remove(postRef);  // Remove like
+      showToast("unliked", 'info');
+    } else {
+      await set(postRef, true);  // Add like
+      showToast("you liked the post", 'success');
     }
-    const _0x56311a = push(ref(db, "posts")).key;
-    await set(ref(db, "posts/" + _0x56311a), {
-      'authorName': currentUser.displayName || 'Anonymous',
-      'authorPhoto': currentUser.photoURL || "default.jpg",
-      'content': _0x2521c4,
-      'imageUrl': _0x1fc3ad,
-      'timestamp': serverTimestamp(),
-      'likes': {},
-      'comments': {}
-    });
-    showToast("Post yako imetengenezwa tayari...reloading!", 'success');
-    window.location.reload();
-  } catch (_0x4eadec) {
-    console.error("Error creating post:", _0x4eadec);
-    showToast("Error creating post", "error");
-  }
-};
-const updateUserProfile = async () => {
-  const _0x2dbb1b = document.getElementById("username")?.["value"]['trim']();
-  const _0x74d5d4 = document.getElementById("profile-picture-input");
-  const _0x573b8a = _0x74d5d4?.["files"][0x0];
-  if (!_0x2dbb1b && !_0x573b8a) {
-    showToast("Please provide a new username or profile picture.", "warning");
-    return;
-  }
-  try {
-    const _0x785d76 = auth.currentUser;
-    console.log("Authenticated user:", _0x785d76);
-    if (!_0x785d76) {
-      showToast("User not authenticated. Please log in.", "error");
+    loadPosts();  // Reload to reflect the changes
+  };
+
+  const submitComment = async (postId, commentText) => {
+    const commentData = {
+      username: currentUser.displayName,
+      message: commentText,
+    };
+
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    showToast("comment added", 'success');
+    loadPosts();  // Reload posts to show the new comment
+  };
+
+  const deletePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}`);
+    await remove(postRef);  // Delete the post
+    loadPosts();  // Reload posts to remove the deleted post
+    showToast("post imefutwa", 'success');
+  };
+
+  const editPost = (post) => {
+    const newContent = prompt("Edit your post content:", post.content);
+    if (newContent !== null) {
+      const postRef = ref(db, `posts/${post.postId}`);
+      update(postRef, { content: newContent });
+      showToast("post imeupdatiwa", 'success');
+      loadPosts();  // Reload posts to show updated content
+    }
+  };
+
+  const createNewPost = async () => {
+    const caption = document.getElementById("new-post-caption")?.value;
+    const fileInput = document.getElementById("new-post-image");
+    const file = fileInput?.files[0];
+
+    if (!caption && !file) {
+      showToast("tafadhari weka caption na image.", 'warning');
       return;
     }
-    if (_0x2dbb1b && _0x2dbb1b !== _0x785d76.displayName) {
+
+    try {
+      let imageUrl = "";
+      showToast("Uploading post yako...Tafadhari subiri", 'info');
+
+      if (file) {
+        // Upload image to Firebase Storage
+        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+        await uploadBytes(storageReference, file);
+        imageUrl = await getDownloadURL(storageReference);
+        showToast("ukaguzi wa post umekamilika", 'info');
+      }
+
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: currentUser.displayName || "Anonymous",
+        authorPhoto: currentUser.photoURL || "default.jpg",
+        content: caption,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
+      });
+
+      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      window.location.reload();  // Reload the page after successful upload
+    } catch (error) {
+      console.error("Error creating post:", error);
+      showToast("Error creating post", 'error');
+    }
+  };
+
+const updateUserProfile = async () => {
+  const newUsername = document.getElementById('username')?.value.trim();
+  const profilePictureInput = document.getElementById('profile-picture-input');
+  const newProfilePicture = profilePictureInput?.files[0];
+
+  // Check if both username and profile picture are empty
+  if (!newUsername && !newProfilePicture) {
+    showToast("Please provide a new username or profile picture.", 'warning');
+    return;
+  }
+
+  try {
+    // Get the currently authenticated user
+    const user = auth.currentUser;
+    console.log("Authenticated user:", user);
+
+    if (!user) {
+      showToast("User not authenticated. Please log in.", 'error');
+      return; // Exit if the user is not authenticated
+    }
+
+    // Update the username if provided
+    if (newUsername && newUsername !== user.displayName) {
       try {
-        console.log("Updating username to:", _0x2dbb1b);
-        await updateProfile(_0x785d76, {
-          'displayName': _0x2dbb1b
+        console.log("Updating username to:", newUsername);
+        // Using updateProfile from firebase/auth
+        await updateProfile(user, {
+          displayName: newUsername,
         });
         showToast("Username updated successfully!", 'success');
-      } catch (_0x364c03) {
-        console.error("Error updating username:", _0x364c03);
+      } catch (profileError) {
+        console.error("Error updating username:", profileError);
         showToast("Error updating username. Please try again.", 'error');
       }
     }
-    if (_0x573b8a) {
-      console.log("New profile picture:", _0x573b8a);
-      const _0x59d672 = _0x25c5aa(storage, "profile_pictures/" + _0x785d76.uid + '/' + _0x573b8a.name);
-      console.log("Storage reference:", _0x59d672);
+
+    // Upload new profile picture if provided
+    if (newProfilePicture) {
+      console.log("New profile picture:", newProfilePicture);
+
+      const storageReference = storageRef(storage, `profile_pictures/${user.uid}/${newProfilePicture.name}`);
+      console.log("Storage reference:", storageReference);
+
       try {
-        await uploadBytes(_0x59d672, _0x573b8a);
+        // Upload the picture to Firebase Storage
+        await uploadBytes(storageReference, newProfilePicture);
         console.log("Profile picture uploaded successfully.");
-        const _0x9aa866 = await getDownloadURL(_0x59d672);
-        console.log("New profile picture URL:", _0x9aa866);
-        await updateProfile(_0x785d76, {
-          'photoURL': _0x9aa866
+
+        // Get the download URL for the uploaded picture
+        const newProfilePictureUrl = await getDownloadURL(storageReference);
+        console.log("New profile picture URL:", newProfilePictureUrl);
+
+        // Update the user's profile with the new picture
+        await updateProfile(user, {
+          photoURL: newProfilePictureUrl,
         });
-        showToast("Profile picture updated successfully!", "success");
-      } catch (_0x153289) {
-        console.error("Error uploading profile picture:", _0x153289);
-        showToast("Error uploading profile picture. Please try again.", "error");
+        showToast("Profile picture updated successfully!", 'success');
+      } catch (uploadError) {
+        console.error("Error uploading profile picture:", uploadError);
+        showToast("Error uploading profile picture. Please try again.", 'error');
       }
     }
+
+    // Reload the page to reflect updated details
     window.location.reload();
-  } catch (_0x82f2a1) {
-    console.error("Error updating profile:", _0x82f2a1);
-    showToast("Error updating profile. Please try again.", "error");
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    showToast("Error updating profile. Please try again.", 'error');
   }
 };
-document.getElementById('update-profile-button')?.["addEventListener"]("click", updateUserProfile);
-document.getElementById("profile-picture-input")?.["addEventListener"]("change", _0x38df3f => {
-  const _0x20df7e = _0x38df3f.target.files[0x0];
-  if (_0x20df7e) {
-    const _0x2a9920 = new FileReader();
-    _0x2a9920.onload = () => {
-      document.getElementById("profile-picture").src = _0x2a9920.result;
+// Add event listener to the update profile button
+document.getElementById('update-profile-button')?.addEventListener('click', updateUserProfile);
+
+// Update profile picture preview when file is selected
+document.getElementById('profile-picture-input')?.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      document.getElementById('profile-picture').src = reader.result;
     };
-    _0x2a9920.readAsDataURL(_0x20df7e);
+    reader.readAsDataURL(file);
   }
 });
+
+// Display user details
 const displayUserDetails = () => {
-  const _0x2d3594 = auth.currentUser;
-  if (!_0x2d3594) {
-    return;
-  }
-  const _0x446659 = _0x2d3594.displayName || "Anonymous";
-  const _0x425543 = _0x2d3594.email || "No email available";
-  const _0x2d6ed1 = _0x2d3594.photoURL || "default-profile-pic.jpg";
-  document.querySelectorAll(".user-name").forEach(_0x193ed7 => {
-    _0x193ed7.textContent = _0x446659;
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const userName = user.displayName || "Anonymous";
+  const userEmail = user.email || "No email available";
+  const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+
+  document.querySelectorAll('.user-name').forEach(element => {
+    element.textContent = userName;  // Set user name
   });
-  document.querySelectorAll('.user-email').forEach(_0x3d40a5 => {
-    _0x3d40a5.textContent = _0x425543;
+
+  document.querySelectorAll('.user-email').forEach(element => {
+    element.textContent = userEmail;  // Set user email
   });
-  document.querySelectorAll(".profile-picture").forEach(_0x30fea9 => {
-    _0x30fea9.src = _0x2d6ed1;
+
+  document.querySelectorAll('.profile-picture').forEach(element => {
+    element.src = userProfilePic;  // Set user profile picture
   });
 };
-onAuthStateChanged(auth, _0xc3eda8 => {
-  if (_0xc3eda8) {
-    displayUserDetails();
+
+// Initialize the profile with user details
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    displayUserDetails();  // Display user details when logged in
   }
 });
-document.getElementById("create-post-button")?.['addEventListener']("click", createNewPost);
+  document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
 </script>
+
 
 
  </head>
@@ -1211,7 +1389,137 @@ Please Wait.....
 </div>
     </div>
   </div>
-
+<div id="post-1" class="post-container">  <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>PUBGM</strong></span>
+  </div>
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
+</div>
+<!--button class="join"  onclick='navigateTo("saved")'>Jiunge Sasa</button-->
+    </div>
+</div>
+<div id="post-2" class="post-container">  <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>PUBGM</strong></span>
+  </div>
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
+</div>
+<!--button class="join"  onclick='navigateTo("saved")'>Jiunge Sasa</button-->
+    </div>
+</div>
+<div id="post-3" class="post-container">  <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>PUBGM</strong></span>
+  </div>
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
+</div>
+<!--button class="join"  onclick='navigateTo("saved")'>Jiunge Sasa</button-->
+    </div>
+</div>
+<div id="post-4" class="post-container">  <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>PUBGM</strong></span>
+  </div>
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
+</div>
+<!--button class="join"  onclick='navigateTo("saved")'>Jiunge Sasa</button-->
+    </div>
+</div>
+<div id="post-5" class="post-container">  <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+    </div>
+    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>PUBGM</strong></span>
+  </div>
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
+</div>
+<!--button class="join"  onclick='navigateTo("saved")'>Jiunge Sasa</button-->
+    </div>
+</div>
+<!-- Add more post containers as needed -->
 
     </div>
     <script>
