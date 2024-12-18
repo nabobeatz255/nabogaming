@@ -765,16 +765,16 @@ const updateUserProfile = async () => {
       return;
     }
 
-    // Fetch the user's metadata from Firestore
-    const userDocRef = doc(db, "users", user.uid); // Assuming Firestore is used
-    const userDoc = await getDoc(userDocRef);
+    // Fetch the user's metadata from Realtime Database
+    const userRef = ref(db, `users/${user.uid}`);
+    const userSnapshot = await get(userRef);
 
-    if (!userDoc.exists()) {
+    if (!userSnapshot.exists()) {
       showToast("User data not found.", 'error');
       return;
     }
 
-    const userData = userDoc.data();
+    const userData = userSnapshot.val();
     const lastUpdated = userData.lastUpdated || null;
     const now = new Date();
 
@@ -795,10 +795,8 @@ const updateUserProfile = async () => {
     // Update username
     if (newUsername && newUsername !== user.displayName) {
       try {
-        await updateProfile(user, {
-          displayName: newUsername,
-        });
-        await updateDoc(userDocRef, { username: newUsername });
+        await updateProfile(user, { displayName: newUsername });
+        await update(userRef, { username: newUsername });
         showToast("Username updated successfully!", 'success');
       } catch (profileError) {
         console.error("Error updating username:", profileError);
@@ -813,7 +811,7 @@ const updateUserProfile = async () => {
         await uploadBytes(storageReference, newProfilePicture);
         const newProfilePictureUrl = await getDownloadURL(storageReference);
         await updateProfile(user, { photoURL: newProfilePictureUrl });
-        await updateDoc(userDocRef, { profilePicture: newProfilePictureUrl });
+        await update(userRef, { profilePicture: newProfilePictureUrl });
         showToast("Profile picture updated successfully!", 'success');
       } catch (uploadError) {
         console.error("Error uploading profile picture:", uploadError);
@@ -822,7 +820,7 @@ const updateUserProfile = async () => {
     }
 
     // Update the last updated timestamp
-    await updateDoc(userDocRef, { lastUpdated: now.toISOString() });
+    await update(userRef, { lastUpdated: now.toISOString() });
 
     window.location.reload();
 
