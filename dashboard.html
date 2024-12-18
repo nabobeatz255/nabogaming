@@ -748,55 +748,34 @@ const displayPost = (post, container, isMyPost) => {
   };
 
 const updateUserProfile = async () => {
-  const RESERVED_USERNAMES = ["Nabobeatz", "nabobeatz", "Mickiearts", "mickiearts"];
   const newUsername = document.getElementById('username')?.value.trim();
   const profilePictureInput = document.getElementById('profile-picture-input');
   const newProfilePicture = profilePictureInput?.files[0];
 
+  // Check if both username and profile picture are empty
   if (!newUsername && !newProfilePicture) {
     showToast("Please provide a new username or profile picture.", 'warning');
     return;
   }
 
   try {
+    // Get the currently authenticated user
     const user = auth.currentUser;
+    console.log("Authenticated user:", user);
+
     if (!user) {
       showToast("User not authenticated. Please log in.", 'error');
-      return;
+      return; // Exit if the user is not authenticated
     }
 
-    // Fetch the user's metadata from Realtime Database
-    const userRef = ref(db, `users/${user.uid}`);
-    const userSnapshot = await get(userRef);
-
-    if (!userSnapshot.exists()) {
-      showToast("User data not found.", 'error');
-      return;
-    }
-
-    const userData = userSnapshot.val();
-    const lastUpdated = userData.lastUpdated || null;
-    const now = new Date();
-
-    // Check if a month has passed since the last update
-    if (lastUpdated && now - new Date(lastUpdated) < 30 * 24 * 60 * 60 * 1000) {
-      showToast("You can only update your profile once a month.", 'warning');
-      return;
-    }
-
-    // Check if the username is reserved
-    if (newUsername && RESERVED_USERNAMES.includes(newUsername)) {
-      if (userData.username !== newUsername) {
-        showToast("This username is reserved and cannot be used.", 'error');
-        return;
-      }
-    }
-
-    // Update username
+    // Update the username if provided
     if (newUsername && newUsername !== user.displayName) {
       try {
-        await updateProfile(user, { displayName: newUsername });
-        await update(userRef, { username: newUsername });
+        console.log("Updating username to:", newUsername);
+        // Using updateProfile from firebase/auth
+        await updateProfile(user, {
+          displayName: newUsername,
+        });
         showToast("Username updated successfully!", 'success');
       } catch (profileError) {
         console.error("Error updating username:", profileError);
@@ -804,14 +783,26 @@ const updateUserProfile = async () => {
       }
     }
 
-    // Upload new profile picture
+    // Upload new profile picture if provided
     if (newProfilePicture) {
+      console.log("New profile picture:", newProfilePicture);
+
       const storageReference = storageRef(storage, `profile_pictures/${user.uid}/${newProfilePicture.name}`);
+      console.log("Storage reference:", storageReference);
+
       try {
+        // Upload the picture to Firebase Storage
         await uploadBytes(storageReference, newProfilePicture);
+        console.log("Profile picture uploaded successfully.");
+
+        // Get the download URL for the uploaded picture
         const newProfilePictureUrl = await getDownloadURL(storageReference);
-        await updateProfile(user, { photoURL: newProfilePictureUrl });
-        await update(userRef, { profilePicture: newProfilePictureUrl });
+        console.log("New profile picture URL:", newProfilePictureUrl);
+
+        // Update the user's profile with the new picture
+        await updateProfile(user, {
+          photoURL: newProfilePictureUrl,
+        });
         showToast("Profile picture updated successfully!", 'success');
       } catch (uploadError) {
         console.error("Error uploading profile picture:", uploadError);
@@ -819,9 +810,7 @@ const updateUserProfile = async () => {
       }
     }
 
-    // Update the last updated timestamp
-    await update(userRef, { lastUpdated: now.toISOString() });
-
+    // Reload the page to reflect updated details
     window.location.reload();
 
   } catch (error) {
