@@ -513,7 +513,7 @@ const displayUniqueId = (uid) => {
     return `${years}yr ago`;
   };
 
-const loadPosts = () => {
+ const loadPosts = () => {
   const allPostsContainer = document.getElementById("allposts");
   const myPostsContainer = document.getElementById("myposts");
 
@@ -540,41 +540,14 @@ const loadPosts = () => {
     const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
     const allPosts = posts;
 
-    // Display posts in random positions
-    displayPostsInRandomOrder(allPosts);
-
     // Display my posts (with edit/delete options)
     myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+
+    // Display all posts (without edit/delete options)
+    allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
   });
 };
-
-const displayPostsInRandomOrder = (posts) => {
-  // Array of all possible post container IDs (1, 2, 3, etc.)
-  const postContainers = ['post-1', 'post-2', 'post-3', 'post-4', 'post-5'];
-
-  // Shuffle the post containers array randomly
-  const shuffledContainers = shuffleArray(postContainers);
-
-  // For each post, add it to one of the shuffled containers
-  posts.forEach((post, index) => {
-    // Check if we have more posts than containers
-    if (index >= shuffledContainers.length) return;
-
-    const containerId = shuffledContainers[index];
-    const container = document.getElementById(containerId);
-    if (container) {
-      displayPost(post, container, false); // Display post in random container
-    }
-  });
-};
-
-const shuffleArray = (array) => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-};
+ 
   const loadLikedPosts = () => {
     const likedPostsContainer = document.getElementById("likedposts");
     if (!likedPostsContainer) return;
@@ -1389,60 +1362,7 @@ Please Wait.....
 </div>
     </div>
   </div>
-<div id="post-1" class="post-container">  <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-details">
-    <div class="profile-name">
-Admin 1.0
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="post1.png" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new"><strong>PUBGM</strong></span>
-  </div>
- <div class="bottom-left-icon">
-    <div id="countdown"></div>
-</div>
-</div>
-<div class="caption">
-  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
-</div>
-<!--button class="join"  onclick='navigateTo("saved")'>Jiunge Sasa</button-->
-    </div>
-</div>
-<div id="post-2" class="post-container">  <div class="instagram-post">
-<div class="post-header">
-  <div class="profile-details">
-    <div class="profile-name">
-Admin 1.0
-    </div>
-    <div class="post-time" data-timestamp="2024-10-20T11:48:00">
-Please Wait.....
-    </div>
-  </div>
-</div>
-<div class="post-image">
-  <img src="post1.png" alt="Post content">
-  <div class="post-badges">
-    <span class="badge new"><strong>PUBGM</strong></span>
-  </div>
- <div class="bottom-left-icon">
-    <div id="countdown"></div>
-</div>
-</div>
-<div class="caption">
-  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
-</div>
-<!--button class="join"  onclick='navigateTo("saved")'>Jiunge Sasa</button-->
-    </div>
-</div>
 
-<!-- Add more post containers as needed -->
 
     </div>
     <script>
