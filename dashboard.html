@@ -273,96 +273,39 @@
   const storage = getStorage(app);
 
   let currentUser = null;
- onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-  if (user) {
-    loadPosts();  // Load posts after successful login
-    loadLikedPosts();  // Load liked posts
-    displayUserDetails(); // Display user details if available
-    displayUniqueId(user.uid);  // Display the unique ID of the user
-  } else {
-    showToast("You are not signed in. Redirecting to login...", 'error');
-    window.location.href = "index.html";
-  }
-});
-const generateUniqueId = (uid) => {
-  // Generate a unique ID in the format "332004<uid>NB"
-  return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
-};
-
-// Function to display the unique ID in HTML
-const displayUniqueId = (uid) => {
-  const uniqueId = generateUniqueId(uid);
-  
-  // Assuming you have an element with class 'user-uid' to display the ID
-  document.querySelectorAll('.user-uid').forEach(element => {
-    element.textContent = uniqueId;  // Set the unique ID
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      loadPosts();  // Load posts after successful login
+      loadLikedPosts();  // Load liked posts
+      displayUserDetails(); // Display user details if available
+      displayUniqueId(user.uid);  // Display the unique ID of the user
+      checkUserXP(user.uid);  // Check and display user's XP
+    } else {
+      showToast("You are not signed in. Redirecting to login...", 'error');
+      window.location.href = "index.html";
+    }
   });
-};
 
+  const generateUniqueId = (uid) => {
+    return `332004${uid.slice(0, 3)}NB`;  
+  };
+
+  const displayUniqueId = (uid) => {
+    const uniqueId = generateUniqueId(uid);
+    document.querySelectorAll('.user-uid').forEach(element => {
+      element.textContent = uniqueId;  
+    });
+  };
 
   // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
     toast.textContent = message;
-
-    // Append to the body
     document.body.appendChild(toast);
-
-    // Remove toast after 3 seconds
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
+    setTimeout(() => { toast.remove(); }, 3000);
   };
-
-  // CSS Styles for Toast notifications
-  const style = document.createElement('style');
-  style.textContent = `
-    .toast {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      padding-top:16px;
-      padding-left:10px;
-      padding-bottom:10px;
-      padding-right:10px;
-      transform: translateX(-50%);
-      width: 100%;height:50px;
-      color: white;text-align: center;
-      font-size: 14px;
-      opacity: 0;z-index: 999999;
-      animation: fadeIn 0.5s forwards;
-    }
-    
-    .toast.success {
-      background-color: #4CAF50; /* Green */
-    }
-
-    .toast.error {
-    height: 100vh;
-    padding-top: 50vh;
-      background-color: #f44336; /* Red */
-    }
-
-    .toast.info {
-      background-color: #2196F3; /* Blue */
-    }
-
-    .toast.warning {
-      background-color: #ff9800; /* Orange */
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-  `;
-  document.head.appendChild(style);
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -382,45 +325,66 @@ const displayUniqueId = (uid) => {
     return `${years}yr ago`;
   };
 
- const loadPosts = () => {
-  const allPostsContainer = document.getElementById("allposts");
-  const myPostsContainer = document.getElementById("myposts");
+  const checkUserXP = async (uid) => {
+    const userXPRef = ref(db, `users/${uid}/xp`);
+    const snapshot = await get(userXPRef);
+    if (!snapshot.exists()) {
+      // Initialize XP if not already present
+      await set(userXPRef, 0);
+    }
+    updateUserXPDisplay(uid);
+  };
 
-  // Only proceed if the containers are present
-  if (!allPostsContainer || !myPostsContainer) return;
+  const updateUserXPDisplay = async (uid) => {
+    const userXPRef = ref(db, `users/${uid}/xp`);
+    const snapshot = await get(userXPRef);
+    if (snapshot.exists()) {
+      const userXP = snapshot.val();
+      document.querySelectorAll('.user-xp').forEach(element => {
+        element.textContent = `XP: ${userXP}`;  // Display XP next to username
+      });
+    }
+  };
 
-  // Clear the containers before adding new posts
-  allPostsContainer.innerHTML = "";
-  myPostsContainer.innerHTML = "";
+  const incrementXP = async (uid, amount) => {
+    const userXPRef = ref(db, `users/${uid}/xp`);
+    const snapshot = await get(userXPRef);
+    let currentXP = snapshot.exists() ? snapshot.val() : 0;
+    currentXP += amount;
+    currentXP = Math.min(currentXP, 10000);  // Max XP is 10000
+    await set(userXPRef, currentXP);
+    updateUserXPDisplay(uid);
+  };
 
-  const postsRef = ref(db, "posts");
-  onValue(postsRef, (snapshot) => {
-    const posts = [];
-    snapshot.forEach((childSnapshot) => {
-      const post = childSnapshot.val();
-      const postId = childSnapshot.key;
-      posts.push({ postId, ...post });
+  const loadPosts = () => {
+    const allPostsContainer = document.getElementById("allposts");
+    const myPostsContainer = document.getElementById("myposts");
+    if (!allPostsContainer || !myPostsContainer) return;
+    allPostsContainer.innerHTML = "";
+    myPostsContainer.innerHTML = "";
+
+    const postsRef = ref(db, "posts");
+    onValue(postsRef, (snapshot) => {
+      const posts = [];
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
+      });
+
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+
+      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+      const allPosts = posts;
+
+      myPosts.forEach(post => displayPost(post, myPostsContainer, true));
+      allPosts.forEach(post => displayPost(post, allPostsContainer, false));
     });
+  };
 
-    // Sort posts by timestamp from new to old
-    posts.sort((a, b) => b.timestamp - a.timestamp);
-
-    // Filter posts for my posts and all posts
-    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-    const allPosts = posts;
-
-    // Display my posts (with edit/delete options)
-    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
-
-    // Display all posts (without edit/delete options)
-    allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
-  });
-};
- 
   const loadLikedPosts = () => {
     const likedPostsContainer = document.getElementById("likedposts");
     if (!likedPostsContainer) return;
-
     likedPostsContainer.innerHTML = "";
 
     const postsRef = ref(db, "posts");
@@ -434,92 +398,78 @@ const displayUniqueId = (uid) => {
 
       posts.sort((a, b) => b.timestamp - a.timestamp);
 
-      // Filter liked posts (exclude posts by the current user)
-      const likedPosts = posts.filter(post => post.likes && post.likes[currentUser.uid] && post.authorName !== currentUser.displayName);
-      likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));  // No delete button for liked posts
+      const likedPosts = posts.filter(post => post.likes && post.likes[currentUser.uid]);
+      likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));
     });
   };
 
-const displayPost = (post, container, isMyPost) => {
-  // Check if the post already exists in the container to avoid duplicates
-  const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
-  if (existingPost) return; // If post already exists, don't append again
+  const displayPost = (post, container, isMyPost) => {
+    const postElement = document.createElement("div");
+    postElement.className = "instagram-post-2";
+    postElement.setAttribute("data-post-id", post.postId); 
 
-  const postElement = document.createElement("div");
-  postElement.className = "instagram-post-2";
-  postElement.setAttribute("data-post-id", post.postId); // Store the post ID as a data attribute
-
-  postElement.innerHTML = `
-    <div class="post-header">
-      <div class="profile-picture">
-        <img src="${post.authorPhoto}" alt="User profile picture">
+    postElement.innerHTML = `
+      <div class="post-header">
+        <div class="profile-picture">
+          <img src="${post.authorPhoto}" alt="User profile picture">
+        </div>
+        <div class="profile-details">
+          <div class="profile-name">${post.authorName}</div>
+          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
+        </div>
+        <div class="post-options">
+          <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
+          <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+          ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+          ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
+        </div>
       </div>
-      <div class="profile-details">
-        <div class="profile-name">${post.authorName}</div>
-        <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+      <div class="post-image">
+        <img src="${post.imageUrl}" alt="Post content">
       </div>
-      <div class="post-options">
-        <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
-        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
-        ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
-        ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
+      <div class="caption">
+        <span class="username">${post.authorName}</span> ${post.content}
       </div>
-    </div>
-    <div class="post-image">
-      <img src="${post.imageUrl}" alt="Post content">
-    </div>
-    <div class="caption">
-      <span class="username">${post.authorName}</span> ${post.content}
-    </div>
-    <div class="post-comments">
-      <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
-        ${renderComments(post.comments)}
+      <div class="post-comments">
+        <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
+          ${renderComments(post.comments)}
+        </div>
+        <div class="comment-input-container">
+          <input class="comment-input" placeholder="Write a comment...">
+          <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+        </div>
       </div>
-      <div class="comment-input-container">
-        <input class="comment-input" placeholder="Write a comment...">
-        <button class="submit-comment" data-post-id="${post.postId}">Send</button>
-      </div>
-    </div>
-  `;
+    `;
 
-  container.appendChild(postElement);
+    container.appendChild(postElement);
 
-  // Add event listeners for actions
-  if (postElement.querySelector(".like-btn")) {
-    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-  }
+    if (postElement.querySelector(".like-btn")) {
+      postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+    }
 
-  // Add toggle comments functionality
-  if (postElement.querySelector(".toggle-comments")) {
-    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-    });
-  }
+    if (postElement.querySelector(".submit-comment")) {
+      postElement.querySelector(".submit-comment").addEventListener("click", () => {
+        const commentInput = postElement.querySelector(".comment-input");
+        const commentText = commentInput.value.trim();
+        if (commentText !== "") {
+          submitComment(post.postId, commentText);
+          incrementXP(currentUser.uid, 10);  // Gain XP for commenting
+          commentInput.value = "";
+        }
+      });
+    }
 
-  if (postElement.querySelector(".submit-comment")) {
-    postElement.querySelector(".submit-comment").addEventListener("click", () => {
-      const commentInput = postElement.querySelector(".comment-input");
-      const commentText = commentInput.value.trim();
-      if (commentText !== "") {
-        submitComment(post.postId, commentText);
-        commentInput.value = "";
+    if (isMyPost) {
+      const deleteButton = postElement.querySelector(".delete-post-btn");
+      if (deleteButton) {
+        deleteButton.addEventListener("click", () => deletePost(post.postId));
       }
-    });
-  }
-
-  // Only show delete and edit buttons for user's own posts
-  if (isMyPost) {
-    const deleteButton = postElement.querySelector(".delete-post-btn");
-    if (deleteButton) {
-      deleteButton.addEventListener("click", () => deletePost(post.postId));
+      const editButton = postElement.querySelector(".edit-btn");
+      if (editButton) {
+        editButton.addEventListener("click", () => editPost(post));
+      }
     }
-    const editButton = postElement.querySelector(".edit-btn");
-    if (editButton) {
-      editButton.addEventListener("click", () => editPost(post));
-    }
-  }
-};
+  };
 
   const renderComments = (comments) => {
     if (!comments) return "";
@@ -541,6 +491,7 @@ const displayPost = (post, container, isMyPost) => {
       showToast("unliked", 'info');
     } else {
       await set(postRef, true);  // Add like
+      incrementXP(currentUser.uid, 20);  // Gain XP for liking
       showToast("you liked the post", 'success');
     }
     loadPosts();  // Reload to reflect the changes
@@ -556,6 +507,7 @@ const displayPost = (post, container, isMyPost) => {
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
     showToast("comment added", 'success');
     loadPosts();  // Reload posts to show the new comment
+    incrementXP(currentUser.uid, 10);  // Gain XP for commenting
   };
 
   const deletePost = async (postId) => {
@@ -590,7 +542,6 @@ const displayPost = (post, container, isMyPost) => {
       showToast("Uploading post yako...Tafadhari subiri", 'info');
 
       if (file) {
-        // Upload image to Firebase Storage
         const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
         await uploadBytes(storageReference, file);
         imageUrl = await getDownloadURL(storageReference);
@@ -609,32 +560,12 @@ const displayPost = (post, container, isMyPost) => {
       });
 
       showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      incrementXP(currentUser.uid, 50);  // Gain XP for posting
       window.location.reload();  // Reload the page after successful upload
     } catch (error) {
       console.error("Error creating post:", error);
       showToast("Error creating post", 'error');
     }
-  };
-
-  // Display user details
-  const displayUserDetails = () => {
-    if (!currentUser) return;
-
-    const userName = currentUser.displayName || "Anonymous";
-    const userEmail = currentUser.email || "No email available";
-    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
-
-    document.querySelectorAll('.user-name').forEach(element => {
-      element.textContent = userName;  // Set user name
-    });
-
-    document.querySelectorAll('.user-email').forEach(element => {
-      element.textContent = userEmail;  // Set user email
-    });
-
-    document.querySelectorAll('.profile-picture').forEach(element => {
-      element.src = userProfilePic;  // Set user profile picture
-    });
   };
 
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
@@ -1048,7 +979,7 @@ Please Wait.....
 <div class="profile-details">
   <h2 class="user-name">No User Found</h2>
   <p class="user-email">Email Not Registered | <a href="index.html">Jiunge Sasa</a></p>
-  <span id="user-uid"></span>
+<p><strong>XP:</strong> <span id="user-xp">Loading...</span></p>
 </div>
     </div>
     </div> 
@@ -1289,47 +1220,53 @@ notifyPopup.classList.add("hidden");
   }, 1000000);  // Reset after 5 seconds (you can adjust this duration)
 });
 </script>
-    <script>
-        // Sample data for search suggestions
-        const searchableItems = [
-            "Pubg 1v1", "League of Legends"
-        ];
+  <script>
+    // Sample data for search suggestions with HTML included
+    const searchableItems = [
+        '<span onclick='navigateTo("profile")'>Pubg Nobile 1v1 room</span>',  // Adding HTML  the item
+        'League of Legends'
+    ];
 
-        function showSuggestions() {
-            const input = document.getElementById("search-input").value.toLowerCase();
-            const suggestionsList = document.getElementById("suggestions-list");
-            
-            // Clear previous suggestions
-            suggestionsList.innerHTML = '';
+    function showSuggestions() {
+        const input = document.getElementById("search-input").value.toLowerCase();
+        const suggestionsList = document.getElementById("suggestions-list");
 
-            // Filter suggestions based on input
-            if (input) {
-                const filteredItems = searchableItems.filter(item => item.toLowerCase().includes(input));
-                
-                // If there are matching items, show them
-                if (filteredItems.length > 0) {
-                    suggestionsList.style.display = 'block';
-                    filteredItems.forEach(item => {
-                        const div = document.createElement('div');
-                        div.classList.add('suggestion-item');
-                        div.textContent = item;
-                        div.onclick = () => selectSuggestion(item);
-                        suggestionsList.appendChild(div);
-                    });
-                } else {
-                    suggestionsList.style.display = 'none';
-                }
+        // Clear previous suggestions
+        suggestionsList.innerHTML = '';
+
+        // Filter suggestions based on input
+        if (input) {
+            const filteredItems = searchableItems.filter(item => item.toLowerCase().includes(input));
+
+            // If there are matching items, show them
+            if (filteredItems.length > 0) {
+                suggestionsList.style.display = 'block';
+                filteredItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.classList.add('suggestion-item');
+                    div.innerHTML = item;  // Use innerHTML to render HTML content like <strong> tags
+                    
+                    // Set up the onclick event
+                    div.onclick = () => selectSuggestion(item);
+                    suggestionsList.appendChild(div);
+                });
             } else {
                 suggestionsList.style.display = 'none';
             }
+        } else {
+            suggestionsList.style.display = 'none';
         }
+    }
 
-        function selectSuggestion(item) {
-            // Set the input value to the selected suggestion
-            document.getElementById("search-input").value = item;
-            document.getElementById("suggestions-list").style.display = 'none';
-        }
-    </script>
+    function selectSuggestion(item) {
+        // Set the input value to the selected suggestion
+        document.getElementById("search-input").value = item;
+        document.getElementById("suggestions-list").style.display = 'none';
+        
+        // Optionally, perform additional actions when a suggestion is selected.
+        console.log("Selected suggestion:", item);
+    }
+</script>
     <script>
      function checkImage() {
   const fileInput = document.getElementById('new-post-image');
