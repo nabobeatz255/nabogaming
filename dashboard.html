@@ -513,14 +513,10 @@ const displayUniqueId = (uid) => {
     return `${years}yr ago`;
   };
 
- const loadPosts = () => {
+const loadPosts = () => {
   const allPostsContainer = document.getElementById("allposts");
   const myPostsContainer = document.getElementById("myposts");
-
-  // Only proceed if the containers are present
   if (!allPostsContainer || !myPostsContainer) return;
-
-  // Clear the containers before adding new posts
   allPostsContainer.innerHTML = "";
   myPostsContainer.innerHTML = "";
 
@@ -532,22 +528,39 @@ const displayUniqueId = (uid) => {
       const postId = childSnapshot.key;
       posts.push({ postId, ...post });
     });
-
-    // Sort posts by timestamp from new to old
     posts.sort((a, b) => b.timestamp - a.timestamp);
-
-    // Filter posts for my posts and all posts
     const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
     const allPosts = posts;
-
-    // Display my posts (with edit/delete options)
-    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
-
-    // Display all posts (without edit/delete options)
-    allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+    displayPostsInRandomOrder(allPosts);
+    insertHeroSectionRandomly(allPostsContainer);
+    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); 
   });
 };
+
+
+const insertHeroSectionRandomly = (container) => {
  
+  const heroSection = document.createElement('section');
+  heroSection.className = 'hero';
+  heroSection.innerHTML = `
+    <div class="hero-content">
+      <h1>Nabogaming Tournament 2025</h1>
+      <p>Habari <span class="user-name"></span>, Jiandae Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
+      <a class="btn-primary">Inakujia Hivi Karibuni</a>
+    </div>
+  `;
+
+  // Get a random index position in the allposts container
+  const allPosts = container.querySelectorAll('.instagram-post-2');
+  const randomIndex = Math.floor(Math.random() * (allPosts.length + 1));
+
+  // Insert the hero section at the random index
+  if (randomIndex < allPosts.length) {
+    container.insertBefore(heroSection, allPosts[randomIndex]);
+  } else {
+    container.appendChild(heroSection);
+  }
+};
   const loadLikedPosts = () => {
     const likedPostsContainer = document.getElementById("likedposts");
     if (!likedPostsContainer) return;
@@ -1362,7 +1375,12 @@ Please Wait.....
 </div>
     </div>
   </div>
-
+<div id="post-1" class="post-container"></div>
+<div id="post-2" class="post-container"></div>
+<div id="post-3" class="post-container"></div>
+<div id="post-4" class="post-container"></div>
+<div id="post-5" class="post-container"></div>
+<!-- Add more post containers as needed -->
 
     </div>
     <script>
