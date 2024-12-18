@@ -61,7 +61,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 20px;
     position: relative;
 }
 
@@ -749,34 +748,57 @@ const displayPost = (post, container, isMyPost) => {
   };
 
 const updateUserProfile = async () => {
+  const RESERVED_USERNAMES = ["Nabobeatz", "nabobeatz", "Mickiearts", "mickiearts"];
   const newUsername = document.getElementById('username')?.value.trim();
   const profilePictureInput = document.getElementById('profile-picture-input');
   const newProfilePicture = profilePictureInput?.files[0];
 
-  // Check if both username and profile picture are empty
   if (!newUsername && !newProfilePicture) {
     showToast("Please provide a new username or profile picture.", 'warning');
     return;
   }
 
   try {
-    // Get the currently authenticated user
     const user = auth.currentUser;
-    console.log("Authenticated user:", user);
-
     if (!user) {
       showToast("User not authenticated. Please log in.", 'error');
-      return; // Exit if the user is not authenticated
+      return;
     }
 
-    // Update the username if provided
+    // Fetch the user's metadata from Firestore
+    const userDocRef = doc(db, "users", user.uid); // Assuming Firestore is used
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      showToast("User data not found.", 'error');
+      return;
+    }
+
+    const userData = userDoc.data();
+    const lastUpdated = userData.lastUpdated || null;
+    const now = new Date();
+
+    // Check if a month has passed since the last update
+    if (lastUpdated && now - new Date(lastUpdated) < 30 * 24 * 60 * 60 * 1000) {
+      showToast("You can only update your profile once a month.", 'warning');
+      return;
+    }
+
+    // Check if the username is reserved
+    if (newUsername && RESERVED_USERNAMES.includes(newUsername)) {
+      if (userData.username !== newUsername) {
+        showToast("This username is reserved and cannot be used.", 'error');
+        return;
+      }
+    }
+
+    // Update username
     if (newUsername && newUsername !== user.displayName) {
       try {
-        console.log("Updating username to:", newUsername);
-        // Using updateProfile from firebase/auth
         await updateProfile(user, {
           displayName: newUsername,
         });
+        await updateDoc(userDocRef, { username: newUsername });
         showToast("Username updated successfully!", 'success');
       } catch (profileError) {
         console.error("Error updating username:", profileError);
@@ -784,26 +806,14 @@ const updateUserProfile = async () => {
       }
     }
 
-    // Upload new profile picture if provided
+    // Upload new profile picture
     if (newProfilePicture) {
-      console.log("New profile picture:", newProfilePicture);
-
       const storageReference = storageRef(storage, `profile_pictures/${user.uid}/${newProfilePicture.name}`);
-      console.log("Storage reference:", storageReference);
-
       try {
-        // Upload the picture to Firebase Storage
         await uploadBytes(storageReference, newProfilePicture);
-        console.log("Profile picture uploaded successfully.");
-
-        // Get the download URL for the uploaded picture
         const newProfilePictureUrl = await getDownloadURL(storageReference);
-        console.log("New profile picture URL:", newProfilePictureUrl);
-
-        // Update the user's profile with the new picture
-        await updateProfile(user, {
-          photoURL: newProfilePictureUrl,
-        });
+        await updateProfile(user, { photoURL: newProfilePictureUrl });
+        await updateDoc(userDocRef, { profilePicture: newProfilePictureUrl });
         showToast("Profile picture updated successfully!", 'success');
       } catch (uploadError) {
         console.error("Error uploading profile picture:", uploadError);
@@ -811,7 +821,9 @@ const updateUserProfile = async () => {
       }
     }
 
-    // Reload the page to reflect updated details
+    // Update the last updated timestamp
+    await updateDoc(userDocRef, { lastUpdated: now.toISOString() });
+
     window.location.reload();
 
   } catch (error) {
