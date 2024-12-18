@@ -22,6 +22,99 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <style>
+/* Style for the profile update section */
+#profile-section {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#profile-section h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Style for the profile picture */
+.profile-info {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#profile-picture {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 2px solid #ddd;
+}
+
+#profile-picture-input {
+  margin-top: 10px;
+  font-size: 14px;
+  background-color: #f1f1f1;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#profile-picture-input:focus {
+  outline: none;
+  border-color: #2196f3;
+}
+
+/* Style for the username input field */
+.user-details {
+  margin-bottom: 20px;
+}
+
+#username {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-top: 10px;
+  box-sizing: border-box;
+}
+
+#username:focus {
+  outline: none;
+  border-color: #2196f3;
+}
+
+/* Style for the update button */
+#update-profile-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#update-profile-button:hover {
+  background-color: #45a049;
+}
+
+#update-profile-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Add a small margin at the bottom of the form */
+.profile-info {
+  margin-bottom: 20px;
+}
 /* Modal background */
 .create-modal {
   display: none;
@@ -249,6 +342,7 @@
 }
 
 </style>
+
 
 
 
@@ -616,30 +710,94 @@ const displayPost = (post, container, isMyPost) => {
     }
   };
 
-  // Display user details
-  const displayUserDetails = () => {
-    if (!currentUser) return;
+ // Handle Profile Update
+const updateProfile = async () => {
+  const newUsername = document.getElementById('username').value.trim();
+  const profilePictureInput = document.getElementById('profile-picture-input');
+  const newProfilePicture = profilePictureInput.files[0];
 
-    const userName = currentUser.displayName || "Anonymous";
-    const userEmail = currentUser.email || "No email available";
-    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+  if (!newUsername && !newProfilePicture) {
+    showToast("Please provide a new username or profile picture.", 'warning');
+    return;
+  }
 
-    document.querySelectorAll('.user-name').forEach(element => {
-      element.textContent = userName;  // Set user name
-    });
+  try {
+    const user = auth.currentUser;
 
-    document.querySelectorAll('.user-email').forEach(element => {
-      element.textContent = userEmail;  // Set user email
-    });
+    // Update the username if provided
+    if (newUsername && newUsername !== user.displayName) {
+      await user.updateProfile({
+        displayName: newUsername,
+      });
+      showToast("Username updated successfully!", 'success');
+    }
 
-    document.querySelectorAll('.profile-picture').forEach(element => {
-      element.src = userProfilePic;  // Set user profile picture
-    });
-  };
+    // Upload new profile picture if provided
+    if (newProfilePicture) {
+      const storageReference = storageRef(storage, `profile_pictures/${user.uid}/${newProfilePicture.name}`);
+      await uploadBytes(storageReference, newProfilePicture);
+      const newProfilePictureUrl = await getDownloadURL(storageReference);
 
+      // Update the user's profile picture URL
+      await user.updateProfile({
+        photoURL: newProfilePictureUrl,
+      });
+      showToast("Profile picture updated successfully!", 'success');
+    }
+
+    // Reload the user details on the page
+    displayUserDetails();
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    showToast("Error updating profile", 'error');
+  }
+};
+
+// Add event listener to the update profile button
+document.getElementById('update-profile-button')?.addEventListener('click', updateProfile);
+
+// Update profile picture preview when file is selected
+document.getElementById('profile-picture-input')?.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      document.getElementById('profile-picture').src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Display user details
+const displayUserDetails = () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const userName = user.displayName || "Anonymous";
+  const userEmail = user.email || "No email available";
+  const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+
+  document.querySelectorAll('.user-name').forEach(element => {
+    element.textContent = userName;  // Set user name
+  });
+
+  document.querySelectorAll('.user-email').forEach(element => {
+    element.textContent = userEmail;  // Set user email
+  });
+
+  document.querySelectorAll('.profile-picture').forEach(element => {
+    element.src = userProfilePic;  // Set user profile picture
+  });
+};
+
+// Initialize the profile with user details
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    displayUserDetails();  // Display user details when logged in
+  }
+});
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
 </script>
-
 
 
  </head>
@@ -1048,10 +1206,22 @@ Please Wait.....
 <div class="profile-details">
   <h2 class="user-name">No User Found</h2>
   <p class="user-email">Email Not Registered | <a href="index.html">Jiunge Sasa</a></p>
-  <span id="user-uid"></span>
+
 </div>
     </div>
     </div> 
+    <div id="profile-section">
+  <h2>Update Profile</h2>
+  <div class="profile-info">
+    <img id="profile-picture" src="default-profile-pic.jpg" alt="Profile Picture">
+    <input type="file" id="profile-picture-input" accept="image/*" />
+    <div class="user-details">
+      <label for="username">Username:</label>
+      <input type="text" id="username" placeholder="Enter new username" />
+    </div>
+    <button id="update-profile-button">Update Profile</button>
+  </div>
+</div>
  <h3 style="text-align: center">Posts Zangu (<span class="user-name"> No data </span>'s Post)</h3><br>
  <div id="myposts" class="post-grid"><div class="preloader"></div>
   </div>
@@ -1289,47 +1459,53 @@ notifyPopup.classList.add("hidden");
   }, 1000000);  // Reset after 5 seconds (you can adjust this duration)
 });
 </script>
-    <script>
-        // Sample data for search suggestions
-        const searchableItems = [
-            "Pubg 1v1", "League of Legends"
-        ];
+  <script>
+    // Sample data for search suggestions with HTML included
+    const searchableItems = [
+        '<span onclick='navigateTo("profile")'>Pubg Nobile 1v1 room</span>',  // Adding HTML  the item
+        'League of Legends'
+    ];
 
-        function showSuggestions() {
-            const input = document.getElementById("search-input").value.toLowerCase();
-            const suggestionsList = document.getElementById("suggestions-list");
-            
-            // Clear previous suggestions
-            suggestionsList.innerHTML = '';
+    function showSuggestions() {
+        const input = document.getElementById("search-input").value.toLowerCase();
+        const suggestionsList = document.getElementById("suggestions-list");
 
-            // Filter suggestions based on input
-            if (input) {
-                const filteredItems = searchableItems.filter(item => item.toLowerCase().includes(input));
-                
-                // If there are matching items, show them
-                if (filteredItems.length > 0) {
-                    suggestionsList.style.display = 'block';
-                    filteredItems.forEach(item => {
-                        const div = document.createElement('div');
-                        div.classList.add('suggestion-item');
-                        div.textContent = item;
-                        div.onclick = () => selectSuggestion(item);
-                        suggestionsList.appendChild(div);
-                    });
-                } else {
-                    suggestionsList.style.display = 'none';
-                }
+        // Clear previous suggestions
+        suggestionsList.innerHTML = '';
+
+        // Filter suggestions based on input
+        if (input) {
+            const filteredItems = searchableItems.filter(item => item.toLowerCase().includes(input));
+
+            // If there are matching items, show them
+            if (filteredItems.length > 0) {
+                suggestionsList.style.display = 'block';
+                filteredItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.classList.add('suggestion-item');
+                    div.innerHTML = item;  // Use innerHTML to render HTML content like <strong> tags
+                    
+                    // Set up the onclick event
+                    div.onclick = () => selectSuggestion(item);
+                    suggestionsList.appendChild(div);
+                });
             } else {
                 suggestionsList.style.display = 'none';
             }
+        } else {
+            suggestionsList.style.display = 'none';
         }
+    }
 
-        function selectSuggestion(item) {
-            // Set the input value to the selected suggestion
-            document.getElementById("search-input").value = item;
-            document.getElementById("suggestions-list").style.display = 'none';
-        }
-    </script>
+    function selectSuggestion(item) {
+        // Set the input value to the selected suggestion
+        document.getElementById("search-input").value = item;
+        document.getElementById("suggestions-list").style.display = 'none';
+        
+        // Optionally, perform additional actions when a suggestion is selected.
+        console.log("Selected suggestion:", item);
+    }
+</script>
     <script>
      function checkImage() {
   const fileInput = document.getElementById('new-post-image');
@@ -1388,7 +1564,7 @@ window.onclick = function(event) {
         // If the countdown is over
         if (distance < 0) {
             clearInterval(x);
-            countdownElement.innerHTML = "EXPIRED";
+            countdownElement.innerHTML = "EVENT IMEANZA";
         }
     }, 1000);
 }
@@ -1398,4 +1574,3 @@ startCountdown();
   </script>
   </body>
 </html>
- u
