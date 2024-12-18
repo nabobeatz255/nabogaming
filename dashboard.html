@@ -711,7 +711,7 @@ const displayPost = (post, container, isMyPost) => {
     }
   };
 
- const updateProfile = async () => {
+ const updateUserProfile = async () => {
   const newUsername = document.getElementById('username')?.value.trim();
   const profilePictureInput = document.getElementById('profile-picture-input');
   const newProfilePicture = profilePictureInput?.files[0];
@@ -782,7 +782,7 @@ const displayPost = (post, container, isMyPost) => {
   }
 };
 // Add event listener to the update profile button
-document.getElementById('update-profile-button')?.addEventListener('click', updateProfile);
+document.getElementById('update-profile-button')?.addEventListener('click', updateUserProfile);
 
 // Update profile picture preview when file is selected
 document.getElementById('profile-picture-input')?.addEventListener('change', (event) => {
