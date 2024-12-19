@@ -193,8 +193,6 @@
 
         .message.right {
             align-self: flex-start;
-         background-color: #e0e0e0;
-         border-radius: 10px;
         }
 
         .message.left {
@@ -1100,6 +1098,15 @@ const loadMessages = () => {
       <div class="profile-details">
         <div class="profile-name">${message.senderName}</div>
         <div class="post-time-2">${message.text}</span></div> 
+                      <div class="post-options">
+                <i class="ri-more-fill"></i>
+                <div class="options-menu">
+                  <ul style="border-color:#ddd; background:#121212">
+                    <li style="color:white;">Call Seller</li>
+                    <li style="color:white;">Report Seller</li>
+                  </ul>
+                </div>
+              </div>
       </div>
     </div>
       `;
