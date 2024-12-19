@@ -620,26 +620,6 @@
     window.location.href = "index.html";
   }
 });
-// Update user's VIP status in Firebase
-  const becomeVIP = async () => {
-    if (currentUser) {
-      const userRef = ref(db, `users/${currentUser.uid}`);
-      await set(userRef, {
-        isVIP: true,
-        username: currentUser.displayName,
-        photoURL: currentUser.photoURL,
-      });
-
-      // Show the VIP crown icon next to the username
-      document.querySelector(".user-name").innerHTML += ' <i class="ri-vip-crown-fill"></i>';
-      showToast("You are now a VIP!", 'success');
-    }
-  };
-
-  // Event listener for the "Become VIP" button
-  document.getElementById("become-vip-btn")?.addEventListener("click", becomeVIP);
-
- 
 const generateUniqueId = (uid) => {
   // Generate a unique ID in the format "332004<uid>NB"
   return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
@@ -1078,14 +1058,6 @@ const displayUserDetails = () => {
     element.src = userProfilePic;  // Set user profile picture
   });
 };
-// Check if the user is a VIP and display the crown icon if true
-    const userRef = ref(db, `users/${user.uid}`);
-    get(userRef).then(snapshot => {
-      if (snapshot.exists() && snapshot.val().isVIP) {
-        document.querySelector(".user-name").innerHTML += ' <i class="ri-vip-crown-fill"></i>';
-      }
-    });
-  };
 
 // Initialize the profile with user details
 onAuthStateChanged(auth, (user) => {
