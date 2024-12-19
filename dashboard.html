@@ -23,12 +23,7 @@
     <link rel=stylesheet href=remixicon.min.css>
 
 <style>
-.profile-picture {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-}
+
 /* Modal styles */
 .modale {
     display: none;
@@ -196,6 +191,8 @@
 
         .message.right {
             align-self: flex-start;
+         background-color: #e0e0e0;
+         border-radius: 10px;
         }
 
         .message.left {
@@ -1094,7 +1091,7 @@ const loadMessages = () => {
 
       messageElement.innerHTML = `
       
-       <div class="post-header" style="padding:4px;>
+       <div class="post-header">
       <div class="profile-picture">
         <img src="${profilePicture}" alt="${message.senderName}'s profile picture" >
       </div>
