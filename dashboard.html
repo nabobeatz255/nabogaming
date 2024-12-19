@@ -22,7 +22,15 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 
-<style>/* Modal styles */
+<style>
+.profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+/* Modal styles */
 .modale {
     display: none;
     position: fixed;
@@ -1079,8 +1087,15 @@ const loadMessages = () => {
     messages.forEach(message => {
       const messageElement = document.createElement('div');
       messageElement.classList.add('message', message.senderId === currentUser.uid ? 'right' : 'left');
+
+      // Create the profile picture element
+      const profilePicture = message.senderPhotoURL || 'default-profile-picture.jpg'; // Use a default picture if none is available
+
       messageElement.innerHTML = `
-        <p class="username">${message.senderName}</p>
+        <div class="message-header">
+          <img class="profile-picture" src="${profilePicture}" alt="${message.senderName}'s profile picture" />
+          <p class="username">${message.senderName}</p>
+        </div>
         <p>${message.text}</p>
       `;
       chatBox.appendChild(messageElement);
@@ -1090,8 +1105,6 @@ const loadMessages = () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 };
-
-// Send a new message to Firebase
 const sendMessage = async () => {
   const messageInput = document.getElementById("chat-message-input");
   const messageText = messageInput.value.trim();
@@ -1106,6 +1119,7 @@ const sendMessage = async () => {
   await set(newMessageRef, {
     senderId: currentUser.uid,
     senderName: currentUser.displayName || "Anonymous",
+    senderPhotoURL: currentUser.photoURL || 'default-profile-picture.jpg', // Include photoURL here
     text: messageText,
     timestamp: serverTimestamp(),
   });
