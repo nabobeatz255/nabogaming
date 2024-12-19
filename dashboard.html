@@ -1094,12 +1094,22 @@ const loadMessages = () => {
       const profilePicture = message.senderPhotoURL || 'default-profile-picture.jpg'; // Use a default picture if none is available
 
       messageElement.innerHTML = `
-           <div class="profile-details"><div class="profile-picture">
-                 <img class="profile-picture" src="${profilePicture}" alt="${message.senderName}'s profile picture" />
+      
+       <div class="post-header">
+      <div class="profile-picture">
+        <img src="${profilePicture}" alt="${message.senderName}'s profile picture" >
       </div>
+      <div class="profile-details">
         <div class="profile-name">${message.senderName}</div>
-        <div class="post-time">${message.text}</div> 
-      </div></div>
+        <div class="post-time-2">${message.text}</span></div> 
+      </div>
+      <div class="post-options">
+        <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
+        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+        ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+        ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
+      </div>
+    </div>
       `;
       chatBox.appendChild(messageElement);
     });
