@@ -29,6 +29,47 @@
     <link rel=stylesheet href=remixicon.min.css>
 
 <style>
+/* Popup styles */
+#install-popup {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: none;
+  z-index: 1000;
+}
+
+#install-popup .popup-content {
+  text-align: center;
+}
+
+#install-popup h2 {
+  margin-bottom: 10px;
+}
+
+#install-popup p {
+  margin-bottom: 20px;
+}
+
+#install-btn, #close-btn {
+  background-color: #ff9b00;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#install-btn:hover, #close-btn:hover {
+  background-color: #ff7000;
+}
 .getNow {
     padding: 2px;
 }
@@ -1703,8 +1744,50 @@ Please Wait.....
     </div>
   </div>
 
-  
+  <!-- Install Popup -->
+<div id="install-popup" style="display:none;">
+  <div class="popup-content">
+    <h2>Install Nabogaming</h2>
+    <p>Experience the thrill of online gaming and tournaments. Install Nabogaming on your device for easy access!</p>
+    <button id="install-btn">Install</button>
+    <button id="close-btn">Close</button>
+  </div>
+</div>
     </div>
+    
+    <script>
+        let installPromptEvent;
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  // Prevent the default installation prompt
+  event.preventDefault();
+  // Save the event for later use
+  installPromptEvent = event;
+  // Show the custom install popup
+  document.getElementById('install-popup').style.display = 'block';
+});
+
+document.getElementById('install-btn').addEventListener('click', () => {
+  if (installPromptEvent) {
+    // Show the install prompt
+    installPromptEvent.prompt();
+    installPromptEvent.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      // Hide the install popup after the user choice
+      document.getElementById('install-popup').style.display = 'none';
+    });
+  }
+});
+
+document.getElementById('close-btn').addEventListener('click', () => {
+  // Close the install popup
+  document.getElementById('install-popup').style.display = 'none';
+});
+    </script>
     <script>
         if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
