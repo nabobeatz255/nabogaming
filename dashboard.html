@@ -23,225 +23,173 @@
     <link rel=stylesheet href=remixicon.min.css>
 
 <style>
-.post-video {
+        /* Modal styles */
+        .modale {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;padding: 0 20px;
+        }
+
+
+.chat-container {
+  width: 90%;
+  max-width: 600px;
+  background: #2c2f33;
+  border-radius: 10px;
+  padding: 20px;
   position: relative;
-  display: block;
-  background: #000;
-  border-radius: 12px;
-  overflow: hidden;
-  height: 430px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.close {
+  cursor: pointer;
+  font-size: 20px;
+  color: #fff;
+}
+
+.post-container {
+  margin-bottom: 20px;
+}
+
+.post-video {
   width: 100%;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+  position: relative;
+  background: #121212;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.post-badges {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.post-info {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  color: #fff;
+  font-size: 14px;
 }
 
 .video-controls {
   position: absolute;
-  bottom: 10px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
 }
 
 .play-button {
-  background-color: rgba(255, 255, 255, 0.8);
+  background: none;
   border: none;
-  padding: 10px;
-  font-size: 30px;
-  border-radius: 50%;
-  cursor: pointer;
-  margin-right: 10px;
-  transition: background-color 0.2s;
-}
-
-.play-button:hover {
-  background-color: rgba(255, 255, 255, 1);
-}
-
-.closs {
-  color: white;
+  color: #fff;
   font-size: 24px;
   cursor: pointer;
-  position: absolute;
-  top: 15px;
-  right: 15px;
 }
 
-.bode {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 20px;
-}
-
-.open-chat-btn {
-  background-color: #444;
-  color: #fff;
-  padding: 12px 18px;
-  border: none;
-  border-radius: 20px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.open-chat-btn:hover {
-  background-color: #666;
-}
-
-/* Modal and chat container */
-.modale {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.chat-container {
-  width: 100%;
-  max-width: 600px;
-  max-height: 800px;
-  background-color: #111;
-  border-radius: 12px;
+.chat-box-container {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
 }
 
-.chat-header {
-  background-color: #222;
-  color: #fff;
-  padding: 18px;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  border-bottom: 2px solid #444;
+.entry {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #ddd;
 }
 
 .chat-box {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.cont {
-    margin-top: 100px;
-}
-.entry {
-  text-align: center;
-  color: #ddd;
-  font-size: 14px;
-}
-
-.message {
-  max-width: 75%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  line-height: 1.5;
-  transition: background-color 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.message.right {
-  align-self: flex-end;
+  margin-bottom: 10px;
   background-color: #333;
-  border: 0.7px solid rgba(255,255,255,.4);
-}
-
-.message.left {
-  align-self: flex-start;
-  background-color: #444;
-}
-
-.message p {
-  margin: 0;
-}
-
-.message .username {
-  font-weight: 600;
-  padding: 5px;
-  margin-bottom: 5px;
-  background: #888;
-  color: black;
-  border-radius: 5px;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
 }
 
 .chat-input {
   display: flex;
-  padding: 12px 20px;
-  border-top: 1px solid #444;
-  background-color: #222;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: #2c2f33;
+  border-radius: 8px;
 }
 
-.chat-input input {
-  width: 85%;
-  padding: 12px;
-  font-size: 14px;
-  border: 1px solid #444;
-  border-radius: 20px;
-  outline: none;
-  background-color: #333;
+#chat-message-input {
+  width: 80%;
+  padding: 10px;
+  background: #444;
   color: #fff;
-  transition: border 0.3s ease;
-}
-
-.chat-input input:focus {
-  border-color: #fff;
-}
-
-.chat-input button {
-  background-color: #444;
-  color: #fff;
-  padding: 12px 18px;
-  margin-left: 12px;
   border: none;
-  border-radius: 20px;
+  border-radius: 5px;
   font-size: 14px;
+}
+
+.send-btn {
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 14px;
 }
 
-.chat-input button:hover {
-  background-color: #666;
+.send-btn:hover {
+  background-color: #45a049;
 }
 
-/* Responsive Design */
-@media (max-width: 450px) {
+/* Responsiveness */
+@media screen and (max-width: 768px) {
   .chat-container {
     width: 100%;
-    height: 90vh;
-    max-width: none;
+    padding: 10px;
   }
 
-  .video-controls {
-    bottom: 15px;
+  .post-video {
+    height: auto;
   }
 
-  .play-button {
-    padding: 8px;
-    font-size: 28px;
+  .chat-input {
+    flex-direction: column;
   }
-}
-</style>
 
+  #chat-message-input {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 
-
+  .send-btn {
+    width: 100%;
+  }
+}</style>
 
 <style>
 /* Container Styling */
@@ -1642,52 +1590,63 @@ Please Wait.....
     </div>
   </div>
   <!-- Modal for Group Chat -->
-  
-  <section class="bode">
+<section class="bode">
   <div id="chatModal" class="modale">
     <div class="chat-container" id="chat-container">
+      <!-- Chat Header -->
       <div class="chat-header">
-        Game-On
-        <i class="ri-close-line closs" onclick="closeModale()"></i>
+        <span class="title">Game-On</span>
+        <i class="ri-close-line close" onclick="closeModale()"></i>
       </div>
       
-      <div class="post-video">
-        <video id="post-video" src="1.mp4" width="100%" height="auto" preload="metadata">
-          Your browser does not support the video tag.
-        </video>
-        
-        <div class="post-badges">
-          <span class="badge new">
-            <div class="post-options">
-              <i class="ri-more-fill"></i>
-              <div class="options-menu">
-                <ul style="border-color:#ddd;background:#121212">
-                  <li style="color:white;">Call Seller</li>
-                  <li style="color:white;">Report Seller</li>
-                </ul>
+      <!-- Instagram Post Section -->
+      <div class="post-container">
+        <div class="post-video">
+          <video id="post-video" src="1.mp4" width="100%" height="auto" preload="metadata">
+            Your browser does not support the video tag.
+          </video>
+
+          <!-- Post Badges -->
+          <div class="post-badges">
+            <span class="badge new">
+              <div class="post-options">
+                <i class="ri-more-fill"></i>
+                <div class="options-menu">
+                  <ul style="border-color:#ddd; background:#121212">
+                    <li style="color:white;">Call Seller</li>
+                    <li style="color:white;">Report Seller</li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </span>
-        </div>
-        
-        <div class="bottom-left-icon" style="color:white;">
-          <span>Werenoi - Location</span>
-        </div>
-        
-        <!-- Custom Play/Pause and Progress Bar -->
-        <div class="video-controls">
-          <button id="play-pause" class="play-button ri-play-fill"></button>
+            </span>
+          </div>
+
+          <!-- Post Info -->
+          <div class="post-info">
+            <span>Werenoi - Location</span>
+          </div>
+
+          <!-- Video Controls -->
+          <div class="video-controls">
+            <button id="play-pause" class="play-button ri-play-fill"></button>
+          </div>
         </div>
       </div>
-      <div class="cont">
-      <span class="entry">Karibu Katika ChatPlace By Nabogaming, Chati Na Gamers Mbalimbali Ndani Ya Nabogaming. Tukutakie Chatting Njema</span>
-      <div class="chat-box" id="chat-box">
-        <!-- Messages will appear here dynamically -->
-      </div>
-      <div class="chat-input">
-        <input type="text" id="chat-message-input" placeholder="Type a message..." />
-        <button id="send-message-button">Send</button>
-      </div>
+
+      <!-- Chat Box and Input -->
+      <div class="chat-box-container">
+        <span class="entry">
+          Karibu Katika ChatPlace By Nabogaming, Chati Na Gamers Mbalimbali Ndani Ya Nabogaming. Tukutakie Chatting Njema
+        </span>
+
+        <div class="chat-box" id="chat-box">
+          <!-- Dynamic messages appear here -->
+        </div>
+
+        <div class="chat-input">
+          <input type="text" id="chat-message-input" placeholder="Type a message..." />
+          <button id="send-message-button" class="send-btn">Send</button>
+        </div>
       </div>
     </div>
   </div>
