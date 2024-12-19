@@ -620,20 +620,6 @@
     window.location.href = "index.html";
   }
 });
-const addUserToPremium = (uid) => {
-  // Reference to the premiumUsers node
-  const premiumRef = ref(db, `premiumUsers/${uid}`);
-  
-  // Set a value for this UID, e.g., true (you can adjust the value to whatever you need)
-  set(premiumRef, true)
-    .then(() => {
-      showToast("User added to premium successfully!", 'success');
-    })
-    .catch((error) => {
-      console.error("Error adding user to premium:", error);
-      showToast("Error adding user to premium", 'error');
-    });
-};
 const generateUniqueId = (uid) => {
   // Generate a unique ID in the format "332004<uid>NB"
   return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
@@ -789,22 +775,14 @@ const displayUniqueId = (uid) => {
     });
   };
 
-const displayPost = async (post, container, isMyPost) => {
+const displayPost = (post, container, isMyPost) => {
   // Check if the post already exists in the container to avoid duplicates
   const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
   if (existingPost) return; // If post already exists, don't append again
 
-  // Check if the author is a premium user
-  const isPremium = await checkIfUserIsPremium(post.authorUid); // Assuming you store authorUid in each post
-
   const postElement = document.createElement("div");
   postElement.className = "instagram-post-2";
   postElement.setAttribute("data-post-id", post.postId); // Store the post ID as a data attribute
-
-  // Add the VIP crown icon after the username if the user is premium
-  const authorNameHtml = isPremium 
-    ? `${post.authorName} <i class="ri-vip-crown-fill"></i>` 
-    : post.authorName;
 
   postElement.innerHTML = `
     <div class="post-header">
@@ -812,8 +790,8 @@ const displayPost = async (post, container, isMyPost) => {
         <img src="${post.authorPhoto}" alt="User profile picture">
       </div>
       <div class="profile-details">
-        <div class="profile-name">${authorNameHtml}</div>
-        <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+        <div class="profile-name">${post.authorName}</div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
       </div>
       <div class="post-options">
         <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
@@ -1156,6 +1134,7 @@ const sendMessage = async () => {
 };
 document.getElementById('send-message-button')?.addEventListener('click', sendMessage);
 </script>
+
 
 
 
