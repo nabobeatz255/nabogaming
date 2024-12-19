@@ -540,8 +540,11 @@
 }.post-time-2 {
 	font-size: 13px;
 	color: #888;
+	margin-top: 6px;
+}
+.post-time-3 {
+    line-height: 1.2;
 	font-size: 13px;
-	color: #888;
 	margin-top: 6px;
 }.instagram-post-2 {
 	width: 100%;
@@ -1097,14 +1100,14 @@ const loadMessages = () => {
       </div>
       <div class="profile-details">
         <div class="profile-name">${message.senderName}</div>
-        <div class="post-time-2">${message.text}</span></div> 
+        <div class="post-time-3">${message.text}</span></div> 
       </div>
                      <div class="post-options">
                 <i class="ri-more-fill"></i>
                 <div class="options-menu">
-                  <ul style="border-color:#ddd; background:#121212">
-                    <li style="color:white;">Call Seller</li>
-                    <li style="color:white;">Report Seller</li>
+                  <ul>
+                    <li>Call Seller</li>
+                    <li>Report Seller</li>
                   </ul>
                 </div>
               </div>
