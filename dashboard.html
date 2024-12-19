@@ -620,6 +620,40 @@
     window.location.href = "index.html";
   }
 });
+const loadUsers = () => {
+  const usersRef = ref(db, "users");
+  const usersListContainer = document.getElementById("users-list");
+
+  if (!usersListContainer) return;
+
+  // Clear the container before adding new users
+  usersListContainer.innerHTML = "";
+
+  onValue(usersRef, (snapshot) => {
+    const users = [];
+    snapshot.forEach((childSnapshot) => {
+      const user = childSnapshot.val();
+      const userId = childSnapshot.key;
+      users.push({ userId, ...user });
+    });
+
+    // Display users with crown icon for special users
+    users.forEach(user => {
+      const userElement = document.createElement("div");
+      userElement.className = "user-item";
+
+      // Check if the user is special
+      const isSpecial = user.isSpecial;
+      const crownIcon = isSpecial ? '<i class="ri-vip-crown-fill"></i>' : '';
+
+      userElement.innerHTML = `
+        <span class="user-name">${user.name} ${crownIcon}</span>
+      `;
+
+      usersListContainer.appendChild(userElement);
+    });
+  });
+};
 const generateUniqueId = (uid) => {
   // Generate a unique ID in the format "332004<uid>NB"
   return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
@@ -1211,6 +1245,8 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
 </div>
 <button id="become-vip-btn">Become VIP</button>
     </section>
+    
+    <div id="users-list"></div>
       <section class=hero style="background: white; color:black;box-shadow:none;border:1px solid #ddd;">
 <div class=hero-content>
   <h1>Pubg Mobile TDM 1v1 Rooms</h1>
