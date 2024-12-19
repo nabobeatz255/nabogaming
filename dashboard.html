@@ -620,10 +620,19 @@
     window.location.href = "index.html";
   }
 });
-const checkIfUserIsPremium = async (uid) => {
+const addUserToPremium = (uid) => {
+  // Reference to the premiumUsers node
   const premiumRef = ref(db, `premiumUsers/${uid}`);
-  const snapshot = await get(premiumRef);
-  return snapshot.exists() && snapshot.val() === true;
+  
+  // Set a value for this UID, e.g., true (you can adjust the value to whatever you need)
+  set(premiumRef, true)
+    .then(() => {
+      showToast("User added to premium successfully!", 'success');
+    })
+    .catch((error) => {
+      console.error("Error adding user to premium:", error);
+      showToast("Error adding user to premium", 'error');
+    });
 };
 const generateUniqueId = (uid) => {
   // Generate a unique ID in the format "332004<uid>NB"
