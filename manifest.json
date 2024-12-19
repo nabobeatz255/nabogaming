@@ -6,7 +6,7 @@
   "start_url": "https://nabogaming.com/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "logo.png",
