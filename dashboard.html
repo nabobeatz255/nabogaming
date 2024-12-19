@@ -620,39 +620,10 @@
     window.location.href = "index.html";
   }
 });
-const loadUsers = () => {
-  const usersRef = ref(db, "users");
-  const usersListContainer = document.getElementById("users-list");
-
-  if (!usersListContainer) return;
-
-  // Clear the container before adding new users
-  usersListContainer.innerHTML = "";
-
-  onValue(usersRef, (snapshot) => {
-    const users = [];
-    snapshot.forEach((childSnapshot) => {
-      const user = childSnapshot.val();
-      const userId = childSnapshot.key;
-      users.push({ userId, ...user });
-    });
-
-    // Display users with crown icon for special users
-    users.forEach(user => {
-      const userElement = document.createElement("div");
-      userElement.className = "user-item";
-
-      // Check if the user is special
-      const isSpecial = user.isSpecial;
-      const crownIcon = isSpecial ? '<i class="ri-vip-crown-fill"></i>' : '';
-
-      userElement.innerHTML = `
-        <span class="user-name">${user.name} ${crownIcon}</span>
-      `;
-
-      usersListContainer.appendChild(userElement);
-    });
-  });
+const checkIfUserIsPremium = async (uid) => {
+  const premiumRef = ref(db, `premiumUsers/${uid}`);
+  const snapshot = await get(premiumRef);
+  return snapshot.exists() && snapshot.val() === true;
 };
 const generateUniqueId = (uid) => {
   // Generate a unique ID in the format "332004<uid>NB"
@@ -809,14 +780,22 @@ const displayUniqueId = (uid) => {
     });
   };
 
-const displayPost = (post, container, isMyPost) => {
+const displayPost = async (post, container, isMyPost) => {
   // Check if the post already exists in the container to avoid duplicates
   const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
   if (existingPost) return; // If post already exists, don't append again
 
+  // Check if the author is a premium user
+  const isPremium = await checkIfUserIsPremium(post.authorUid); // Assuming you store authorUid in each post
+
   const postElement = document.createElement("div");
   postElement.className = "instagram-post-2";
   postElement.setAttribute("data-post-id", post.postId); // Store the post ID as a data attribute
+
+  // Add the VIP crown icon after the username if the user is premium
+  const authorNameHtml = isPremium 
+    ? `${post.authorName} <i class="ri-vip-crown-fill"></i>` 
+    : post.authorName;
 
   postElement.innerHTML = `
     <div class="post-header">
@@ -824,8 +803,8 @@ const displayPost = (post, container, isMyPost) => {
         <img src="${post.authorPhoto}" alt="User profile picture">
       </div>
       <div class="profile-details">
-        <div class="profile-name">${post.authorName}</div>
-        <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+        <div class="profile-name">${authorNameHtml}</div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
       </div>
       <div class="post-options">
         <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
@@ -1243,10 +1222,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
   <!--a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a-->
   <a class=btn-primary>Inakujia Hivi Karibuni</a>
 </div>
-<button id="become-vip-btn">Become VIP</button>
     </section>
-    
-    <div id="users-list"></div>
       <section class=hero style="background: white; color:black;box-shadow:none;border:1px solid #ddd;">
 <div class=hero-content>
   <h1>Pubg Mobile TDM 1v1 Rooms</h1>
