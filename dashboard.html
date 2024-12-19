@@ -1094,11 +1094,13 @@ const loadMessages = () => {
       const profilePicture = message.senderPhotoURL || 'default-profile-picture.jpg'; // Use a default picture if none is available
 
       messageElement.innerHTML = `
-        <div class="message-header">
-          <img class="profile-picture" src="${profilePicture}" alt="${message.senderName}'s profile picture" />
-          <p class="username">${message.senderName}</p>
-        </div>
-        <p>${message.text}</p>
+        <div class="profile-picture">
+                 <img class="profile-picture" src="${profilePicture}" alt="${message.senderName}'s profile picture" />
+      </div>
+      <div class="profile-details">
+        <div class="profile-name">${message.senderName}</div>
+        <div class="post-time-2">${message.text}</div> 
+      </div>
       `;
       chatBox.appendChild(messageElement);
     });
