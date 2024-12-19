@@ -7,7 +7,7 @@ self.addEventListener('install', (event) => {
         '/logo.png',
         '/icon-192x192.png',
         '/icon-512x512.png',
-        '/styles.css',  // Add any stylesheets and JS files you need
+        '/app.css',  // Add any stylesheets and JS files you need
       ]);
     })
   );
