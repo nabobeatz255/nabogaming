@@ -620,6 +620,26 @@
     window.location.href = "index.html";
   }
 });
+// Update user's VIP status in Firebase
+  const becomeVIP = async () => {
+    if (currentUser) {
+      const userRef = ref(db, `users/${currentUser.uid}`);
+      await set(userRef, {
+        isVIP: true,
+        username: currentUser.displayName,
+        photoURL: currentUser.photoURL,
+      });
+
+      // Show the VIP crown icon next to the username
+      document.querySelector(".user-name").innerHTML += ' <i class="ri-vip-crown-fill"></i>';
+      showToast("You are now a VIP!", 'success');
+    }
+  };
+
+  // Event listener for the "Become VIP" button
+  document.getElementById("become-vip-btn")?.addEventListener("click", becomeVIP);
+
+ 
 const generateUniqueId = (uid) => {
   // Generate a unique ID in the format "332004<uid>NB"
   return `332004${uid.slice(0, 3)}NB`;  // You can adjust how much of the UID you use
@@ -1058,6 +1078,14 @@ const displayUserDetails = () => {
     element.src = userProfilePic;  // Set user profile picture
   });
 };
+// Check if the user is a VIP and display the crown icon if true
+    const userRef = ref(db, `users/${user.uid}`);
+    get(userRef).then(snapshot => {
+      if (snapshot.exists() && snapshot.val().isVIP) {
+        document.querySelector(".user-name").innerHTML += ' <i class="ri-vip-crown-fill"></i>';
+      }
+    });
+  };
 
 // Initialize the profile with user details
 onAuthStateChanged(auth, (user) => {
@@ -1133,75 +1161,6 @@ const sendMessage = async () => {
   showToast("Message sent!", 'success');
 };
 document.getElementById('send-message-button')?.addEventListener('click', sendMessage);
-// Listen for the 'Become VIP' button click event
-document.getElementById("become-vip-button").addEventListener("click", makeUserVIP);
-
-// Function to make the user VIP
-async function makeUserVIP() {
-  // Ensure the user is authenticated
-  const user = auth.currentUser;
-  if (!user) {
-    showToast("Please log in to become a VIP.", "error");
-    return;
-  }
-
-  try {
-    // Create a reference to the VIP node in Firebase
-    const vipRef = ref(db, `vip_users/${user.uid}`);
-
-    // Set the VIP status in the database (this can include more info like timestamp)
-    await set(vipRef, {
-      uid: user.uid,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      timestamp: serverTimestamp(),
-    });
-
-    // Add the crown icon next to the user's name (in the UI)
-    displayVIPIcon(user.uid);
-
-    showToast("You are now a VIP!", "success");
-  } catch (error) {
-    console.error("Error setting VIP status:", error);
-    showToast("Error setting VIP status. Please try again.", "error");
-  }
-}
-
-// Function to add VIP icon next to the user's name
-function displayVIPIcon(uid) {
-  const userNameElements = document.querySelectorAll(".username"); // Assuming the username is displayed here
-  
-  userNameElements.forEach(element => {
-    const currentUser = auth.currentUser;
-    if (currentUser && currentUser.uid === uid) {
-      const vipIcon = document.createElement("i");
-      vipIcon.classList.add("ri-vip-crown-fill");
-      vipIcon.style.color = "gold"; // Make the crown icon gold
-      element.appendChild(vipIcon);  // Add the crown icon next to the username
-    }
-  });
-}
-// This part happens inside the `makeUserVIP` function
-const vipRef = ref(db, `vip_users/${user.uid}`);
-await set(vipRef, {
-  uid: user.uid,
-  displayName: user.displayName,
-  photoURL: user.photoURL,
-  timestamp: serverTimestamp(),
-});
-function displayVIPIcon(uid) {
-  const userNameElements = document.querySelectorAll(".username"); // Assuming the username is displayed here
-  
-  userNameElements.forEach(element => {
-    const currentUser = auth.currentUser;
-    if (currentUser && currentUser.uid === uid) {
-      const vipIcon = document.createElement("i");
-      vipIcon.classList.add("ri-vip-crown-fill");
-      vipIcon.style.color = "gold"; // Make the crown icon gold
-      element.appendChild(vipIcon);  // Add the crown icon next to the username
-    }
-  });
-}
 </script>
 
 
@@ -1278,7 +1237,7 @@ function displayVIPIcon(uid) {
   <!--a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a-->
   <a class=btn-primary>Inakujia Hivi Karibuni</a>
 </div>
-<button id="become-vip-button">Become VIP</button>
+<button id="become-vip-btn">Become VIP</button>
     </section>
       <section class=hero style="background: white; color:black;box-shadow:none;border:1px solid #ddd;">
 <div class=hero-content>
