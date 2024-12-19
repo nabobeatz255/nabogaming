@@ -3,7 +3,7 @@
   "short_name": "Nabogaming",
   "name": "Nabogaming - Online Games & Rewards",
   "description": "Experience the thrill of online gaming and winning big rewards on Nabogaming.",
-  "start_url": "nabogaming.com",
+  "start_url": "https://nabogaming.com/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
