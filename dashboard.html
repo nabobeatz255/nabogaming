@@ -75,7 +75,6 @@
   align-items: center;
   flex-direction: column;
   padding: 20px;
-  min-height: 100vh;
 }
 
 .open-chat-btn {
@@ -139,7 +138,9 @@
   flex-direction: column;
   gap: 16px;
 }
-
+.cont {
+    margin-top: 100px;
+}
 .entry {
   text-align: center;
   color: #ddd;
@@ -1678,7 +1679,7 @@ Please Wait.....
           <button id="play-pause" class="play-button ri-play-fill"></button>
         </div>
       </div>
-      
+      <div class="cont">
       <span class="entry">Karibu Katika ChatPlace By Nabogaming, Chati Na Gamers Mbalimbali Ndani Ya Nabogaming. Tukutakie Chatting Njema</span>
       <div class="chat-box" id="chat-box">
         <!-- Messages will appear here dynamically -->
@@ -1686,6 +1687,7 @@ Please Wait.....
       <div class="chat-input">
         <input type="text" id="chat-message-input" placeholder="Type a message..." />
         <button id="send-message-button">Send</button>
+      </div>
       </div>
     </div>
   </div>
