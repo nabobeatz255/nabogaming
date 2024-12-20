@@ -736,14 +736,16 @@ const displayUniqueId = (uid) => {
       color: red; /* Orange */
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
+  @keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(100%); /* Start from below the screen */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0); /* End at its original position */
+  }
+}
   `;
   document.head.appendChild(style);
 
@@ -924,7 +926,7 @@ const displayPost = (post, container, isMyPost) => {
       showToast("unliked", 'info');
     } else {
       await set(postRef, true);  // Add like
-      showToast("you liked the ${post.authorName} post", 'success');
+      showToast("liked...added to likedposts", 'success');
     }
     loadPosts();  // Reload to reflect the changes
   };
@@ -945,7 +947,7 @@ const displayPost = (post, container, isMyPost) => {
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
     loadPosts();  // Reload posts to remove the deleted post
-    showToast("post imefutwa", 'success');
+    showToast("post imefutwa", 'warning');
   };
 
   const editPost = (post) => {
@@ -1028,7 +1030,7 @@ const updateUserProfile = async () => {
         await updateProfile(user, {
           displayName: newUsername,
         });
-        showToast("Username updated successfully!", 'success');
+        showToast("Hongera! updates zimekubalika", 'success');
       } catch (profileError) {
         console.error("Error updating username:", profileError);
         showToast("Error updating username. Please try again.", 'error');
