@@ -1,173 +1,210 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">    <meta name="description" content="Nabogaming Betplace - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
-    <meta name="keywords" content="Nabogaming, Betplace, Kubashiri Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nabogaming - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming, Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
     <meta name="author" content="Nabogaming">
-    <meta property="og:title" content="Nabogaming Betplace">
-    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming Betplace. Usikose nafasi yako ya ushindi!">
+    <meta property="og:title" content="Nabogaming">
+    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
     <meta property="og:image" content="https://nabogaming.com/logo.png">
     <meta property="og:url" content="https://nabogaming.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Nabogaming Betplace">
-    <meta name="twitter:description" content="Jiunge na Nabogaming Betplace kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:title" content="Nabogaming">
+    <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
     <meta name="twitter:image" content="https://nabogaming.com/logo.png">
     <link rel="canonical" href="https://nabogaming.com">
-  <title>Nabogaming Betplace 2.5</title><link rel="stylesheet" href="app.css"><link rel="stylesheet" href="2.css"><link rel="stylesheet" href="remixicon.min.css"></head><body>
-<script>// Function to render the dashboard
-  function renderDashboard() {
-    const main = document.createElement('main');
+    <link rel="icon" href="logo.png" type="image/x-icon">
+    <title>Nabogaming - Launching soon....</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
 
-    // Header
-    const header = document.createElement('header');
-    header.classList.add('page-header');
-    header.innerHTML = `
-      <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
-      <h1>Administrator</h1>
-      <div class="header-icons">
-        <i class="ri-gamepad-line" onclick='navigateTo("games")'></i>
-      </div>
-    `;
-    main.appendChild(header);
+        body {
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+            padding: 0 20px;
+        }
 
-    // Profile Container
-    const profileContainer = document.createElement('div');
-    profileContainer.classList.add('profile-container');
+        .container {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+        }
 
-    // Profile Overview
-    const profileOverview = document.createElement('div');
-    profileOverview.classList.add('profile-overview');
-    profileOverview.innerHTML = `
-      <div class="profile-photo">
-        <img src="5.png" alt="User Profile Picture">
-        <img src="logo.png" style="border:1px solid #f0f0f0;margin-left:-60px" alt="User Profile Picture">
-      </div>
-      <div class="profile-details">
-        <h2>John Doe</h2>
-        <p>UI/UX Designer | Frontend Developer</p>
-        <div class="profile-stats">
-          <div>
-            <h3>120</h3>
-            <p>Projects</p>
-          </div>
-          <div>
-            <h3>1.5k</h3>
-            <p>Followers</p>
-          </div>
-                    <div>
-            <h3>1.5k</h3>
-            <p>Followers</p>
-          </div>
-          <div>
-            <h3>300</h3>
-            <p>Following</p>
-          </div>
-        </div>
-      </div>
-    `;
-    profileContainer.appendChild(profileOverview);
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #000;
+            text-transform: uppercase;
+        }
 
-    // Profile Settings
-    const profileSettings = document.createElement('section');
-    profileSettings.classList.add('profile-settings');
-    profileSettings.innerHTML = `
-      <div class="settings-card">
-        <h2> Update Post Version 01</h2>
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="john.doe@example.com">
-        </div>
-        <button class="save-btn">Update Changes</button>
-      </div>
-      <div class="settings-card">
-        <h2> Update Post Version 02</h2>
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="john.doe@example.com">
-        </div>
-        <button class="save-btn">Update Changes</button>
-      </div>
-      <div class="settings-card">
-        <h2> Update Post Version 03</h2>
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="John Doe">
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="john.doe@example.com">
-        </div>
-        <button class="save-btn">Update Changes</button>
-      </div>
-      <div class="settings-card">
-        <h2>Change Password</h2>
-        <div class="form-group">
-          <label for="current-password">Current Password</label>
-          <input type="password" id="current-password" placeholder="Enter current password">
-        </div>
-        <div class="form-group">
-          <label for="new-password">New Password</label>
-          <input type="password" id="new-password" placeholder="Enter new password">
-        </div>
-        <div class="form-group">
-          <label for="confirm-password">Confirm Password</label>
-          <input type="password" id="confirm-password" placeholder="Confirm new password">
-        </div>
-        <button class="save-btn">Update Password</button>
-      </div>
-    `;
-    profileContainer.appendChild(profileSettings);
+        .subheading {
+            font-size: 1.2rem;
+            color: #bbb;
+            margin-top: 10px;
+            font-weight: 400;
+        }
 
-    main.appendChild(profileContainer);
-    document.body.appendChild(main);
-  }
+        .countdown-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-  // Dummy navigation function
-  function navigateTo(page) {
-    alert(`Navigating to ${page} page...`);
-  }
+        #countdown {
+            font-size: 4rem;
+            font-weight: 600;
+            letter-spacing: 4px;
+            color: #000;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-  // Initialize the dashboard on page load
-  renderDashboard();</script></body></html>
+        /* Countdown Time Block */
+        .time-block {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 4px;border-radius: 10px;
+        }
+
+        .time {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .label {
+            font-size: 1rem;
+            color: #bbb;
+            text-transform: uppercase;
+        }
+
+
+        body {
+            background: white;
+        }
+
+        /* Responsive Design for Mobile and Tablets */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subheading {
+                font-size: 1rem;
+            }
+
+            #countdown {
+                font-size: 3rem;
+            }
+
+            .time-block {
+                margin: 0 5px;
+            }
+
+            .time {
+                font-size: 2rem;
+            }
+
+            .label {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .subheading {
+                font-size: 0.9rem;
+            }
+
+            #countdown {
+                font-size: 2.5rem;
+            }
+
+            .time {
+                font-size: 1.5rem;
+            }
+
+            .label {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="countdown-container">
+             <img src="logo.png" height="80" width="80">
+            <h1>Nabogaming We're launching soon!</h1>
+
+               <div id="countdown" class="countdown"></div>
+
+                            <p class="subheading"> Join Us on <a href="https://chat.whatsapp.com/CjbGh02DHZ2CNEZGQ5D15S">whatsapp</a> or <a href="tel:0614003543">Call us</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Set the date for the website launch
+        const launchDate = new Date("December 21, 2024 00:00:00").getTime();
+
+        // Update the countdown every second
+        const countdownInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const timeLeft = launchDate - now;
+
+            // Calculate days, hours, minutes, and seconds left
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            // Display the countdown in a modern format
+            document.getElementById("countdown").innerHTML = `
+                <div class="time-block">
+                  <span class="label">Days</span>  <span class="time">${days}</span> 
+                </div>
+                <div class="time-block">
+                   <span class="label">Hours</span> <span class="time">${hours}</span> 
+                </div>
+                <div class="time-block">
+                    <span class="label">Minutes</span>
+                    <span class="time">${minutes}</span> 
+                </div>
+                <div class="time-block">
+                   <span class="label">Seconds</span> <span class="time">${seconds}</span> 
+                </div>
+            `;
+
+            // If the countdown is over, show a message
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                document.getElementById("countdown").innerHTML = "It's time! We're live!";
+                document.querySelector("h1").innerHTML = "The wait is over!";
+                document.querySelector(".subheading").style.display = "none";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
