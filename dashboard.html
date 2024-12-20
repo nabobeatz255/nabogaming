@@ -715,21 +715,25 @@ const displayUniqueId = (uid) => {
     }
     
     .toast.success {
-      background-color: #4CAF50; /* Green */
+    color:  #4CAF50;
+      background-color: white ; /* Green */
     }
 
     .toast.error {
     height: 100vh;
     padding-top: 50vh;
       background-color: #f44336; /* Red */
+      color:white
     }
 
     .toast.info {
-      background-color: #2196F3; /* Blue */
+     color:#2196F3;/* Orange */
+      background-color: white; /* Blue */
     }
 
     .toast.warning {
-      background-color: #ff9800; /* Orange */
+      background-color: white; 
+      color: red; /* Orange */
     }
 
     @keyframes fadeIn {
@@ -920,7 +924,7 @@ const displayPost = (post, container, isMyPost) => {
       showToast("unliked", 'info');
     } else {
       await set(postRef, true);  // Add like
-      showToast("you liked the post", 'success');
+      showToast("you liked the ${post.authorName} post", 'success');
     }
     loadPosts();  // Reload to reflect the changes
   };
