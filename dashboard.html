@@ -1202,10 +1202,10 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     <div class=logo>
 <img src=logo.png alt=Logo>
     </div>
-   <div class="search-bar">
+   <!--div class="search-bar">
  <input type="text" id="search-input" placeholder="Search Events..." oninput="showSuggestions()">
     <div id="suggestions-list"></div>
-</div>
+</div-->
     <div class=icons>
 <i class=ri-notification-line  id="toggleNotify" style="	font-size: 20px;"></i>
  <i class=ri-rocket-line onclick="openModale()" style="	font-size: 20px;"></i>
@@ -1569,7 +1569,7 @@ Please Wait.....
 <div class="caption">
   <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
 </div>
-<!--button class="join"  onclick='navigateTo("saved")'>Jiunge Sasa</button-->
+<button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button>
     </div>
   </div>
 </div>
@@ -1586,14 +1586,14 @@ Please Wait.....
     <div class="profile-overview">
 <div class="profile-photo">
   <img src="5.png" alt="User Profile Picture" class="profile-picture">
-</div>
+</div><br>
 <div class="profile-details">
   <h2 class="user-name">No User Found</h2>
   <p class="user-email">Email Not Registered | <a href="index.html">Jiunge Sasa</a></p>
 </div>
     </div>
     </div> 
-<div class="profile-container">
+<!--div class="profile-container">
     <h3 class="section-title">Add New Details</h3>
     <div class="profile-content">
         <img id="profile-picture" class="profile-photo-2" src="blank.png" alt="Profile Picture">
@@ -1607,7 +1607,7 @@ Please Wait.....
         </div>
         <button id="update-profile-button" class="update-profile-btn">Update Profile Now</button>
     </div>
-</div>
+</div-->
       <br>
  <h3 style="text-align: center">Posts Zangu (<span class="user-name"> No data </span>'s Post)</h3>
 <br>
@@ -1653,6 +1653,42 @@ Please Wait.....
 </div>
     </div>
 
+<div id="jisajili" class="hidden">
+    <header class="page-header" style="margin-bottom:0">
+      <i class="ri-arrow-left-line" onclick="navigateTo('events')"></i>
+    </header>
+    <div class="profile-container" style="margin-top:0">
+      <div class="profile-overview">
+        <div class="profile-photo">
+          <img class="profile-picture" alt="User Profile Picture">
+        </div>
+        <div class="profile-details">
+          <h2 class="user-name"></h2>
+          <p class="user-email"></p>
+
+        </div>
+      </div>
+      <section class="profile-settings">
+        <div class="settings-card">
+          <h2>Jiunge Na Hii Pubg 1v1 Tukutafutie Mshindani Wako, Jaza Taarifa Zako</h2>
+          <div class="form-group">
+            <label for="name">Pubg Name</label>
+            <input type="text" id="name" placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label for="number">Pubg ID</label>
+            <input type="number" id="id" placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label for="name">Whatsapp Number</label>
+            <input type="number" id="name" placeholder="John Doe">
+          </div>
+          <button class="save-btn">Upload Details</button>
+        </div>
+
+      </section>
+    </div>
+</div>
 
   <!-- Create Modal -->
   <div id="createModal" class="create-modal">
