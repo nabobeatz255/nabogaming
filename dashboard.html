@@ -28,6 +28,8 @@
     <link rel=stylesheet href=remixicon.min.css>
 
 <style>
+
+
 .icon-container {
   position: relative;
   display: inline-block;margin: 17px 0 0 0;
@@ -862,14 +864,12 @@ const displayUniqueId = (uid) => {
     return `${years}yr ago`;
   };
 
- const loadPosts = () => {
+const loadPosts = () => {
   const allPostsContainer = document.getElementById("allposts");
   const myPostsContainer = document.getElementById("myposts");
 
-  // Only proceed if the containers are present
   if (!allPostsContainer || !myPostsContainer) return;
 
-  // Clear the containers before adding new posts
   allPostsContainer.innerHTML = "";
   myPostsContainer.innerHTML = "";
 
@@ -885,17 +885,32 @@ const displayUniqueId = (uid) => {
     // Sort posts by timestamp from new to old
     posts.sort((a, b) => b.timestamp - a.timestamp);
 
-    // Filter posts for my posts and all posts
-    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-    const allPosts = posts;
+    // Create your ad content
+    const adContent = `
+      <div class="ad">
+        <h2>Advertisement</h2>
+        <p>This is a great product!</p>
+      </div>
+    `;
 
-    // Display my posts (with edit/delete options)
-    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+    // Generate a random index to insert the ad
+    const randomIndex = Math.floor(Math.random() * (posts.length + 1));
 
-    // Display all posts (without edit/delete options)
-    allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+    // Insert the ad into the posts array at the random index
+    posts.splice(randomIndex, 0, { ad: true, content: adContent });
+
+    // Display all posts including the ad
+    posts.forEach(post => {
+      if (post.ad) {
+        // If it's an ad, append it directly
+        allPostsContainer.innerHTML += post.content; // Append ad content
+      } else {
+        displayPost(post, allPostsContainer, false); // Display regular post
+      }
+    });
   });
 };
+
  
   const loadLikedPosts = () => {
     const likedPostsContainer = document.getElementById("likedposts");
@@ -1303,10 +1318,8 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     <div class=logo>
 <img src=logo.png alt=Logo>
     </div>
-   <div class="search-bar">
- <input type="text" id="search-input" placeholder="Search Events..." oninput="showSuggestions()">
-    <div id="suggestions-list"></div>
-</div>
+
+
     <div class=icons style="margin-top: -17px">
 <div class="icon-container" style="margin-right:5px;border:1px solid #ddd;border-radius:5px;padding: 5px">
   <i class="ri-notification-line" id="toggleNotify" style="font-size: 20px;"></i>
@@ -1364,7 +1377,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     </section>
       <section class=hero style="background: white; color:black;box-shadow:none;border:1px solid #ddd;">
 <div class=hero-content>
-  <h1>Usahili Nabogaming Tounaments </h1>
+  <h1>Usahili Nabogaming Tournaments </h1>
   <p>Hivi Karibuni Tunazindua Usahili Wa Nabogaming Tournaments Utakaofanyika 3/1/2025 hadi 6/1/2025, Get Ready Check Notification</p>
 </div>
     </section>
@@ -2206,55 +2219,8 @@ notifyPopup.classList.add("hidden");
   setTimeout(() => {
     this.textContent = 'Upload Post Now';
     this.removeChild(loadingDots);
-  }, 1000000);  // Reset after 5 seconds (you can adjust this duration)
+  }, 10000);  // Reset after 5 seconds (you can adjust this duration)
 });
-</script>
-  <script>
-    // Sample data for search suggestions with HTML included
-    const searchableItems = [
-        '<span onclick='navigateTo("profile")'>Pubg Nobile 1v1 room</span>',  // Adding HTML  the item
-        'League of Legends'
-    ];
-
-    function showSuggestions() {
-        const input = document.getElementById("search-input").value.toLowerCase();
-        const suggestionsList = document.getElementById("suggestions-list");
-
-        // Clear previous suggestions
-        suggestionsList.innerHTML = '';
-
-        // Filter suggestions based on input
-        if (input) {
-            const filteredItems = searchableItems.filter(item => item.toLowerCase().includes(input));
-
-            // If there are matching items, show them
-            if (filteredItems.length > 0) {
-                suggestionsList.style.display = 'block';
-                filteredItems.forEach(item => {
-                    const div = document.createElement('div');
-                    div.classList.add('suggestion-item');
-                    div.innerHTML = item;  // Use innerHTML to render HTML content like <strong> tags
-                    
-                    // Set up the onclick event
-                    div.onclick = () => selectSuggestion(item);
-                    suggestionsList.appendChild(div);
-                });
-            } else {
-                suggestionsList.style.display = 'none';
-            }
-        } else {
-            suggestionsList.style.display = 'none';
-        }
-    }
-
-    function selectSuggestion(item) {
-        // Set the input value to the selected suggestion
-        document.getElementById("search-input").value = item;
-        document.getElementById("suggestions-list").style.display = 'none';
-        
-        // Optionally, perform additional actions when a suggestion is selected.
-        console.log("Selected suggestion:", item);
-    }
 </script>
     <script>
      function checkImage() {
