@@ -886,11 +886,35 @@ document.querySelectorAll('.plus-box').forEach(button => {
 
     // Get the parent element (the team container)
     const teamItem = button.closest('.grid-modali-item');
-    const teamName = teamItem.querySelector('h3').textContent;  // Get the team name
+    const teamId = teamItem.dataset.teamId;  // Assuming you store a unique ID for each team
 
-    // Insert the user's profile picture and name into the plus box and team name section
+    // Check if the user has already joined a team
+    if (currentUser.hasJoined) {
+      showToast("You have already joined a team.", 'error');
+      return;
+    }
+
+    // Insert the user's profile picture and name into the plus box
     teamItem.querySelector('.plus-box').innerHTML = `<img src="${userProfilePic}" alt="Profile picture" class="profile-pic">`;
-    teamItem.querySelector('h3').textContent = `${teamName} - ${userName}`;
+    teamItem.querySelector('.plus-box').innerHTML += `<span>${userName}</span>`;  // Show only the username
+
+    // Update the user's joining status to prevent joining more teams
+    currentUser.hasJoined = true;
+
+    // Save the user's joining information to the real-time database (Firebase)
+    const db = firebase.firestore();
+    db.collection('teams').doc(teamId).update({
+      members: firebase.firestore.FieldValue.arrayUnion({
+        userId: currentUser.uid,
+        userName: userName,
+        userProfilePic: userProfilePic,
+      })
+    }).then(() => {
+      showToast("You have successfully joined the team!", 'success');
+    }).catch(error => {
+      console.error("Error updating team: ", error);
+      showToast("Failed to join the team. Please try again.", 'error');
+    });
   });
 });
 
