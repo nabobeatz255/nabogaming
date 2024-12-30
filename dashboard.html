@@ -905,19 +905,16 @@ document.querySelectorAll('.plus-box').forEach(button => {
     // Update the user's joining status to prevent joining more teams
     currentUser.hasJoined = true;
 
-    // Save the user's joining information to the Firestore database
-    const db = firebase.firestore();
-    db.collection('teams').doc(teamId).update({
-      members: firebase.firestore.FieldValue.arrayUnion({
-        userId: currentUser.uid,
-        userName: userName,
-        userProfilePic: userProfilePic,
-      })
+    // Save the user's joining information to the Realtime Database
+    const dbRef = firebase.database().ref('teams/' + teamId + '/members/' + currentUser.uid);
+    dbRef.set({
+      userName: userName,
+      userProfilePic: userProfilePic
     }).then(() => {
       showToast("You have successfully joined the team!", 'success');
     }).catch(error => {
-      console.error("Error updating team: ", error);
-      showToast("Failed to join the team. Please try again.", 'error');
+      console.error("Error saving member data: ", error);
+      showToast("Failed to join the team. Please try again.", 'info');
     });
   });
 });
