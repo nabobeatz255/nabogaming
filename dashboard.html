@@ -26,7 +26,104 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
+  <style>  /* modali */
+    .modali {
+      display: none;position: absolute;
+      overflow: auto;
+      z-index: 10000;
+      left: 0;padding-bottom: 120px;
+      top: 0;padding-top: 20px;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(4px);
+      background-color: rgba(255, 255, 255, 0.7);
+    }
 
+    /* modali Content */
+    .modali-content {
+      border-radius: 8px;
+      width: 100%;
+    }
+
+    .modali-content .grid-modali-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 20px;
+    }
+
+    .grid-modali-item {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      padding-bottom: 80%; /* Makes the height equal to the width for square */
+      display: flex;text-align: center;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+    }
+
+    .plus-box {
+      position: absolute;
+      bottom: 20px;
+      left: 18%;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      background-color: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .grid-modali-item h3 {
+      font-size: 18px;
+      color: #333;overflow-x: hidden;
+      margin: 10px 0;
+    }
+
+    /* Close button */
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: transparent;
+      border: none;
+      color: #333;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* Responsive layout adjustments */
+    @media (max-width: 600px) {
+      .grid-modali-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+      .grid-modali-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 901px) and (max-width: 1200px) {
+      .grid-modali-container {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (min-width: 1201px) {
+      .grid-modali-container {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+  </style>
 <style>
 .icon-container {
   position: relative;
@@ -776,7 +873,22 @@ const displayUniqueId = (uid) => {
   });
 };
 
+document.querySelectorAll('.plus-box').forEach(button => {
+        button.addEventListener('click', function() {
+          // Get the parent element (the team container)
+          const teamItem = button.closest('.grid-modali-item');
+          const teamName = teamItem.querySelector('h3').textContent; // Get the team name
 
+          // Insert the user's profile picture and name into the plus box and team name section
+          teamItem.querySelector('.plus-box').innerHTML = `<img src="${userProfilePic}" alt="Profile picture" class="profile-pic">`;
+          teamItem.querySelector('h3').textContent = `${teamName} - ${userName}`;
+        });
+      });
+    } else {
+      // Handle user not signed in
+
+    }
+  });
   // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
@@ -1310,6 +1422,8 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
   <span class="badger">1</span>
 </div>
 <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px">
+ <i class=ri-dashboard-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div>
+ <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px">
  <i class=ri-rocket-line onclick="openModale()" style="	font-size: 20px;margin-top:17px"></i></div>
  <div style="margin-top:17px;">
 <i style="color: black;	font-size: 33px;" onclick="openCreateModal()" class="ri-add-circle-fill"></i></div>
@@ -1977,7 +2091,59 @@ Please Wait.....
   </div>
 </div>
     </div>
-    
+   <!-- modali -->
+  <div id="modali" class="modali">
+    <div class="modali-content">
+      <!-- Close button -->
+      <button class="close-btn" onclick="closemodali()">×</button>
+<div class="grid-modali-container">
+    <div class="grid-modali-item" data-team="1">
+        <div class="plus-box">+</div>
+        <h3>Team I</h3>
+    </div>
+    <div class="grid-modali-item" data-team="2">
+        <div class="plus-box">+</div>
+        <h3>Team II</h3>
+    </div>
+    <div class="grid-modali-item" data-team="3">
+        <div class="plus-box">+</div>
+        <h3>Team III</h3>
+    </div>
+    <div class="grid-modali-item" data-team="4">
+        <div class="plus-box">+</div>
+        <h3>Team IV</h3>
+    </div>
+    <div class="grid-modali-item" data-team="5">
+        <div class="plus-box">+</div>
+        <h3>Team V</h3>
+    </div>
+    <!-- Repeat for other teams... -->
+</div>
+     <!--div style="display:flex; align-items:center; justify-content:center; text-align:center; gap:10px;">
+    <button style="padding:10px 50px; font-size:16px; background-color:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer;">Pakua</button>
+    <button style="padding:10px 50px; font-size:16px; background-color:#f44336; color:white; border:none; border-radius:5px; cursor:pointer;">Close</button>
+</div-->
+      </div>
+  </div>
+
+  <script>
+    // Function to open the modali
+    function openmodali() {
+      document.getElementById('modali').style.display = 'flex';
+    }
+
+    // Function to close the modali
+    function closemodali() {
+      document.getElementById('modali').style.display = 'none';
+    }
+
+    // Close modali when clicking outside of the modali content
+    window.onclick = function(event) {
+      if (event.target === document.getElementById('modali')) {
+        closemodali();
+      }
+    }
+  </script>   
     <script>
         let installPromptEvent;
 
