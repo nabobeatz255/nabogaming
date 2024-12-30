@@ -894,14 +894,18 @@ document.querySelectorAll('.plus-box').forEach(button => {
       return;
     }
 
-    // Insert the user's profile picture and name into the plus box
+    // Insert the user's profile picture into the plus box
     teamItem.querySelector('.plus-box').innerHTML = `<img src="${userProfilePic}" alt="Profile picture" class="profile-pic">`;
-    teamItem.querySelector('.plus-box').innerHTML += `<span>${userName}</span>`;  // Show only the username
+
+    // Insert the user's name inside an <h3> tag
+    const nameElement = teamItem.querySelector('.plus-box').querySelector('h3') || document.createElement('h3');
+    nameElement.textContent = userName;
+    teamItem.querySelector('.plus-box').appendChild(nameElement);
 
     // Update the user's joining status to prevent joining more teams
     currentUser.hasJoined = true;
 
-    // Save the user's joining information to the real-time database (Firebase)
+    // Save the user's joining information to the Firestore database
     const db = firebase.firestore();
     db.collection('teams').doc(teamId).update({
       members: firebase.firestore.FieldValue.arrayUnion({
