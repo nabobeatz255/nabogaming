@@ -874,21 +874,27 @@ const displayUniqueId = (uid) => {
 };
 
 document.querySelectorAll('.plus-box').forEach(button => {
-        button.addEventListener('click', function() {
-          // Get the parent element (the team container)
-          const teamItem = button.closest('.grid-modali-item');
-          const teamName = teamItem.querySelector('h3').textContent; // Get the team name
-
-          // Insert the user's profile picture and name into the plus box and team name section
-          teamItem.querySelector('.plus-box').innerHTML = `<img src="${userProfilePic}" alt="Profile picture" class="profile-pic">`;
-          teamItem.querySelector('h3').textContent = `${teamName} - ${userName}`;
-        });
-      });
-    } else {
-      // Handle user not signed in
-
+  button.addEventListener('click', function() {
+    // Ensure `currentUser` is defined and contains the necessary properties
+    if (!currentUser) {
+      showToast("You must be logged in to perform this action.", 'error');
+      return;
     }
+
+    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Use default if not available
+    const userName = currentUser.displayName || "Anonymous";  // Use default if not available
+
+    // Get the parent element (the team container)
+    const teamItem = button.closest('.grid-modali-item');
+    const teamName = teamItem.querySelector('h3').textContent;  // Get the team name
+
+    // Insert the user's profile picture and name into the plus box and team name section
+    teamItem.querySelector('.plus-box').innerHTML = `<img src="${userProfilePic}" alt="Profile picture" class="profile-pic">`;
+    teamItem.querySelector('h3').textContent = `${teamName} - ${userName}`;
   });
+});
+
+
   // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
