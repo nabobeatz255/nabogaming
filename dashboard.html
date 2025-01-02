@@ -844,19 +844,44 @@
   const storage = getStorage(app);
 
   let currentUser = null;
- onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (user) {
-    loadPosts();  // Load posts after successful login
-    loadLikedPosts();  // Load liked posts
+    loadPosts(); // Load posts after successful login
+    loadLikedPosts(); // Load liked posts
     displayUserDetails(); // Display user details if available
     loadMessages();
+    initializeUserEXP(user.uid); // Ensure the EXP field exists for the user
   } else {
     showToast("You are not signed in. Redirecting to login...", 'error');
     window.location.href = "index.html";
   }
 });
+const initializeUserEXP = async (userId) => {
+  const userRef = ref(db, `users/${userId}`);
+  const snapshot = await get(userRef);
+  if (!snapshot.exists()) {
+    // Initialize the user with 0 EXP if not already set
+    await set(userRef, { exp: 0 });
+  }
+};
+const updateUserEXP = async (userId, points) => {
+  const userRef = ref(db, `users/${userId}/exp`);
+  const snapshot = await get(userRef);
+  let currentEXP = snapshot.exists() ? snapshot.val() : 0;
 
+  currentEXP += points;  // Increment the EXP by the given points
+
+  // Update the user's EXP in Firebase
+  await set(userRef, currentEXP);
+  showToast(`You gained ${points} EXP!`, 'success');
+  updateUserEXPDisplay(currentEXP); // Update the EXP display in the UI
+};
+const updateUserEXPDisplay = (exp) => {
+  document.querySelectorAll('.user-exp').forEach(element => {
+    element.textContent = `EXP: ${exp}`;  // Display the user's current EXP
+  });
+};
 // Function to display the unique ID in HTML
 const displayUniqueId = (uid) => {
   const uniqueId = generateUniqueId(uid);
@@ -1199,30 +1224,51 @@ if (postElement.querySelector(".like-btn")) {
     }).join("");
   };
 
-  const likePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-    const snapshot = await get(postRef);
-    if (snapshot.exists()) {
-      await remove(postRef);  // Remove like
-      showToast("unliked", 'info');
-    } else {
-      await set(postRef, true);  // Add like
-      showToast("you liked the post", 'success');
-    }
-    loadPosts();  // Reload to reflect the changes
+const likePost = async (postId) => {
+  const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+  const snapshot = await get(postRef);
+  if (snapshot.exists()) {
+    await remove(postRef); // Remove like
+    showToast("You unliked the post", 'info');
+  } else {
+    await set(postRef, true); // Add like
+    showToast("You liked the post", 'success');
+    // Award 2 EXP for liking a post
+    updateUserEXP(currentUser.uid, 2);
+  }
+  loadPosts(); // Reload to reflect the changes
+};
+const awardDailyEXP = async (userId) => {
+  const userRef = ref(db, `users/${userId}/lastLogin`);
+  const snapshot = await get(userRef);
+  const currentDate = new Date().toISOString().split('T')[0];  // Get the current date in 'YYYY-MM-DD' format
+
+  if (!snapshot.exists() || snapshot.val() !== currentDate) {
+    // Award daily EXP (e.g., 10 EXP)
+    await updateUserEXP(userId, 10);
+
+    // Update the last login date
+    await set(userRef, currentDate);
+  }
+};
+
+// Call this function when the user logs in
+awardDailyEXP(currentUser.uid);
+const submitComment = async (postId, commentText) => {
+  const commentData = {
+    username: currentUser.displayName,
+    message: commentText,
   };
 
-  const submitComment = async (postId, commentText) => {
-    const commentData = {
-      username: currentUser.displayName,
-      message: commentText,
-    };
+  const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+  await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+  showToast("Comment added", 'success');
 
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showToast("comment added", 'success');
-    loadPosts();  // Reload posts to show the new comment
-  };
+  // Award 2 EXP for commenting
+  updateUserEXP(currentUser.uid, 2);
+
+  loadPosts(); // Reload posts to show the new comment
+};
 
   const deletePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}`);
@@ -1922,13 +1968,13 @@ Please Wait.....
       </div>
 
 
-      <!--div class="profile-stats">
+      <div class="profile-stats">
         <div>
-          <h3>UID</h3>
-          <p id="user-uid"></p>
+          <h3></h3>
+       <div class="user-exp">EXP: 0</div>
         </div>
       
-      </div--> 
+      </div> 
     </div>
 <br><br>
     <!-- User Posts Section -->
@@ -1955,15 +2001,7 @@ Please Wait.....
   </header>
   <br><br><br>
   <div class="post-grid" id="likedposts">
-     
-     <div class="card-preloader">
-  <div class="preloader-image"></div>
-  <div class="preloader-content">
-    <div class="preloader-title"></div>
-    <div class="preloader-line"></div>
-    <div class="preloader-line"></div>
-  </div>
-</div> <img src="notfound.png" height="580" width="350">
+     <img src="notfound.png" height="580" width="350">
   </div>
 </div>
 </div>
@@ -2199,7 +2237,6 @@ Please Wait.....
 </div-->
       </div>
   </div>
-
   <script>
     // Function to open the modali
     function openmodali() {
