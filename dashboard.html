@@ -1095,6 +1095,7 @@ const displayPost = (post, container, isMyPost) => {
   postElement.className = "instagram-post-2";
   postElement.setAttribute("data-post-id", post.postId); // Store the post ID as a data attribute
 
+  // Build the post HTML
   postElement.innerHTML = `
     <div class="post-header">
       <div class="profile-picture">
@@ -1105,7 +1106,7 @@ const displayPost = (post, container, isMyPost) => {
         <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
       </div>
       <div class="post-options">
-        <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
+        ${!isMyPost && !post.likes[currentUser.uid] ? `<i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>` : ""}
         <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
         ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
@@ -1135,8 +1136,8 @@ const displayPost = (post, container, isMyPost) => {
     postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
   }
 
-  // Add toggle comments functionality
-  if (postElement.querySelector(".toggle-comments")) {
+  // Add toggle comments functionality only if it's not the user's post or liked post
+  if (postElement.querySelector(".toggle-comments") && !isMyPost && !post.likes[currentUser.uid]) {
     postElement.querySelector(".toggle-comments").addEventListener("click", () => {
       const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
       commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
