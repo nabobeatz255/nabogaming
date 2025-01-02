@@ -1124,8 +1124,6 @@ const displayPost = (post, container, isMyPost) => {
 
   container.appendChild(postElement);
 
-
-  // Assuming `post.liked` is a flag indicating whether the post is already liked
 if (postElement.querySelector(".like-btn")) {
   const likeButton = postElement.querySelector(".like-btn");
 
@@ -1136,11 +1134,14 @@ if (postElement.querySelector(".like-btn")) {
   }
 
   likeButton.addEventListener("click", () => {
-    // Assuming likePost() toggles the like status
+    // Toggle the like status by calling likePost
     likePost(post.postId);
 
+    // Update the liked flag for the post
+    post.liked = !post.liked; // Toggle the state of liked
+
     // Toggle the icon based on the like status
-    if (likeButton.classList.contains("ri-heart-line")) {
+    if (post.liked) {
       likeButton.classList.remove("ri-heart-line");
       likeButton.classList.add("ri-heart-fill");
     } else {
