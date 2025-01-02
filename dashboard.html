@@ -1124,10 +1124,31 @@ const displayPost = (post, container, isMyPost) => {
 
   container.appendChild(postElement);
 
-  // Add event listeners for actions
-  if (postElement.querySelector(".like-btn")) {
-    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+
+  // Assuming `post.liked` is a flag indicating whether the post is already liked
+if (postElement.querySelector(".like-btn")) {
+  const likeButton = postElement.querySelector(".like-btn");
+
+  // If the post is liked, change the icon to ri-heart-fill
+  if (post.liked) {
+    likeButton.classList.remove("ri-heart-line");
+    likeButton.classList.add("ri-heart-fill");
   }
+
+  likeButton.addEventListener("click", () => {
+    // Assuming likePost() toggles the like status
+    likePost(post.postId);
+
+    // Toggle the icon based on the like status
+    if (likeButton.classList.contains("ri-heart-line")) {
+      likeButton.classList.remove("ri-heart-line");
+      likeButton.classList.add("ri-heart-fill");
+    } else {
+      likeButton.classList.remove("ri-heart-fill");
+      likeButton.classList.add("ri-heart-line");
+    }
+  });
+}
 
   // Add toggle comments functionality
   if (postElement.querySelector(".toggle-comments")) {
