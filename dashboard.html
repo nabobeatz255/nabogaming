@@ -2291,7 +2291,28 @@ document.querySelectorAll('.sidebar a').forEach(link => {
 
     </script>
     <script>function showTab(e){document.querySelectorAll(".tab-content").forEach((e=>{e.classList.add("hidden"),e.classList.remove("visible")})),document.getElementById(e).classList.add("visible")}</script>
-    <script>const toggleCommentsButtons=document.querySelectorAll(".toggle-comments");toggleCommentsButtons.forEach((t=>{t.addEventListener("click",(function(){const t=this.getAttribute("data-target"),e=document.getElementById(t);"flex"===e.style.display?(e.style.display="none",this.innerHTML='<i class="ri-arrow-down-s-line"></i> View Comments'):(e.style.display="flex",this.innerHTML='<i class="ri-arrow-up-s-line"></i> Hide Comments')}))}))</script>
+<script>document.addEventListener("DOMContentLoaded", function() {
+  // Select all toggle comments buttons
+  const toggleCommentsButtons = document.querySelectorAll(".toggle-comments");
+
+  // Add event listeners for each button
+  toggleCommentsButtons.forEach((button) => {
+    button.addEventListener("click", function() {
+      // Get the target element ID from the data-target attribute
+      const targetId = this.getAttribute("data-target");
+      const targetElement = document.getElementById(targetId);
+
+      // Toggle the display of the target element
+      if (targetElement.style.display === "flex") {
+        targetElement.style.display = "none";
+        this.innerHTML = '<i class="ri-arrow-down-s-line"></i> View Comments';
+      } else {
+        targetElement.style.display = "flex";
+        this.innerHTML = '<i class="ri-arrow-up-s-line"></i> Hide Comments';
+      }
+    });
+  });
+});</script>
     <script>
 function updateTimeAgo() {
   // Find all elements with a data-timestamp attribute
