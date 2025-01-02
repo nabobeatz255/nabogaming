@@ -401,7 +401,6 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   gap: 15px;
-  animation: fadeIn 1s ease-in-out infinite;
 }
 .card-preloader.hide {
   opacity: 0;
@@ -894,6 +893,13 @@ document.querySelectorAll('.plus-box').forEach(button => {
       return;
     }
 
+    // Check if the team is already in localStorage
+    const joinedTeams = JSON.parse(localStorage.getItem('joinedTeams')) || [];
+    if (joinedTeams.some(team => team.teamId === teamId)) {
+      showToast("You have already joined this team.", 'error');
+      return;
+    }
+
     // Insert the user's profile picture into the plus box
     teamItem.querySelector('.plus-box').innerHTML = `<img src="${userProfilePic}" alt="Profile picture" class="profile-pic">`;
 
@@ -911,6 +917,17 @@ document.querySelectorAll('.plus-box').forEach(button => {
       userName: userName,
       userProfilePic: userProfilePic
     }).then(() => {
+      // Save team join data to localStorage
+      const teamData = {
+        teamId: teamId,
+        userName: userName,
+        userProfilePic: userProfilePic
+      };
+
+      // Add the joined team to localStorage
+      joinedTeams.push(teamData);
+      localStorage.setItem('joinedTeams', JSON.stringify(joinedTeams));
+
       showToast("You have successfully joined the team!", 'success');
     }).catch(error => {
       console.error("Error saving member data: ", error);
@@ -1452,8 +1469,8 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
   <i class="ri-notification-line" id="toggleNotify" style="font-size: 20px;"></i>
   <span class="badger">1</span>
 </div>
-<!--div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px">
- <i class=ri-dashboard-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div-->
+<div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px">
+ <i class=ri-dashboard-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div>
  <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px">
  <i class=ri-rocket-line onclick="openModale()" style="	font-size: 20px;margin-top:17px"></i></div>
  <div style="margin-top:17px;">
