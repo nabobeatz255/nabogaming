@@ -957,7 +957,7 @@ document.querySelectorAll('.plus-box').forEach(button => {
   style.textContent = `
   .toast {
     position: fixed;
-    bottom: 20px;
+    top: 50%;
     left: 50%;
     padding: 16px 20px; /* Adjusted padding for a cleaner look */
     transform: translateX(-50%);
@@ -970,7 +970,7 @@ document.querySelectorAll('.plus-box').forEach(button => {
     opacity: 0;
     z-index: 999999;
     border-radius: 8px; /* Optional: rounded corners */
-    animation: fadeIn 0.5s forwards;
+    animation: slideFromTop 0.5s ease-out forwards; /* Added slideFromTop animation */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Added a subtle shadow for a soft pop-out effect */
 }
 
@@ -984,8 +984,7 @@ document.querySelectorAll('.plus-box').forEach(button => {
 .toast.error {
     background-color: #f44336; /* Red */
     color: white;
-    padding-top: 20px; /* Adjust padding for better alignment */
-    border-radius: 8px;
+    padding-top: 20px;width:80%;border-radius:none
 }
 
 /* Info Toast */
@@ -1002,12 +1001,15 @@ document.querySelectorAll('.plus-box').forEach(button => {
     border-radius: 8px;
 }
 
-@keyframes fadeIn {
+/* Scroll from top animation */
+@keyframes slideFromTop {
     from {
         opacity: 0;
+        transform: translateX(-50%) translateY(-30px); /* Starts from above the screen */
     }
     to {
         opacity: 1;
+        transform: translateX(-50%) translateY(0); /* Ends at the normal position */
     }
 }
   `;
