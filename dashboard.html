@@ -944,7 +944,7 @@ document.querySelectorAll('.plus-box').forEach(button => {
     // Remove toast after 3 seconds
     setTimeout(() => {
       toast.remove();
-    }, 3000);
+    }, 3500);
   };
 
   // CSS Styles for Toast notifications
@@ -952,37 +952,36 @@ document.querySelectorAll('.plus-box').forEach(button => {
   style.textContent = `
  .toast {
     position: fixed;
-    bottom: 10px;
+    top: 0;
     left: 50%;
-    padding: 16px 20px; /* Adjusted padding for a cleaner look */
+    padding: 25px 20px 16px; /* Adjusted padding for a cleaner look */
     transform: translateX(-50%);
     width: 100vw; /* Set width to full viewport width */
-    height: auto;
+    height: 60px;
     color: white;
     text-align: center;
     font-size: 14px;
     opacity: 0;
     z-index: 999999;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Added a subtle shadow for a soft pop-out effect */
     animation: slideFromTop 0.5s ease-out forwards; /* Added slideFromTop animation */
 }
 
 /* Success Toast */
 .toast.success {
-    background-color: #4CAF50; /* Green */
-    color: white;
+    background-color: white;
+    color: green;
 }
 
 /* Error Toast */
 .toast.error {
-    background-color: #f44336; /* Red */
-    color: white;
+    background-color: white; /* Red */
+    color: #f44336;
 }
 
 /* Info Toast */
 .toast.info {
-    background-color: #2196F3; /* Blue */
-    color: white;
+    background-color: #fff; /* Blue */
+    color: blue;
 }
 
 /* Warning Toast */
@@ -995,7 +994,7 @@ document.querySelectorAll('.plus-box').forEach(button => {
 @keyframes slideFromTop {
     from {
         opacity: 0;
-        transform: translateX(-50%) translateY(30px); /* Starts from above the screen */
+        transform: translateX(-50%) translateY(-30px); /* Starts from above the screen */
     }
     to {
         opacity: 1;
