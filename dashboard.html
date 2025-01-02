@@ -1127,12 +1127,16 @@ const displayPost = (post, container, isMyPost) => {
 if (postElement.querySelector(".like-btn")) {
   const likeButton = postElement.querySelector(".like-btn");
 
-  // If the post is liked, change the icon to ri-heart-fill
+  // Check if the post is liked and set the initial icon
   if (post.liked) {
     likeButton.classList.remove("ri-heart-line");
     likeButton.classList.add("ri-heart-fill");
+  } else {
+    likeButton.classList.remove("ri-heart-fill");
+    likeButton.classList.add("ri-heart-line");
   }
 
+  // Add the click event listener
   likeButton.addEventListener("click", () => {
     // Toggle the like status by calling likePost
     likePost(post.postId);
