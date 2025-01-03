@@ -3,22 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Nabogaming - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
-    <meta name="keywords" content="Nabogaming, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
-    <meta name="author" content="Nabogaming">
-    <meta property="og:title" content="Nabogaming">
-    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
-    <meta property="og:image" content="https://nabogaming.com/logo.png">
-    <meta property="og:url" content="https://nabogaming.com">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Nabogaming">
-    <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
-    <meta name="twitter:image" content="https://nabogaming.com/logo.png">
-    <link rel="canonical" href="https://nabogaming.com">
-    <link rel="icon" href="logo.png" type="image/x-icon">
+  <meta name="description" content="Nabogaming - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+  <meta name="keywords" content="Nabogaming, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+  <meta name="author" content="Nabogaming">
+  <meta property="og:title" content="Nabogaming">
+  <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
+  <meta property="og:image" content="https://nabogaming.com/logo.png">
+  <meta property="og:url" content="https://nabogaming.com">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nabogaming">
+  <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+  <meta name="twitter:image" content="https://nabogaming.com/logo.png">
+  <link rel="canonical" href="https://nabogaming.com"><!-- Add these inside the <head> section -->
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
+<!-- Add jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Then add Slick Carousel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+
+  <link rel="icon" href="logo.png" type="image/x-icon">
   <title>Nabogaming 2.5</title>
-    <link rel=stylesheet href=remixicon.min.css>
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="2.css">
+  <link rel="stylesheet" href="remixicon.min.css">
   <style>
     * {
       margin: 0;
@@ -27,21 +37,64 @@
     }
 
     body {
-      font-family: 'Arial', sans-serif;
-      line-height: 1;
-      background-color: #fff;
-      color: #121212;
+      line-height: 1.5;
+      background-color: #000;
+      color: #fff;
       outline: none;
       max-width: 700px;
       margin: 0 auto;
-        -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: transparent;
     }
+/* Slider Styles */
+.slider-section {
+  padding: 2rem;
+  text-align: center;
+  background-color: #000;
+}
+
+.slider {
+  display: flex;
+  gap: 1.5rem;
+  overflow: hidden;
+}
+
+.slide {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 10px;margin-right: 10px;
+  color: #000;
+  text-align: left;line-height: 1;
+}
+
+.slide img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.slider h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #000;
+}
+
+.slider p {
+  font-size: 1.1rem;
+  color: #000;
+  margin-bottom: 1rem;
+}
+
+.slider span {
+  font-weight: bold;
+  color: #3aafa9;
+}
+
     /* Fixed Header */
     header {
       position: fixed;
       top: 0;
       left: 0;
-       background-color: white;
+      background-color: #121212;
       width: 100%;
       padding: .6rem 1.23rem;
       z-index: 1000;
@@ -51,7 +104,9 @@
     }
 
     header img {
-      height: 40px;border-radius: 50%;margin-left: -7px;
+      height: 40px;
+      border-radius: 50%;
+      margin-left: -7px;
     }
 
     header .nav {
@@ -60,21 +115,24 @@
     }
 
     header .nav a {
-      color: #121212;
+      color: white;
       text-decoration: none;
       font-weight: bold;
       transition: color 0.3s;
     }
-.super {
-      color:  #3aafa9;
-}
+
+    .super {
+      color: #3aafa9;
+    }
+
     header .nav a:hover {
-      color:  #3aafa9;
+      color: #3aafa9;
     }
 
     /* Hero Section */
     .hero {
       display: flex;
+      background: #121212;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -82,132 +140,112 @@
     }
 
     .hero h1 {
-      font-size: 3rem;
       line-height: 1;
       text-align: left;
     }
 
     .hero p {
       margin: 1rem 0;
-      font-size: 1rem;
+      font-size: 1rem; text-align: left;
     }
 
- .hero .btn {
-  background:  #121212;
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  display: inline-flex;
-  align-items: center; /* Aligns icon and text vertically */
-  justify-content: center; /* Ensures both text and icon are horizontally aligned */
-}
+    .hero .btn {
+      background: white;
+      color: #000;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-.hero .btn i {
-  margin-left: 0.3rem; /* Space between icon and text */
-  font-size: 1.2rem;
-}
+    .hero .btn i {
+      margin-left: 0.3rem;
+      font-size: 1.2rem;
+    }
 
     .hero .btn:hover {
       background: none;
       color: white;
     }
 
-/* Features Section */
-.features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Flexible grid for responsiveness */
-  gap: 2rem;
-  padding: 2rem 2rem 1rem;
-  text-align: center;
-  color: #fff;
-  box-sizing: border-box;
-}
+    /* Features Section */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Flexible grid for responsiveness */
+      gap: 2rem;
+      padding: 2rem;
+      text-align: center;
+    }
 
-/* Individual Feature Cards */
-.feature {
-  background: #121212;
-  padding: 2rem 2rem 1rem;color: white;
-  border-radius: 15px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
+    /* Individual Feature Cards */
+    .feature {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 15px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+      display: flex;color: #000;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
 
-.feature:hover {
-  transform: translateZ(-10px);
-  background-color: #fff;
-  color: black;
-}
+    .feature:hover {
+      transform: translateY(-10px);
+      background-color: #1e1e1e;
+      color: white;
+    }
 
-/* Icon Styling */
-.feature i {
-  font-size: 4rem;  /* Larger icon size */
-  color: white;
-  margin-bottom: 1rem;
-  transition: transform 0.3s ease, color 0.3s ease;
-}
+    .feature i {
+      font-size: 4rem;
+      color: black;
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
 
-.feature:hover i {
-  transform: scale(1.1);  /* Slightly enlarge icon on hover */
-  color: black;  /* Color change on hover */
-}
+    .feature:hover i {
+      transform: scale(1.1);
+      color: #fff;
+    }
 
-/* Feature Title */
-.feature h3 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  font-weight: bold;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
+    .feature h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
 
-/* Feature Description */
-.feature p {
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
-  color: #ccc;
-  line-height: 1.5;
-}
+    .feature p {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      color: #000;
+      line-height: 1.5;
+    }
+    .feature:hover p {
+        color: white;
+    }
 
-/* CTA Button */
-.cta-btn {
-  background: #3aafa9;
-  color: #121212;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.3s ease;
-}
+    .cta-btn {
+      background: #3aafa9;
+      color: #121212;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
 
-.cta-btn:hover {
-  background: none;
-  transform: translateY(-2px);  /* Slight lift on hover */
-  color: white;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .features {
-    padding: 2rem;
-  }
-
-  .feature h3 {
-    font-size: 1.6rem;
-  }
-
-  .feature p {
-    font-size: 1rem;
-  }
-
-  .cta-btn {
-    font-size: 0.9rem;
-  }
-}
+    .cta-btn:hover {
+      background: none;
+      transform: translateY(-2px);
+      color: white;
+    }
 
     /* Testimonials Section */
     .testimonials {
@@ -231,11 +269,12 @@
     /* FAQ Section */
     .faq {
       padding: 2rem;
-      background: #1e1e1e;text-align: center;
+      background: #1e1e1e;
+      text-align: left;
     }
 
     .faq-item {
-      margin-bottom: 0rem;
+      margin-bottom: 1rem;
     }
 
     .faq-question {
@@ -254,161 +293,154 @@
       color: white;
     }
 
-/* Scroll to Top Button */
-.scroll-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: none;
-  color: #121212;
-  padding: 10px;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 2rem;
-  display: none;
-  z-index: 1000;
-  width: 50px;
-  height: 50px;
-  text-align: center;
-  line-height: 50px;
-}
+    /* Scroll to Top Button */
+    .scroll-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: none;
+      color: #121212;
+      padding: 10px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 2rem;
+      display: none;
+      z-index: 1000;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      line-height: 50px;
+    }
 
-/* Icon inside Scroll to Top Button */
-.scroll-top i {
-  font-size: 2rem; /* Adjust size of the icon inside */
-  color: #fff; /* Icon color */
-  vertical-align: middle; /* Align the icon in the center */
-}
+    .scroll-top i {
+      font-size: 2rem;
+      color: #fff;
+    }
+
     .scroll-top:hover {
       background: none;
     }
-  </style>
- <script type="module" defer>
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-      authDomain: "register-71bde.firebaseapp.com",
-      projectId: "register-71bde",
-      storageBucket: "register-71bde.appspot.com",
-      messagingSenderId: "412548441298",
-      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const provider = new GoogleAuthProvider();
-
-    // Check if the user is already signed in
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, redirect to dashboard
-        window.location.href = "dashboard.html";
+    /* Ensure consistent font size on mobile and desktop */
+    @media screen and (max-width: 768px) {
+      body {
+        font-size: 16px; /* Set a base font size */
       }
-    });
 
-    // Google Sign-In button click event
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("google-sign-in").addEventListener("click", () => {
-        signInWithPopup(auth, provider)
-          .then((result) => {
-            const user = result.user;
-            console.log("User signed in:", user);
-            // Redirect to the dashboard
-            window.location.href = "dashboard.html";
-          })
-          .catch((error) => {
-            console.error("Error during sign-in:", error);
-            alert("Sign-in failed. Please try again.");
-          });
-      });
-    });
-</script>
+      .hero h1 {
+        font-size: 2.5rem;
+      }
 
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .feature h3 {
+        font-size: 1.5rem;
+      }
+
+      .feature p {
+        font-size: 1rem;
+      }
+    }
+
+  </style>
 </head>
 <body>
-    <div class="main">
-  <!-- Header -->
-  <header>
-    <img src="logo.png" alt="Logo">
-    <nav class="nav">
-      <a href="#hero">Home</a>
-      <a href="#features">About</a>
-      <a href="#faq">FAQ</a>
-      <a href="dashboard.html">Sign-in</a>
-    </nav>
-  </header>
+  <div class="main">
+    <!-- Header -->
+    <header>
+      <img src="logo.png" alt="Logo">
+      <nav class="nav">
+        <a href="#hero">Home</a>
+        <a href="#features">About</a>
+        <a href="#faq">FAQ</a>
+        <a href="dashboard.html">Sign-in</a>
+      </nav>
+    </header>
 
- <!-- Hero Section -->
-<section class="hero" id="hero">
-  <h1>Karibu Ulimwenguni<span class="super"> Nabogaming </span> 2.5</h1>
-  <p>Ungana Na Wachezaji Wa Simu Wa Tanzania, Shindana Na Ushinde Zawadi Kibao. Tumia Akaunti Yako Ya Google Kujiunga Na Kuanzisha Safari Yako Ya Michezo.</p>
-  <button class="btn" id="google-sign-in">Tumia Akaunti Ya Google <i class="ri-google-line"></i></button>
-</section>
-
-<!-- Features Section -->
-<section class="features" id="features">
-  <div class="feature">
-    <i class="ri-speed-line"></i> <!-- Remix Icon for Speed -->
-    <h3>Cheza Zaidi</h3>
-    <p>Shindana Na Wachezaji Wa Kitaifa Na Kimataifa Katika Michezo Mbalimbali. Kila Mechi Ina Zawadi Za Kipekee Kwa Washindi.</p>
-  </div>
-  <div class="feature">
-    <i class="ri-device-line"></i> <!-- Remix Icon for Responsiveness -->
-    <h3>Responsive</h3>
-    <p>Furahia Uzoefu Bora Katika Vifaa Vyote, Popote Ulipo. Hakuna Hali Ya Kuchelewa!</p>
-  </div>
-  <div class="feature">
-    <i class="ri-lock-line"></i> <!-- Remix Icon for Security -->
-    <h3>Salama</h3>
-    <p>Madaraja Ya Usalama Ya Kisasa Yaliyojengwa Ili Kulinda Taarifa Zako Na Kukupeleka Kwa Usalama Katika Ulimwengu Wa Michezo.</p>
-   <!-- <button class="cta-btn">Jifunze Zaidi</button>-->
-  </div>
-</section>
-
-
-<!-- FAQ Section -->
-<section class="faq" id="faq" style="color:white">
-  <h2>Maswali Yanayoulizwa Mara Kwa Mara</h2>
-
-  <div class="faq-item">
-    <div class="faq-question">NaboGaming ni nini?</div>
-    <div class="faq-answer">NaboGaming ni jukwaa la michezo ya simu la Tanzania, ambapo wachezaji wanaweza kushindana na wengine katika michezo maarufu na kushinda zawadi. Hapa, wachezaji wa simu wa Tanzania wana nafasi ya kushiriki kwenye mashindano ya kipekee na kupata zawadi.
-     .</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-question">Jinsi ya kujiandikisha kwa NaboGaming?</div>
-    <div class="faq-answer">Ili kujiandikisha kwenye NaboGaming, bonyeza kitufe cha "Tumia Akaunti ya Google" kilichopo kwenye sehemu ya kujiandikisha. Baada ya hapo, utaweza kuingia kwa kutumia akaunti yako ya Google na kuanza safari yako ya michezo.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-question">Je, NaboGaming inatumiaje salama data yangu?</div>
-    <div class="faq-answer">NaboGaming inahakikisha usalama wa taarifa zako kwa kutumia teknolojia ya kisasa ya usalama. Data yako inahifadhiwa salama na inatumika tu kwa madhumuni ya kuboresha uzoefu wako wa michezo.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-question">Jinsi ya kushinda zawadi?</div>
-    <div class="faq-answer">Unaposhiriki kwenye mashindano ya NaboGaming, zawadi hutolewa kwa washindi wa nafasi za juu. Zawadi ni pamoja na pesa, vifaa vya michezo, na zawadi nyingine za kipekee.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-question">NaboGaming inapatikana wapi?</div>
-    <div class="faq-answer">NaboGaming inapatikana kwa wachezaji wote nchini Tanzania kupitia kivinjari cha simu kwenye tovuti nabogaming.com</div>
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <h1>Karibu Ulimwenguni<span class="super"> Nabogaming Version</span> 2.7</h1>
+      <p>Ungana Na Wachezaji Wa Simu Wa Tanzania, Shindana Na Ushinde Zawadi Kibao. Tumia Akaunti Yako Ya Google Kujiunga Na Kuanzisha Safari Yako Ya Michezo.</p>
+      <button class="btn" id="google-sign-in">Tumia Akaunti Ya Google <i class="ri-google-line"></i></button>
+    </section>
+<!-- New Slider Section -->
+<section class="slider-section" id="slider">  <div class="slider">
+    <div class="slide">
+      <img src="1.png" alt="Player 1">
+      <p>Karibu Nabogaming, Ungana Nasi Leo Ushindane Mechi Mbalimbali Ukiwa Hapahapa. </p>
+      <span>Admin 1.0</span>
+    </div>
+    <div class="slide">
+      <img src="post1.png" alt="Player 2">
+      <p>Room Kadi PubgMobile Kama Zote!!Karibu Sasa Ucheze Zaidi Na Kushinda Zaidi Kwa Skills Zako Tu.</p>
+      <span>Nabobeatz</span>
+    </div>
+    <div class="slide">
+      <img src="post2.png" alt="Player 3">
+      <p>Freefire Mpo! Tunajambo Lenu Pia, Kaa Tayari Kwa Mashindano Yasiyo Na Kifani</p>
+      <span>Nabobeatz</span>
+    </div>
+    <!-- Add more slides as needed -->
   </div>
 </section>
 
-  <!-- Scroll to Top Button -->
-  <button class="scroll-top" id="scroll-top"><i class="ri-arrow-up-line"></i></button>
-</div>
+    <!-- Features Section -->
+    <section class="features" id="features" style="background:#000">
+      <div class="feature">
+        <i class="ri-speed-line"></i>
+        <h3>Cheza Zaidi</h3>
+        <p>Shindana Na Wachezaji Wa Kitaifa Na Kimataifa Katika Michezo Mbalimbali. Kila Mechi Ina Zawadi Za Kipekee Kwa Washindi.</p>
+      </div>
+      <div class="feature">
+        <i class="ri-device-line"></i>
+        <h3>Responsive</h3>
+        <p>Furahia Uzoefu Bora Katika Vifaa Vyote, Popote Ulipo. Hakuna Hali Ya Kuchelewa!</p>
+      </div>
+      <div class="feature">
+        <i class="ri-lock-line"></i>
+        <h3>Salama</h3>
+        <p>Madaraja Ya Usalama Ya Kisasa Yaliyojengwa Ili Kulinda Taarifa Zako Na Kukupeleka Kwa Usalama Katika Ulimwengu Wa Michezo.</p>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+      <h2>Maswali Yanayoulizwa Mara Kwa Mara</h2>
+      <div class="faq-item">
+        <div class="faq-question">NaboGaming ni nini?</div>
+        <div class="faq-answer">NaboGaming ni jukwaa la michezo ya simu la Tanzania, ambapo wachezaji wanaweza kushindana na wengine katika michezo maarufu na kushinda zawadi.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">Jinsi ya kujiandikisha kwa NaboGaming?</div>
+        <div class="faq-answer">Bonyeza "Tumia Akaunti ya Google" ili kujiandikisha kwa kutumia akaunti yako ya Google.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">Je, NaboGaming inatumiaje salama data yangu?</div>
+        <div class="faq-answer">Inatumia teknolojia ya kisasa ya usalama ili kulinda taarifa zako.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">Jinsi ya kushinda zawadi?</div>
+        <div class="faq-answer">Zawadi hutolewa kwa washindi wa nafasi za juu kwenye mashindano.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">NaboGaming inapatikana wapi?</div>
+        <div class="faq-answer">Inapatikana kwa wachezaji wote nchini Tanzania kupitia tovuti nabogaming.com</div>
+      </div>
+    </section>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scroll-top"><i class="ri-arrow-up-line"></i></button>
+  </div>
+
   <!-- JavaScript -->
   <script>
-    // FAQ Toggle
     document.querySelectorAll('.faq-question').forEach(item => {
       item.addEventListener('click', () => {
         const answer = item.nextElementSibling;
@@ -416,7 +448,6 @@
       });
     });
 
-    // Scroll to Top Button
     const scrollTopBtn = document.getElementById('scroll-top');
     window.addEventListener('scroll', () => {
       scrollTopBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
@@ -425,7 +456,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // Smooth Scrolling for Navigation
     document.querySelectorAll('.nav a').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -433,33 +463,29 @@
       });
     });
   </script>
-
-
-
-  <!-- Carousel JavaScript -->
   <script>
-    const carousel = document.querySelector('.carousel');
-    const leftBtn = document.querySelector('.carousel-btn.left');
-    const rightBtn = document.querySelector('.carousel-btn.right');
-    let index = 0;
+      // Initialize the slider
+$(document).ready(function(){
+  $('.slider').slick({
+    infinite: true,
+    slidesToShow: 3, // Number of slides visible at once
+    slidesToScroll: 1, // Number of slides to scroll at a time
+    autoplay: true, // Auto-slide
+    autoplaySpeed: 3000, // Slide change interval
+    arrows: true, // Show navigation arrows
+    dots: true, // Show dots for navigation
+    responsive: [
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          arrows: false
+        }
+      }
+    ]
+  });
+});
 
-    const updateCarousel = () => {
-      const slides = carousel.children.length;
-      carousel.style.transform = `translateX(-${index * 100}%)`;
-    };
-
-        leftBtn.addEventListener('click', () => {
-      index = (index === 0) ? carousel.children.length - 1 : index - 1;
-      updateCarousel();
-    });
-
-    rightBtn.addEventListener('click', () => {
-      index = (index === carousel.children.length - 1) ? 0 : index + 1;
-      updateCarousel();
-    });
-
-    // Initialize carousel
-    updateCarousel();
   </script>
 </body>
 </html>
