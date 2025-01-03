@@ -14,6 +14,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Nabogaming">
   <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+  <meta name="theme-color" content="#121212">
+
   <meta name="twitter:image" content="https://nabogaming.com/logo.png">
   <link rel="canonical" href="https://nabogaming.com"><!-- Add these inside the <head> section -->
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
@@ -346,6 +348,51 @@
     }
 
   </style>
+  <script type="module" defer>
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+      authDomain: "register-71bde.firebaseapp.com",
+      projectId: "register-71bde",
+      storageBucket: "register-71bde.appspot.com",
+      messagingSenderId: "412548441298",
+      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+
+    // Check if the user is already signed in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, redirect to dashboard
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    // Google Sign-In button click event
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("google-sign-in").addEventListener("click", () => {
+        signInWithPopup(auth, provider)
+          .then((result) => {
+            const user = result.user;
+            console.log("User signed in:", user);
+            // Redirect to the dashboard
+            window.location.href = "dashboard.html";
+          })
+          .catch((error) => {
+            console.error("Error during sign-in:", error);
+            alert("Sign-in failed. Please try again.");
+          });
+      });
+    });
+</script>
 </head>
 <body>
   <div class="main">
