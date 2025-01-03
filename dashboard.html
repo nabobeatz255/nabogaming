@@ -137,13 +137,13 @@
   background-color: #3aafa9;
   color: white;
   font-size: 10px;
-  padding: 4px 6px;
+  padding: 3px 7px;
   border-radius: 50%;
   font-weight: bold;
 }
 .notify-icon {
-    padding: 10px;background-color: #fff;margin-right: 10px;
-    border-right: 1px solid #ccc;
+    padding: 10px;background-color: #f0f0f0;margin-right: 10px;
+    border-radius: 50%;
 }
 /* Popup styles */
 #install-popup {
@@ -844,44 +844,29 @@
   const storage = getStorage(app);
 
   let currentUser = null;
-onAuthStateChanged(auth, (user) => {
+ onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (user) {
-    loadPosts(); // Load posts after successful login
-    loadLikedPosts(); // Load liked posts
+    loadPosts();  // Load posts after successful login
+    loadLikedPosts();  // Load liked posts
     displayUserDetails(); // Display user details if available
     loadMessages();
-    initializeUserEXP(user.uid); // Ensure the EXP field exists for the user
   } else {
     showToast("You are not signed in. Redirecting to login...", 'error');
     window.location.href = "index.html";
   }
 });
-const initializeUserEXP = async (userId) => {
-  const userRef = ref(db, `users/${userId}`);
-  const snapshot = await get(userRef);
-  if (!snapshot.exists()) {
-    // Initialize the user with 0 EXP if not already set
-    await set(userRef, { exp: 0 });
-  }
-};
-const updateUserEXP = async (userId, points) => {
-  const userRef = ref(db, `users/${userId}/exp`);
-  const snapshot = await get(userRef);
-  let currentEXP = snapshot.exists() ? snapshot.val() : 0;
 
-  currentEXP += points;  // Increment the EXP by the given points
-
-  // Update the user's EXP in Firebase
-  await set(userRef, currentEXP);
-  showToast(`You gained ${points} EXP!`, 'success');
-  updateUserEXPDisplay(currentEXP); // Update the EXP display in the UI
-};
-const updateUserEXPDisplay = (exp) => {
-  document.querySelectorAll('.user-exp').forEach(element => {
-    element.textContent = `EXP: ${exp}`;  // Display the user's current EXP
+// Function to display the unique ID in HTML
+const displayUniqueId = (uid) => {
+  const uniqueId = generateUniqueId(uid);
+  
+  // Assuming you have an element with class 'user-uid' to display the ID
+  document.querySelectorAll('.user-uid').forEach(element => {
+    element.textContent = uniqueId;  // Set the unique ID
   });
 };
+
 document.querySelectorAll('.plus-box').forEach(button => {
   button.addEventListener('click', function() {
     // Ensure `currentUser` is defined and contains the necessary properties
@@ -945,6 +930,9 @@ document.querySelectorAll('.plus-box').forEach(button => {
     });
   });
 });
+
+
+  // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
@@ -956,7 +944,7 @@ document.querySelectorAll('.plus-box').forEach(button => {
     // Remove toast after 3 seconds
     setTimeout(() => {
       toast.remove();
-    }, 3500);
+    }, 3000);
   };
 
   // CSS Styles for Toast notifications
@@ -1136,36 +1124,10 @@ const displayPost = (post, container, isMyPost) => {
 
   container.appendChild(postElement);
 
-if (postElement.querySelector(".like-btn")) {
-  const likeButton = postElement.querySelector(".like-btn");
-
-  // Check if the post is liked and set the initial icon
-  if (post.liked) {
-    likeButton.classList.remove("ri-heart-line");
-    likeButton.classList.add("ri-heart-fill");
-  } else {
-    likeButton.classList.remove("ri-heart-fill");
-    likeButton.classList.add("ri-heart-line");
+  // Add event listeners for actions
+  if (postElement.querySelector(".like-btn")) {
+    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
   }
-
-  // Add the click event listener
-  likeButton.addEventListener("click", () => {
-    // Toggle the like status by calling likePost
-    likePost(post.postId);
-
-    // Update the liked flag for the post
-    post.liked = !post.liked; // Toggle the state of liked
-
-    // Toggle the icon based on the like status
-    if (post.liked) {
-      likeButton.classList.remove("ri-heart-line");
-      likeButton.classList.add("ri-heart-fill");
-    } else {
-      likeButton.classList.remove("ri-heart-fill");
-      likeButton.classList.add("ri-heart-line");
-    }
-  });
-}
 
   // Add toggle comments functionality
   if (postElement.querySelector(".toggle-comments")) {
@@ -1211,51 +1173,30 @@ if (postElement.querySelector(".like-btn")) {
     }).join("");
   };
 
-const likePost = async (postId) => {
-  const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-  const snapshot = await get(postRef);
-  if (snapshot.exists()) {
-    await remove(postRef); // Remove like
-    showToast("You unliked the post", 'info');
-  } else {
-    await set(postRef, true); // Add like
-    showToast("You liked the post", 'success');
-    // Award 2 EXP for liking a post
-    updateUserEXP(currentUser.uid, 2);
-  }
-  loadPosts(); // Reload to reflect the changes
-};
-const awardDailyEXP = async (userId) => {
-  const userRef = ref(db, `users/${userId}/lastLogin`);
-  const snapshot = await get(userRef);
-  const currentDate = new Date().toISOString().split('T')[0];  // Get the current date in 'YYYY-MM-DD' format
-
-  if (!snapshot.exists() || snapshot.val() !== currentDate) {
-    // Award daily EXP (e.g., 10 EXP)
-    await updateUserEXP(userId, 10);
-
-    // Update the last login date
-    await set(userRef, currentDate);
-  }
-};
-
-awardDailyEXP(currentUser.uid);
-
-const submitComment = async (postId, commentText) => {
-  const commentData = {
-    username: currentUser.displayName,
-    message: commentText,
+  const likePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await remove(postRef);  // Remove like
+      showToast("unliked", 'info');
+    } else {
+      await set(postRef, true);  // Add like
+      showToast("you liked the post", 'success');
+    }
+    loadPosts();  // Reload to reflect the changes
   };
 
-  const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-  await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-  showToast("Comment added", 'success');
+  const submitComment = async (postId, commentText) => {
+    const commentData = {
+      username: currentUser.displayName,
+      message: commentText,
+    };
 
-  // Award 2 EXP for commenting
-  updateUserEXP(currentUser.uid, 2);
-
-  loadPosts(); // Reload posts to show the new comment
-};
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    showToast("comment added", 'success');
+    loadPosts();  // Reload posts to show the new comment
+  };
 
   const deletePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}`);
@@ -1386,7 +1327,7 @@ const updateUserProfile = async () => {
     showToast("Error updating profile. Please try again.", 'error');
   }
 };
-
+// Add event listener to the update profile button
 document.getElementById('update-profile-button')?.addEventListener('click', updateUserProfile);
 
 // Update profile picture preview when file is selected
@@ -1526,7 +1467,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     <div class=icons style="margin-top: -17px">
 <div class="icon-container" style="margin-right:5px;border:1px solid #ddd;border-radius:5px;padding: 5px 5px 3px">
   <i class="ri-notification-line" id="toggleNotify" style="font-size: 20px;"></i>
-  <span class="badger">2</span>
+  <span class="badger">1</span>
 </div>
 <!--div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
  <i class=ri-dashboard-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div-->
@@ -1582,7 +1523,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     </section>
       <section class=hero style="background: white; color:black;box-shadow:none;border:1px solid #ddd;">
 <div class=hero-content>
-  <h1>Usahili Nabogaming Tournaments </h1>
+  <h1>Usahili Nabogaming Tounaments </h1>
   <p>Hivi Karibuni Tunazindua Usahili Wa Nabogaming Tournaments Utakaofanyika 3/1/2025 hadi 6/1/2025, Get Ready Check Notification</p>
 </div>
     </section>
@@ -1955,13 +1896,13 @@ Please Wait.....
       </div>
 
 
-      <div class="profile-stats">
+      <!--div class="profile-stats">
         <div>
-          <h3></h3>
-       <div class="user-exp">EXP: 0</div>
+          <h3>UID</h3>
+          <p id="user-uid"></p>
         </div>
       
-      </div> 
+      </div--> 
     </div>
 <br><br>
     <!-- User Posts Section -->
@@ -1988,7 +1929,15 @@ Please Wait.....
   </header>
   <br><br><br>
   <div class="post-grid" id="likedposts">
-     <img src="notfound.png" height="580" width="350">
+     
+     <div class="card-preloader">
+  <div class="preloader-image"></div>
+  <div class="preloader-content">
+    <div class="preloader-title"></div>
+    <div class="preloader-line"></div>
+    <div class="preloader-line"></div>
+  </div>
+</div> <img src="notfound.png" height="580" width="350">
   </div>
 </div>
 </div>
@@ -2059,7 +2008,7 @@ Please Wait.....
 
 <!-- Notification -->
 <div class="hidden" id="notifyPopup">
-  <div class="header-2" style="background-color:white;color:black;border-bottom:1px solid #ccc">
+  <div class="header-2">
     <div class="logo">
     </div>
     <div class="title-center">
@@ -2068,18 +2017,10 @@ Please Wait.....
   </div>
   <section class="notify">
     <ul class="notify-list">
-<a href="https://chat.whatsapp.com/CjbGh02DHZ2CNEZGQ5D15S" style="text-decoration:none;color:black"><li class="notify-item">
-  <div class="notify-icon">
-    <i class="ri-whatsapp-fill"></i>
-  </div>
-  <div class="notify-content">
-    <h3>Whatsapp Group <span class="notify-time"  data-timestamp=2025-01-02T17:41:50></span></h3>
-    <p>Ungana na gamers wenzako katika whatsapp group sasa.</p>
-  </div>
-</li></a>
+
 <li class="notify-item">
   <div class="notify-icon">
-    <i class="ri-trophy-fill"></i>
+    <i class="ri-trophy-line"></i>
   </div>
   <div class="notify-content">
     <h3>Usahili Tournaments <span class="notify-time"  data-timestamp=2024-12-25T11:37:00></span></h3>
@@ -2224,6 +2165,7 @@ Please Wait.....
 </div-->
       </div>
   </div>
+
   <script>
     // Function to open the modali
     function openmodali() {
