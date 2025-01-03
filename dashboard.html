@@ -822,11 +822,13 @@
 
 
 
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
   import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
@@ -843,135 +845,163 @@
   const storage = getStorage(app);
 
   let currentUser = null;
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      loadPosts();
-      loadLikedPosts();
-      displayUserDetails();
-      loadMessages();
-    } else {
-      showToast("You are not signed in. Redirecting to login...", 'error');
-      window.location.href = "index.html";
-    }
+ onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (user) {
+    loadPosts();  // Load posts after successful login
+    loadLikedPosts();  // Load liked posts
+    displayUserDetails(); // Display user details if available
+    loadMessages();
+  } else {
+    showToast("You are not signed in. Redirecting to login...", 'error');
+    window.location.href = "index.html";
+  }
+});
+
+// Function to display the unique ID in HTML
+const displayUniqueId = (uid) => {
+  const uniqueId = generateUniqueId(uid);
+  
+  // Assuming you have an element with class 'user-uid' to display the ID
+  document.querySelectorAll('.user-uid').forEach(element => {
+    element.textContent = uniqueId;  // Set the unique ID
   });
+};
 
-  // Display unique ID
-  const displayUniqueId = (uid) => {
-    const uniqueId = generateUniqueId(uid);
-    document.querySelectorAll('.user-uid').forEach(element => {
-      element.textContent = uniqueId;
-    });
-  };
+document.querySelectorAll('.plus-box').forEach(button => {
+  button.addEventListener('click', function() {
+    // Ensure `currentUser` is defined and contains the necessary properties
+    if (!currentUser) {
+      showToast("You must be logged in to perform this action.", 'error');
+      return;
+    }
 
-  document.querySelectorAll('.plus-box').forEach(button => {
-    button.addEventListener('click', function() {
-      if (!currentUser) {
-        showToast("You must be logged in to perform this action.", 'error');
-        return;
-      }
+    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Use default if not available
+    const userName = currentUser.displayName || "Anonymous";  // Use default if not available
 
-      const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";
-      const userName = currentUser.displayName || "Anonymous";
+    // Get the parent element (the team container)
+    const teamItem = button.closest('.grid-modali-item');
+    const teamId = teamItem.dataset.teamId;  // Assuming you store a unique ID for each team
 
-      const teamItem = button.closest('.grid-modali-item');
-      const teamId = teamItem.dataset.teamId;
+    // Check if the user has already joined a team
+    if (currentUser.hasJoined) {
+      showToast("You have already joined a team.", 'error');
+      return;
+    }
 
-      if (currentUser.hasJoined) {
-        showToast("You have already joined a team.", 'error');
-        return;
-      }
+    // Check if the team is already in localStorage
+    const joinedTeams = JSON.parse(localStorage.getItem('joinedTeams')) || [];
+    if (joinedTeams.some(team => team.teamId === teamId)) {
+      showToast("You have already joined this team.", 'error');
+      return;
+    }
 
-      const joinedTeams = JSON.parse(localStorage.getItem('joinedTeams')) || [];
-      if (joinedTeams.some(team => team.teamId === teamId)) {
-        showToast("You have already joined this team.", 'error');
-        return;
-      }
+    // Insert the user's profile picture into the plus box
+    teamItem.querySelector('.plus-box').innerHTML = `<img src="${userProfilePic}" alt="Profile picture" class="profile-pic">`;
 
-      teamItem.querySelector('.plus-box').innerHTML = `<img src="${userProfilePic}" alt="Profile picture" class="profile-pic">`;
-      const nameElement = teamItem.querySelector('.plus-box').querySelector('h3') || document.createElement('h3');
-      nameElement.textContent = userName;
-      teamItem.querySelector('.plus-box').appendChild(nameElement);
+    // Insert the user's name inside an <h3> tag
+    const nameElement = teamItem.querySelector('.plus-box').querySelector('h3') || document.createElement('h3');
+    nameElement.textContent = userName;
+    teamItem.querySelector('.plus-box').appendChild(nameElement);
 
-      currentUser.hasJoined = true;
+    // Update the user's joining status to prevent joining more teams
+    currentUser.hasJoined = true;
 
-      const dbRef = ref(db, 'teams/' + teamId + '/members/' + currentUser.uid);
-      dbRef.set({
+    // Save the user's joining information to the Realtime Database
+    const dbRef = firebase.database().ref('teams/' + teamId + '/members/' + currentUser.uid);
+    dbRef.set({
+      userName: userName,
+      userProfilePic: userProfilePic
+    }).then(() => {
+      // Save team join data to localStorage
+      const teamData = {
+        teamId: teamId,
         userName: userName,
         userProfilePic: userProfilePic
-      }).then(() => {
-        const teamData = {
-          teamId: teamId,
-          userName: userName,
-          userProfilePic: userProfilePic
-        };
+      };
 
-        joinedTeams.push(teamData);
-        localStorage.setItem('joinedTeams', JSON.stringify(joinedTeams));
+      // Add the joined team to localStorage
+      joinedTeams.push(teamData);
+      localStorage.setItem('joinedTeams', JSON.stringify(joinedTeams));
 
-        showToast("You have successfully joined the team!", 'success');
-      }).catch(error => {
-        console.error("Error saving member data: ", error);
-        showToast("Failed to join the team. Please try again.", 'info');
-      });
+      showToast("You have successfully joined the team!", 'success');
+    }).catch(error => {
+      console.error("Error saving member data: ", error);
+      showToast("Failed to join the team. Please try again.", 'info');
     });
   });
+});
 
+
+  // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
     toast.textContent = message;
 
+    // Append to the body
     document.body.appendChild(toast);
 
+    // Remove toast after 3 seconds
     setTimeout(() => {
       toast.remove();
     }, 3000);
   };
 
+  // CSS Styles for Toast notifications
   const style = document.createElement('style');
   style.textContent = `
-    .toast {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      padding: 25px 20px 16px;
-      transform: translateX(-50%);
-      width: 100vw;
-      height: 60px;
-      color: white;
-      text-align: center;
-      font-size: 14px;
-      opacity: 0;
-      z-index: 999999;
-      animation: slideFromTop 0.5s ease-out forwards;
-    }
-    .toast.success {
-      background-color: white;
-      color: green;
-    }
-    .toast.error {
-      background-color: white;
-      color: #f44336;
-    }
-    .toast.info {
-      background-color: #fff;
-      color: blue;
-    }
-    .toast.warning {
-      background-color: #FF9800;
-      color: white;
-    }
-    @keyframes slideFromTop {
-      from {
+ .toast {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    padding: 25px 20px 16px; /* Adjusted padding for a cleaner look */
+    transform: translateX(-50%);
+    width: 100vw; /* Set width to full viewport width */
+    height: 60px;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    opacity: 0;
+    z-index: 999999;
+    animation: slideFromTop 0.5s ease-out forwards; /* Added slideFromTop animation */
+}
+
+/* Success Toast */
+.toast.success {
+    background-color: white;
+    color: green;
+}
+
+/* Error Toast */
+.toast.error {
+    background-color: white; /* Red */
+    color: #f44336;
+}
+
+/* Info Toast */
+.toast.info {
+    background-color: #fff; /* Blue */
+    color: blue;
+}
+
+/* Warning Toast */
+.toast.warning {
+    background-color: #FF9800; /* Orange */
+    color: white;
+}
+
+/* Scroll from top animation */
+@keyframes slideFromTop {
+    from {
         opacity: 0;
-        transform: translateX(-50%) translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
+        transform: translateX(-50%) translateY(-30px); /* Starts from above the screen */
     }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0); /* Ends at the normal position */
+    }
+}
   `;
   document.head.appendChild(style);
 
@@ -993,34 +1023,41 @@
     return `${years}yr `;
   };
 
-  const loadPosts = () => {
-    const allPostsContainer = document.getElementById("allposts");
-    const myPostsContainer = document.getElementById("myposts");
+ const loadPosts = () => {
+  const allPostsContainer = document.getElementById("allposts");
+  const myPostsContainer = document.getElementById("myposts");
 
-    if (!allPostsContainer || !myPostsContainer) return;
+  // Only proceed if the containers are present
+  if (!allPostsContainer || !myPostsContainer) return;
 
-    allPostsContainer.innerHTML = "";
-    myPostsContainer.innerHTML = "";
+  // Clear the containers before adding new posts
+  allPostsContainer.innerHTML = "";
+  myPostsContainer.innerHTML = "";
 
-    const postsRef = ref(db, "posts");
-    onValue(postsRef, (snapshot) => {
-      const posts = [];
-      snapshot.forEach((childSnapshot) => {
-        const post = childSnapshot.val();
-        const postId = childSnapshot.key;
-        posts.push({ postId, ...post });
-      });
-
-      posts.sort((a, b) => b.timestamp - a.timestamp);
-
-      const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
-      const allPosts = posts;
-
-      myPosts.forEach(post => displayPost(post, myPostsContainer, true));
-      allPosts.forEach(post => displayPost(post, allPostsContainer, false));
+  const postsRef = ref(db, "posts");
+  onValue(postsRef, (snapshot) => {
+    const posts = [];
+    snapshot.forEach((childSnapshot) => {
+      const post = childSnapshot.val();
+      const postId = childSnapshot.key;
+      posts.push({ postId, ...post });
     });
-  };
 
+    // Sort posts by timestamp from new to old
+    posts.sort((a, b) => b.timestamp - a.timestamp);
+
+    // Filter posts for my posts and all posts
+    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+    const allPosts = posts;
+
+    // Display my posts (with edit/delete options)
+    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+
+    // Display all posts (without edit/delete options)
+    allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+  });
+};
+ 
   const loadLikedPosts = () => {
     const likedPostsContainer = document.getElementById("likedposts");
     if (!likedPostsContainer) return;
@@ -1038,112 +1075,371 @@
 
       posts.sort((a, b) => b.timestamp - a.timestamp);
 
+      // Filter liked posts (exclude posts by the current user)
       const likedPosts = posts.filter(post => post.likes && post.likes[currentUser.uid] && post.authorName !== currentUser.displayName);
-      likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));
+      likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));  // No delete button for liked posts
     });
   };
 
-  const displayPost = (post, container, isMyPost) => {
-    const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
-    if (existingPost) return;
+const displayPost = (post, container, isMyPost) => {
+  // Check if the post already exists in the container to avoid duplicates
+  const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
+  if (existingPost) return; // If post already exists, don't append again
 
-    const postElement = document.createElement("div");
-    postElement.className = "instagram-post-2";
-    postElement.setAttribute("data-post-id", post.postId);
+  const postElement = document.createElement("div");
+  postElement.className = "instagram-post-2";
+  postElement.setAttribute("data-post-id", post.postId); // Store the post ID as a data attribute
 
-    postElement.innerHTML = `
-      <div class="post-header">
-        <div class="profile-picture">
-          <img src="${post.authorPhoto}" alt="User profile picture">
-        </div>
-        <div class="profile-details">
-          <div class="profile-name">${post.authorName}</div>
-          <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
-        </div>
-        <div class="post-options">
-          <i class="ri-message-2-line toggle-comments" data-target="comments-container-${post.postId}"></i>
-          <i class="ri-heart-line like-icon" data-post-id="${post.postId}" data-user-id="${currentUser.uid}"></i>
-        </div>
+  postElement.innerHTML = `
+    <div class="post-header">
+      <div class="profile-picture">
+        <img src="${post.authorPhoto}" alt="User profile picture">
       </div>
-      <div class="post-content">
-        <img src="${post.imageURL}" alt="Post content image">
-        <div class="post-caption">${post.caption}</div>
+      <div class="profile-details">
+        <div class="profile-name">${post.authorName}</div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
       </div>
-      <div class="post-footer">
-        <div class="comment-section" id="comments-container-${post.postId}">
-          <div class="comment-box">
-            <input type="text" placeholder="Add a comment..." data-post-id="${post.postId}">
-          </div>
-        </div>
+      <div class="post-options">
+        <i class="ri-message-2-line toggle-comments" data-target="comments-container-${post.postId}"></i>
+        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+        ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
+        ${isMyPost ? `<i class="ri-delete-bin-4-fill delete-post-btn" data-id="${post.postId}"></i>` : ""}
       </div>
-    `;
+    </div>
+    <div class="post-image">
+      <img src="${post.imageUrl}" alt="Post content">
+    </div>
+    <div class="caption">
+      <span class="username">${post.authorName}</span> ${post.content}
+    </div>
+    <div class="post-comments">
+      <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
+        ${renderComments(post.comments)}
+      </div>
+      <div class="comment-input-container">
+        <input class="comment-input" placeholder="Write a comment...">
+        <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+      </div>
+    </div>
+  `;
 
-    container.appendChild(postElement);
+  container.appendChild(postElement);
 
-    const likeButton = postElement.querySelector('.like-icon');
-    likeButton.addEventListener('click', () => handleLike(post, likeButton));
+  // Add event listeners for actions
+  if (postElement.querySelector(".like-btn")) {
+    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+  }
 
-    const commentInput = postElement.querySelector('input');
-    commentInput.addEventListener('keypress', (event) => {
-      if (event.key === 'Enter') {
-        handleComment(post, event.target.value);
+  // Add toggle comments functionality
+  if (postElement.querySelector(".toggle-comments")) {
+    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
+      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
+      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
+    });
+  }
+
+  if (postElement.querySelector(".submit-comment")) {
+    postElement.querySelector(".submit-comment").addEventListener("click", () => {
+      const commentInput = postElement.querySelector(".comment-input");
+      const commentText = commentInput.value.trim();
+      if (commentText !== "") {
+        submitComment(post.postId, commentText);
+        commentInput.value = "";
       }
     });
+  }
+
+  // Only show delete and edit buttons for user's own posts
+  if (isMyPost) {
+    const deleteButton = postElement.querySelector(".delete-post-btn");
+    if (deleteButton) {
+      deleteButton.addEventListener("click", () => deletePost(post.postId));
+    }
+    const editButton = postElement.querySelector(".edit-btn");
+    if (editButton) {
+      editButton.addEventListener("click", () => editPost(post));
+    }
+  }
+};
+
+  const renderComments = (comments) => {
+    if (!comments) return "";
+    return Object.keys(comments).map(commentId => {
+      const comment = comments[commentId];
+      return `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+        </div>
+      `;
+    }).join("");
   };
 
-  const handleLike = (post, likeButton) => {
-    const likeRef = ref(db, `posts/${post.postId}/likes/${currentUser.uid}`);
-    const isLiked = !!post.likes[currentUser.uid];
-
-    if (isLiked) {
-      remove(likeRef).then(() => {
-        showToast("You unliked this post.", 'info');
-        likeButton.classList.remove('liked');
-      });
+  const likePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await remove(postRef);  // Remove like
+      showToast("unliked", 'info');
     } else {
-      set(likeRef, true).then(() => {
-        showToast("You liked this post.", 'success');
-        likeButton.classList.add('liked');
-      });
+      await set(postRef, true);  // Add like
+      showToast("you liked the post", 'success');
+    }
+    loadPosts();  // Reload to reflect the changes
+  };
+
+  const submitComment = async (postId, commentText) => {
+    const commentData = {
+      username: currentUser.displayName,
+      message: commentText,
+    };
+
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    showToast("comment added", 'success');
+    loadPosts();  // Reload posts to show the new comment
+  };
+
+  const deletePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}`);
+    await remove(postRef);  // Delete the post
+    loadPosts();  // Reload posts to remove the deleted post
+    showToast("post imefutwa", 'success');
+  };
+
+  const editPost = (post) => {
+    const newContent = prompt("Edit your post content:", post.content);
+    if (newContent !== null) {
+      const postRef = ref(db, `posts/${post.postId}`);
+      update(postRef, { content: newContent });
+      showToast("post imeupdatiwa", 'success');
+      loadPosts();  // Reload posts to show updated content
     }
   };
 
-  const handleComment = (post, commentText) => {
-    if (commentText.trim() === "") return;
-    const commentsRef = ref(db, `posts/${post.postId}/comments`);
-    const newComment = {
-      text: commentText,
-      userId: currentUser.uid,
-      userName: currentUser.displayName,
-      timestamp: serverTimestamp(),
-    };
-    push(commentsRef, newComment).then(() => {
-      showToast("Your comment has been added.", 'success');
-    });
-  };
+  const createNewPost = async () => {
+    const caption = document.getElementById("new-post-caption")?.value;
+    const fileInput = document.getElementById("new-post-image");
+    const file = fileInput?.files[0];
 
-  const loadMessages = () => {
-    const messagesRef = ref(db, "messages");
-    onValue(messagesRef, (snapshot) => {
-      const messagesContainer = document.getElementById("chat-container");
-      messagesContainer.innerHTML = "";
+    if (!caption && !file) {
+      showToast("tafadhari weka caption na image.", 'warning');
+      return;
+    }
 
-      snapshot.forEach(childSnapshot => {
-        const message = childSnapshot.val();
-        const messageElement = document.createElement('div');
-        messageElement.className = "chat-message";
-        messageElement.textContent = `${message.userName}: ${message.text}`;
-        messagesContainer.appendChild(messageElement);
+    try {
+      let imageUrl = "";
+      showToast("Uploading post yako...Tafadhari subiri", 'info');
+
+      if (file) {
+        // Upload image to Firebase Storage
+        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+        await uploadBytes(storageReference, file);
+        imageUrl = await getDownloadURL(storageReference);
+        showToast("ukaguzi wa post umekamilika", 'info');
+      }
+
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: currentUser.displayName || "Anonymous",
+        authorPhoto: currentUser.photoURL || "default.jpg",
+        content: caption,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
       });
+
+      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      window.location.reload();  // Reload the page after successful upload
+    } catch (error) {
+      console.error("Error creating post:", error);
+      showToast("Error creating post", 'error');
+    }
+  };
+
+const updateUserProfile = async () => {
+  const newUsername = document.getElementById('username')?.value.trim();
+  const profilePictureInput = document.getElementById('profile-picture-input');
+  const newProfilePicture = profilePictureInput?.files[0];
+
+  // Check if both username and profile picture are empty
+  if (!newUsername && !newProfilePicture) {
+    showToast("Please provide a new username or profile picture.", 'warning');
+    return;
+  }
+
+  try {
+    // Get the currently authenticated user
+    const user = auth.currentUser;
+    console.log("Authenticated user:", user);
+
+    if (!user) {
+      showToast("User not authenticated. Please log in.", 'error');
+      return; // Exit if the user is not authenticated
+    }
+
+    // Update the username if provided
+    if (newUsername && newUsername !== user.displayName) {
+      try {
+        console.log("Updating username to:", newUsername);
+        // Using updateProfile from firebase/auth
+        await updateProfile(user, {
+          displayName: newUsername,
+        });
+        showToast("Username updated successfully!", 'success');
+      } catch (profileError) {
+        console.error("Error updating username:", profileError);
+        showToast("Error updating username. Please try again.", 'error');
+      }
+    }
+
+    // Upload new profile picture if provided
+    if (newProfilePicture) {
+      console.log("New profile picture:", newProfilePicture);
+
+      const storageReference = storageRef(storage, `profile_pictures/${user.uid}/${newProfilePicture.name}`);
+      console.log("Storage reference:", storageReference);
+
+      try {
+        // Upload the picture to Firebase Storage
+        await uploadBytes(storageReference, newProfilePicture);
+        console.log("Profile picture uploaded successfully.");
+
+        // Get the download URL for the uploaded picture
+        const newProfilePictureUrl = await getDownloadURL(storageReference);
+        console.log("New profile picture URL:", newProfilePictureUrl);
+
+        // Update the user's profile with the new picture
+        await updateProfile(user, {
+          photoURL: newProfilePictureUrl,
+        });
+        showToast("Profile picture updated successfully!", 'success');
+      } catch (uploadError) {
+        console.error("Error uploading profile picture:", uploadError);
+        showToast("Error uploading profile picture. Please try again.", 'error');
+      }
+    }
+
+    // Reload the page to reflect updated details
+    window.location.reload();
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    showToast("Error updating profile. Please try again.", 'error');
+  }
+};
+// Add event listener to the update profile button
+document.getElementById('update-profile-button')?.addEventListener('click', updateUserProfile);
+
+// Update profile picture preview when file is selected
+document.getElementById('profile-picture-input')?.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      document.getElementById('profile-picture').src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Display user details
+const displayUserDetails = () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const userName = user.displayName || "Anonymous";
+  const userEmail = user.email || "No email available";
+  const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+
+  document.querySelectorAll('.user-name').forEach(element => {
+    element.textContent = userName;  // Set user name
+  });
+
+  document.querySelectorAll('.user-email').forEach(element => {
+    element.textContent = userEmail;  // Set user email
+  });
+
+  document.querySelectorAll('.profile-picture').forEach(element => {
+    element.src = userProfilePic;  // Set user profile picture
+  });
+};
+
+// Initialize the profile with user details
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    displayUserDetails();  // Display user details when logged in
+  }
+});
+  document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
+  
+const loadMessages = () => {
+  const messagesRef = ref(db, "messages");
+  const chatBox = document.getElementById("chat-box");
+
+  // Listen for new messages in real-time
+  onValue(messagesRef, (snapshot) => {
+    const messages = [];
+    snapshot.forEach((childSnapshot) => {
+      const message = childSnapshot.val();
+      messages.push(message);
     });
-  };
 
-  const generateUniqueId = (uid) => {
-    const date = new Date();
-    return `${uid}-${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
-  };
+    // Clear chat box before displaying new messages
+    chatBox.innerHTML = '';
+
+    // Display all messages
+    messages.forEach(message => {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message', message.senderId === currentUser.uid ? 'right' : 'left');
+
+      // Create the profile picture element
+      const profilePicture = message.senderPhotoURL || 'default-profile-picture.jpg'; // Use a default picture if none is available
+
+      messageElement.innerHTML = `
+      
+       <div class="post-header getNow">
+      <div class="profile-picture">
+        <img src="${profilePicture}" alt="${message.senderName}'s profile picture" >
+      </div>
+      <div class="profile-details">
+        <div class="profile-name">${message.senderName}</div>
+        <div class="post-time-3">${message.text}</span></div> 
+      </div>
+    </div>
+      `;
+      chatBox.appendChild(messageElement);
+    });
+
+    // Scroll to the bottom to show the latest message
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+};
+const sendMessage = async () => {
+  const messageInput = document.getElementById("chat-message-input");
+  const messageText = messageInput.value.trim();
+
+  if (!messageText) {
+    showToast("Please enter a message.", 'warning');
+    return;
+  }
+
+  const messagesRef = ref(db, "messages");
+  const newMessageRef = push(messagesRef);
+  await set(newMessageRef, {
+    senderId: currentUser.uid,
+    senderName: currentUser.displayName || "Anonymous",
+    senderPhotoURL: currentUser.photoURL || 'default-profile-picture.jpg', // Include photoURL here
+    text: messageText,
+    timestamp: serverTimestamp(),
+  });
+
+  // Clear the input field after sending the message
+  messageInput.value = '';
+  showToast("Message sent!", 'success');
+};
+document.getElementById('send-message-button')?.addEventListener('click', sendMessage);
 </script>
-
 
 
 
