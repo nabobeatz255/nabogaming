@@ -142,8 +142,8 @@
   font-weight: bold;
 }
 .notify-icon {
-    padding: 10px;background-color: #f0f0f0;margin-right: 10px;
-    border-radius: 50%;
+    padding: 10px;background-color: none;margin-right: 10px;
+    border-right: 1px solid #ccc;
 }
 /* Popup styles */
 #install-popup {
@@ -1099,7 +1099,7 @@ const displayPost = (post, container, isMyPost) => {
         <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
       </div>
       <div class="post-options">
-        <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
+        <i class="ri-message-2-line toggle-comments" data-target="comments-container-${post.postId}"></i>
         <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
         ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         ${isMyPost ? `<i class="ri-delete-bin-4-fill delete-post-btn" data-id="${post.postId}"></i>` : ""}
@@ -1524,7 +1524,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
       <section class=hero style="background: white; color:black;box-shadow:none;border:1px solid #ddd;">
 <div class=hero-content>
   <h1>Usahili Nabogaming Tounaments </h1>
-  <p>Hivi Karibuni Tunazindua Usahili Wa Nabogaming Tournaments Utakaofanyika 3/1/2025 hadi 6/1/2025, Get Ready Check Notification</p>
+  <p>Hivi Karibuni Tunazindua Usahili Wa Nabogaming Tournaments Utakaofanyika Hivi Karibuni, Get Ready.</p>
 </div>
     </section>
 
@@ -2008,7 +2008,7 @@ Please Wait.....
 
 <!-- Notification -->
 <div class="hidden" id="notifyPopup">
-  <div class="header-2">
+  <div class="header-2" style="background:white;color:black;border-bottom:1px solid #ccc">
     <div class="logo">
     </div>
     <div class="title-center">
@@ -2024,7 +2024,7 @@ Please Wait.....
   </div>
   <div class="notify-content">
     <h3>Usahili Tournaments <span class="notify-time"  data-timestamp=2024-12-25T11:37:00></span></h3>
-    <p>Hivi Karibuni usahili utafunguliwa 3/1 - 6/1. Save the date</p>
+    <p>Usahili utafunguliwa hivi karibuni</p>
   </div>
 </li>
     </ul>
