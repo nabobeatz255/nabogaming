@@ -2243,10 +2243,13 @@ Please Wait.....
 </div-->
       </div>
   </div>
-<!-- Modal for displaying enlarged image -->
-<div id="imageModal" class="image-modal">
-  <span class="close-modal">&times;</span>
-  <img class="modal-content" id="modalImage" src="">
+
+<!-- Modal structure -->
+<div id="imageModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img src="" alt="Expanded Post Image" class="modal-image">
+  </div>
 </div>
 
   <script>
