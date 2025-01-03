@@ -284,53 +284,49 @@
       background: none;
     }
   </style>
-    <script type="module" defer>
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+ <script type="module" defer>
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
-    authDomain: "register-71bde.firebaseapp.com",
-    projectId: "register-71bde",
-    storageBucket: "register-71bde.appspot.com",
-    messagingSenderId: "412548441298",
-    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
-  };
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+      authDomain: "register-71bde.firebaseapp.com",
+      projectId: "register-71bde",
+      storageBucket: "register-71bde.appspot.com",
+      messagingSenderId: "412548441298",
+      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
 
-  document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOMContentLoaded fired");
-    const signInButton = document.getElementById("google-sign-in");
-    if (signInButton) {
-      signInButton.addEventListener("click", () => {
-        console.log("Google sign-in button clicked");
-        signInWithRedirect(auth, provider);
-      });
-    } else {
-      console.error("Google sign-in button not found");
-    }
-  });
-
-  onAuthStateChanged(auth, (user) => {
-    console.log("Auth state changed:", user);
-    if (user) {
-      window.location.href = "dashboard.html";
-    }
-  });
-
-  getRedirectResult(auth)
-    .then((result) => {
-      console.log("Redirect result:", result);
-      if (result?.user) {
+    // Check if the user is already signed in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, redirect to dashboard
         window.location.href = "dashboard.html";
       }
-    })
-    .catch((error) => {
-      console.error("Error during sign-in:", error.message);
-      alert("Sign-in failed. Please try again.");
+    });
+
+    // Google Sign-In button click event
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("google-sign-in").addEventListener("click", () => {
+        signInWithPopup(auth, provider)
+          .then((result) => {
+            const user = result.user;
+            console.log("User signed in:", user);
+            // Redirect to the dashboard
+            window.location.href = "dashboard.html";
+          })
+          .catch((error) => {
+            console.error("Error during sign-in:", error);
+            alert("Sign-in failed. Please try again.");
+          });
+      });
     });
 </script>
 
