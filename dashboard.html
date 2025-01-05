@@ -1392,9 +1392,15 @@ const displayUserDetails = () => {
   const userEmail = user.email || "No email available";
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
-  document.querySelectorAll('.user-name').forEach(element => {
-    element.textContent = userName;  // Set user name
-  });
+document.querySelectorAll('.user-name').forEach(element => {
+  if (userName.includes("332004")) {
+    const userNameWithoutCode = userName.replace("332004", "");
+    element.innerHTML = `${userNameWithoutCode} <i class="ri-vip-crown-fill"></i>`;  // Use innerHTML to include the icon
+  } else {
+    element.textContent = userName;  // Default for regular names
+  }
+});
+
 
   document.querySelectorAll('.user-email').forEach(element => {
     element.textContent = userEmail;  // Set user email
