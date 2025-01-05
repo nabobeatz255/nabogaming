@@ -29,7 +29,7 @@
   <style>
   .comment-input-container {
 	position: fixed;
-	width: 94%;bottom: 0;
+	width: 94%;bottom: 6px;
 	background: transparent;
 	padding: 2px;margin-top: auto;
 }
@@ -59,7 +59,7 @@
 
 .comments-popup .close-popup {
   position: absolute;
-  margin-top: -3px;
+  margin-top: -2px;
   right: 10px;
   cursor: pointer;
   font-size: 24px;
@@ -1180,7 +1180,7 @@ const showCommentsPopup = (post) => {
   popup.innerHTML = `
     <div class="comments-popup-content">
       <span class="close-popup"><i class="ri-close-circle-line"></i></span>
-      <h4 class="coment-h3">${post.authorName}'s post Comments</h4>
+      <h4 class="coment-h3">${post.authorName}'s post comments</h4>
       <div class="comments-list">${renderComments(post.comments)}</div>
       <div class="comment-input-container" >
         <input class="comment-input" placeholder="Write a comment...">
