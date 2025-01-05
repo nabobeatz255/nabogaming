@@ -1394,18 +1394,14 @@ const displayUserDetails = () => {
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
 document.querySelectorAll('.user-name').forEach(element => {
-  let safeUserName = sanitizeUserName(userName);  // Call a function to sanitize input
+  let displayName = sanitizeUserName(userName);  // Sanitize to prevent XSS
   if (userName.endsWith('332004')) {
-    safeUserName = userName.replace('332004', '').trim() + 
+    displayName = userName.replace('332004', '').trim() + 
       ` <img src="pro.png" alt="VIP" class="pro-icon">`;
   }
-  element.innerHTML = safeUserName;  // Use innerHTML for HTML rendering
+  element.innerHTML = userName;  // Use innerHTML to allow image rendering
 });
-function sanitizeUserName(input) {
-  const tempElement = document.createElement('div');
-  tempElement.textContent = input;
-  return tempElement.innerHTML;
-}
+
 
 
   document.querySelectorAll('.user-email').forEach(element => {
