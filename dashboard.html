@@ -1141,6 +1141,8 @@ const displayPost = (post, container, isMyPost) => {
   const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
   if (existingPost) return;
 
+  const commentCount = post.comments ? Object.keys(post.comments).length : 0;
+
   const postElement = document.createElement("div");
   postElement.className = "instagram-post-2";
   postElement.setAttribute("data-post-id", post.postId);
@@ -1152,7 +1154,7 @@ const displayPost = (post, container, isMyPost) => {
       </div>
       <div class="profile-details">
         <div class="profile-name">${post.authorName}</div>
-        <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span> • <span class="comment-count">${commentCount} comments</span></div>
       </div>
       <div class="post-options">
         <i class="ri-message-3-line toggle-comments" data-id="${post.postId}"></i>
@@ -1161,7 +1163,7 @@ const displayPost = (post, container, isMyPost) => {
         ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
       </div>
     </div>
-    <div class="post-image  toggle-comments">
+    <div class="post-image toggle-comments">
       <img src="${post.imageUrl}" alt="Post content">
     </div>
     <div class="caption">
@@ -1171,7 +1173,6 @@ const displayPost = (post, container, isMyPost) => {
 
   container.appendChild(postElement);
 
-  // Add event listeners for actions
   postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
   postElement.querySelector(".toggle-comments").addEventListener("click", () => showCommentsPopup(post));
 
@@ -1180,6 +1181,7 @@ const displayPost = (post, container, isMyPost) => {
     postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
   }
 };
+
 
 const showCommentsPopup = (post) => {
   const popup = document.createElement('div');
