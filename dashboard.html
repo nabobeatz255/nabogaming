@@ -31,7 +31,7 @@
   position: fixed;
   top: 50%;
   left: 50%;padding: 10px;
-  transform: translate(-50%, 0%) ;
+  transform: translate(0%, 0%);
   width: 100%;
   max-width: 600px;
   background: white;
@@ -45,7 +45,8 @@
 
 .comments-popup .close-popup {
   position: absolute;
-  top: 10px;
+  top: 4px;border: 1px solid #ddd;
+  border-radius: 50%;
   right: 10px;
   cursor: pointer;
   font-size: 24px;
@@ -1167,7 +1168,7 @@ const showCommentsPopup = (post) => {
       <span class="close-popup">&times;</span>
       <h3>${post.authorName}'s post Comments</h3>
       <div class="comments-list">${renderComments(post.comments)}</div>
-      <div class="comment-input-container" style="bottom:0;left:0;">
+      <div class="comment-input-container" >
         <input class="comment-input" placeholder="Write a comment...">
         <button class="submit-comment" data-post-id="${post.postId}">Send</button>
       </div>
