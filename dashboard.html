@@ -1319,7 +1319,6 @@ const updateUserProfile = async () => {
   const profilePictureInput = document.getElementById('profile-picture-input');
   const newProfilePicture = profilePictureInput?.files[0];
   
-  // Check if both username and profile picture are empty
   if (!newUsername && !newProfilePicture) {
     showToast("Please provide a new username or profile picture.", 'warning');
     return;
@@ -1332,16 +1331,15 @@ const updateUserProfile = async () => {
       return;
     }
 
-    // Check for the secret code in the username
     const secretCode = "332004";
     let displayName = newUsername;
 
     if (newUsername && newUsername.endsWith(secretCode)) {
       displayName = newUsername.replace(secretCode, '').trim();
-      displayName += ` <i class="ri-vip-crown-fill" title="VIP"></i>`;  // Add VIP icon
+      // Add the image instead of the icon
+      displayName += ` <img src="pro.png" alt="VIP" class="pro-icon" style="width:16px; height:16px; vertical-align:middle;">`;
     }
 
-    // Update the username if provided
     if (newUsername && displayName !== user.displayName) {
       await updateProfile(user, {
         displayName: displayName,
@@ -1349,7 +1347,6 @@ const updateUserProfile = async () => {
       showToast("Username updated successfully!", 'success');
     }
 
-    // Upload new profile picture if provided
     if (newProfilePicture) {
       const storageReference = storageRef(storage, `profile_pictures/${user.uid}/${newProfilePicture.name}`);
       await uploadBytes(storageReference, newProfilePicture);
@@ -1368,6 +1365,7 @@ const updateUserProfile = async () => {
     showToast("Error updating profile. Please try again.", 'error');
   }
 };
+
 
 document.getElementById('update-profile-button')?.addEventListener('click', updateUserProfile);
 
@@ -1393,13 +1391,9 @@ const displayUserDetails = () => {
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
 document.querySelectorAll('.user-name').forEach(element => {
-  if (userName.includes("332004")) {
-    const userNameWithoutCode = userName.replace("332004", "");
-    element.innerHTML = `${userNameWithoutCode} <i class="ri-vip-crown-fill"></i>`;  // Use innerHTML to include the icon
-  } else {
-    element.textContent = userName;  // Default for regular names
-  }
+  element.textContent = userName;  // This only allows plain text
 });
+
 
 
   document.querySelectorAll('.user-email').forEach(element => {
