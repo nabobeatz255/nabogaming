@@ -1318,7 +1318,7 @@ const updateUserProfile = async () => {
   const newUsername = document.getElementById('username')?.value.trim();
   const profilePictureInput = document.getElementById('profile-picture-input');
   const newProfilePicture = profilePictureInput?.files[0];
-
+  
   // Check if both username and profile picture are empty
   if (!newUsername && !newProfilePicture) {
     showToast("Please provide a new username or profile picture.", 'warning');
@@ -1326,58 +1326,41 @@ const updateUserProfile = async () => {
   }
 
   try {
-    // Get the currently authenticated user
     const user = auth.currentUser;
-    console.log("Authenticated user:", user);
-
     if (!user) {
       showToast("User not authenticated. Please log in.", 'error');
-      return; // Exit if the user is not authenticated
+      return;
+    }
+
+    // Check for the secret code in the username
+    const secretCode = "332004";
+    let displayName = newUsername;
+
+    if (newUsername && newUsername.endsWith(secretCode)) {
+      displayName = newUsername.replace(secretCode, '').trim();
+      displayName += ` <i class="ri-vip-crown-fill" title="VIP"></i>`;  // Add VIP icon
     }
 
     // Update the username if provided
-    if (newUsername && newUsername !== user.displayName) {
-      try {
-        console.log("Updating username to:", newUsername);
-        // Using updateProfile from firebase/auth
-        await updateProfile(user, {
-          displayName: newUsername,
-        });
-        showToast("Username updated successfully!", 'success');
-      } catch (profileError) {
-        console.error("Error updating username:", profileError);
-        showToast("Error updating username. Please try again.", 'error');
-      }
+    if (newUsername && displayName !== user.displayName) {
+      await updateProfile(user, {
+        displayName: displayName,
+      });
+      showToast("Username updated successfully!", 'success');
     }
 
     // Upload new profile picture if provided
     if (newProfilePicture) {
-      console.log("New profile picture:", newProfilePicture);
-
       const storageReference = storageRef(storage, `profile_pictures/${user.uid}/${newProfilePicture.name}`);
-      console.log("Storage reference:", storageReference);
+      await uploadBytes(storageReference, newProfilePicture);
+      const newProfilePictureUrl = await getDownloadURL(storageReference);
 
-      try {
-        // Upload the picture to Firebase Storage
-        await uploadBytes(storageReference, newProfilePicture);
-        console.log("Profile picture uploaded successfully.");
-
-        // Get the download URL for the uploaded picture
-        const newProfilePictureUrl = await getDownloadURL(storageReference);
-        console.log("New profile picture URL:", newProfilePictureUrl);
-
-        // Update the user's profile with the new picture
-        await updateProfile(user, {
-          photoURL: newProfilePictureUrl,
-        });
-        showToast("Profile picture updated successfully!", 'success');
-      } catch (uploadError) {
-        console.error("Error uploading profile picture:", uploadError);
-        showToast("Error uploading profile picture. Please try again.", 'error');
-      }
+      await updateProfile(user, {
+        photoURL: newProfilePictureUrl,
+      });
+      showToast("Profile picture updated successfully!", 'success');
     }
 
-    // Reload the page to reflect updated details
     window.location.reload();
 
   } catch (error) {
@@ -1385,7 +1368,7 @@ const updateUserProfile = async () => {
     showToast("Error updating profile. Please try again.", 'error');
   }
 };
-// Add event listener to the update profile button
+
 document.getElementById('update-profile-button')?.addEventListener('click', updateUserProfile);
 
 // Update profile picture preview when file is selected
