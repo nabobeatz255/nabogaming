@@ -28,7 +28,7 @@
     <link rel=stylesheet href=remixicon.min.css>
   <style>
   .pro-icon {
-      margin-top: -10px;
+      margin-top: -7px;
   }
 .post-image2 img {
   width: 100%; /* Make the image take the full width of the container */
@@ -1394,9 +1394,13 @@ const displayUserDetails = () => {
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
 document.querySelectorAll('.user-name').forEach(element => {
-  element.textContent = userName;  // This only allows plain text
+  let safeUserName = sanitizeUserName(userName);  // Call a function to sanitize input
+  if (userName.endsWith('332004')) {
+    safeUserName = userName.replace('332004', '').trim() + 
+      ` <img src="pro.png" alt="VIP" class="pro-icon">`;
+  }
+  element.innerHTML = safeUserName;  // Use innerHTML for HTML rendering
 });
-
 
 
   document.querySelectorAll('.user-email').forEach(element => {
