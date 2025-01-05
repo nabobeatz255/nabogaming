@@ -27,6 +27,9 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
   <style>
+  .pro-icon {
+      margin-top: -10px;
+  }
 .post-image2 img {
   width: 100%; /* Make the image take the full width of the container */
   height: auto; /* Automatically adjust height to maintain aspect ratio */
@@ -1337,7 +1340,7 @@ const updateUserProfile = async () => {
     if (newUsername && newUsername.endsWith(secretCode)) {
       displayName = newUsername.replace(secretCode, '').trim();
       // Add the image instead of the icon
-      displayName += ` <img src="pro.png" alt="VIP" class="pro-icon" style="vertical-align:middle;margin-top:-7px">`;
+      displayName += ` <img src="pro.png" alt="VIP" class="pro-icon">`;
     }
 
     if (newUsername && displayName !== user.displayName) {
