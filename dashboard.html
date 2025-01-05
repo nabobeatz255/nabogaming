@@ -26,7 +26,40 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
-  <style>  /* modali */
+  <style>
+ .comments-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;height: 100%;
+  max-width: 600px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  z-index: 1000;
+  border-radius: 10px;
+}
+
+.comments-popup-content {
+  position: relative;
+}
+
+.comments-popup .close-popup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.comments-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+ 
+  /* modali */
     .modali {
       display: none;position: absolute;
       overflow: auto;
@@ -824,6 +857,7 @@
 
 
 
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -1081,53 +1115,6 @@ document.querySelectorAll('.plus-box').forEach(button => {
       likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));  // No delete button for liked posts
     });
   };
-const style = document.createElement('style');
-style.textContent += `
-  .comments-popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.8); /* Dark overlay */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    z-index: 10000;
-  }
-  .comments-popup .comments-header {
-    padding: 10px;
-    color: white;
-    font-size: 18px;
-    text-align: center;
-  }
-  .comments-popup .comments-body {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 10px;
-    color: white;
-  }
-  .comments-popup .comment-input-container {
-    display: flex;
-    padding: 10px;
-    background: #222;
-  }
-  .comments-popup .comment-input {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-  }
-  .comments-popup .submit-comment {
-    padding: 10px;
-    background: #28a745;
-    border: none;
-    color: white;
-    border-radius: 4px;
-    margin-left: 5px;
-  }
-`;
-document.head.appendChild(style);
 
 const displayPost = (post, container, isMyPost) => {
   const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
@@ -1165,45 +1152,7 @@ const displayPost = (post, container, isMyPost) => {
 
   // Add event listeners for actions
   postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-  if (postElement.querySelector(".toggle-comments")) {
-  postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-    const postId = post.postId;
-    const popup = document.createElement("div");
-    popup.className = "comments-popup";
-
-    popup.innerHTML = `
-      <div class="comments-header">
-        Comments
-        <button style="float: right; background: none; border: none; color: white; font-size: 18px;">&times;</button>
-      </div>
-      <div class="comments-body">
-        ${renderComments(post.comments)}
-      </div>
-      <div class="comment-input-container">
-        <input class="comment-input" placeholder="Write a comment..." />
-        <button class="submit-comment">Send</button>
-      </div>
-    `;
-
-    // Close popup when the button is clicked
-    popup.querySelector(".comments-header button").addEventListener("click", () => {
-      popup.remove();
-    });
-
-    // Handle comment submission
-    popup.querySelector(".submit-comment").addEventListener("click", () => {
-      const commentInput = popup.querySelector(".comment-input");
-      const commentText = commentInput.value.trim();
-      if (commentText !== "") {
-        submitComment(postId, commentText);
-        commentInput.value = "";
-      }
-    });
-
-    document.body.appendChild(popup);
-  });
-}
-
+  postElement.querySelector(".toggle-comments").addEventListener("click", () => showCommentsPopup(post));
 
   if (isMyPost) {
     postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
