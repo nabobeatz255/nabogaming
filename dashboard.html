@@ -125,6 +125,38 @@
     }
   </style>
 <style>
+.comments-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  z-index: 1000;
+  border-radius: 10px;
+}
+
+.comments-popup-content {
+  position: relative;
+}
+
+.comments-popup .close-popup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.comments-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
 .icon-container {
   position: relative;
   display: inline-block;margin: 17px 0 0 0;
@@ -1081,13 +1113,12 @@ document.querySelectorAll('.plus-box').forEach(button => {
   };
 
 const displayPost = (post, container, isMyPost) => {
-  // Check if the post already exists in the container to avoid duplicates
   const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
-  if (existingPost) return; // If post already exists, don't append again
+  if (existingPost) return;
 
   const postElement = document.createElement("div");
   postElement.className = "instagram-post-2";
-  postElement.setAttribute("data-post-id", post.postId); // Store the post ID as a data attribute
+  postElement.setAttribute("data-post-id", post.postId);
 
   postElement.innerHTML = `
     <div class="post-header">
@@ -1096,10 +1127,10 @@ const displayPost = (post, container, isMyPost) => {
       </div>
       <div class="profile-details">
         <div class="profile-name">${post.authorName}</div>
-        <div class="post-time-2">${formatTimestamp(post.timestamp)} •  <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div> 
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
       </div>
       <div class="post-options">
-        <i class="ri-message-3-line toggle-comments" data-target="comments-container-${post.postId}"></i>
+        <i class="ri-message-3-line toggle-comments" data-id="${post.postId}"></i>
         <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
         ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         ${isMyPost ? `<i class="ri-delete-bin-4-fill delete-post-btn" data-id="${post.postId}"></i>` : ""}
@@ -1111,10 +1142,29 @@ const displayPost = (post, container, isMyPost) => {
     <div class="caption">
       <span class="username">${post.authorName}</span> ${post.content}
     </div>
-    <div class="post-comments">
-      <div class="comments-container" id="comments-container-${post.postId}" style="display: none;">
-        ${renderComments(post.comments)}
-      </div>
+  `;
+
+  container.appendChild(postElement);
+
+  // Add event listeners for actions
+  postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+  postElement.querySelector(".toggle-comments").addEventListener("click", () => showCommentsPopup(post));
+
+  if (isMyPost) {
+    postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
+    postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
+  }
+};
+
+const showCommentsPopup = (post) => {
+  const popup = document.createElement('div');
+  popup.className = 'comments-popup';
+
+  popup.innerHTML = `
+    <div class="comments-popup-content">
+      <span class="close-popup">&times;</span>
+      <h3>Comments</h3>
+      <div class="comments-list">${renderComments(post.comments)}</div>
       <div class="comment-input-container">
         <input class="comment-input" placeholder="Write a comment...">
         <button class="submit-comment" data-post-id="${post.postId}">Send</button>
@@ -1122,44 +1172,19 @@ const displayPost = (post, container, isMyPost) => {
     </div>
   `;
 
-  container.appendChild(postElement);
+  document.body.appendChild(popup);
 
-  // Add event listeners for actions
-  if (postElement.querySelector(".like-btn")) {
-    postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
-  }
-
-  // Add toggle comments functionality
-  if (postElement.querySelector(".toggle-comments")) {
-    postElement.querySelector(".toggle-comments").addEventListener("click", () => {
-      const commentsContainer = document.getElementById(postElement.querySelector(".toggle-comments").dataset.target);
-      commentsContainer.style.display = commentsContainer.style.display === "none" ? "block" : "none";
-    });
-  }
-
-  if (postElement.querySelector(".submit-comment")) {
-    postElement.querySelector(".submit-comment").addEventListener("click", () => {
-      const commentInput = postElement.querySelector(".comment-input");
-      const commentText = commentInput.value.trim();
-      if (commentText !== "") {
-        submitComment(post.postId, commentText);
-        commentInput.value = "";
-      }
-    });
-  }
-
-  // Only show delete and edit buttons for user's own posts
-  if (isMyPost) {
-    const deleteButton = postElement.querySelector(".delete-post-btn");
-    if (deleteButton) {
-      deleteButton.addEventListener("click", () => deletePost(post.postId));
+  popup.querySelector('.close-popup').addEventListener('click', () => popup.remove());
+  popup.querySelector('.submit-comment').addEventListener('click', () => {
+    const commentInput = popup.querySelector('.comment-input');
+    const commentText = commentInput.value.trim();
+    if (commentText !== "") {
+      submitComment(post.postId, commentText);
+      commentInput.value = "";
     }
-    const editButton = postElement.querySelector(".edit-btn");
-    if (editButton) {
-      editButton.addEventListener("click", () => editPost(post));
-    }
-  }
+  });
 };
+
 
   const renderComments = (comments) => {
     if (!comments) return "";
@@ -1513,7 +1538,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     </ul>
   </nav>
   <div class=post-base>
-    <section class=hero style="background: black;">
+    <section class=hero style="background: black">
 <div class=hero-content>
   <h1>Nabogaming Tournament 2025</h1>
   <p> Habari <span class="user-name"></span>, Jiandae Kwa Tournament Ambayo Haijawahi Tokea Nchini. Tukutakie Mashindano Mema</p>
