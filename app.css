@@ -194,7 +194,6 @@ a:focus {
 .header .search-bar {
 	flex-grow: 1;
 	margin-left: 10px;
-	z-index: 9999;
 	text-align: right; position: relative; 
 }
 
@@ -470,7 +469,6 @@ a:focus {
 	padding: 5px;
 	margin-bottom: 5px;
 	flex-direction: column;
-	border: 1px solid #f1f1f1;
 }
 
 .comment-username {
@@ -485,10 +483,10 @@ a:focus {
 
 .comment-input-container {
 	display: flex;
-	position: sticky;
+	position: fixed;
 	bottom: 0;
 	background: #fff;
-	padding: 10px 0 0;
+	padding: 10px 0 0;margin-top: auto;
 	gap: 10px;
 }
 
@@ -706,6 +704,7 @@ a:focus {
 	background-image: url('start.png');
 	color: white;
 	text-align: center;
+	position: relative;
 	padding: 20px;
 	border-radius: 10px;
 	box-shadow: 0 4px 8px rgba(0,0,0,0.7);
