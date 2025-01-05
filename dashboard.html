@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang=en> 
+<html lang=en>
   <head>
     <meta charset=UTF-8> 
     <meta name=viewport content="width=device-width,initial-scale=1">
@@ -1337,7 +1337,7 @@ const updateUserProfile = async () => {
     if (newUsername && newUsername.endsWith(secretCode)) {
       displayName = newUsername.replace(secretCode, '').trim();
       // Add the image instead of the icon
-      displayName += ` <img src="pro.png" alt="VIP" class="pro-icon" style="width:16px; height:16px; vertical-align:middle;">`;
+      displayName += ` <img src="pro.png" alt="VIP" class="pro-icon" style="vertical-align:middle;">`;
     }
 
     if (newUsername && displayName !== user.displayName) {
