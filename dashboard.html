@@ -59,7 +59,6 @@
 .comments-popup .close-popup {
   position: absolute;
   margin-top: -12px;
-  border-radius: 50%;
   right: 10px;
   cursor: pointer;
   font-size: 24px;
@@ -1150,7 +1149,7 @@ const displayPost = (post, container, isMyPost) => {
         <i class="ri-message-3-line toggle-comments" data-id="${post.postId}"></i>
         <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
         ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
-        ${isMyPost ? `<i class="ri-delete-bin-4-fill delete-post-btn" data-id="${post.postId}"></i>` : ""}
+        ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
       </div>
     </div>
     <div class="post-image">
@@ -1179,7 +1178,7 @@ const showCommentsPopup = (post) => {
 
   popup.innerHTML = `
     <div class="comments-popup-content">
-      <span class="close-popup">&times;</span>
+      <span class="close-popup"><i class="ri-close-circle-line></i></span>
       <h4 class="coment-h3">${post.authorName}'s post Comments</h4>
       <div class="comments-list">${renderComments(post.comments)}</div>
       <div class="comment-input-container" >
