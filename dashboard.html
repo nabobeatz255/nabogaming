@@ -27,6 +27,38 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
   <style>
+
+
+.comment-input-containeer {
+  display: flex;
+  padding: 10px;
+  background: #f1f1f1;
+  border-top: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.comment-inpuet {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  margin-right: 10px;
+}
+
+.submit-commenet {
+  padding: 10px 15px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-commenet:hover {
+  background: #0056b3;
+}
+
  .comments-popup {
   position: fixed;
   top: 0;
@@ -1168,11 +1200,11 @@ const showCommentsPopup = (post) => {
   popup.innerHTML = `
     <div class="comments-popup-content">
       <span class="close-popup">&times;</span>
-      <h3>${post.authorName}'s post Comments</h3>
+      <h4>${post.authorName}'s post Comments</h4>
       <div class="comments-list">${renderComments(post.comments)}</div>
-      <div class="comment-input-container" >
-        <input class="comment-input" placeholder="Write a comment...">
-        <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+      <div class="comment-input-containeer" >
+        <input class="comment-inpuet" placeholder="Write a comment...">
+        <button class="submit-commenet" data-post-id="${post.postId}">Send</button>
       </div>
     </div>
   `;
