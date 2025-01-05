@@ -35,7 +35,7 @@
 }
 
   .comment-input-container {
-	position: fixed;
+	position: sticky;
 	width: 94%;bottom: 16px;
 	background: transparent;
 	padding: 10px;margin-top: auto;
@@ -1161,7 +1161,7 @@ const displayPost = (post, container, isMyPost) => {
         ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
       </div>
     </div>
-    <div class="post-image">
+    <div class="post-image  toggle-comments">
       <img src="${post.imageUrl}" alt="Post content">
     </div>
     <div class="caption">
