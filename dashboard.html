@@ -1401,6 +1401,11 @@ document.querySelectorAll('.user-name').forEach(element => {
   }
   element.innerHTML = safeUserName;  // Use innerHTML for HTML rendering
 });
+function sanitizeUserName(input) {
+  const tempElement = document.createElement('div');
+  tempElement.textContent = input;
+  return tempElement.innerHTML;
+}
 
 
   document.querySelectorAll('.user-email').forEach(element => {
