@@ -29,15 +29,17 @@
   <style>
  .comments-popup {
   position: fixed;
-  top: 50%;
-  left: 50%;padding: 10px;
-  transform: translate(50%, 0%);
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 600px;
+  height: 100%;
+  padding: 10px;
   background: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   z-index: 1000;
+  box-sizing: border-box; /* Ensure padding does not affect width/height */
 }
+
 
 .comments-popup-content {
   position: relative;
