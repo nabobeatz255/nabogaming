@@ -27,6 +27,10 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
   <style>
+  .cohead {
+      display: flex;
+      position: fixed;
+  }
 .post-image2 img {
   width: 100%; /* Make the image take the full width of the container */
   height: auto; /* Automatically adjust height to maintain aspect ratio */
@@ -62,6 +66,7 @@
 
 .comments-popup-content {
   position: relative;
+  overflow: auto;
 }
 
 .comments-popup .close-popup {
@@ -1186,8 +1191,8 @@ const showCommentsPopup = (post) => {
 
   popup.innerHTML = `
     <div class="comments-popup-content">
-      <span class="close-popup"><i class="ri-close-circle-line"></i></span>
-      <h4 class="coment-h3">${post.authorName}'s post </h4>
+<div class="cohead">      <span class="close-popup"><i class="ri-close-circle-line"></i></span>
+      <h4 class="coment-h3">${post.authorName}'s post </h4></div>
      <div class="post-image2">
       <img src="${post.imageUrl}" alt="Post content">
     </div>
