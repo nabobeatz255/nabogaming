@@ -27,6 +27,13 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
   <style>
+.post-image2 img {
+  width: 100%; /* Make the image take the full width of the container */
+  height: auto; /* Automatically adjust height to maintain aspect ratio */
+  object-fit: cover; /* Ensure it fills the container while maintaining aspect ratio */
+  display: block; /* Prevent inline gaps */
+}
+
   .comment-input-container {
 	position: fixed;
 	width: 94%;bottom: 16px;
@@ -68,7 +75,7 @@
 .comments-list {
   max-height: 300px;
   overflow-y: auto;
-  margin-bottom: 10px;
+  margin-bottom: 10px;border-top: 1px solid #ccc;
   margin-top: 10px;
 }
  
@@ -1181,7 +1188,7 @@ const showCommentsPopup = (post) => {
     <div class="comments-popup-content">
       <span class="close-popup"><i class="ri-close-circle-line"></i></span>
       <h4 class="coment-h3">${post.authorName}'s post </h4>
-     <div class="post-image">
+     <div class="post-image2">
       <img src="${post.imageUrl}" alt="Post content">
     </div>
     <div class="caption">
