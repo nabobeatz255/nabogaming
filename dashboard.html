@@ -27,7 +27,11 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
   <style>
-
+ .coment-h3 {
+     text-align: center;
+     padding-bottom: 30px;
+     border-bottom: 1px solid #ddd;
+ }
  .comments-popup {
   position: fixed;
   top: 0;
@@ -59,6 +63,7 @@
   max-height: 300px;
   overflow-y: auto;
   margin-bottom: 10px;
+  margin-top: 30px;
 }
  
   /* modali */
@@ -1169,7 +1174,7 @@ const showCommentsPopup = (post) => {
   popup.innerHTML = `
     <div class="comments-popup-content">
       <span class="close-popup">&times;</span>
-      <h4>${post.authorName}'s post Comments</h4>
+      <h4 class="coment-h3">${post.authorName}'s post Comments</h4>
       <div class="comments-list">${renderComments(post.comments)}</div>
       <div class="comment-input-container" >
         <input class="comment-input" placeholder="Write a comment...">
