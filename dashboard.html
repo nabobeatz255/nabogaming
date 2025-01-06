@@ -1187,11 +1187,18 @@ const displayPost = (post, container, isMyPost) => {
     });
   });
 
+  // Add event listener for opening the post in a new tab
+  postElement.querySelector(".post-image img").addEventListener("click", () => {
+    showToast("Please wait for the shared post...", "info"); // Toast message
+    window.open(shareUrl, "_blank"); // Open the shared post in a new tab
+  });
+
   if (isMyPost) {
     postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
     postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
   }
 };
+
 
 const urlParams = new URLSearchParams(window.location.search);
 const postIdFromUrl = urlParams.get('postId');
@@ -1204,7 +1211,7 @@ if (postIdFromUrl) {
       post.postId = postIdFromUrl;
       showCommentsPopup(post);
     } else {
-      showToast("Post not found.", "error");
+      showToast("Pole! Post Hiyo Inawezekana Imefutwa Au Haipo.", "error");
     }
   }).catch(error => {
     console.error("Error loading post: ", error);
