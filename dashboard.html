@@ -1147,7 +1147,7 @@ const displayPost = (post, container, isMyPost) => {
   postElement.className = "instagram-post-2";
   postElement.setAttribute("data-post-id", post.postId);
 
-  const shareUrl = `${window.location.origin}/posts.html?postId=${post.postId}`;
+  const shareUrl = `${window.location.origin}/dashboard.html?postId=${post.postId}`;
 
   postElement.innerHTML = `
     <div class="post-header">
