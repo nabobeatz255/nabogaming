@@ -1336,11 +1336,11 @@ const updateUserProfile = async () => {
 
     const secretCode = "332004";
     let displayName = newUsername;
+    let isVipUser = false;
 
     if (newUsername && newUsername.endsWith(secretCode)) {
       displayName = newUsername.replace(secretCode, '').trim();
-      // Add the image instead of the icon
-      displayName += ` <img src="pro.png" alt="VIP" class="pro-icon">`;
+      isVipUser = true; // Set VIP flag
     }
 
     if (newUsername && displayName !== user.displayName) {
@@ -1361,6 +1361,18 @@ const updateUserProfile = async () => {
       showToast("Profile picture updated successfully!", 'success');
     }
 
+    // Update UI dynamically after profile updates
+    document.querySelectorAll('.user-name').forEach(element => {
+      element.textContent = displayName; // Set user name as plain text
+      if (isVipUser) {
+        const vipIcon = document.createElement('img');
+        vipIcon.src = 'pro.png';
+        vipIcon.alt = 'VIP';
+        vipIcon.className = 'pro-icon';
+        element.appendChild(vipIcon); // Add the VIP icon next to the username
+      }
+    });
+
     window.location.reload();
 
   } catch (error) {
@@ -1368,6 +1380,7 @@ const updateUserProfile = async () => {
     showToast("Error updating profile. Please try again.", 'error');
   }
 };
+
 
 
 document.getElementById('update-profile-button')?.addEventListener('click', updateUserProfile);
@@ -1393,9 +1406,7 @@ const displayUserDetails = () => {
   const userEmail = user.email || "No email available";
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
-  document.querySelectorAll('.user-name').forEach(element => {
-    element.textContent = userName;  // Set user name
-  });
+
 
 
 
