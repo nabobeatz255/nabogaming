@@ -1164,6 +1164,15 @@ const displayPost = (post, container, isMyPost) => {
         ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
       </div>
+        <div class="post-options">
+                <i class="ri-more-fill"></i>
+                <div class="options-menu">
+                  <ul>
+                    <li style="color:white;">Call Seller</li>
+                    <li style="color:white;">Report Seller</li>
+                  </ul>
+                </div>
+              </div>
     </div>
     <div class="post-image toggle-comments">
       <img src="${post.imageUrl}" alt="Post content">
