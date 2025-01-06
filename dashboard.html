@@ -51,9 +51,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(4px);
   padding: 10px;
-  background: rgba(255,255,255,.9);
+  background: rgba(255,255,255);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   box-sizing: border-box; /* Ensure padding does not affect width/height */
@@ -1160,13 +1159,13 @@ const displayPost = (post, container, isMyPost) => {
       </div>
       <div class="post-options">
         <i class="ri-message-3-line toggle-comments" data-id="${post.postId}"></i>
-        <i class="ri-heart-line like-btn ${post.likes && post.likes[currentUser.uid] ? 'ri-heart-fill' : ''}" data-id="${post.postId}"></i>
+        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
         <i class="ri-share-box-line share-btn" data-id="${post.postId}" data-url="${shareUrl}"></i>
         ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
       </div>
     </div>
-    <div class="post-image">
+    <div class="post-image toggle-comments">
       <img src="${post.imageUrl}" alt="Post content">
     </div>
     <div class="caption">
@@ -1180,14 +1179,24 @@ const displayPost = (post, container, isMyPost) => {
   postElement.querySelector(".toggle-comments").addEventListener("click", () => showCommentsPopup(post));
   postElement.querySelector(".share-btn").addEventListener("click", () => {
     navigator.clipboard.writeText(shareUrl).then(() => {
-      showToast("Link copied, share with your friends!", "success");
+      showToast("Link copied to clipboard!", "success");
     }).catch((err) => {
       console.error("Failed to copy link: ", err);
       showToast("Failed to copy link", "error");
     });
   });
-};
 
+  // Add event listener for opening the post in a new tab
+  postElement.querySelector(".post-image img").addEventListener("click", () => {
+    showToast("Please wait for the shared post...", "info"); // Toast message
+    window.open(shareUrl, "_blank"); // Open the shared post in a new tab
+  });
+
+  if (isMyPost) {
+    postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
+    postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
+  }
+};
 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -1201,7 +1210,7 @@ if (postIdFromUrl) {
       post.postId = postIdFromUrl;
       showCommentsPopup(post);
     } else {
-      showToast("Pole! Post Hiyo Inawezekana Imefutwa...", "error");
+      showToast("Pole! Post Hiyo Inawezekana Imefutwa Au Haipo.", "error");
     }
   }).catch(error => {
     console.error("Error loading post: ", error);
@@ -1258,25 +1267,18 @@ const showCommentsPopup = (post) => {
     }).join("");
   };
 
-const likePost = async (postId) => {
-  const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-  const snapshot = await get(postRef);
-  const likeButton = document.querySelector(`[data-id="${postId}"] .like-btn`);
-
-  if (snapshot.exists()) {
-    await remove(postRef);  // Remove like
-    showToast("unliked", 'info');
-    likeButton.classList.remove('ri-heart-fill');
-    likeButton.classList.add('ri-heart-line');
-  } else {
-    await set(postRef, true);  // Add like
-    showToast("you liked the post", 'success');
-    likeButton.classList.remove('ri-heart-line');
-    likeButton.classList.add('ri-heart-fill');
-  }
-  loadPosts();  // Reload to reflect the changes
-};
-
+  const likePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await remove(postRef);  // Remove like
+      showToast("unliked", 'info');
+    } else {
+      await set(postRef, true);  // Add like
+      showToast("you liked the post", 'success');
+    }
+    loadPosts();  // Reload to reflect the changes
+  };
 
   const submitComment = async (postId, commentText) => {
     const commentData = {
