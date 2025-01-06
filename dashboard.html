@@ -8,7 +8,7 @@
     <meta name="author" content="Nabogaming">
     <meta property="og:title" content="Nabogaming">
     <meta property="og:description" content="Nabogaming furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
-    <meta property="og:image" content="https://nabogaming.com/1.png">
+    <meta property="og:image" content="https://nabogaming.com/logo.png">
     <meta property="og:url" content="https://nabogaming.com">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
@@ -26,12 +26,79 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
+    <style>.toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    animation: slideFromTop 0.5s ease-out forwards;
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    z-index: 9999;
+}
+
+/* Success */
+.toast.success {
+    background-color: #e6ffe6;
+    color: #4caf50;
+}
+
+/* Error */
+.toast.error {
+    background-color: #ffebeb;
+    color: #f44336;
+}
+
+/* Info */
+.toast.info {
+    background-color: #e8f4ff;
+    color: #2196f3;
+}
+
+/* Warning */
+.toast.warning {
+    background-color: #fff4e5;
+    color: #ff9800;
+}
+
+.toast-icon {
+    font-size: 20px;
+}
+
+.toast-message {
+    flex: 1;
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+@keyframes slideFromTop {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+</style>
   <style>
 .post-image2 img {
-  width: 100%; /* Make the image take the full width of the container */
-  height: auto; /* Automatically adjust height to maintain aspect ratio */
-  object-fit: cover; /* Ensure it fills the container while maintaining aspect ratio */
-  display: block; /* Prevent inline gaps */
+  width: 100%; 
+  height: auto; 
+  object-fit: cover
+  display: block;
 }
 
   .comment-input-container {
@@ -988,77 +1055,40 @@ document.querySelectorAll('.plus-box').forEach(button => {
   });
 });
 
+// Toast function to display notifications
+const showToast = (message, type = 'info') => {
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
 
-  // Toast function to display notifications
-  const showToast = (message, type = 'info') => {
-    const toast = document.createElement('div');
-    toast.classList.add('toast', type);
-    toast.textContent = message;
+  const icon = document.createElement('i');
+  icon.className = `toast-icon ${getIcon(type)}`; // Using Remix icons
 
-    // Append to the body
-    document.body.appendChild(toast);
+  const text = document.createElement('span');
+  text.className = 'toast-message';
+  text.textContent = message;
 
-    // Remove toast after 3 seconds
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  };
+  toast.appendChild(icon);
+  toast.appendChild(text);
 
-  // CSS Styles for Toast notifications
-  const style = document.createElement('style');
-  style.textContent = `
- .toast {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    padding: 25px 20px 16px; /* Adjusted padding for a cleaner look */
-    transform: translateX(-50%);
-    width: 100vw; /* Set width to full viewport width */
-    height: 60px;
-    color: white;
-    text-align: center;
-    font-size: 14px;
-    opacity: 0;
-    z-index: 999999;
-    animation: slideFromTop 0.5s ease-out forwards; /* Added slideFromTop animation */
-}
+  document.body.appendChild(toast);
 
-/* Success Toast */
-.toast.success {
-    background-color: white;
-    color: green;
-}
+  // Remove toast after 3.5 seconds with fade-out effect
+  setTimeout(() => {
+    toast.classList.add('fade-out'); 
+    setTimeout(() => toast.remove(), 500); // Ensure toast is removed after fade-out
+  }, 3500);
+};
 
-/* Error Toast */
-.toast.error {
-    background-color: white; /* Red */
-    color: #f44336;
-}
+const getIcon = (type) => {
+  switch (type) {
+    case 'success': return 'ri-checkbox-circle-line';  // Success icon
+    case 'error': return 'ri-close-circle-line';       // Error icon
+    case 'info': return 'ri-information-line';         // Info icon
+    case 'warning': return 'ri-alert-line';            // Warning icon
+    default: return 'ri-question-line';                // Default icon
+  }
+};
 
-/* Info Toast */
-.toast.info {
-    background-color: #fff; /* Blue */
-    color: blue;
-}
-
-/* Warning Toast */
-.toast.warning {
-    background-color: #FF9800; /* Orange */
-    color: white;
-}
-
-/* Scroll from top animation */
-@keyframes slideFromTop {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-30px); /* Starts from above the screen */
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0); /* Ends at the normal position */
-    }
-}
-  `;
   document.head.appendChild(style);
 
   const formatTimestamp = (timestamp) => {
