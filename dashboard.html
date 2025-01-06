@@ -1147,6 +1147,8 @@ const displayPost = (post, container, isMyPost) => {
   postElement.className = "instagram-post-2";
   postElement.setAttribute("data-post-id", post.postId);
 
+  const shareUrl = `${window.location.origin}/posts.html?postId=${post.postId}`;
+
   postElement.innerHTML = `
     <div class="post-header">
       <div class="profile-picture">
@@ -1159,6 +1161,7 @@ const displayPost = (post, container, isMyPost) => {
       <div class="post-options">
         <i class="ri-message-3-line toggle-comments" data-id="${post.postId}"></i>
         <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+        <i class="ri-share-box-line share-btn" data-id="${post.postId}" data-url="${shareUrl}"></i>
         ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
       </div>
@@ -1175,12 +1178,39 @@ const displayPost = (post, container, isMyPost) => {
 
   postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
   postElement.querySelector(".toggle-comments").addEventListener("click", () => showCommentsPopup(post));
+  postElement.querySelector(".share-btn").addEventListener("click", () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast("Link copied to clipboard!", "success");
+    }).catch((err) => {
+      console.error("Failed to copy link: ", err);
+      showToast("Failed to copy link", "error");
+    });
+  });
 
   if (isMyPost) {
     postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
     postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
   }
 };
+
+const urlParams = new URLSearchParams(window.location.search);
+const postIdFromUrl = urlParams.get('postId');
+
+if (postIdFromUrl) {
+  const postsRef = ref(db, `posts/${postIdFromUrl}`);
+  get(postsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const post = snapshot.val();
+      post.postId = postIdFromUrl;
+      showCommentsPopup(post);
+    } else {
+      showToast("Post not found.", "error");
+    }
+  }).catch(error => {
+    console.error("Error loading post: ", error);
+    showToast("Error loading post.", "error");
+  });
+}
 
 
 const showCommentsPopup = (post) => {
