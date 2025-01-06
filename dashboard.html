@@ -1160,7 +1160,7 @@ const displayPost = (post, container, isMyPost) => {
       </div>
       <div class="post-options">
         <i class="ri-message-3-line toggle-comments" data-id="${post.postId}"></i>
-        <i class="ri-heart-line like-btn" data-id="${post.postId}"></i>
+        <i class="ri-heart-line like-btn ${post.likes && post.likes[currentUser.uid] ? 'ri-heart-fill' : ''}" data-id="${post.postId}"></i>
         <i class="ri-share-box-line share-btn" data-id="${post.postId}" data-url="${shareUrl}"></i>
         ${isMyPost ? `<i class="ri-edit-line edit-btn" data-id="${post.postId}"></i>` : ""}
         ${isMyPost ? `<i class="ri-delete-bin-4-line delete-post-btn" data-id="${post.postId}"></i>` : ""}
@@ -1186,18 +1186,8 @@ const displayPost = (post, container, isMyPost) => {
       showToast("Failed to copy link", "error");
     });
   });
-
-  // Add event listener for opening the post in a new tab
-  postElement.querySelector(".post-image img").addEventListener("click", () => {
-    showToast("Please wait for the shared post...", "info"); // Toast message
-    window.open(shareUrl, "_blank"); // Open the shared post in a new tab
-  });
-
-  if (isMyPost) {
-    postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
-    postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
-  }
 };
+
 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -1268,18 +1258,25 @@ const showCommentsPopup = (post) => {
     }).join("");
   };
 
-  const likePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-    const snapshot = await get(postRef);
-    if (snapshot.exists()) {
-      await remove(postRef);  // Remove like
-      showToast("unliked", 'info');
-    } else {
-      await set(postRef, true);  // Add like
-      showToast("you liked the post", 'success');
-    }
-    loadPosts();  // Reload to reflect the changes
-  };
+const likePost = async (postId) => {
+  const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+  const snapshot = await get(postRef);
+  const likeButton = document.querySelector(`[data-id="${postId}"] .like-btn`);
+
+  if (snapshot.exists()) {
+    await remove(postRef);  // Remove like
+    showToast("unliked", 'info');
+    likeButton.classList.remove('ri-heart-fill');
+    likeButton.classList.add('ri-heart-line');
+  } else {
+    await set(postRef, true);  // Add like
+    showToast("you liked the post", 'success');
+    likeButton.classList.remove('ri-heart-line');
+    likeButton.classList.add('ri-heart-fill');
+  }
+  loadPosts();  // Reload to reflect the changes
+};
+
 
   const submitComment = async (postId, commentText) => {
     const commentData = {
