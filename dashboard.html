@@ -1361,17 +1361,22 @@ const updateUserProfile = async () => {
       showToast("Profile picture updated successfully!", 'success');
     }
 
-    // Update UI dynamically after profile updates
-    document.querySelectorAll('.user-name').forEach(element => {
-      element.textContent = displayName; // Set user name as plain text
-      if (isVipUser) {
-        const vipIcon = document.createElement('img');
-        vipIcon.src = 'pro.png';
-        vipIcon.alt = 'VIP';
-        vipIcon.className = 'pro-icon';
-        element.appendChild(vipIcon); // Add the VIP icon next to the username
-      }
-    });
+// Fetch the user
+await user.reload();
+const refreshedUser = auth.currentUser;
+
+const userName = refreshedUser.displayName || 'Guest';
+document.querySelectorAll('.user-name').forEach(element => {
+  element.textContent = userName;
+  if (isVipUser) {
+    const vipIcon = document.createElement('img');
+    vipIcon.src = 'pro.png';
+    vipIcon.alt = 'VIP';
+    vipIcon.className = 'pro-icon';
+    element.appendChild(vipIcon);
+  }
+});
+
 
     window.location.reload();
 
