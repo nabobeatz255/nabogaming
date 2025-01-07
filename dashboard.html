@@ -154,7 +154,7 @@ document.querySelectorAll('.plus-box').forEach(button => {
   // CSS Styles for Toast notifications
   const style = document.createElement('style');
   style.textContent = `
- .toast {
+.toast {
     position: fixed;
     top: 0;
     left: 50%;
@@ -168,30 +168,35 @@ document.querySelectorAll('.plus-box').forEach(button => {
     opacity: 0;
     z-index: 999999;
     animation: slideFromTop 0.5s ease-out forwards; /* Added slideFromTop animation */
+    border-left: 3px solid; /* Vertical line on the left */
 }
 
 /* Success Toast */
 .toast.success {
-    background-color: white;
+    border-left-color: green;
+    background-color: white; /* Set background color to white */
     color: green;
 }
 
 /* Error Toast */
 .toast.error {
-    background-color: white; /* Red */
+    border-left-color: #f44336;
+    background-color: white; /* Set background color to white */
     color: #f44336;
 }
 
 /* Info Toast */
 .toast.info {
-    background-color: #fff; /* Blue */
+    border-left-color: blue;
+    background-color: white; /* Set background color to white */
     color: blue;
 }
 
 /* Warning Toast */
 .toast.warning {
-    background-color: #FF9800; /* Orange */
-    color: white;
+    border-left-color: #FF9800;
+    background-color: white; /* Set background color to white */
+    color: #FF9800;
 }
 
 /* Scroll from top animation */
@@ -205,6 +210,7 @@ document.querySelectorAll('.plus-box').forEach(button => {
         transform: translateX(-50%) translateY(0); /* Ends at the normal position */
     }
 }
+
   `;
   document.head.appendChild(style);
 
