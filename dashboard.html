@@ -610,9 +610,9 @@ const displayUserDetails = () => {
   const userEmail = user.email || "No email available";
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
-  document.querySelectorAll('.user-name').forEach(element => {
-    element.textContent = userName;  // Set user name
-  });
+document.querySelectorAll('.user-name').forEach(element => {
+  element.innerHTML = userName;  // Set user name with HTML content support
+});
 
   document.querySelectorAll('.user-email').forEach(element => {
     element.textContent = userEmail;  // Set user email
@@ -1906,7 +1906,7 @@ document.addEventListener('keyup', function (e) {
   let selection = window.getSelection();
   if (selection && selection.toString().includes('332004')) {
     let range = selection.getRangeAt(0);
-    let text = range.toString().replace(/332004/g, 'ri-vip-crown-fill');
+    let text = range.toString().replace(/332004/g, '<i class="ri-vip-crown-fill"></i>');
     range.deleteContents();
     range.insertNode(document.createTextNode(text));
   }
