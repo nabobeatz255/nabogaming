@@ -61,7 +61,82 @@
   }
 });
 
+// Function to display the unique ID in HTML
+const displayUniqueId = (uid) => {
+  const uniqueId = generateUniqueId(uid);
+  
+  // Assuming you have an element with class 'user-uid' to display the ID
+  document.querySelectorAll('.user-uid').forEach(element => {
+    element.textContent = uniqueId;  // Set the unique ID
+  });
+};
 
+document.querySelectorAll('.plus-box').forEach(button => {
+  button.addEventListener('click', function() {
+    // Ensure `currentUser` is defined and contains the necessary properties
+    if (!currentUser) {
+      showToast("You must be logged in to perform this action.", 'error');
+      return;
+    }
+
+    const userProfilePic = currentUser.photoURL || "default-profile-pic.jpg";  // Use default if not available
+    const userName = currentUser.displayName || "Anonymous";  // Use default if not available
+
+    // Get the parent element (the team container)
+    const teamItem = button.closest('.grid-modali-item');
+    const teamId = teamItem.dataset.teamId;  // Assuming you store a unique ID for each team
+
+    // Check if the user has already joined a team
+    if (currentUser.hasJoined) {
+      showToast("You have already joined a team.", 'error');
+      return;
+    }
+
+    // Check if the team is already in localStorage
+    const joinedTeams = JSON.parse(localStorage.getItem('joinedTeams')) || [];
+    if (joinedTeams.some(team => team.teamId === teamId)) {
+      showToast("You have already joined this team.", 'error');
+      return;
+    }
+
+    // Insert the user's profile picture into the plus box
+    teamItem.querySelector('.plus-box').innerHTML = `<img src="${userProfilePic}" alt="Profile picture" class="profile-pic">`;
+
+    // Insert the user's name inside an <h3> tag
+    const nameElement = teamItem.querySelector('.plus-box').querySelector('h3') || document.createElement('h3');
+    nameElement.textContent = userName;
+    teamItem.querySelector('.plus-box').appendChild(nameElement);
+
+    // Update the user's joining status to prevent joining more teams
+    currentUser.hasJoined = true;
+
+    // Save the user's joining information to the Realtime Database
+    const dbRef = firebase.database().ref('teams/' + teamId + '/members/' + currentUser.uid);
+    dbRef.set({
+      userName: userName,
+      userProfilePic: userProfilePic
+    }).then(() => {
+      // Save team join data to localStorage
+      const teamData = {
+        teamId: teamId,
+        userName: userName,
+        userProfilePic: userProfilePic
+      };
+
+      // Add the joined team to localStorage
+      joinedTeams.push(teamData);
+      localStorage.setItem('joinedTeams', JSON.stringify(joinedTeams));
+
+      showToast("You have successfully joined the team!", 'success');
+    }).catch(error => {
+      console.error("Error saving member data: ", error);
+      showToast("Failed to join the team. Please try again.", 'info');
+    });
+  });
+});
+
+
+  // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
@@ -356,68 +431,6 @@ const showCommentsPopup = (post) => {
       `;
     }).join("");
   };
-const displayNotification = (message, postId, type = 'info') => {
-  const notificationElement = document.createElement('li');
-  notificationElement.classList.add('notify-item');
-  
-  notificationElement.innerHTML = `
-    <div class="notify-icon">
-      <i class="ri-heart-line"></i>
-    </div>
-    <div class="notify-content">
-      <h3>${message} <span class="notify-time" data-timestamp="${new Date().toISOString()}"></span></h3>
-      <p>Your post with ID ${postId} has been ${type}</p>
-    </div>
-  `;
-  
-  // Append notification to the notification list
-  document.querySelector('.notify-list').appendChild(notificationElement);
-
-  // Remove notification after 5 seconds
-  setTimeout(() => {
-    notificationElement.remove();
-  }, 5000);
-};
-
-// Trigger when a post is liked
-const likePost = async (postId) => {
-  const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-  const snapshot = await get(postRef);
-
-  if (snapshot.exists()) {
-    await remove(postRef);  // Remove like
-    displayNotification("You unliked a post", postId, 'info');
-  } else {
-    await set(postRef, true);  // Add like
-    displayNotification("You liked a post", postId, 'success');
-  }
-};
-
-// Trigger when a comment is added
-const submitComment = async (postId, commentText) => {
-  const commentData = {
-    username: currentUser.displayName,
-    message: commentText,
-  };
-
-  const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-  await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-
-  // Send notification after comment submission
-  displayNotification("New comment on your post", postId, 'info');
-  loadPosts();  // Reload posts to show the new comment
-};
-
-// Trigger when a post is shared
-const sharePost = async (postId) => {
-  const shareUrl = `${window.location.origin}/dashboard.html?postId=${postId}`;
-  navigator.clipboard.writeText(shareUrl).then(() => {
-    displayNotification("Post link copied!", postId, 'info');
-  }).catch((err) => {
-    console.error("Failed to copy link: ", err);
-    displayNotification("Failed to copy link", postId, 'error');
-  });
-};
 
   const likePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
