@@ -53,7 +53,6 @@
  onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (user) {
-            loadNotifications();
     loadPosts();  // Load posts after successful login
     loadLikedPosts();  // Load liked posts
     displayUserDetails(); // Display user details if available
@@ -700,70 +699,6 @@ const sendMessage = async () => {
   showToast("Message sent!", 'success');
 };
 document.getElementById('send-message-button')?.addEventListener('click', sendMessage);
-
-
-
-
-  const loadNotifications = () => {
-    const notificationsRef = ref(db, `notifications/${currentUser.uid}`);
-    onValue(notificationsRef, (snapshot) => {
-      const notifications = [];
-      snapshot.forEach((childSnapshot) => {
-        const notification = childSnapshot.val();
-        notifications.push(notification);
-      });
-
-      displayNotifications(notifications);
-    });
-  };
-
-  const displayNotifications = (notifications) => {
-    const notifyList = document.querySelector(".notify-list");
-    notifyList.innerHTML = '';  // Clear previous notifications
-
-    notifications.forEach(notification => {
-      const notificationItem = document.createElement("li");
-      notificationItem.className = "notify-item";
-
-      notificationItem.innerHTML = `
-        <div class="notify-icon">
-          <i class="ri-heart-line"></i> <!-- Example icon -->
-        </div>
-        <div class="notify-content">
-          <h3>${notification.title} <span class="notify-time" data-timestamp="${notification.timestamp}"></span></h3>
-          <p>${notification.message}</p>
-        </div>
-      `;
-
-      notifyList.appendChild(notificationItem);
-    });
-  };
-
-  const addNotification = (title, message) => {
-    const notificationsRef = ref(db, `notifications/${currentUser.uid}`);
-    const newNotification = {
-      title,
-      message,
-      timestamp: serverTimestamp(),
-    };
-    push(notificationsRef, newNotification);
-  };
-
-  // Example usage: Adding a notification when a post is liked
-  const onPostLiked = (postId) => {
-    addNotification('Post Liked', `Your post with ID: ${postId} has been liked.`);
-  };
-
-  // Example usage: Adding a notification when a comment is made
-  const onPostCommented = (postId) => {
-    addNotification('New Comment', `Someone commented on your post with ID: ${postId}.`);
-  };
-
-  // Example usage: Adding a notification when a post is shared
-  const onPostShared = (postId) => {
-    addNotification('Post Shared', `Your post with ID: ${postId} has been shared.`);
-  };
-
 </script>
 
 
