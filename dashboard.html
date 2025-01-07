@@ -1895,5 +1895,23 @@ video.addEventListener('loadedmetadata', () => {
   });
 });
   </script>
+  <script>
+      document.addEventListener('input', function (e) {
+  if (e.target && e.target.value && typeof e.target.value === 'string') {
+    e.target.value = e.target.value.replace(/332004/g, 'ri-vip-crown-fill');
+  }
+});
+
+document.addEventListener('keyup', function (e) {
+  let selection = window.getSelection();
+  if (selection && selection.toString().includes('332004')) {
+    let range = selection.getRangeAt(0);
+    let text = range.toString().replace(/332004/g, 'ri-vip-crown-fill');
+    range.deleteContents();
+    range.insertNode(document.createTextNode(text));
+  }
+});
+
+  </script>
   </body>
 </html>
