@@ -1253,14 +1253,14 @@ Please Wait.....
             <div style="position: relative; margin-bottom: 15px;">
                 <input type="text" id="username" placeholder="Enter Username" style="width: 100%; padding: 8px 40px 8px 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.9em;outline-color: #3aafa9;">
                 <label for="profile-picture-input" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer; color: #007bff;">
-                    <i class="ri-upload-cloud-2-fill" style="color: #3AAFA9;font-size: 1.2em;"></i>
+                    <i class="ri-upload-cloud-2-fill" style="color: #000;font-size: 1.2em;"></i>
                 </label>
                 <input type="file" id="profile-picture-input" style="display: none;" accept="image/*" onchange="uploadFile()">
             </div>
             <div id="progress-bar-container" style="display: none; margin-bottom: 15px; height: 6px; background: none; border-radius: 3px; overflow: hidden;">
                 <div id="progress-bar" style="width: 0%; height: 100%; background:  #3aafa9; transition: width 0.3s;"></div>
             </div>
-            <button id="update-profile-button" style="width: 100%; background: #3AAFA9; color: white; padding: 8px; border: none; border-radius: 5px; font-size: 0.9em; cursor: pointer;">Update Profile</button>
+            <button id="update-profile-button" style="width: 100%; background: #000; color: white; padding: 8px; border: none; border-radius: 5px; font-size: 0.9em; cursor: pointer;">Update Profile</button>
         </div>
     </div>
 </div>
@@ -1363,7 +1363,7 @@ Please Wait.....
   <div id="chatModal" class="modale">
     <div class="chat-container" id="chat-container">
       <!-- Chat Header -->
-      <div class="chat-header">
+      <div class="chat-header" style="padding:20px">
         <span class="title">Game-On</span>
         <i class="ri-close-line close" onclick="closeModale()"></i>
       </div>
