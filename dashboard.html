@@ -55,6 +55,7 @@
     loadLikedPosts(); 
     displayUserDetails();
     loadMessages();
+    loadUserTeam();  
   } else {
     showToast("You are not signed in. Redirecting to login...", 'error');
     window.location.href = "index.html";
@@ -104,6 +105,28 @@ const updateUserTeam = (userId, teamNumber) => {
   const userTeamsRef = ref(db, `teams/${userId}`);
   set(userTeamsRef, {
     team: teamNumber
+  });
+};
+
+const loadUserTeam = () => {
+  if (!currentUser) return;
+
+  const userTeamRef = ref(db, `teams/${currentUser.uid}/team`);
+  get(userTeamRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const teamNumber = snapshot.val();
+      const teamBox = document.querySelector(`.grid-modali-item[data-team="${teamNumber}"]`);
+      const userName = currentUser.displayName || "Anonymous";
+      const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+
+      if (teamBox) {
+        teamBox.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 30px; height: 30px; border-radius: 50%;">`;
+        teamBox.querySelector('h3').textContent = userName;
+      }
+    }
+  }).catch(error => {
+    console.error("Error loading user team:", error);
+    showToast("Failed to load your team. Please try again.", 'error');
   });
 };
 
