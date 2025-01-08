@@ -97,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const firstMember = Object.values(members)[0]; // Assuming one user per box
             if (firstMember) {
               teamBox.querySelector('.plus-box').innerHTML = `<img src="${firstMember.photo}" alt="${firstMember.name}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-              teamBox.querySelector('h5').textContent = firstMember.name;
+              teamBox.querySelector('h5').innerHTML = firstMember.name;
+
             }
           }
         });
