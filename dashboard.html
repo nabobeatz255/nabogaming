@@ -267,27 +267,35 @@ const updateUserTeam = (userId, teamNumber) => {
     border-left: 3px solid;
 }
 
-/* Toast Variants */
 .toast.success {
     border-left-color: green;
+    border-left-width: 14px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
     background-color: white;
     color: green;
 }
 
+
 .toast.error {
     border-left-color: #f44336;
     background-color: white;
+     border-left-width: 14px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
     color: #f44336;
 }
 
 .toast.info {
     border-left-color: blue;
+     border-left-width: 14px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
     background-color: white;
     color: blue;
 }
 
 .toast.warning {
     border-left-color: #FF9800;
+     border-left-width: 14px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
     background-color: white;
     color: #FF9800;
 }
@@ -481,7 +489,7 @@ const showCommentsPopup = (post) => {
  <div class="post-header">
       <div class="profile-details">
         <div class="profile-name">${post.authorName}'s post</div>
-        <div class="post-time-2">posted ${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
+        <div class="post-time-2">Posted ${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
       </div>
 <span class="close-popup"><i class="ri-close-line"></i></span>
 </div>
