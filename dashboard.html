@@ -710,10 +710,10 @@ const displayUserDetails = () => {
   const userName = user.displayName || "Anonymous";
   const userEmail = user.email || "No email available";
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+document.querySelectorAll('.user-name').forEach(element => {
+  element.innerHTML = userName;  // Set user name with HTML support
+});
 
-  document.querySelectorAll('.user-name').forEach(element => {
-    element.textContent = userName;  // Set user name
-  });
 
   document.querySelectorAll('.user-email').forEach(element => {
     element.textContent = userEmail;  // Set user email
