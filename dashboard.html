@@ -63,9 +63,9 @@
 });
 
 // Add event listeners to all grid items
-document.querySelectorAll('.grid-modali-item').forEach(item => {
-  item.addEventListener('click', () => handleBoxClick(item));
-});
+document.querySelectorAll('.grid-modali-item').forEach(item => 
+  item.addEventListener('click', () => handleBoxClick(item))
+);
 
 const handleBoxClick = (box) => {
   const teamNumber = box.dataset.team;
@@ -77,8 +77,8 @@ const handleBoxClick = (box) => {
 
   const userName = currentUser.displayName || "Anonymous";
   const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
-  
-  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+ 
+  const userTeamsRef = ref(db, `userTeams/${currentUser.uid}`);
 
   get(userTeamsRef).then(snapshot => {
     if (snapshot.exists()) {
@@ -104,34 +104,37 @@ const handleBoxClick = (box) => {
 };
 
 const updateUserTeam = (userId, teamNumber) => {
-  const userTeamsRef = ref(db, `teams/${userId}`);
+  const userTeamsRef = ref(db, `userTeams/${userId}`);
   return set(userTeamsRef, {
     team: teamNumber
   });
 };
 
-const loadUserTeam = () => {
-  if (!currentUser) return;
-
-  const userTeamRef = ref(db, `teams/${currentUser.uid}/team`);
-  get(userTeamRef).then(snapshot => {
+const loadTeams = () => {
+  const teamsRef = ref(db, `teams`);
+  get(teamsRef).then(snapshot => {
     if (snapshot.exists()) {
-      const teamNumber = snapshot.val();
-      const teamBox = document.querySelector(`.grid-modali-item[data-team="${teamNumber}"]`);
-      const userName = currentUser.displayName || "Anonymous";
-      const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
-
-      if (teamBox) {
-        teamBox.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-        teamBox.querySelector('h5').textContent = userName;
+      const teamsData = snapshot.val();
+      for (const teamNumber in teamsData) {
+        const teamBox = document.querySelector(`.grid-modali-item[data-team="${teamNumber}"]`);
+        if (teamBox) {
+          const members = Object.values(teamsData[teamNumber].members || {});
+          teamBox.querySelector('.members-list').innerHTML = members.map(member =>
+            `<div class="member">
+              <img src="${member.photo}" alt="${member.name}" style="width: 30px; height: 30px; border-radius: 50%;">
+              <span>${member.name}</span>
+            </div>`
+          ).join('');
+        }
       }
     }
   }).catch(error => {
-    console.error("Error loading user team:", error);
-    showToast("Failed to load your team. Please try again.", 'error');
+    console.error("Error loading teams:", error);
+    showToast("Failed to load teams. Please try again.", 'error');
   });
 };
 
+loadTeams();
 
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
