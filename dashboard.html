@@ -26,6 +26,8 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
+
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -48,107 +50,68 @@
   const storage = getStorage(app);
 
   let currentUser = null;
-
-onAuthStateChanged(auth, async (user) => {
+ onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (user) {
-    await loadUserData();
+    loadPosts();  // Load posts after successful login
+    loadLikedPosts();  // Load liked posts
+    displayUserDetails(); 
+    loadMessages();
   } else {
     showToast("You are not signed in. Redirecting to login...", 'error');
     window.location.href = "index.html";
-    return; // Prevent further execution
   }
 });
-
-async function loadUserData() {
-  try {
-    await loadPosts();
-    await loadLikedPosts();
-    await displayUserDetails();
-    await loadMessages();
-    await loadUserTeam();
-  } catch (error) {
-    console.error("Error loading user data:", error);
-    showToast("Failed to load user data.", 'error');
-  }
-}
 
 document.querySelectorAll('.grid-modali-item').forEach(item => {
   item.addEventListener('click', () => handleBoxClick(item));
 });
 
-async function handleBoxClick(box) {
+const handleBoxClick = (box) => {
+  const teamNumber = box.dataset.team;
+
   if (!currentUser) {
     showToast('Please log in to join a team.', 'error');
     return;
   }
 
-  const teamNumber = box.dataset.team;
   const userName = currentUser.displayName || "Anonymous";
   const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+  
+  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
 
-  const userTeamsRef = ref(db, `users/${currentUser.uid}`);
-  const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
-
-  try {
-    const userSnapshot = await get(userTeamsRef);
-    if (userSnapshot.exists()) {
-      showToast("You have already joined a team.", 'warning');
-      return;
-    }
-
-    const teamSnapshot = await get(teamMembersRef);
-    if (teamSnapshot.exists() && Object.keys(teamSnapshot.val()).length > 0) {
-      showToast("This team is already taken.", 'error');
-      return;
-    }
-
-    const updates = {};
-    updates[`teams/${teamNumber}/members/${currentUser.uid}`] = { name: userName, photo: userPhoto };
-    updates[`users/${currentUser.uid}`] = { team: teamNumber };
-
-    await update(ref(db), updates);
-    console.log("Successfully joined team:", teamNumber);
-    showToast(`You joined Team ${teamNumber}!`, 'success');
-
-    box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-    box.querySelector('h5').textContent = userName;
-  } catch (error) {
-    console.error("Error joining team:", error);
-    showToast("Failed to join team. Please try again.", 'error');
-  }
-}
-
-async function loadUserTeam() {
-  if (!currentUser) return;
-
-  const userTeamsRef = ref(db, `users/${currentUser.uid}`);
-
-  try {
-    const snapshot = await get(userTeamsRef);
+  get(userTeamsRef).then(snapshot => {
     if (snapshot.exists()) {
-      const data = snapshot.val() || {};
-      const team = data.team;
-      if (team) {
-        const teamBox = document.querySelector(`[data-team="${team}"]`);
-        if (teamBox) {
-          const userName = currentUser.displayName || "Anonymous";
-          const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
-          teamBox.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-          teamBox.querySelector('h5').textContent = userName;
-          showToast(`Welcome back to Team ${team}`, 'success');
-        } else {
-          console.warn(`Team box for team ${team} not found.`);
-        }
-      }
+      showToast("You have already joined a team.", 'warning');
+    } else {
+      // Save to database
+      const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
+      set(teamRef, {
+        name: userName,
+        photo: userPhoto
+      }).then(() => {
+        showToast(`You joined Team ${teamNumber}!`, 'success');
+        box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+        box.querySelector('h5').textContent = userName;
+        updateUserTeam(currentUser.uid, teamNumber); // Mark user as joined
+      }).catch(error => {
+        console.error("Error joining team:", error);
+        showToast("Failed to join team. Please try again.", 'error');
+      });
     }
-  } catch (error) {
-    console.error("Error loading user team:", error);
-    showToast("Failed to load your team information.", 'error');
-  }
-}
+  });
+};
+
+const updateUserTeam = (userId, teamNumber) => {
+  const userTeamsRef = ref(db, `teams/${userId}`);
+  set(userTeamsRef, {
+    team: teamNumber
+  });
+};
 
 
+
+  // Toast function to display notifications
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
@@ -332,7 +295,7 @@ const displayPost = (post, container, isMyPost) => {
   <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post</li>
                 <li class="share-btn" data-id="${post.postId}" data-url="${shareUrl}">Share ${post.authorName}'s Post</li>
                   <li><span class="comment-count">Current comments ${commentCount}</span></li>
-                    ${isMyPost ? `<li class="delete-post-btn" style="color:white; data-id="${post.postId}">Delete My Post</li>` : ""}
+                    ${isMyPost ? `<li class="delete-post-btn" data-id="${post.postId}">Delete My Post</li>` : ""}
                   </ul>
                 </div>
               </div>
@@ -400,7 +363,7 @@ const showCommentsPopup = (post) => {
  <div class="post-header">
       <div class="profile-details">
         <div class="profile-name">${post.authorName}'s post</div>
-        <div class="post-time-2">Posted ${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
+        <div class="post-time-2">posted ${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
       </div>
 <span class="close-popup"><i class="ri-close-line"></i></span>
 </div>
@@ -622,9 +585,9 @@ const displayUserDetails = () => {
   const userEmail = user.email || "No email available";
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
-document.querySelectorAll('.user-name').forEach(element => {
-  element.innerHTML = userName;  
-});
+  document.querySelectorAll('.user-name').forEach(element => {
+    element.textContent = userName;  // Set user name
+  });
 
   document.querySelectorAll('.user-email').forEach(element => {
     element.textContent = userEmail;  // Set user email
@@ -635,6 +598,12 @@ document.querySelectorAll('.user-name').forEach(element => {
   });
 };
 
+// Initialize the profile with user details
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    displayUserDetails();  // Display user details when logged in
+  }
+});
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
   
 const loadMessages = () => {
@@ -731,10 +700,10 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     <div class=icons style="margin-top: -17px">
 <div class="icon-container" style="margin-right:5px;border:1px solid #ddd;border-radius:5px;padding: 5px 5px 3px">
   <i class="ri-notification-line" id="toggleNotify" style="font-size: 20px;"></i>
-  <span class="badger">1</span>
+  <!--span class="badger">1</span-->
 </div>
-<!--div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
- <i class=ri-dashboard-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div-->
+<div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
+ <i class=ri-dashboard-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div>
  <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
  <i class=ri-rocket-line onclick="openModale()" style="	font-size: 20px;margin-top:17px"></i></div>
  <div style="margin-top:17px;">
@@ -1446,23 +1415,23 @@ Please Wait.....
 <div class="grid-modali-container">
     <div class="grid-modali-item" data-team="1">
         <div class="plus-box">+</div>
-        <h3>Team I</h3>
+        <h5>Team I</h5>
     </div>
     <div class="grid-modali-item" data-team="2">
         <div class="plus-box">+</div>
-        <h3>Team II</h3>
+        <h5>Team II</h5>
     </div>
     <div class="grid-modali-item" data-team="3">
         <div class="plus-box">+</div>
-        <h3>Team III</h3>
+        <h5>Team III</h5>
     </div>
     <div class="grid-modali-item" data-team="4">
         <div class="plus-box">+</div>
-        <h3>Team IV</h3>
+        <h5>Team IV</h5>
     </div>
     <div class="grid-modali-item" data-team="5">
         <div class="plus-box">+</div>
-        <h3>Team V</h3>
+        <h5>Team V</h5>
     </div>
     <!-- Repeat for other teams... -->
 </div>
