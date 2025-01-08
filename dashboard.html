@@ -127,7 +127,8 @@ async function loadUserTeam() {
   try {
     const snapshot = await get(userTeamsRef);
     if (snapshot.exists()) {
-      const { team } = snapshot.val();
+      const data = snapshot.val() || {};
+      const team = data.team;
       if (team) {
         const teamBox = document.querySelector(`[data-team="${team}"]`);
         if (teamBox) {
@@ -136,6 +137,8 @@ async function loadUserTeam() {
           teamBox.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
           teamBox.querySelector('h5').textContent = userName;
           showToast(`Welcome back to Team ${team}`, 'success');
+        } else {
+          console.warn(`Team box for team ${team} not found.`);
         }
       }
     }
@@ -144,6 +147,7 @@ async function loadUserTeam() {
     showToast("Failed to load your team information.", 'error');
   }
 }
+
 
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
