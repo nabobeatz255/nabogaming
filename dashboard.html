@@ -2104,9 +2104,7 @@ document.addEventListener('keyup', function (e) {
     
     if (text.includes('332004')) {
       let replacementHTML = text.replace(/332004/g, `
-      <div style="position: relative; display: inline-block;">
-        <img src="badge.svg" alt="Badge" style="position: absolute; top: -10px; left: 0px; width: 20px; height: 20px; z-index: 10; pointer-events: none;">
-      </div>`);
+        <img src="badge.svg" alt="Badge" style="position: absolute; width: 20px; height: 20px; z-index: 10; pointer-events: none;">`);
 
       let fragment = document.createDocumentFragment();
       let tempDiv = document.createElement('div');
