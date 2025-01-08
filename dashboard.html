@@ -128,25 +128,25 @@ const handleBoxClick = (box) => {
   get(userTeamsRef).then(snapshot => {
     if (snapshot.exists()) {
       const existingTeam = snapshot.val().team;
-      showToast(`You have already joined Team ${existingTeam}. You cannot join another team.`, 'warning');
+      showToast(`You have already a player ${existingTeam}. You cannot join another number.`, 'warning');
     } else {
       const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
       get(teamMembersRef).then(snapshot => {
         if (snapshot.exists() && Object.keys(snapshot.val()).length > 0) {
-          showToast(`Team ${teamNumber} is already occupied. Please choose another box.`, 'warning');
+          showToast(`Player ${teamNumber} is already taken. Please choose another number.`, 'warning');
         } else {
           const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
           set(teamRef, {
             name: userName,
             photo: userPhoto
           }).then(() => {
-            showToast(`You joined Team ${teamNumber}!`, 'success');
+            showToast(`Welcome player ${teamNumber}!`, 'success');
             box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
             box.querySelector('h5').textContent = userName;
             updateUserTeam(currentUser.uid, teamNumber);
           }).catch(error => {
             console.error("Error joining team:", error);
-            showToast("Failed to join team. Please try again.", 'error');
+            showToast("Failed to join as a player. Please try again.", 'error');
           });
         }
       }).catch(error => {
@@ -1514,149 +1514,150 @@ Please Wait.....
     <div class="modali-content">
       <!-- Close button -->
       <button class="close-btn" onclick="closemodali()">×</button>
+<br>
 <div class="grid-modali-container">
     <div class="grid-modali-item" data-team="1">
         <div class="plus-box">+</div>
-        <h5>Team I</h5>
+        <h5>Player 1</h5>
     </div>
     <div class="grid-modali-item" data-team="2">
         <div class="plus-box">+</div>
-        <h5>Team II</h5>
+        <h5>Player 2</h5>
     </div>
     <div class="grid-modali-item" data-team="3">
         <div class="plus-box">+</div>
-        <h5>Team III</h5>
+        <h5>Player 3</h5>
     </div>
     <div class="grid-modali-item" data-team="4">
         <div class="plus-box">+</div>
-        <h5>Team IV</h5>
+        <h5>Player 4</h5>
     </div>
     <div class="grid-modali-item" data-team="5">
         <div class="plus-box">+</div>
-        <h5>Team V</h5>
+        <h5>Player 5</h5>
     </div>
-    <!-- Adding 30 more grid-modali-item elements -->
     <div class="grid-modali-item" data-team="6">
         <div class="plus-box">+</div>
-        <h5>Team VI</h5>
+        <h5>Player 6</h5>
     </div>
     <div class="grid-modali-item" data-team="7">
         <div class="plus-box">+</div>
-        <h5>Team VII</h5>
+        <h5>Player 7</h5>
     </div>
     <div class="grid-modali-item" data-team="8">
         <div class="plus-box">+</div>
-        <h5>Team VIII</h5>
+        <h5>Player 8</h5>
     </div>
     <div class="grid-modali-item" data-team="9">
         <div class="plus-box">+</div>
-        <h5>Team IX</h5>
+        <h5>Player 9</h5>
     </div>
     <div class="grid-modali-item" data-team="10">
         <div class="plus-box">+</div>
-        <h5>Team X</h5>
+        <h5>Player 10</h5>
     </div>
     <div class="grid-modali-item" data-team="11">
         <div class="plus-box">+</div>
-        <h5>Team XI</h5>
+        <h5>Player 11</h5>
     </div>
     <div class="grid-modali-item" data-team="12">
         <div class="plus-box">+</div>
-        <h5>Team XII</h5>
+        <h5>Player 12</h5>
     </div>
     <div class="grid-modali-item" data-team="13">
         <div class="plus-box">+</div>
-        <h5>Team XIII</h5>
+        <h5>Player 13</h5>
     </div>
     <div class="grid-modali-item" data-team="14">
         <div class="plus-box">+</div>
-        <h5>Team XIV</h5>
+        <h5>Player 14</h5>
     </div>
     <div class="grid-modali-item" data-team="15">
         <div class="plus-box">+</div>
-        <h5>Team XV</h5>
+        <h5>Player 15</h5>
     </div>
     <div class="grid-modali-item" data-team="16">
         <div class="plus-box">+</div>
-        <h5>Team XVI</h5>
+        <h5>Player 16</h5>
     </div>
     <div class="grid-modali-item" data-team="17">
         <div class="plus-box">+</div>
-        <h5>Team XVII</h5>
+        <h5>Player 17</h5>
     </div>
     <div class="grid-modali-item" data-team="18">
         <div class="plus-box">+</div>
-        <h5>Team XVIII</h5>
+        <h5>Player 18</h5>
     </div>
     <div class="grid-modali-item" data-team="19">
         <div class="plus-box">+</div>
-        <h5>Team XIX</h5>
+        <h5>Player 19</h5>
     </div>
     <div class="grid-modali-item" data-team="20">
         <div class="plus-box">+</div>
-        <h5>Team XX</h5>
+        <h5>Player 20</h5>
     </div>
     <div class="grid-modali-item" data-team="21">
         <div class="plus-box">+</div>
-        <h5>Team XXI</h5>
+        <h5>Player 21</h5>
     </div>
     <div class="grid-modali-item" data-team="22">
         <div class="plus-box">+</div>
-        <h5>Team XXII</h5>
+        <h5>Player 22</h5>
     </div>
     <div class="grid-modali-item" data-team="23">
         <div class="plus-box">+</div>
-        <h5>Team XXIII</h5>
+        <h5>Player 23</h5>
     </div>
     <div class="grid-modali-item" data-team="24">
         <div class="plus-box">+</div>
-        <h5>Team XXIV</h5>
+        <h5>Player 24</h5>
     </div>
     <div class="grid-modali-item" data-team="25">
         <div class="plus-box">+</div>
-        <h5>Team XXV</h5>
+        <h5>Player 25</h5>
     </div>
     <div class="grid-modali-item" data-team="26">
         <div class="plus-box">+</div>
-        <h5>Team XXVI</h5>
+        <h5>Player 26</h5>
     </div>
     <div class="grid-modali-item" data-team="27">
         <div class="plus-box">+</div>
-        <h5>Team XXVII</h5>
+        <h5>Player 27</h5>
     </div>
     <div class="grid-modali-item" data-team="28">
         <div class="plus-box">+</div>
-        <h5>Team XXVIII</h5>
+        <h5>Player 28</h5>
     </div>
     <div class="grid-modali-item" data-team="29">
         <div class="plus-box">+</div>
-        <h5>Team XXIX</h5>
+        <h5>Player 29</h5>
     </div>
     <div class="grid-modali-item" data-team="30">
         <div class="plus-box">+</div>
-        <h5>Team XXX</h5>
+        <h5>Player 30</h5>
     </div>
     <div class="grid-modali-item" data-team="31">
         <div class="plus-box">+</div>
-        <h5>Team XXXI</h5>
+        <h5>Player 31</h5>
     </div>
     <div class="grid-modali-item" data-team="32">
         <div class="plus-box">+</div>
-        <h5>Team XXXII</h5>
+        <h5>Player 32</h5>
     </div>
     <div class="grid-modali-item" data-team="33">
         <div class="plus-box">+</div>
-        <h5>Team XXXIII</h5>
+        <h5>Player 33</h5>
     </div>
     <div class="grid-modali-item" data-team="34">
         <div class="plus-box">+</div>
-        <h5>Team XXXIV</h5>
+        <h5>Player 34</h5>
     </div>
     <div class="grid-modali-item" data-team="35">
         <div class="plus-box">+</div>
-        <h5>Team XXXV</h5>
+        <h5>Player 35</h5>
     </div>
 </div>
+
 
      <!--div style="display:flex; align-items:center; justify-content:center; text-align:center; gap:10px;">
     <button style="padding:10px 50px; font-size:16px; background-color:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer;">Pakua</button>
