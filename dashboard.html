@@ -90,7 +90,7 @@ const handleBoxClick = (box) => {
         photo: userPhoto
       }).then(() => {
         showToast(`You joined Team ${teamNumber}!`, 'success');
-        box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 30px; height: 30px; border-radius: 50%;">`;
+        box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
         box.querySelector('h3').textContent = userName;
         updateUserTeam(currentUser.uid, teamNumber); // Mark user as joined
       }).catch(error => {
