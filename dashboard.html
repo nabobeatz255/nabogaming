@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
           const userName = currentUser.displayName || "Anonymous";
           selectedBox.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-          selectedBox.querySelector('h5').textContent = userName;
+          selectedBox.querySelector('h5').innerHTML = userName;
         }
       }
     }).catch(error => {
@@ -152,7 +152,7 @@ box.querySelector('.plus-box').innerHTML = `
     #${teamNumber}
   </div>`;
  
-  box.querySelector('h5').textContent = userName;
+  box.querySelector('h5').innerHTML = userName;
   updateUserTeam(currentUser.uid, teamNumber);
 }).catch(error => {
   console.error("Error joining team:", error);
@@ -183,7 +183,7 @@ function loadUserAndTeams() {
           <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; z-index: 99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
             #${teamNumber}
           </div>`;
-        selectedBox.querySelector('h5').textContent = userName;
+        selectedBox.querySelector('h5').innerHTML = userName;
       }
     }
   }).catch(error => {
@@ -205,7 +205,7 @@ function loadUserAndTeams() {
               <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; z-index: 99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
                 #${teamNumber}
               </div>`;
-            teamBox.querySelector('h5').textContent = firstMember.name;
+            teamBox.querySelector('h5').innerHTML = firstMember.name;
           }
         }
       });
@@ -234,7 +234,7 @@ const updateUserTeam = (userId, teamNumber) => {
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
-    toast.textContent = message;
+    toast.innerHTML = message;
 
     // Append to the body
     document.body.appendChild(toast);
@@ -247,7 +247,7 @@ const updateUserTeam = (userId, teamNumber) => {
 
   // CSS Styles for Toast notifications
   const style = document.createElement('style');
-  style.textContent = `
+  style.innerHTML = `
 .toast {
     position: fixed;
     top: 0;
@@ -717,7 +717,7 @@ document.querySelectorAll('.user-name').forEach(element => {
 
 
   document.querySelectorAll('.user-email').forEach(element => {
-    element.textContent = userEmail;  // Set user email
+    element.innerHTML = userEmail;  // Set user email
   });
 
   document.querySelectorAll('.profile-picture').forEach(element => {
@@ -1808,7 +1808,7 @@ function updateTimeAgo() {
     const timestamp = element.getAttribute("data-timestamp");
     if (timestamp) {
 const timeAgo = getTimeAgo(new Date(timestamp));
-element.textContent = timeAgo;
+element.innerHTML = timeAgo;
     }
   });
 }
@@ -1873,7 +1873,7 @@ notifyPopup.classList.add("hidden");
       const captions = document.querySelectorAll(".caption span");
 
       captions.forEach((caption) => {
-        const fullText = caption.textContent.trim();
+        const fullText = caption.innerHTML.trim();
         const words = fullText.split(" ");
         const maxWords = 10;
 
@@ -1884,16 +1884,16 @@ notifyPopup.classList.add("hidden");
           const toggleButton = document.createElement("button");
 
           // Set up elements
-          fullCaption.textContent = fullText;
-          ellipsis.textContent = "...";
-          toggleButton.textContent = "More";
+          fullCaption.innerHTML = fullText;
+          ellipsis.innerHTML = "...";
+          toggleButton.innerHTML = "More";
 
           fullCaption.className = "full-caption";
           ellipsis.className = "ellipsis";
           toggleButton.className = "toggle-button";
 
           // Clear and rebuild the caption container
-          caption.textContent = shortText;
+          caption.innerHTML = shortText;
           caption.parentNode.appendChild(ellipsis);
           caption.parentNode.appendChild(fullCaption);
           caption.parentNode.appendChild(toggleButton);
@@ -1903,7 +1903,7 @@ notifyPopup.classList.add("hidden");
             const isExpanded = fullCaption.style.display === "inline";
             fullCaption.style.display = isExpanded ? "none" : "inline";
             ellipsis.style.display = isExpanded ? "inline" : "none";
-            toggleButton.textContent = isExpanded ? "More" : "Less";
+            toggleButton.innerHTML = isExpanded ? "More" : "Less";
           });
         }
       });
@@ -1913,7 +1913,7 @@ notifyPopup.classList.add("hidden");
   <script>
   document.getElementById('create-post-button').addEventListener('click', function() {
   // Change text to "Uploading"
-  this.textContent = 'Uploading Please Wait';
+  this.innerHTML = 'Uploading Please Wait';
   
   // Add dynamic loading dots
   let loadingDots = document.createElement('span');
@@ -1922,7 +1922,7 @@ notifyPopup.classList.add("hidden");
   
   // Optionally, you can simulate some delay to change back after a while
   setTimeout(() => {
-    this.textContent = 'Upload Post Now';
+    this.innerHTML = 'Upload Post Now';
     this.removeChild(loadingDots);
   }, 1000000);  // Reset after 5 seconds (you can adjust this duration)
 });
@@ -1979,9 +1979,9 @@ notifyPopup.classList.add("hidden");
   const fileInput = document.getElementById('new-post-image');
   const fileNameDisplay = document.getElementById('file-name');
   if (fileInput.files.length > 0) {
-    fileNameDisplay.textContent = fileInput.files[0].name;
+    fileNameDisplay.innerHTML = fileInput.files[0].name;
   } else {
-    fileNameDisplay.textContent = 'Please add an image...';
+    fileNameDisplay.innerHTML = 'Please add an image...';
   }
 }
     </script>
