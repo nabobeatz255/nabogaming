@@ -116,7 +116,7 @@ const handleBoxClick = (box) => {
   const teamNumber = box.dataset.team;
 
   if (!currentUser) {
-    showToast('Please log in to join a team.', 'error');
+    showToast('Please wait a moment...', 'info');
     return;
   }
 
@@ -128,7 +128,7 @@ const handleBoxClick = (box) => {
   get(userTeamsRef).then(snapshot => {
     if (snapshot.exists()) {
       const existingTeam = snapshot.val().team;
-      showToast(`You have already a player ${existingTeam}. You cannot join another number.`, 'warning');
+      showToast(`You are already a player ${existingTeam}. You cannot join another number.`, 'warning');
     } else {
       const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
       get(teamMembersRef).then(snapshot => {
@@ -235,7 +235,7 @@ const updateUserTeam = (userId, teamNumber) => {
     position: fixed;
     top: 0;
     left: 50%;
-    padding: 25px 20px 16px; /* Adjusted padding for a cleaner look */
+    padding: 13px 20px 16px; /* Adjusted padding for a cleaner look */
     transform: translateX(-50%);
     width: 100vw; /* Set width to full viewport width */
     height: 60px;
