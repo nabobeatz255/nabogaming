@@ -57,6 +57,7 @@
     loadLikedPosts();  // Load liked posts
     displayUserDetails(); 
     loadMessages();
+    loadUserAndTeams();
   } else {
     showToast("You are not signed in. Redirecting to login...", 'error');
     window.location.href = "index.html";
@@ -142,6 +143,45 @@ const handleBoxClick = (box) => {
     }
   });
 };
+function loadUserAndTeams() {
+  // Fetch current user's team and place them in their selected box
+  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+  get(userTeamsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const teamNumber = snapshot.val().team;
+      const selectedBox = document.querySelector(`[data-team="${teamNumber}"]`);
+      if (selectedBox) {
+        const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+        const userName = currentUser.displayName || "Anonymous";
+        selectedBox.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+        selectedBox.querySelector('h5').textContent = userName;
+      }
+    }
+  }).catch(error => {
+    console.error("Error loading user team:", error);
+  });
+
+  // Fetch all teams and display users in respective boxes
+  const allTeamsRef = ref(db, `teams`);
+  get(allTeamsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const teamsData = snapshot.val();
+      Object.keys(teamsData).forEach(teamNumber => {
+        const members = teamsData[teamNumber]?.members;
+        const teamBox = document.querySelector(`[data-team="${teamNumber}"]`);
+        if (teamBox && members) {
+          const firstMember = Object.values(members)[0]; // Assuming one user per box
+          if (firstMember) {
+            teamBox.querySelector('.plus-box').innerHTML = `<img src="${firstMember.photo}" alt="${firstMember.name}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+            teamBox.querySelector('h5').textContent = firstMember.name;
+          }
+        }
+      });
+    }
+  }).catch(error => {
+    console.error("Error loading team members:", error);
+  });
+}
 
 const updateUserTeam = (userId, teamNumber) => {
   const userTeamsRef = ref(db, `teams/${userId}`);
