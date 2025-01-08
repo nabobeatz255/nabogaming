@@ -95,6 +95,7 @@ const handleBoxClick = (box) => {
         showToast(`You joined Team ${teamNumber}!`, 'success');  // Toast moved here
         box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
         box.querySelector('h5').textContent = userName;
+        loadTeams();  // Update the box with members after joining
       }).catch(error => {
         console.error("Error joining team:", error);
         showToast("Failed to join team. Please try again.", 'error');
@@ -125,6 +126,21 @@ const loadTeams = () => {
               <span>${member.name}</span>
             </div>`
           ).join('');
+
+          // Ensure the team box has at most 4 members
+          if (members.length >= 4) {
+            teamBox.classList.add('full-team'); // Optionally add a class to indicate full team
+          }
+
+          // Randomly select a leader if there are members
+          if (members.length > 0) {
+            const leaderIndex = Math.floor(Math.random() * members.length);
+            const leader = members[leaderIndex];
+            teamBox.querySelector('.leader').textContent = `Leader: ${leader.name}`;
+            // Assign the leader role in the database
+            const leaderRef = ref(db, `teams/${teamNumber}/leader`);
+            set(leaderRef, leader.uid);
+          }
         }
       }
     }
@@ -133,6 +149,35 @@ const loadTeams = () => {
     showToast("Failed to load teams. Please try again.", 'error');
   });
 };
+
+// Function to handle member deletion (only available for the leader)
+const deleteMember = (teamNumber, memberId) => {
+  // Only the leader can delete members
+  const teamRef = ref(db, `teams/${teamNumber}/leader`);
+  get(teamRef).then(snapshot => {
+    if (snapshot.exists() && snapshot.val() === currentUser.uid) {
+      const memberRef = ref(db, `teams/${teamNumber}/members/${memberId}`);
+      remove(memberRef).then(() => {
+        showToast('Member removed successfully!', 'success');
+        loadTeams();  // Reload team members
+      }).catch(error => {
+        console.error("Error deleting member:", error);
+        showToast("Failed to remove member. Please try again.", 'error');
+      });
+    } else {
+      showToast('You are not authorized to delete members.', 'error');
+    }
+  });
+};
+
+// Add event listener for removing members
+document.querySelectorAll('.remove-member').forEach(button => {
+  button.addEventListener('click', (e) => {
+    const teamNumber = e.target.dataset.team;
+    const memberId = e.target.dataset.memberId;
+    deleteMember(teamNumber, memberId);
+  });
+});
 
 
 
@@ -1432,26 +1477,42 @@ Please Wait.....
       <!-- Close button -->
       <button class="close-btn" onclick="closemodali()">×</button>
 <div class="grid-modali-container">
-    <div class="grid-modali-item" data-team="1">
-        <div class="plus-box">+</div>
-        <h5>Team I</h5>
-    </div>
-    <div class="grid-modali-item" data-team="2">
-        <div class="plus-box">+</div>
-        <h5>Team II</h5>
-    </div>
-    <div class="grid-modali-item" data-team="3">
-        <div class="plus-box">+</div>
-        <h5>Team III</h5>
-    </div>
-    <div class="grid-modali-item" data-team="4">
-        <div class="plus-box">+</div>
-        <h5>Team IV</h5>
-    </div>
-    <div class="grid-modali-item" data-team="5">
-        <div class="plus-box">+</div>
-        <h5>Team V</h5>
-    </div>
+   <div class="grid-modali-item" data-team="1">
+  <div class="plus-box"></div>
+  <h5></h5>
+  <div class="members-list"></div>
+  <div class="leader"></div>
+  <button class="remove-member" data-team="1" data-member-id="memberId">Remove Member</button>
+</div>
+<div class="grid-modali-item" data-team="2">
+  <div class="plus-box"></div>
+  <h5></h5>
+  <div class="members-list"></div>
+  <div class="leader"></div>
+  <button class="remove-member" data-team="2" data-member-id="memberId">Remove Member</button>
+</div>
+<div class="grid-modali-item" data-team="3">
+  <div class="plus-box"></div>
+  <h5></h5>
+  <div class="members-list"></div>
+  <div class="leader"></div>
+  <button class="remove-member" data-team="3" data-member-id="memberId">Remove Member</button>
+</div>
+<div class="grid-modali-item" data-team="4">
+  <div class="plus-box"></div>
+  <h5></h5>
+  <div class="members-list"></div>
+  <div class="leader"></div>
+  <button class="remove-member" data-team="4" data-member-id="memberId">Remove Member</button>
+</div>
+<div class="grid-modali-item" data-team="5">
+  <div class="plus-box"></div>
+  <h5></h5>
+  <div class="members-list"></div>
+  <div class="leader"></div>
+  <button class="remove-member" data-team="5" data-member-id="memberId">Remove Member</button>
+</div>
+
     <!-- Repeat for other teams... -->
 </div>
      <!--div style="display:flex; align-items:center; justify-content:center; text-align:center; gap:10px;">
