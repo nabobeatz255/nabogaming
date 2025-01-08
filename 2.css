@@ -459,10 +459,10 @@
       font-weight: bold;
     }
 
-    .grid-modali-item h3 {
-      font-size: 18px;
+    .grid-modali-item h5 {
+      font-size: 13px;
       color: #333;overflow-x: hidden;
-      margin: 10px 0;
+      padding: 20px 0;
     }
 
     /* Close button */
@@ -1195,5 +1195,5 @@
 .delete-post-btn {
     background-color: red;
 	cursor: pointer;
-	outline: none;color:white
+	outline: none;color: white;
 }
