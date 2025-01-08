@@ -123,30 +123,41 @@ const handleBoxClick = (box) => {
   const userName = currentUser.displayName || "Anonymous";
   const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
 
-  // Check if the team box is already occupied
-  const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
-  get(teamMembersRef).then(snapshot => {
-    if (snapshot.exists() && Object.keys(snapshot.val()).length > 0) {
-      showToast(`Team ${teamNumber} is already occupied. Please choose another box.`, 'warning');
+  // Check if the user has already selected a box
+  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+  get(userTeamsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const existingTeam = snapshot.val().team;
+      showToast(`You have already joined Team ${existingTeam}. You cannot join another team.`, 'warning');
     } else {
-      const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
-      set(teamRef, {
-        name: userName,
-        photo: userPhoto
-      }).then(() => {
-        showToast(`You joined Team ${teamNumber}!`, 'success');
-        box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-        box.querySelector('h5').textContent = userName;
-        updateUserTeam(currentUser.uid, teamNumber);
+      const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
+      get(teamMembersRef).then(snapshot => {
+        if (snapshot.exists() && Object.keys(snapshot.val()).length > 0) {
+          showToast(`Team ${teamNumber} is already occupied. Please choose another box.`, 'warning');
+        } else {
+          const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
+          set(teamRef, {
+            name: userName,
+            photo: userPhoto
+          }).then(() => {
+            showToast(`You joined Team ${teamNumber}!`, 'success');
+            box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+            box.querySelector('h5').textContent = userName;
+            updateUserTeam(currentUser.uid, teamNumber);
+          }).catch(error => {
+            console.error("Error joining team:", error);
+            showToast("Failed to join team. Please try again.", 'error');
+          });
+        }
       }).catch(error => {
-        console.error("Error joining team:", error);
-        showToast("Failed to join team. Please try again.", 'error');
+        console.error("Error checking team box:", error);
       });
     }
   }).catch(error => {
-    console.error("Error checking team box:", error);
+    console.error("Error checking user team:", error);
   });
 };
+
 
 
 function loadUserAndTeams() {
