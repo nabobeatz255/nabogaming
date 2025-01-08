@@ -235,56 +235,56 @@ const updateUserTeam = (userId, teamNumber) => {
     position: fixed;
     top: 0;
     left: 50%;
-    padding: 13px 20px 16px; /* Adjusted padding for a cleaner look */
+    padding: 13px; /* Padding for spacing */
     transform: translateX(-50%);
-    width: 100vw; /* Set width to full viewport width */
+    width: 100vw; /* Full width of the viewport */
     height: 60px;
     color: white;
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
     text-align: center;
     font-size: 14px;
     opacity: 0;
     z-index: 999999;
-    animation: slideFromTop 0.5s ease-out forwards; /* Added slideFromTop animation */
-    border-left: 3px solid; /* Vertical line on the left */
+    animation: slideFromTop 0.5s ease-out forwards;
+    border-left: 3px solid;
 }
 
-/* Success Toast */
+/* Toast Variants */
 .toast.success {
     border-left-color: green;
-    background-color: white; /* Set background color to white */
+    background-color: white;
     color: green;
 }
 
-/* Error Toast */
 .toast.error {
     border-left-color: #f44336;
-    background-color: white; /* Set background color to white */
+    background-color: white;
     color: #f44336;
 }
 
-/* Info Toast */
 .toast.info {
     border-left-color: blue;
-    background-color: white; /* Set background color to white */
+    background-color: white;
     color: blue;
 }
 
-/* Warning Toast */
 .toast.warning {
     border-left-color: #FF9800;
-    background-color: white; /* Set background color to white */
+    background-color: white;
     color: #FF9800;
 }
 
-/* Scroll from top animation */
+/* Slide from top animation */
 @keyframes slideFromTop {
     from {
         opacity: 0;
-        transform: translateX(-50%) translateY(-30px); /* Starts from above the screen */
+        transform: translateX(-50%) translateY(-30px);
     }
     to {
         opacity: 1;
-        transform: translateX(-50%) translateY(0); /* Ends at the normal position */
+        transform: translateX(-50%) translateY(0);
     }
 }
 
