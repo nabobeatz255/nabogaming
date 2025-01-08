@@ -155,7 +155,16 @@ set(teamRef, {
 }).catch(error => {
   console.error("Error joining team:", error);
   showToast("Failed to join as a player. Please try again.", 'error');
-});
+ });
+        }
+      }).catch(error => {
+        console.error("Error checking team box:", error);
+      });
+    }
+  }).catch(error => {
+    console.error("Error checking user team:", error);
+  });
+};
 
 
 
