@@ -168,79 +168,51 @@ box.querySelector('.plus-box').innerHTML = `
 };
 
 
-function loadUserAndTeams(currentUser) {
-      const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
-      get(userTeamsRef).then(snapshot => {
-        if (!snapshot.exists()) {
-          autoAssignBox(currentUser); // Automatically select a box if none
-        } else {
-          displayUserBox(snapshot.val().team, currentUser);
-        }
-      }).catch(error => console.error("Error loading user team:", error));
-
-      const allTeamsRef = ref(db, `teams`);
-      get(allTeamsRef).then(snapshot => {
-        if (snapshot.exists()) {
-          populateTeams(snapshot.val());
-        }
-      }).catch(error => console.error("Error loading teams:", error));
-    }
-
-    function autoAssignBox(currentUser) {
-      const allBoxes = document.querySelectorAll('.grid-modali-item');
-      for (let box of allBoxes) {
-        const teamNumber = box.dataset.team;
-        const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
-        get(teamMembersRef).then(snapshot => {
-          if (!snapshot.exists()) {
-            selectBox(currentUser, teamNumber, box);
-            break;
-          }
-        }).catch(error => console.error("Error checking box:", error));
+function loadUserAndTeams() {
+  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+  get(userTeamsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const teamNumber = snapshot.val().team;
+      const selectedBox = document.querySelector(`[data-team="${teamNumber}"]`);
+      if (selectedBox) {
+        const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+        const userName = currentUser.displayName || "Anonymous";
+        selectedBox.querySelector('.plus-box').innerHTML = `
+          <img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">
+          <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; z-index: 99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
+            #${teamNumber}
+          </div>`;
+        selectedBox.querySelector('h5').textContent = userName;
       }
     }
+  }).catch(error => {
+    console.error("Error loading user team:", error);
+  });
 
-    function selectBox(user, teamNumber, box) {
-      const userName = user.displayName || "Anonymous";
-      const userPhoto = user.photoURL || "default-profile-pic.jpg";
-      const teamRef = ref(db, `teams/${teamNumber}/members/${user.uid}`);
-      
-      set(teamRef, {
-        name: userName,
-        photo: userPhoto
-      }).then(() => {
-        updateUserTeam(user.uid, teamNumber);
-        updateBoxContent(box, userName, userPhoto, teamNumber);
-      }).catch(error => console.error("Error joining team:", error));
-    }
-
-    function updateBoxContent(box, name, photo, number) {
-      box.querySelector('.plus-box').innerHTML = `
-        <img src="${photo}" alt="${name}" style="width: 60px; height: 60px; border-radius: 50%;">
-        <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
-          #${number}
-        </div>`;
-      box.querySelector('h5').textContent = name;
-    }
-
-    function updateUserTeam(userId, teamNumber) {
-      const userTeamsRef = ref(db, `teams/${userId}`);
-      set(userTeamsRef, { team: teamNumber });
-    }
-
-    function populateTeams(teamsData) {
+  const allTeamsRef = ref(db, `teams`);
+  get(allTeamsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const teamsData = snapshot.val();
       Object.keys(teamsData).forEach(teamNumber => {
         const members = teamsData[teamNumber]?.members;
         const teamBox = document.querySelector(`[data-team="${teamNumber}"]`);
         if (teamBox && members) {
           const firstMember = Object.values(members)[0];
           if (firstMember) {
-            updateBoxContent(teamBox, firstMember.name, firstMember.photo, teamNumber);
+            teamBox.querySelector('.plus-box').innerHTML = `
+              <img src="${firstMember.photo}" alt="${firstMember.name}" style="width: 60px; height: 60px; border-radius: 50%;">
+              <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; z-index: 99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
+                #${teamNumber}
+              </div>`;
+            teamBox.querySelector('h5').textContent = firstMember.name;
           }
         }
       });
     }
-
+  }).catch(error => {
+    console.error("Error loading team members:", error);
+  });
+}
 
 
 
