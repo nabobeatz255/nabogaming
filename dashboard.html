@@ -55,17 +55,16 @@
     loadLikedPosts(); 
     displayUserDetails();
     loadMessages();
-    loadUserTeam();  
+    loadUserTeam();
   } else {
     showToast("You are not signed in. Redirecting to login...", 'error');
     window.location.href = "index.html";
   }
 });
 
-// Add event listeners to all grid items
-document.querySelectorAll('.grid-modali-item').forEach(item => 
-  item.addEventListener('click', () => handleBoxClick(item))
-);
+document.querySelectorAll('.grid-modali-item').forEach(item => {
+  item.addEventListener('click', () => handleBoxClick(item));
+});
 
 const handleBoxClick = (box) => {
   const teamNumber = box.dataset.team;
@@ -77,8 +76,8 @@ const handleBoxClick = (box) => {
 
   const userName = currentUser.displayName || "Anonymous";
   const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
- 
-  const userTeamsRef = ref(db, `userTeams/${currentUser.uid}`);
+  
+  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
 
   get(userTeamsRef).then(snapshot => {
     if (snapshot.exists()) {
@@ -90,12 +89,10 @@ const handleBoxClick = (box) => {
         name: userName,
         photo: userPhoto
       }).then(() => {
-        return updateUserTeam(currentUser.uid, teamNumber); // Ensure chaining for toast
-      }).then(() => {
-        showToast(`You joined Team ${teamNumber}!`, 'success');  // Toast moved here
+        showToast(`You joined Team ${teamNumber}!`, 'success');
         box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
         box.querySelector('h5').textContent = userName;
-        loadTeams();  // Update the box with members after joining
+        updateUserTeam(currentUser.uid, teamNumber); // Mark user as joined
       }).catch(error => {
         console.error("Error joining team:", error);
         showToast("Failed to join team. Please try again.", 'error');
@@ -105,79 +102,35 @@ const handleBoxClick = (box) => {
 };
 
 const updateUserTeam = (userId, teamNumber) => {
-  const userTeamsRef = ref(db, `userTeams/${userId}`);
-  return set(userTeamsRef, {
+  const userTeamsRef = ref(db, `teams/${userId}`);
+  set(userTeamsRef, {
     team: teamNumber
   });
 };
+const loadUserTeam = () => {
+  if (!currentUser) return;
 
-const loadTeams = () => {
-  const teamsRef = ref(db, `teams`);
-  get(teamsRef).then(snapshot => {
+  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+  get(userTeamsRef).then((snapshot) => {
     if (snapshot.exists()) {
-      const teamsData = snapshot.val();
-      for (const teamNumber in teamsData) {
-        const teamBox = document.querySelector(`.grid-modali-item[data-team="${teamNumber}"]`);
+      const { team } = snapshot.val(); // Get the team number
+      if (team) {
+        // Update the UI with user's joined team
+        const teamBox = document.querySelector(`[data-team="${team}"]`);
         if (teamBox) {
-          const members = Object.values(teamsData[teamNumber].members || {});
-          teamBox.querySelector('.members-list').innerHTML = members.map(member =>
-            `<div class="member">
-              <img src="${member.photo}" alt="${member.name}" style="width: 60px; height: 60px; border-radius: 50%;">
-              <span>${member.name}</span>
-            </div>`
-          ).join('');
-
-          // Ensure the team box has at most 4 members
-          if (members.length >= 4) {
-            teamBox.classList.add('full-team'); // Optionally add a class to indicate full team
-          }
-
-          // Randomly select a leader if there are members
-          if (members.length > 0) {
-            const leaderIndex = Math.floor(Math.random() * members.length);
-            const leader = members[leaderIndex];
-            teamBox.querySelector('.leader').textContent = `Leader: ${leader.name}`;
-            // Assign the leader role in the database
-            const leaderRef = ref(db, `teams/${teamNumber}/leader`);
-            set(leaderRef, leader.uid);
-          }
+          const userName = currentUser.displayName || "Anonymous";
+          const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+          teamBox.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+          teamBox.querySelector('h5').textContent = userName;
+          showToast(`Welcome back to Team ${team}`, 'success');
         }
       }
     }
-  }).catch(error => {
-    console.error("Error loading teams:", error);
-    showToast("Failed to load teams. Please try again.", 'error');
+  }).catch((error) => {
+    console.error("Error loading user team:", error);
+    showToast("Failed to load your team information.", 'error');
   });
 };
-
-// Function to handle member deletion (only available for the leader)
-const deleteMember = (teamNumber, memberId) => {
-  // Only the leader can delete members
-  const teamRef = ref(db, `teams/${teamNumber}/leader`);
-  get(teamRef).then(snapshot => {
-    if (snapshot.exists() && snapshot.val() === currentUser.uid) {
-      const memberRef = ref(db, `teams/${teamNumber}/members/${memberId}`);
-      remove(memberRef).then(() => {
-        showToast('Member removed successfully!', 'success');
-        loadTeams();  // Reload team members
-      }).catch(error => {
-        console.error("Error deleting member:", error);
-        showToast("Failed to remove member. Please try again.", 'error');
-      });
-    } else {
-      showToast('You are not authorized to delete members.', 'error');
-    }
-  });
-};
-
-// Add event listener for removing members
-document.querySelectorAll('.remove-member').forEach(button => {
-  button.addEventListener('click', (e) => {
-    const teamNumber = e.target.dataset.team;
-    const memberId = e.target.dataset.memberId;
-    deleteMember(teamNumber, memberId);
-  });
-});
 
 
 
@@ -736,7 +689,6 @@ const sendMessage = async () => {
 };
 document.getElementById('send-message-button')?.addEventListener('click', sendMessage);
 </script>
-
 
 
 
@@ -1471,48 +1423,32 @@ Please Wait.....
 </div>
     </div>
     
-   <!-- modali -->
+<!-- modali -->
   <div id="modali" class="modali">
     <div class="modali-content">
       <!-- Close button -->
       <button class="close-btn" onclick="closemodali()">×</button>
 <div class="grid-modali-container">
-   <div class="grid-modali-item" data-team="1">
-  <div class="plus-box"></div>
-  <h5></h5>
-  <div class="members-list"></div>
-  <div class="leader"></div>
-  <button class="remove-member" data-team="1" data-member-id="memberId">Remove Member</button>
-</div>
-<div class="grid-modali-item" data-team="2">
-  <div class="plus-box"></div>
-  <h5></h5>
-  <div class="members-list"></div>
-  <div class="leader"></div>
-  <button class="remove-member" data-team="2" data-member-id="memberId">Remove Member</button>
-</div>
-<div class="grid-modali-item" data-team="3">
-  <div class="plus-box"></div>
-  <h5></h5>
-  <div class="members-list"></div>
-  <div class="leader"></div>
-  <button class="remove-member" data-team="3" data-member-id="memberId">Remove Member</button>
-</div>
-<div class="grid-modali-item" data-team="4">
-  <div class="plus-box"></div>
-  <h5></h5>
-  <div class="members-list"></div>
-  <div class="leader"></div>
-  <button class="remove-member" data-team="4" data-member-id="memberId">Remove Member</button>
-</div>
-<div class="grid-modali-item" data-team="5">
-  <div class="plus-box"></div>
-  <h5></h5>
-  <div class="members-list"></div>
-  <div class="leader"></div>
-  <button class="remove-member" data-team="5" data-member-id="memberId">Remove Member</button>
-</div>
-
+    <div class="grid-modali-item" data-team="1">
+        <div class="plus-box">+</div>
+        <h3>Team I</h3>
+    </div>
+    <div class="grid-modali-item" data-team="2">
+        <div class="plus-box">+</div>
+        <h3>Team II</h3>
+    </div>
+    <div class="grid-modali-item" data-team="3">
+        <div class="plus-box">+</div>
+        <h3>Team III</h3>
+    </div>
+    <div class="grid-modali-item" data-team="4">
+        <div class="plus-box">+</div>
+        <h3>Team IV</h3>
+    </div>
+    <div class="grid-modali-item" data-team="5">
+        <div class="plus-box">+</div>
+        <h3>Team V</h3>
+    </div>
     <!-- Repeat for other teams... -->
 </div>
      <!--div style="display:flex; align-items:center; justify-content:center; text-align:center; gap:10px;">
