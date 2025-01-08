@@ -29,19 +29,252 @@
 
 
 <script type="module">
-    import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";import{getDatabase,ref,push,update,set,onValue,remove,serverTimestamp,get}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";import{updateProfile}from"https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";const firebaseConfig={apiKey:"AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",authDomain:"register-71bde.firebaseapp.com",projectId:"register-71bde",storageBucket:"register-71bde.appspot.com",messagingSenderId:"412548441298",appId:"1:412548441298:web:e0fb2b6c5fbd4af7d0b90b"},app=initializeApp(firebaseConfig),auth=getAuth(),db=getDatabase(app),storage=getStorage(app);let currentUser=null;onAuthStateChanged(auth,e=>{(currentUser=e)?(loadPosts(),loadLikedPosts(),displayUserDetails(),loadMessages(),loadUserAndTeams()):(showToast("You are not signed in. Redirecting to login...","error"),window.location.href="index.html")}),document.addEventListener("DOMContentLoaded",()=>{var e;currentUser&&(e=ref(db,"teams/"+currentUser.uid),get(e).then(e=>{var t,s;e.exists()&&(e=e.val().team,e=document.querySelector(`[data-team="${e}"]`))&&(t=currentUser.photoURL||"default-profile-pic.jpg",s=currentUser.displayName||"Anonymous",e.querySelector(".plus-box").innerHTML=`<img src="${t}" alt="${s}" style="width: 60px; height: 60px; border-radius: 50%;">`,e.querySelector("h5").textContent=s)}).catch(e=>{console.error("Error loading user team:",e)}),e=ref(db,"teams"),get(e).then(e=>{if(e.exists()){const s=e.val();Object.keys(s).forEach(e=>{var t=s[e].members,e=document.querySelector(`[data-team="${e}"]`);e&&(t=Object.values(t)[0])&&(e.querySelector(".plus-box").innerHTML=`<img src="${t.photo}" alt="${t.name}" style="width: 60px; height: 60px; border-radius: 50%;">`,e.querySelector("h5").textContent=t.name)})}}).catch(e=>{console.error("Error loading team members:",e)}))}),document.querySelectorAll(".grid-modali-item").forEach(e=>{e.addEventListener("click",()=>handleBoxClick(e))});const handleBoxClick=t=>{const s=t.dataset.team;if(currentUser){const o=currentUser.displayName||"Anonymous",r=currentUser.photoURL||"default-profile-pic.jpg";var e=ref(db,"teams/"+currentUser.uid);get(e).then(e=>{e.exists()?(e=e.val().team,showToast(`You are already a player ${e}. You cannot join another number.`,"warning")):(e=ref(db,`teams/${s}/members`),get(e).then(e=>{e.exists()&&0<Object.keys(e.val()).length?showToast(`Player ${s} is already taken. Please choose another number.`,"warning"):(e=ref(db,`teams/${s}/members/`+currentUser.uid),set(e,{name:o,photo:r}).then(()=>{showToast(`Welcome player ${s}!`,"success"),t.querySelector(".plus-box").innerHTML=`
-  <img src="${r}" alt="${o}" style="width: 60px; height: 60px; border-radius: 50%;">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+    authDomain: "register-71bde.firebaseapp.com",
+    projectId: "register-71bde",
+    storageBucket: "register-71bde.appspot.com",
+    messagingSenderId: "412548441298",
+    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getDatabase(app);
+  const storage = getStorage(app);
+
+  let currentUser = null;
+ onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (user) {
+    loadPosts();  // Load posts after successful login
+    loadLikedPosts();  // Load liked posts
+    displayUserDetails(); 
+    loadMessages();
+    loadUserAndTeams();
+  } else {
+    showToast("You are not signed in. Redirecting to login...", 'error');
+    window.location.href = "index.html";
+  }
+});
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (currentUser) {
+    // Fetch current user's team and place them in their selected box
+    const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+    get(userTeamsRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const teamNumber = snapshot.val().team;
+        const selectedBox = document.querySelector(`[data-team="${teamNumber}"]`);
+        if (selectedBox) {
+          const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+          const userName = currentUser.displayName || "Anonymous";
+          selectedBox.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+          selectedBox.querySelector('h5').textContent = userName;
+        }
+      }
+    }).catch(error => {
+      console.error("Error loading user team:", error);
+    });
+
+    // Fetch all teams and display users in their respective boxes
+    const allTeamsRef = ref(db, `teams`);
+    get(allTeamsRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const teamsData = snapshot.val();
+        Object.keys(teamsData).forEach(teamNumber => {
+          const members = teamsData[teamNumber].members;
+          const teamBox = document.querySelector(`[data-team="${teamNumber}"]`);
+          if (teamBox) {
+            const firstMember = Object.values(members)[0]; // Assuming one user per box
+            if (firstMember) {
+              teamBox.querySelector('.plus-box').innerHTML = `<img src="${firstMember.photo}" alt="${firstMember.name}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+              teamBox.querySelector('h5').textContent = firstMember.name;
+            }
+          }
+        });
+      }
+    }).catch(error => {
+      console.error("Error loading team members:", error);
+    });
+  }
+});
+
+document.querySelectorAll('.grid-modali-item').forEach(item => {
+  item.addEventListener('click', () => handleBoxClick(item));
+});
+
+const handleBoxClick = (box) => {
+  const teamNumber = box.dataset.team;
+
+  if (!currentUser) {
+    showToast('Please wait a moment...', 'info');
+    return;
+  }
+
+  const userName = currentUser.displayName || "Anonymous";
+  const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+
+  // Check if the user has already selected a box
+  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+  get(userTeamsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const existingTeam = snapshot.val().team;
+      showToast(`You are already a player ${existingTeam}. You cannot join another number.`, 'warning');
+    } else {
+      const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
+      get(teamMembersRef).then(snapshot => {
+        if (snapshot.exists() && Object.keys(snapshot.val()).length > 0) {
+          showToast(`Player ${teamNumber} is already taken. Please choose another number.`, 'warning');
+        } else {
+          const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
+// Inside handleBoxClick function where the player is successfully added
+set(teamRef, {
+  name: userName,
+  photo: userPhoto
+}).then(() => {
+  showToast(`Welcome player ${teamNumber}!`, 'success');
+  
+  // Update the box content with photo, name, and player number
+
+box.querySelector('.plus-box').innerHTML = `
+  <img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">
   <div class="player-number" style="position: absolute; bottom: 5px; right: 5px;z-index:99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
-    #${s}
-  </div>`,t.querySelector("h5").textContent=o,updateUserTeam(currentUser.uid,s)}).catch(e=>{console.error("Error joining team:",e),showToast("Failed to join as a player. Please try again.","error")}))}).catch(e=>{console.error("Error checking team box:",e)}))}).catch(e=>{console.error("Error checking user team:",e)})}else showToast("Please wait a moment...","info")};function loadUserAndTeams(){var e=ref(db,"teams/"+currentUser.uid),e=(get(e).then(e=>{var t,s,o;e.exists()&&(e=e.val().team,t=document.querySelector(`[data-team="${e}"]`))&&(s=currentUser.photoURL||"default-profile-pic.jpg",o=currentUser.displayName||"Anonymous",t.querySelector(".plus-box").innerHTML=`
-          <img src="${s}" alt="${o}" style="width: 60px; height: 60px; border-radius: 50%;">
-          <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; z-index: 99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
-            #${e}
-          </div>`,t.querySelector("h5").textContent=o)}).catch(e=>{console.error("Error loading user team:",e)}),ref(db,"teams"));get(e).then(e=>{if(e.exists()){const o=e.val();Object.keys(o).forEach(e=>{var t=o[e]?.members,s=document.querySelector(`[data-team="${e}"]`);s&&t&&(t=Object.values(t)[0])&&(s.querySelector(".plus-box").innerHTML=`
-              <img src="${t.photo}" alt="${t.name}" style="width: 60px; height: 60px; border-radius: 50%;">
-              <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; z-index: 99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
-                #${e}
-              </div>`,s.querySelector("h5").textContent=t.name)})}}).catch(e=>{console.error("Error loading team members:",e)})}const updateUserTeam=(e,t)=>{e=ref(db,"teams/"+e);set(e,{team:t})},showToast=(e,t="info")=>{const s=document.createElement("div");s.classList.add("toast",t),s.textContent=e,document.body.appendChild(s),setTimeout(()=>{s.remove()},3e3)},style=document.createElement("style"),formatTimestamp=(style.textContent=`
+    #${teamNumber}
+  </div>`;
+ 
+  box.querySelector('h5').textContent = userName;
+  updateUserTeam(currentUser.uid, teamNumber);
+}).catch(error => {
+  console.error("Error joining team:", error);
+  showToast("Failed to join as a player. Please try again.", 'error');
+ });
+        }
+      }).catch(error => {
+        console.error("Error checking team box:", error);
+      });
+    }
+  }).catch(error => {
+    console.error("Error checking user team:", error);
+  });
+};
+
+
+function loadUserAndTeams(currentUser) {
+      const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+      get(userTeamsRef).then(snapshot => {
+        if (!snapshot.exists()) {
+          autoAssignBox(currentUser); // Automatically select a box if none
+        } else {
+          displayUserBox(snapshot.val().team, currentUser);
+        }
+      }).catch(error => console.error("Error loading user team:", error));
+
+      const allTeamsRef = ref(db, `teams`);
+      get(allTeamsRef).then(snapshot => {
+        if (snapshot.exists()) {
+          populateTeams(snapshot.val());
+        }
+      }).catch(error => console.error("Error loading teams:", error));
+    }
+
+    function autoAssignBox(currentUser) {
+      const allBoxes = document.querySelectorAll('.grid-modali-item');
+      for (let box of allBoxes) {
+        const teamNumber = box.dataset.team;
+        const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
+        get(teamMembersRef).then(snapshot => {
+          if (!snapshot.exists()) {
+            selectBox(currentUser, teamNumber, box);
+            break;
+          }
+        }).catch(error => console.error("Error checking box:", error));
+      }
+    }
+
+    function selectBox(user, teamNumber, box) {
+      const userName = user.displayName || "Anonymous";
+      const userPhoto = user.photoURL || "default-profile-pic.jpg";
+      const teamRef = ref(db, `teams/${teamNumber}/members/${user.uid}`);
+      
+      set(teamRef, {
+        name: userName,
+        photo: userPhoto
+      }).then(() => {
+        updateUserTeam(user.uid, teamNumber);
+        updateBoxContent(box, userName, userPhoto, teamNumber);
+      }).catch(error => console.error("Error joining team:", error));
+    }
+
+    function updateBoxContent(box, name, photo, number) {
+      box.querySelector('.plus-box').innerHTML = `
+        <img src="${photo}" alt="${name}" style="width: 60px; height: 60px; border-radius: 50%;">
+        <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
+          #${number}
+        </div>`;
+      box.querySelector('h5').textContent = name;
+    }
+
+    function updateUserTeam(userId, teamNumber) {
+      const userTeamsRef = ref(db, `teams/${userId}`);
+      set(userTeamsRef, { team: teamNumber });
+    }
+
+    function populateTeams(teamsData) {
+      Object.keys(teamsData).forEach(teamNumber => {
+        const members = teamsData[teamNumber]?.members;
+        const teamBox = document.querySelector(`[data-team="${teamNumber}"]`);
+        if (teamBox && members) {
+          const firstMember = Object.values(members)[0];
+          if (firstMember) {
+            updateBoxContent(teamBox, firstMember.name, firstMember.photo, teamNumber);
+          }
+        }
+      });
+    }
+
+
+
+
+const updateUserTeam = (userId, teamNumber) => {
+  const userTeamsRef = ref(db, `teams/${userId}`);
+  set(userTeamsRef, {
+    team: teamNumber
+  });
+};
+
+
+
+
+
+
+
+  // Toast function to display notifications
+  const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.classList.add('toast', type);
+    toast.textContent = message;
+
+    // Append to the body
+    document.body.appendChild(toast);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  };
+
+  // CSS Styles for Toast notifications
+  const style = document.createElement('style');
+  style.textContent = `
 .toast {
     position: fixed;
     top: 0;
@@ -107,72 +340,492 @@
     }
 }
 
-  `,document.head.appendChild(style),e=>{var e=new Date-new Date(e),e=Math.floor(e/1e3),t=Math.floor(e/60),s=Math.floor(t/60),o=Math.floor(s/24),r=Math.floor(o/30),a=Math.floor(r/12);return e<60?"Just now":t<60?t+"m ago":s<24?s+"hr ago":o<30?o+"d ago":r<12?r+"mo ago":a+"yr "}),loadPosts=()=>{const o=document.getElementById("allposts"),r=document.getElementById("myposts");var e;o&&r&&(o.innerHTML="",r.innerHTML="",e=ref(db,"posts"),onValue(e,e=>{const s=[];e.forEach(e=>{var t=e.val(),e=e.key;s.push({postId:e,...t})}),s.sort((e,t)=>t.timestamp-e.timestamp);var e=s.filter(e=>e.authorName===currentUser.displayName),t=s;e.forEach(e=>displayPost(e,r,!0)),t.forEach(e=>displayPost(e,o,!1))}))},loadLikedPosts=()=>{const t=document.getElementById("likedposts");var e;t&&(t.innerHTML="",e=ref(db,"posts"),onValue(e,e=>{const s=[];e.forEach(e=>{var t=e.val(),e=e.key;s.push({postId:e,...t})}),s.sort((e,t)=>t.timestamp-e.timestamp),s.filter(e=>e.likes&&e.likes[currentUser.uid]&&e.authorName!==currentUser.displayName).forEach(e=>displayPost(e,t,!1))}))},displayPost=(e,t,s)=>{var o=t.querySelector(`[data-post-id="${e.postId}"]`);if(!o){var o=e.comments?Object.keys(e.comments).length:0,r=document.createElement("div");r.className="instagram-post-2",r.setAttribute("data-post-id",e.postId);const a=window.location.origin+"/dashboard.html?postId="+e.postId;r.innerHTML=`
+  `;
+  document.head.appendChild(style);
+
+  const formatTimestamp = (timestamp) => {
+    const now = new Date();
+    const timeDiff = now - new Date(timestamp);
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+
+    if (seconds < 60) return `Just now`;
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}hr ago`;
+    if (days < 30) return `${days}d ago`;
+    if (months < 12) return `${months}mo ago`;
+    return `${years}yr `;
+  };
+
+ const loadPosts = () => {
+  const allPostsContainer = document.getElementById("allposts");
+  const myPostsContainer = document.getElementById("myposts");
+
+  // Only proceed if the containers are present
+  if (!allPostsContainer || !myPostsContainer) return;
+
+  // Clear the containers before adding new posts
+  allPostsContainer.innerHTML = "";
+  myPostsContainer.innerHTML = "";
+
+  const postsRef = ref(db, "posts");
+  onValue(postsRef, (snapshot) => {
+    const posts = [];
+    snapshot.forEach((childSnapshot) => {
+      const post = childSnapshot.val();
+      const postId = childSnapshot.key;
+      posts.push({ postId, ...post });
+    });
+
+    // Sort posts by timestamp from new to old
+    posts.sort((a, b) => b.timestamp - a.timestamp);
+
+    // Filter posts for my posts and all posts
+    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+    const allPosts = posts;
+
+    // Display my posts (with edit/delete options)
+    myPosts.forEach(post => displayPost(post, myPostsContainer, true)); // Show delete button for my posts
+
+    // Display all posts (without edit/delete options)
+    allPosts.forEach(post => displayPost(post, allPostsContainer, false)); // No delete button for others' posts
+  });
+};
+ 
+  const loadLikedPosts = () => {
+    const likedPostsContainer = document.getElementById("likedposts");
+    if (!likedPostsContainer) return;
+
+    likedPostsContainer.innerHTML = "";
+
+    const postsRef = ref(db, "posts");
+    onValue(postsRef, (snapshot) => {
+      const posts = [];
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
+      });
+
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+
+      // Filter liked posts (exclude posts by the current user)
+      const likedPosts = posts.filter(post => post.likes && post.likes[currentUser.uid] && post.authorName !== currentUser.displayName);
+      likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));  // No delete button for liked posts
+    });
+  };
+
+const displayPost = (post, container, isMyPost) => {
+  const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
+  if (existingPost) return;
+
+  const commentCount = post.comments ? Object.keys(post.comments).length : 0;
+
+  const postElement = document.createElement("div");
+  postElement.className = "instagram-post-2";
+  postElement.setAttribute("data-post-id", post.postId);
+
+  const shareUrl = `${window.location.origin}/dashboard.html?postId=${post.postId}`;
+
+  postElement.innerHTML = `
     <div class="post-header">
       <div class="profile-picture">
-        <img src="${e.authorPhoto}" alt="User profile picture">
+        <img src="${post.authorPhoto}" alt="User profile picture">
       </div>
       <div class="profile-details">
-        <div class="profile-name">${e.authorName}</div>
-        <div class="post-time-2">${formatTimestamp(e.timestamp)} • <span class="like-count">${Object.keys(e.likes||{}).length} likes</span></div>
+        <div class="profile-name">${post.authorName}</div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
       </div>
         <div class="post-options">
                 <i class="ri-more-fill"></i>
                 <div class="options-menu">
                   <ul>
-                  ${s?`<li class="edit-btn" data-id="${e.postId}">Edit The Post</li>`:""}
-                  <li class="toggle-comments" data-id="${e.postId}">View Post</li>
-  <li class="like-btn" data-id="${e.postId}">Like ${e.authorName}'s Post</li>
-                <li class="share-btn" data-id="${e.postId}" data-url="${a}">Share ${e.authorName}'s Post</li>
-                  <li><span class="comment-count">Current comments ${o}</span></li>
-                    ${s?`<li class="delete-post-btn" data-id="${e.postId}">Delete My Post</li>`:""}
+                  ${isMyPost ? `<li class="edit-btn" data-id="${post.postId}">Edit The Post</li>` : ""}
+                  <li class="toggle-comments" data-id="${post.postId}">View Post</li>
+  <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post</li>
+                <li class="share-btn" data-id="${post.postId}" data-url="${shareUrl}">Share ${post.authorName}'s Post</li>
+                  <li><span class="comment-count">Current comments ${commentCount}</span></li>
+                    ${isMyPost ? `<li class="delete-post-btn" data-id="${post.postId}">Delete My Post</li>` : ""}
                   </ul>
                 </div>
               </div>
     </div>
     <div class="post-image toggle-comments">
-      <img src="${e.imageUrl}" alt="Post content">
+      <img src="${post.imageUrl}" alt="Post content">
     </div>
     <div class="caption">
-      <span class="username">${e.authorName}</span> ${e.content}
+      <span class="username">${post.authorName}</span> ${post.content}
     </div>
-  `,t.appendChild(r),r.querySelector(".like-btn").addEventListener("click",()=>likePost(e.postId)),r.querySelector(".toggle-comments").addEventListener("click",()=>showCommentsPopup(e)),r.querySelector(".share-btn").addEventListener("click",()=>{navigator.clipboard.writeText(a).then(()=>{showToast("Link copied to clipboard!","success")}).catch(e=>{console.error("Failed to copy link: ",e),showToast("Failed to copy link","error")})}),r.querySelector(".post-image img").addEventListener("click",()=>{showToast("Please wait for the shared post...","info"),window.open(a,"_blank")}),s&&(r.querySelector(".delete-post-btn").addEventListener("click",()=>deletePost(e.postId)),r.querySelector(".edit-btn").addEventListener("click",()=>editPost(e)))}},urlParams=new URLSearchParams(window.location.search),postIdFromUrl=urlParams.get("postId");if(postIdFromUrl){const Pa=ref(db,"posts/"+postIdFromUrl);get(Pa).then(e=>{e.exists()?((e=e.val()).postId=postIdFromUrl,showCommentsPopup(e)):showToast("Pole! Post Hiyo Inawezekana Imefutwa Au Haipo.","error")}).catch(e=>{console.error("Error loading post: ",e),showToast("Error loading post.","error")})}const showCommentsPopup=s=>{const o=document.createElement("div");o.className="comments-popup",o.innerHTML=`
+  `;
+
+  container.appendChild(postElement);
+
+  postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+  postElement.querySelector(".toggle-comments").addEventListener("click", () => showCommentsPopup(post));
+  postElement.querySelector(".share-btn").addEventListener("click", () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast("Link copied to clipboard!", "success");
+    }).catch((err) => {
+      console.error("Failed to copy link: ", err);
+      showToast("Failed to copy link", "error");
+    });
+  });
+
+  // Add event listener for opening the post in a new tab
+  postElement.querySelector(".post-image img").addEventListener("click", () => {
+    showToast("Please wait for the shared post...", "info"); // Toast message
+    window.open(shareUrl, "_blank"); // Open the shared post in a new tab
+  });
+
+  if (isMyPost) {
+    postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
+    postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
+  }
+};
+
+
+const urlParams = new URLSearchParams(window.location.search);
+const postIdFromUrl = urlParams.get('postId');
+
+if (postIdFromUrl) {
+  const postsRef = ref(db, `posts/${postIdFromUrl}`);
+  get(postsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const post = snapshot.val();
+      post.postId = postIdFromUrl;
+      showCommentsPopup(post);
+    } else {
+      showToast("Pole! Post Hiyo Inawezekana Imefutwa Au Haipo.", "error");
+    }
+  }).catch(error => {
+    console.error("Error loading post: ", error);
+    showToast("Error loading post.", "error");
+  });
+}
+
+
+const showCommentsPopup = (post) => {
+  const popup = document.createElement('div');
+  popup.className = 'comments-popup';
+
+  popup.innerHTML = `
     <div class="comments-popup-content">
  <div class="post-header">
       <div class="profile-details">
-        <div class="profile-name">${s.authorName}'s post</div>
-        <div class="post-time-2">Posted ${formatTimestamp(s.timestamp)} • <span class="like-count">${Object.keys(s.likes||{}).length} likes</span></div>
+        <div class="profile-name">${post.authorName}'s post</div>
+        <div class="post-time-2">Posted ${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
       </div>
 <span class="close-popup"><i class="ri-close-line"></i></span>
 </div>
      <div class="post-image2">
-      <img src="${s.imageUrl}" alt="Post content">
+      <img src="${post.imageUrl}" alt="Post content">
     </div>
     <div class="caption">
-      <span class="username">${s.authorName}</span> ${s.content}
+      <span class="username">${post.authorName}</span> ${post.content}
     </div>
-      <div class="comments-list">${renderComments(s.comments)}</div>
+      <div class="comments-list">${renderComments(post.comments)}</div>
       <div class="comment-input-container" >
         <input class="comment-input" placeholder="Write a comment...">
-        <button class="submit-comment" data-post-id="${s.postId}">Send</button>
+        <button class="submit-comment" data-post-id="${post.postId}">Send</button>
       </div>
     </div>
-  `,document.body.appendChild(o),o.querySelector(".close-popup").addEventListener("click",()=>o.remove()),o.querySelector(".submit-comment").addEventListener("click",()=>{var e=o.querySelector(".comment-input"),t=e.value.trim();""!==t&&(submitComment(s.postId,t),e.value="")})},renderComments=t=>t?Object.keys(t).map(e=>{e=t[e];return`
+  `;
+
+  document.body.appendChild(popup);
+
+  popup.querySelector('.close-popup').addEventListener('click', () => popup.remove());
+  popup.querySelector('.submit-comment').addEventListener('click', () => {
+    const commentInput = popup.querySelector('.comment-input');
+    const commentText = commentInput.value.trim();
+    if (commentText !== "") {
+      submitComment(post.postId, commentText);
+      commentInput.value = "";
+    }
+  });
+};
+
+
+  const renderComments = (comments) => {
+    if (!comments) return "";
+    return Object.keys(comments).map(commentId => {
+      const comment = comments[commentId];
+      return `
         <div class="comment">
-          <span class="comment-username">${e.username}</span><br><span class="comment-sms">${e.message}</span>
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
         </div>
-      `}).join(""):"",likePost=async e=>{e=ref(db,`posts/${e}/likes/`+currentUser.uid);(await get(e)).exists()?(await remove(e),showToast("unliked","info")):(await set(e,!0),showToast("you liked the post","success")),loadPosts()},submitComment=async(e,t)=>{var t={username:currentUser.displayName,message:t},s=push(ref(db,`posts/${e}/comments`)).key;await set(ref(db,`posts/${e}/comments/`+s),t),showToast("comment added","success"),loadPosts()},deletePost=async e=>{e=ref(db,"posts/"+e);await remove(e),loadPosts(),showToast("post imefutwa","success")},editPost=e=>{var t=prompt("Edit your post content:",e.content);null!==t&&(e=ref(db,"posts/"+e.postId),update(e,{content:t}),showToast("post imeupdatiwa","success"),loadPosts())},createNewPost=async()=>{var t=document.getElementById("new-post-caption")?.value,s=document.getElementById("new-post-image")?.files[0];if(t||s)try{let e="";showToast("Uploading post yako...Tafadhari subiri","info"),s&&(o=storageRef(storage,`post_images/${currentUser.uid}/`+s.name),await uploadBytes(o,s),e=await getDownloadURL(o),showToast("ukaguzi wa post umekamilika","info"));var o,r=push(ref(db,"posts")).key;await set(ref(db,"posts/"+r),{authorName:currentUser.displayName||"Anonymous",authorPhoto:currentUser.photoURL||"default.jpg",content:t,imageUrl:e,timestamp:serverTimestamp(),likes:{},comments:{}}),showToast("Post yako imetengenezwa tayari...reloading!","success"),window.location.reload()}catch(e){console.error("Error creating post:",e),showToast("Error creating post","error")}else showToast("tafadhari weka caption na image.","warning")},updateUserProfile=async()=>{var e=document.getElementById("username")?.value.trim(),t=document.getElementById("profile-picture-input")?.files[0];if(e||t)try{var s=auth.currentUser;if(console.log("Authenticated user:",s),s){if(e&&e!==s.displayName)try{console.log("Updating username to:",e),await updateProfile(s,{displayName:e}),showToast("Username updated successfully!","success")}catch(e){console.error("Error updating username:",e),showToast("Error updating username. Please try again.","error")}if(t){console.log("New profile picture:",t);var o=storageRef(storage,`profile_pictures/${s.uid}/`+t.name);console.log("Storage reference:",o);try{await uploadBytes(o,t),console.log("Profile picture uploaded successfully.");var r=await getDownloadURL(o);console.log("New profile picture URL:",r),await updateProfile(s,{photoURL:r}),showToast("Profile picture updated successfully!","success")}catch(e){console.error("Error uploading profile picture:",e),showToast("Error uploading profile picture. Please try again.","error")}}window.location.reload()}else showToast("User not authenticated. Please log in.","error")}catch(e){console.error("Error updating profile:",e),showToast("Error updating profile. Please try again.","error")}else showToast("Please provide a new username or profile picture.","warning")},displayUserDetails=(document.getElementById("update-profile-button")?.addEventListener("click",updateUserProfile),document.getElementById("profile-picture-input")?.addEventListener("change",e=>{e=e.target.files[0];if(e){const t=new FileReader;t.onload=()=>{document.getElementById("profile-picture").src=t.result},t.readAsDataURL(e)}}),()=>{var e=auth.currentUser;if(e){const t=e.displayName||"Anonymous",s=e.email||"No email available",o=e.photoURL||"default-profile-pic.jpg";document.querySelectorAll(".user-name").forEach(e=>{e.textContent=t}),document.querySelectorAll(".user-email").forEach(e=>{e.textContent=s}),document.querySelectorAll(".profile-picture").forEach(e=>{e.src=o})}}),loadMessages=(onAuthStateChanged(auth,e=>{e&&displayUserDetails()}),document.getElementById("create-post-button")?.addEventListener("click",createNewPost),()=>{var e=ref(db,"messages");const o=document.getElementById("chat-box");onValue(e,e=>{const t=[];e.forEach(e=>{e=e.val();t.push(e)}),o.innerHTML="",t.forEach(e=>{var t=document.createElement("div"),s=(t.classList.add("message",e.senderId===currentUser.uid?"right":"left"),e.senderPhotoURL||"default-profile-picture.jpg");t.innerHTML=`
+      `;
+    }).join("");
+  };
+
+  const likePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await remove(postRef);  // Remove like
+      showToast("unliked", 'info');
+    } else {
+      await set(postRef, true);  // Add like
+      showToast("you liked the post", 'success');
+    }
+    loadPosts();  // Reload to reflect the changes
+  };
+
+  const submitComment = async (postId, commentText) => {
+    const commentData = {
+      username: currentUser.displayName,
+      message: commentText,
+    };
+
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    showToast("comment added", 'success');
+    loadPosts();  // Reload posts to show the new comment
+  };
+
+  const deletePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}`);
+    await remove(postRef);  // Delete the post
+    loadPosts();  // Reload posts to remove the deleted post
+    showToast("post imefutwa", 'success');
+  };
+
+  const editPost = (post) => {
+    const newContent = prompt("Edit your post content:", post.content);
+    if (newContent !== null) {
+      const postRef = ref(db, `posts/${post.postId}`);
+      update(postRef, { content: newContent });
+      showToast("post imeupdatiwa", 'success');
+      loadPosts();  // Reload posts to show updated content
+    }
+  };
+
+  const createNewPost = async () => {
+    const caption = document.getElementById("new-post-caption")?.value;
+    const fileInput = document.getElementById("new-post-image");
+    const file = fileInput?.files[0];
+
+    if (!caption && !file) {
+      showToast("tafadhari weka caption na image.", 'warning');
+      return;
+    }
+
+    try {
+      let imageUrl = "";
+      showToast("Uploading post yako...Tafadhari subiri", 'info');
+
+      if (file) {
+        // Upload image to Firebase Storage
+        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+        await uploadBytes(storageReference, file);
+        imageUrl = await getDownloadURL(storageReference);
+        showToast("ukaguzi wa post umekamilika", 'info');
+      }
+
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: currentUser.displayName || "Anonymous",
+        authorPhoto: currentUser.photoURL || "default.jpg",
+        content: caption,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
+      });
+
+      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      window.location.reload();  // Reload the page after successful upload
+    } catch (error) {
+      console.error("Error creating post:", error);
+      showToast("Error creating post", 'error');
+    }
+  };
+
+const updateUserProfile = async () => {
+  const newUsername = document.getElementById('username')?.value.trim();
+  const profilePictureInput = document.getElementById('profile-picture-input');
+  const newProfilePicture = profilePictureInput?.files[0];
+
+  // Check if both username and profile picture are empty
+  if (!newUsername && !newProfilePicture) {
+    showToast("Please provide a new username or profile picture.", 'warning');
+    return;
+  }
+
+  try {
+    // Get the currently authenticated user
+    const user = auth.currentUser;
+    console.log("Authenticated user:", user);
+
+    if (!user) {
+      showToast("User not authenticated. Please log in.", 'error');
+      return; // Exit if the user is not authenticated
+    }
+
+    // Update the username if provided
+    if (newUsername && newUsername !== user.displayName) {
+      try {
+        console.log("Updating username to:", newUsername);
+        // Using updateProfile from firebase/auth
+        await updateProfile(user, {
+          displayName: newUsername,
+        });
+        showToast("Username updated successfully!", 'success');
+      } catch (profileError) {
+        console.error("Error updating username:", profileError);
+        showToast("Error updating username. Please try again.", 'error');
+      }
+    }
+
+    // Upload new profile picture if provided
+    if (newProfilePicture) {
+      console.log("New profile picture:", newProfilePicture);
+
+      const storageReference = storageRef(storage, `profile_pictures/${user.uid}/${newProfilePicture.name}`);
+      console.log("Storage reference:", storageReference);
+
+      try {
+        // Upload the picture to Firebase Storage
+        await uploadBytes(storageReference, newProfilePicture);
+        console.log("Profile picture uploaded successfully.");
+
+        // Get the download URL for the uploaded picture
+        const newProfilePictureUrl = await getDownloadURL(storageReference);
+        console.log("New profile picture URL:", newProfilePictureUrl);
+
+        // Update the user's profile with the new picture
+        await updateProfile(user, {
+          photoURL: newProfilePictureUrl,
+        });
+        showToast("Profile picture updated successfully!", 'success');
+      } catch (uploadError) {
+        console.error("Error uploading profile picture:", uploadError);
+        showToast("Error uploading profile picture. Please try again.", 'error');
+      }
+    }
+
+    // Reload the page to reflect updated details
+    window.location.reload();
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    showToast("Error updating profile. Please try again.", 'error');
+  }
+};
+// Add event listener to the update profile button
+document.getElementById('update-profile-button')?.addEventListener('click', updateUserProfile);
+
+// Update profile picture preview when file is selected
+document.getElementById('profile-picture-input')?.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      document.getElementById('profile-picture').src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Display user details
+const displayUserDetails = () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const userName = user.displayName || "Anonymous";
+  const userEmail = user.email || "No email available";
+  const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+
+  document.querySelectorAll('.user-name').forEach(element => {
+    element.textContent = userName;  // Set user name
+  });
+
+  document.querySelectorAll('.user-email').forEach(element => {
+    element.textContent = userEmail;  // Set user email
+  });
+
+  document.querySelectorAll('.profile-picture').forEach(element => {
+    element.src = userProfilePic;  // Set user profile picture
+  });
+};
+
+// Initialize the profile with user details
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    displayUserDetails();  // Display user details when logged in
+  }
+});
+  document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
+  
+const loadMessages = () => {
+  const messagesRef = ref(db, "messages");
+  const chatBox = document.getElementById("chat-box");
+
+  // Listen for new messages in real-time
+  onValue(messagesRef, (snapshot) => {
+    const messages = [];
+    snapshot.forEach((childSnapshot) => {
+      const message = childSnapshot.val();
+      messages.push(message);
+    });
+
+    // Clear chat box before displaying new messages
+    chatBox.innerHTML = '';
+
+    // Display all messages
+    messages.forEach(message => {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message', message.senderId === currentUser.uid ? 'right' : 'left');
+
+      // Create the profile picture element
+      const profilePicture = message.senderPhotoURL || 'default-profile-picture.jpg'; // Use a default picture if none is available
+
+      messageElement.innerHTML = `
       
        <div class="post-header getNow">
       <div class="profile-picture">
-        <img src="${s}" alt="${e.senderName}'s profile picture" >
+        <img src="${profilePicture}" alt="${message.senderName}'s profile picture" >
       </div>
       <div class="profile-details">
-        <div class="profile-name">${e.senderName}</div>
-        <div class="post-time-3">${e.text}</span></div> 
+        <div class="profile-name">${message.senderName}</div>
+        <div class="post-time-3">${message.text}</span></div> 
       </div>
     </div>
-      `,o.appendChild(t)}),o.scrollTop=o.scrollHeight})}),sendMessage=async()=>{var e,t=document.getElementById("chat-message-input"),s=t.value.trim();s?(e=ref(db,"messages"),e=push(e),await set(e,{senderId:currentUser.uid,senderName:currentUser.displayName||"Anonymous",senderPhotoURL:currentUser.photoURL||"default-profile-picture.jpg",text:s,timestamp:serverTimestamp()}),t.value="",showToast("Message sent!","success")):showToast("Please enter a message.","warning")};document.getElementById("send-message-button")?.addEventListener("click",sendMessage);
+      `;
+      chatBox.appendChild(messageElement);
+    });
+
+    // Scroll to the bottom to show the latest message
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+};
+const sendMessage = async () => {
+  const messageInput = document.getElementById("chat-message-input");
+  const messageText = messageInput.value.trim();
+
+  if (!messageText) {
+    showToast("Please enter a message.", 'warning');
+    return;
+  }
+
+  const messagesRef = ref(db, "messages");
+  const newMessageRef = push(messagesRef);
+  await set(newMessageRef, {
+    senderId: currentUser.uid,
+    senderName: currentUser.displayName || "Anonymous",
+    senderPhotoURL: currentUser.photoURL || 'default-profile-picture.jpg', // Include photoURL here
+    text: messageText,
+    timestamp: serverTimestamp(),
+  });
+
+  // Clear the input field after sending the message
+  messageInput.value = '';
+  showToast("Message sent!", 'success');
+};
+document.getElementById('send-message-button')?.addEventListener('click', sendMessage);
 </script>
 
 
