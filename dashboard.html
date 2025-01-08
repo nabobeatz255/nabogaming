@@ -85,18 +85,22 @@ const handleBoxClick = (box) => {
     } else {
       // Save to database
       const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
-      set(teamRef, {
-        name: userName,
-        photo: userPhoto
-      }).then(() => {
-        showToast(`You joined Team ${teamNumber}!`, 'success');
-        box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-        box.querySelector('h5').textContent = userName;
-        updateUserTeam(currentUser.uid, teamNumber); // Mark user as joined
-      }).catch(error => {
-        console.error("Error joining team:", error);
-        showToast("Failed to join team. Please try again.", 'error');
-      });
+set(teamRef, {
+  name: userName,
+  photo: userPhoto
+})
+.then(() => {
+  console.log("Team data successfully saved:", { teamNumber, userName });
+  showToast(`You joined Team ${teamNumber}!`, 'success');
+  box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+  box.querySelector('h5').textContent = userName;
+  updateUserTeam(currentUser.uid, teamNumber);
+})
+.catch(error => {
+  console.error("Error joining team:", error); // Improved logging
+  showToast("Failed to join team. Please try again.", 'error');
+});
+
     }
   });
 };
@@ -132,6 +136,32 @@ const loadUserTeam = () => {
   });
 };
 
+const loadAllTeams = () => {
+  const teamsRef = ref(db, 'teams');
+  onValue(teamsRef, (snapshot) => {
+    if (snapshot.exists()) {
+      snapshot.forEach((teamSnapshot) => {
+        const teamNumber = teamSnapshot.key;
+        const members = teamSnapshot.val().members || {};
+
+        Object.keys(members).forEach((memberId) => {
+          const member = members[memberId];
+          const teamBox = document.querySelector(`[data-team="${teamNumber}"]`);
+          if (teamBox) {
+            const memberElement = document.createElement('div');
+            memberElement.innerHTML = `
+              <img src="${member.photo}" alt="${member.name}" style="width: 40px; height: 40px; border-radius: 50%;">
+              <span>${member.name}</span>
+            `;
+            teamBox.appendChild(memberElement);
+          }
+        });
+      });
+    }
+  });
+};
+
+loadAllTeams();
 
 
   const showToast = (message, type = 'info') => {
