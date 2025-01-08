@@ -62,6 +62,7 @@
   }
 });
 
+
 document.querySelectorAll('.grid-modali-item').forEach(item => {
   item.addEventListener('click', () => handleBoxClick(item));
 });
@@ -77,49 +78,52 @@ const handleBoxClick = (box) => {
   const userName = currentUser.displayName || "Anonymous";
   const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
   
-  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+  const userTeamsRef = ref(db, `users/${currentUser.uid}`);
+  const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
 
-  get(userTeamsRef).then(snapshot => {
-    if (snapshot.exists()) {
+  get(userTeamsRef).then(userSnapshot => {
+    if (userSnapshot.exists()) {
       showToast("You have already joined a team.", 'warning');
     } else {
-      // Save to database
-      const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
-set(teamRef, {
-  name: userName,
-  photo: userPhoto
-})
-.then(() => {
-  console.log("Team data successfully saved:", { teamNumber, userName });
-  showToast(`You joined Team ${teamNumber}!`, 'success');
-  box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-  box.querySelector('h5').textContent = userName;
-  updateUserTeam(currentUser.uid, teamNumber);
-})
-.catch(error => {
-  console.error("Error joining team:", error); // Improved logging
-  showToast("Failed to join team. Please try again.", 'error');
-});
-
+      get(teamMembersRef).then(teamSnapshot => {
+        if (teamSnapshot.exists() && Object.keys(teamSnapshot.val()).length > 0) {
+          showToast("This team is already taken.", 'error');
+        } else {
+          const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
+          const userRef = ref(db, `users/${currentUser.uid}`);
+          
+          const updates = {};
+          updates[`teams/${teamNumber}/members/${currentUser.uid}`] = {
+            name: userName,
+            photo: userPhoto
+          };
+          updates[`users/${currentUser.uid}`] = { team: teamNumber };
+          
+          update(ref(db), updates)
+            .then(() => {
+              console.log("Successfully joined team:", teamNumber);
+              showToast(`You joined Team ${teamNumber}!`, 'success');
+              box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+              box.querySelector('h5').textContent = userName;
+            })
+            .catch(error => {
+              console.error("Error joining team:", error);
+              showToast("Failed to join team. Please try again.", 'error');
+            });
+        }
+      });
     }
   });
 };
 
-const updateUserTeam = (userId, teamNumber) => {
-  const userTeamsRef = ref(db, `teams/${userId}`);
-  set(userTeamsRef, {
-    team: teamNumber
-  });
-};
 const loadUserTeam = () => {
   if (!currentUser) return;
 
-  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+  const userTeamsRef = ref(db, `users/${currentUser.uid}`);
   get(userTeamsRef).then((snapshot) => {
     if (snapshot.exists()) {
-      const { team } = snapshot.val(); // Get the team number
+      const { team } = snapshot.val();
       if (team) {
-        // Update the UI with user's joined team
         const teamBox = document.querySelector(`[data-team="${team}"]`);
         if (teamBox) {
           const userName = currentUser.displayName || "Anonymous";
@@ -130,38 +134,11 @@ const loadUserTeam = () => {
         }
       }
     }
-  }).catch((error) => {
+  }).catch(error => {
     console.error("Error loading user team:", error);
     showToast("Failed to load your team information.", 'error');
   });
 };
-
-const loadAllTeams = () => {
-  const teamsRef = ref(db, 'teams');
-  onValue(teamsRef, (snapshot) => {
-    if (snapshot.exists()) {
-      snapshot.forEach((teamSnapshot) => {
-        const teamNumber = teamSnapshot.key;
-        const members = teamSnapshot.val().members || {};
-
-        Object.keys(members).forEach((memberId) => {
-          const member = members[memberId];
-          const teamBox = document.querySelector(`[data-team="${teamNumber}"]`);
-          if (teamBox) {
-            const memberElement = document.createElement('div');
-            memberElement.innerHTML = `
-              <img src="${member.photo}" alt="${member.name}" style="width: 40px; height: 40px; border-radius: 50%;">
-              <span>${member.name}</span>
-            `;
-            teamBox.appendChild(memberElement);
-          }
-        });
-      });
-    }
-  });
-};
-
-loadAllTeams();
 
 
   const showToast = (message, type = 'info') => {
