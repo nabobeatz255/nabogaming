@@ -136,27 +136,27 @@ const handleBoxClick = (box) => {
           showToast(`Player ${teamNumber} is already taken. Please choose another number.`, 'warning');
         } else {
           const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
-          set(teamRef, {
-            name: userName,
-            photo: userPhoto
-          }).then(() => {
-            showToast(`Welcome player ${teamNumber}!`, 'success');
-            box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-            box.querySelector('h5').textContent = userName;
-            updateUserTeam(currentUser.uid, teamNumber);
-          }).catch(error => {
-            console.error("Error joining team:", error);
-            showToast("Failed to join as a player. Please try again.", 'error');
-          });
-        }
-      }).catch(error => {
-        console.error("Error checking team box:", error);
-      });
-    }
-  }).catch(error => {
-    console.error("Error checking user team:", error);
-  });
-};
+// Inside handleBoxClick function where the player is successfully added
+set(teamRef, {
+  name: userName,
+  photo: userPhoto
+}).then(() => {
+  showToast(`Welcome player ${teamNumber}!`, 'success');
+  
+  // Update the box content with photo, name, and player number
+  box.querySelector('.plus-box').innerHTML = `
+    <img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">
+    <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
+      #${teamNumber}
+    </div>`;
+  box.querySelector('h5').textContent = userName;
+
+  updateUserTeam(currentUser.uid, teamNumber);
+}).catch(error => {
+  console.error("Error joining team:", error);
+  showToast("Failed to join as a player. Please try again.", 'error');
+});
+
 
 
 
