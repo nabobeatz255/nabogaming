@@ -121,7 +121,7 @@ const loadTeams = () => {
           const members = Object.values(teamsData[teamNumber].members || {});
           teamBox.querySelector('.members-list').innerHTML = members.map(member =>
             `<div class="member">
-              <img src="${member.photo}" alt="${member.name}" style="width: 30px; height: 30px; border-radius: 50%;">
+              <img src="${member.photo}" alt="${member.name}" style="width: 60px; height: 60px; border-radius: 50%;">
               <span>${member.name}</span>
             </div>`
           ).join('');
@@ -134,7 +134,7 @@ const loadTeams = () => {
   });
 };
 
-loadTeams();
+
 
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
