@@ -48,79 +48,84 @@
   const storage = getStorage(app);
 
   let currentUser = null;
- onAuthStateChanged(auth, (user) => {
+
+onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   if (user) {
-    loadPosts(); 
-    loadLikedPosts(); 
-    displayUserDetails();
-    loadMessages();
-    loadUserTeam();
+    await loadUserData();
   } else {
     showToast("You are not signed in. Redirecting to login...", 'error');
     window.location.href = "index.html";
+    return; // Prevent further execution
   }
 });
 
+async function loadUserData() {
+  try {
+    await loadPosts();
+    await loadLikedPosts();
+    await displayUserDetails();
+    await loadMessages();
+    await loadUserTeam();
+  } catch (error) {
+    console.error("Error loading user data:", error);
+    showToast("Failed to load user data.", 'error');
+  }
+}
 
 document.querySelectorAll('.grid-modali-item').forEach(item => {
   item.addEventListener('click', () => handleBoxClick(item));
 });
 
-const handleBoxClick = (box) => {
-  const teamNumber = box.dataset.team;
-
+async function handleBoxClick(box) {
   if (!currentUser) {
     showToast('Please log in to join a team.', 'error');
     return;
   }
 
+  const teamNumber = box.dataset.team;
   const userName = currentUser.displayName || "Anonymous";
   const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
-  
+
   const userTeamsRef = ref(db, `users/${currentUser.uid}`);
   const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
 
-  get(userTeamsRef).then(userSnapshot => {
+  try {
+    const userSnapshot = await get(userTeamsRef);
     if (userSnapshot.exists()) {
       showToast("You have already joined a team.", 'warning');
-    } else {
-      get(teamMembersRef).then(teamSnapshot => {
-        if (teamSnapshot.exists() && Object.keys(teamSnapshot.val()).length > 0) {
-          showToast("This team is already taken.", 'error');
-        } else {
-          const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
-          const userRef = ref(db, `users/${currentUser.uid}`);
-          
-          const updates = {};
-          updates[`teams/${teamNumber}/members/${currentUser.uid}`] = {
-            name: userName,
-            photo: userPhoto
-          };
-          updates[`users/${currentUser.uid}`] = { team: teamNumber };
-          
-          update(ref(db), updates)
-            .then(() => {
-              console.log("Successfully joined team:", teamNumber);
-              showToast(`You joined Team ${teamNumber}!`, 'success');
-              box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
-              box.querySelector('h5').textContent = userName;
-            })
-            .catch(error => {
-              console.error("Error joining team:", error);
-              showToast("Failed to join team. Please try again.", 'error');
-            });
-        }
-      });
+      return;
     }
-  });
-};
 
-const loadUserTeam = () => {
+    const teamSnapshot = await get(teamMembersRef);
+    if (teamSnapshot.exists() && Object.keys(teamSnapshot.val()).length > 0) {
+      showToast("This team is already taken.", 'error');
+      return;
+    }
+
+    const updates = {};
+    updates[`teams/${teamNumber}/members/${currentUser.uid}`] = { name: userName, photo: userPhoto };
+    updates[`users/${currentUser.uid}`] = { team: teamNumber };
+
+    await update(ref(db), updates);
+    console.log("Successfully joined team:", teamNumber);
+    showToast(`You joined Team ${teamNumber}!`, 'success');
+
+    box.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+    box.querySelector('h5').textContent = userName;
+  } catch (error) {
+    console.error("Error joining team:", error);
+    showToast("Failed to join team. Please try again.", 'error');
+  }
+}
+
+async function loadUserTeam() {
   if (!currentUser) return;
 
   const userTeamsRef = ref(db, `users/${currentUser.uid}`);
-  get(userTeamsRef).then((snapshot) => {
+
+  try {
+    const snapshot = await get(userTeamsRef);
     if (snapshot.exists()) {
       const { team } = snapshot.val();
       if (team) {
@@ -134,12 +139,11 @@ const loadUserTeam = () => {
         }
       }
     }
-  }).catch(error => {
+  } catch (error) {
     console.error("Error loading user team:", error);
     showToast("Failed to load your team information.", 'error');
-  });
-};
-
+  }
+}
 
   const showToast = (message, type = 'info') => {
     const toast = document.createElement('div');
