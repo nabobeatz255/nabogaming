@@ -2087,9 +2087,7 @@ video.addEventListener('loadedmetadata', () => {
       document.addEventListener('input', function (e) {
   if (e.target && e.target.value && typeof e.target.value === 'string') {
     e.target.value = e.target.value.replace(/332004/g, '');
-    const badgeHtml = `<div style="position: relative; display: inline-block;">
-      <img src="badge.svg" alt="Badge" style="position: absolute; top: -10px; left: 0px; width: 20px; height: 20px; z-index: 10; pointer-events: none;">
-    </div>`;
+    const badgeHtml = `<img src="badge.svg" alt="Badge" style="position: absolute; width: 20px; height: 20px; z-index: 10; pointer-events: none;">`;
     const badgeElement = document.createElement('span');
     badgeElement.innerHTML = badgeHtml;
     e.target.parentNode.insertBefore(badgeElement, e.target.nextSibling);
