@@ -225,94 +225,35 @@ const updateUserTeam = (userId, teamNumber) => {
 
 
 
-  // Toast function to display notifications
-  const showToast = (message, type = 'info') => {
-    const toast = document.createElement('div');
-    toast.classList.add('toast', type);
-    toast.textContent = message;
-
-    // Append to the body
-    document.body.appendChild(toast);
-
-    // Remove toast after 3 seconds
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  };
-
-  // CSS Styles for Toast notifications
-  const style = document.createElement('style');
-  style.textContent = `
-.toast {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    padding: 13px; /* Padding for spacing */
-    transform: translateX(-50%);
-    width: 100vw; /* Full width of the viewport */
-    height: 60px;
-    color: white;
-    display: flex; /* Use flexbox for centering */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
-    text-align: center;
-    font-size: 14px;
-    opacity: 0;
-    z-index: 999999;
-    animation: slideFromTop 0.5s ease-out forwards;
-    border-left: 3px solid;
-}
-
-.toast.success {
-    border-left-color: green;
-    border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    background-color: white;
-    color: green;
-}
-
-
-.toast.error {
-    border-left-color: #f44336;
-    background-color: white;
-     border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    color: #f44336;
-}
-
-.toast.info {
-    border-left-color: blue;
-     border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    background-color: white;
-    color: blue;
-}
-
-.toast.warning {
-    border-left-color: #FF9800;
-     border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    background-color: white;
-    color: #FF9800;
-}
-
-/* Slide from top animation */
-@keyframes slideFromTop {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-}
-
+ // Toast function with dynamic icons and modern fade-out
+const showToast = (message, type = 'info') => {
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${getIcon(type)}</span>
+    <span class="toast-message">${message}</span>
   `;
-  document.head.appendChild(style);
 
+  document.body.appendChild(toast);
 
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    toast.addEventListener('animationend', () => toast.remove());
+  }, 3000);
+};
 
+// Function to return appropriate icons for each type
+const getIcon = (type) => {
+  switch (type) {
+    case 'success': return '✔️';
+    case 'error': return '❌';
+    case 'warning': return '⚠️';
+    case 'info': return '<i class="ri-notification-line></i>';
+    default: return '';
+  }
+};
+
+ 
 
 
   const formatTimestamp = (timestamp) => {
