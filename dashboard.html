@@ -74,7 +74,7 @@
 let currentUser = null;
 // Define the list of premium users (add UIDs of premium users manually)
 const premiumUsers = [
-    "YHEaohWk14M5V2zpJ0miMFDSxmA2",
+    "Sw9hx2GrwMYPkmzimgOMsTEbKK53",
 ];
 
 onAuthStateChanged(auth, (e) => {
@@ -95,6 +95,7 @@ onAuthStateChanged(auth, (e) => {
         } else {
             showToast("You are not a premium user. Some features may be unavailable.", "info");
             showJoinPremiumButton(); // Show the Join Premium button for non-premium users
+            showFreeUserAds(); // Show ads for free users
         }
     } else {
         showToast("You are not signed in. Redirecting to login...", "error");
@@ -117,6 +118,10 @@ const enablePremiumFeatures = () => {
 
         // Append the premium label after the username
         element.innerHTML += premiumLabel; // Use innerHTML to insert HTML content
+
+        // Change username color to blue and make it bold
+        element.style.color = "blue";
+        element.style.fontWeight = "bold";
     });
 };
 
@@ -127,6 +132,14 @@ const showJoinPremiumButton = () => {
         const joinPremiumBtn = `<button class="join-premium-btn">Join Premium</button>`; // HTML for the join premium button
         element.innerHTML += joinPremiumBtn; // Insert button HTML after the username
     });
+};
+
+// Function to show ads for free users
+const showFreeUserAds = () => {
+    const freeUserAdsElement = document.getElementById('free-user-ads');
+    if (freeUserAdsElement) {
+        freeUserAdsElement.style.display = 'block'; // Show ads for free users
+    }
 };
 
 
