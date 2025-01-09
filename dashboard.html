@@ -398,7 +398,7 @@ const displayPost = (post, container, isMyPost) => {
   const commentCount = post.comments ? Object.keys(post.comments).length : 0;
 
   const postElement = document.createElement("div");
-  postElement.className = "instagram-post-2";
+  postElement.className = "instagram-post-2 toggle-comments";
   postElement.setAttribute("data-post-id", post.postId);
 
   const shareUrl = `${window.location.origin}/dashboard.html?postId=${post.postId}`;
@@ -448,7 +448,7 @@ const displayPost = (post, container, isMyPost) => {
 
   // Add event listener for opening the post in a new tab
   postElement.querySelector(".post-image img").addEventListener("click", () => {
-    showToast("Please wait for the shared post...", "info"); 
+    showToast("Post ilitengenezwa ${formatTimestamp(post.timestamp)}", "info"); 
   });
 
   if (isMyPost) {
