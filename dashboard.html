@@ -68,7 +68,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   if (currentUser) {
-    // Fetch current user's team and place them in their selected box
+    // Fetch current user team and place them in their selected box
     const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
     get(userTeamsRef).then(snapshot => {
       if (snapshot.exists()) {
@@ -141,7 +141,7 @@ set(teamRef, {
   name: userName,
   photo: userPhoto
 }).then(() => {
-  showToast(`Welcome player ${teamNumber}!`, 'success');
+  showToast(`Welcome player ${teamNumber}!`, uccess');
   
   // Update the box content with photo, name, and player number
 
@@ -245,7 +245,7 @@ const updateUserTeam = (userId, teamNumber) => {
   };
 
   // CSS Styles for Toast notifications
-  const style = document.createElement('style');
+  const style = document.createElement(tyle');
   style.textContent = `
 .toast {
     position: fixed;
@@ -418,8 +418,8 @@ const displayPost = (post, container, isMyPost) => {
                   <ul>
                   ${isMyPost ? `<li class="edit-btn" data-id="${post.postId}">Edit The Post</li>` : ""}
                   <li class="toggle-comments" data-id="${post.postId}">View Post</li>
-  <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post</li>
-                <li class="share-btn" data-id="${post.postId}" data-url="${shareUrl}">Share ${post.authorName}'s Post</li>
+  <li class="like-btn" data-id="${post.postId}">Like ${post.authorName} Post</li>
+                <li class="share-btn" data-id="${post.postId}" data-url="${shareUrl}">Share ${post.authorName} Post</li>
                   <li><span class="comment-count">Current comments ${commentCount}</span></li>
                     ${isMyPost ? `<li class="delete-post-btn" data-id="${post.postId}">Delete My Post</li>` : ""}
                   </ul>
@@ -488,7 +488,7 @@ const showCommentsPopup = (post) => {
     <div class="comments-popup-content">
  <div class="post-header">
       <div class="profile-details">
-        <div class="profile-name">${post.authorName}'s post</div>
+        <div class="profile-name">${post.authorName} post</div>
         <div class="post-time-2">Posted ${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
       </div>
 <span class="close-popup"><i class="ri-close-line"></i></span>
@@ -541,7 +541,7 @@ const showCommentsPopup = (post) => {
       showToast("unliked", 'info');
     } else {
       await set(postRef, true);  // Add like
-      showToast("you liked the post", 'success');
+      showToast("you liked the post", uccess');
     }
     loadPosts();  // Reload to reflect the changes
   };
@@ -554,7 +554,7 @@ const showCommentsPopup = (post) => {
 
     const commentId = push(ref(db, `posts/${postId}/comments`)).key;
     await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showToast("comment added", 'success');
+    showToast("comment added", uccess');
     loadPosts();  // Reload posts to show the new comment
   };
 
@@ -562,7 +562,7 @@ const showCommentsPopup = (post) => {
     const postRef = ref(db, `posts/${postId}`);
     await remove(postRef);  // Delete the post
     loadPosts();  // Reload posts to remove the deleted post
-    showToast("post imefutwa", 'success');
+    showToast("post imefutwa", uccess');
   };
 
   const editPost = (post) => {
@@ -570,7 +570,7 @@ const showCommentsPopup = (post) => {
     if (newContent !== null) {
       const postRef = ref(db, `posts/${post.postId}`);
       update(postRef, { content: newContent });
-      showToast("post imeupdatiwa", 'success');
+      showToast("post imeupdatiwa", uccess');
       loadPosts();  // Reload posts to show updated content
     }
   };
@@ -608,7 +608,7 @@ const showCommentsPopup = (post) => {
         comments: {},
       });
 
-      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      showToast("Post yako imetengenezwa tayari...reloading!", uccess');
       window.location.reload();  // Reload the page after successful upload
     } catch (error) {
       console.error("Error creating post:", error);
@@ -645,7 +645,7 @@ const updateUserProfile = async () => {
         await updateProfile(user, {
           displayName: newUsername,
         });
-        showToast("Username updated successfully!", 'success');
+        showToast("Username updated successfully!", uccess');
       } catch (profileError) {
         console.error("Error updating username:", profileError);
         showToast("Error updating username. Please try again.", 'error');
@@ -668,11 +668,11 @@ const updateUserProfile = async () => {
         const newProfilePictureUrl = await getDownloadURL(storageReference);
         console.log("New profile picture URL:", newProfilePictureUrl);
 
-        // Update the user's profile with the new picture
+        // Update the user profile with the new picture
         await updateProfile(user, {
           photoURL: newProfilePictureUrl,
         });
-        showToast("Profile picture updated successfully!", 'success');
+        showToast("Profile picture updated successfully!", uccess');
       } catch (uploadError) {
         console.error("Error uploading profile picture:", uploadError);
         showToast("Error uploading profile picture. Please try again.", 'error');
@@ -759,7 +759,7 @@ const loadMessages = () => {
       
        <div class="post-header getNow">
       <div class="profile-picture">
-        <img src="${profilePicture}" alt="${message.senderName}'s profile picture" >
+        <img src="${profilePicture}" alt="${message.senderName} profile picture" >
       </div>
       <div class="profile-details">
         <div class="profile-name">${message.senderName}</div>
@@ -795,9 +795,9 @@ const sendMessage = async () => {
 
   // Clear the input field after sending the message
   messageInput.value = '';
-  showToast("Message sent!", 'success');
+  showToast("Message sent!", uccess');
 };
-document.getElementById('send-message-button')?.addEventListener('click', sendMessage);
+document.getElementById(end-message-button')?.addEventListener('click', sendMessage);
 </script>
 
 
@@ -941,9 +941,9 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
   </div>
  <!-- <section class=tabs>
     <div class=tab-header>
-<button onclick='showTab("trending")'>Trending</button>
-<button onclick='showTab("latest")'>Latest</button>
-<button onclick='showTab("popular")'>Popular</button>
+<button onclick=howTab("trending")'>Trending</button>
+<button onclick=howTab("latest")'>Latest</button>
+<button onclick=howTab("popular")'>Popular</button>
     </div>
     <div class=tab-content id=trending>
 <p>Trending games will appear here.</p>
@@ -1311,7 +1311,7 @@ Please Wait.....
     </div>
 <br><br>
     <!-- User Posts Section -->
-    <h3 style="text-align: center">Posts Zangu (<span class="user-name">No data</span>'s Post)</h3><br>
+    <h3 style="text-align: center">Posts Zangu (<span class="user-name">No data</span> Post)</h3><br>
     
     <div id="myposts" class="post-grid">
     <div class="card-preloader">
@@ -1441,7 +1441,7 @@ Please Wait.....
       <span class="close-btn" onclick="closeCreateModal()"></span>
       <section class="hero" style="background:white" id="create-post">
           <div class="hero-content">
-        <h3 style="color: black;    margin-top: 10px;">Create Your New <span class="user-name"></span>'s Post</h3><br>
+        <h3 style="color: black;    margin-top: 10px;">Create Your New <span class="user-name"></span> Post</h3><br>
         <input type="text" id="new-post-caption" placeholder="Write a caption...">
         <div class="file-upload-container">
   <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()" class="file-input">
@@ -1742,15 +1742,15 @@ document.getElementById('close-btn').addEventListener('click', () => {
 });
     </script>
     <script>
-        if ('serviceWorker' in navigator) {
+        if (erviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/service-worker.js')
       .then((registration) => {
-        console.log('Service Worker registered with scope:', registration.scope);
+        console.log(ervice Worker registered with scope:', registration.scope);
       })
       .catch((error) => {
-        console.log('Service Worker registration failed:', error);
+        console.log(ervice Worker registration failed:', error);
       });
   });
 }
@@ -1946,7 +1946,7 @@ notifyPopup.classList.add("hidden");
   this.textContent = 'Uploading Please Wait';
   
   // Add dynamic loading dots
-  let loadingDots = document.createElement('span');
+  let loadingDots = document.createElement(pan');
   loadingDots.id = 'loading-dots';
   this.appendChild(loadingDots);
   
@@ -1980,7 +1980,7 @@ notifyPopup.classList.add("hidden");
                 suggestionsList.style.display = 'block';
                 filteredItems.forEach(item => {
                     const div = document.createElement('div');
-                    div.classList.add('suggestion-item');
+                    div.classList.add(uggestion-item');
                     div.innerHTML = item;  // Use innerHTML to render HTML content like <strong> tags
                     
                     // Set up the onclick event
@@ -2103,7 +2103,7 @@ video.addEventListener('loadedmetadata', () => {
   video.currentTime = 0; // Set the video time to 0 to capture the first frame
 
   // Once the video has loaded the first frame, draw it to the canvas
-  video.addEventListener('seeked', () => {
+  video.addEventListener(eeked', () => {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // Convert the canvas to a data URL (base64 image)
@@ -2116,7 +2116,7 @@ video.addEventListener('loadedmetadata', () => {
   </script>
   <script>
 document.addEventListener('input', function (e) {
-  if (e.target && e.target.value && typeof e.target.value === 'string') {
+  if (e.target && e.target.value && typeof e.target.value === tring') {
     e.target.value = e.target.value.replace(/332004/g, '<i class="ri-vip-crown-fill" style="color: #0081FF; font-size: 15px; width: 15px; height: 15px; display: inline-block; vertical-align: middle;"></i>');
   }
 });
