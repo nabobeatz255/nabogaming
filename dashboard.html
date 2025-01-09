@@ -2209,19 +2209,42 @@ video.addEventListener('loadedmetadata', () => {
 });
   </script>
 <script>
-        let progressElement = document.getElementById('progress');
-        let progress = 1;
-        let interval = 5000 / 100; // 5 seconds divided by 100 steps (1% to 100%)
+    let progressElement = document.getElementById('progress');
+let progress = 1;
+let interval = 5000 / 97; // Dividing 5000 ms by 97 to account for pauses
 
-        let timer = setInterval(() => {
-            if (progress <= 100) {
-                progressElement.textContent = progress + '%';
-                progress++;
-            } else {
-                clearInterval(timer);
-                document.getElementById('preloader').style.display = 'none';
-            }
-        }, interval);
-    </script>
+// Pause points at random percentages
+const pausePoints = [27, 60, 95]; // Add or change these values as needed
+
+let timer = setInterval(() => {
+    if (progress < 100) {
+        progressElement.textContent = progress + '%';
+        
+        if (pausePoints.includes(progress)) {
+            clearInterval(timer);
+            let delay = progress === 95 ? 2000 : 500; // 2-second delay at 95%, 500ms at other pause points
+            setTimeout(() => {
+                timer = setInterval(step, interval);
+            }, delay);
+        } else {
+            progress++;
+        }
+    } else {
+        clearInterval(timer);
+        document.getElementById('preloader').style.display = 'none';
+    }
+}, interval);
+
+function step() {
+    if (progress < 100) {
+        progressElement.textContent = progress + '%';
+        progress++;
+    } else {
+        clearInterval(timer);
+        document.getElementById('preloader').style.display = 'none';
+    }
+}
+
+</script>
   </body>
 </html>
