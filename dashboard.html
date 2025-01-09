@@ -27,12 +27,20 @@
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
 <style>
-    .premium-badge {
-    width: 20px;
-    height: 20px;
-    margin-left: 10px;
-}
-
+  #preloader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            background-color: #fff;
+            color: #000;
+            font-size: 2rem;
+            position: fixed;font-weight: bold;
+            top: 0;
+            left: 0;
+            z-index: 9999999;
+        }
 .join-premium-btn {
     background-color: #3aafa9;
     color: white;
@@ -884,6 +892,10 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
 
  </head>
   <body>
+      <div id="preloader">
+        <span id="progress">0%</span>
+    </div>
+
     <div class=dashboard  id="app">
     <nav class="sidebar desktop-sidebar">
 <h2>Dashboard</h2>
@@ -2196,6 +2208,20 @@ video.addEventListener('loadedmetadata', () => {
   });
 });
   </script>
+<script>
+        let progressElement = document.getElementById('progress');
+        let progress = 1;
+        let interval = 5000 / 100; // 5 seconds divided by 100 steps (1% to 100%)
 
+        let timer = setInterval(() => {
+            if (progress <= 100) {
+                progressElement.textContent = progress + '%';
+                progress++;
+            } else {
+                clearInterval(timer);
+                document.getElementById('preloader').style.display = 'none';
+            }
+        }, interval);
+    </script>
   </body>
 </html>
