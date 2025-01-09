@@ -28,10 +28,24 @@
     <link rel=stylesheet href=remixicon.min.css>
 <style>
     .premium-badge {
-    width: 20px; /* Adjust size */
-    height: auto;
-    margin-left: 5px; /* Space between name and badge */
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
 }
+
+.join-premium-btn {
+    background-color: #3aafa9;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.join-premium-btn:hover {
+    background-color: #2b8f8a;
+}
+
+
 
 </style>
 
@@ -58,6 +72,7 @@
 
   
   
+
 let currentUser = null;
 // Define the list of premium users (add UIDs of premium users manually)
 const premiumUsers = [
@@ -81,6 +96,7 @@ onAuthStateChanged(auth, (e) => {
             enablePremiumFeatures();
         } else {
             showToast("You are not a premium user. Some features may be unavailable.", "info");
+            showJoinPremiumButton(); // Show the Join Premium button for non-premium users
         }
     } else {
         showToast("You are not signed in. Redirecting to login...", "error");
@@ -104,6 +120,17 @@ const enablePremiumFeatures = () => {
         badgeImg.alt = "Premium User Badge";
         badgeImg.classList.add("premium-badge"); // Optional: Add a class for styling
         userNameElement.appendChild(badgeImg); // Append the badge image next to the user's name
+    }
+};
+
+// Function to show a "Join Premium" button for non-premium users
+const showJoinPremiumButton = () => {
+    const userNameElement = document.getElementById("user-name");
+    if (userNameElement) {
+        const joinPremiumBtn = document.createElement("button");
+        joinPremiumBtn.textContent = "Join Premium"; // Button text
+        joinPremiumBtn.classList.add("join-premium-btn"); // Add any custom styles
+        userNameElement.appendChild(joinPremiumBtn); // Append the button to the user's name section
     }
 };
 
