@@ -28,21 +28,23 @@
     <link rel=stylesheet href=remixicon.min.css>
 <style>
     .toast {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 20px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  font-family: 'Arial', sans-serif;
-  font-size: 14px;
-  opacity: 0;
-  z-index: 10000;
-  animation: slideFromTop 0.5s ease-out forwards;
+position: fixed;
+    top: 0;
+    left: 50%;
+    padding: 13px; /* Padding for spacing */
+    transform: translateX(-50%);
+    width: 100vw; /* Full width of the viewport */
+    height: 60px;
+    color: white;
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    text-align: center;
+    font-size: 14px;
+    opacity: 0;
+    z-index: 999999;
+    animation: slideFromTop 0.5s ease-out forwards;
+    border-left: 3px solid;
 }
 
 .toast-success {
