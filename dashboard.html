@@ -26,83 +26,7 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
-<style>
-    .toast {
-position: fixed;
-    top: 0;
-    left: 50%;
-    padding: 13px; /* Padding for spacing */
-    transform: translateX(-50%);
-    width: 100vw; /* Full width of the viewport */
-    height: 60px;
-    color: white;
-    display: flex; /* Use flexbox for centering */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
-    text-align: center;
-    font-size: 14px;
-    opacity: 0;
-    z-index: 999999;
-    animation: slideFromTop 0.5s ease-out forwards;
-    border-left: 3px solid;
-}
 
-.toast-success {
-  border-left: 5px solid green;
-  background-color: white;
-  color: green;
-}
-
-.toast-error {
-  border-left: 5px solid #f44336;
-  background-color: white;
-  color: #f44336;
-}
-
-.toast-warning {
-  border-left: 5px solid #ff9800;
-  background-color: white;
-  color: #ff9800;
-}
-
-.toast-info {
-  border-left: 5px solid blue;
-  background-color: white;
-  color: blue;
-}
-
-.toast-icon {
-  font-size: 18px;
-  border: 1px solid #ccc;
-  margin-left: 70px;
-  border-radius: 10px;
-}
-
-.fade-out {
-  animation: fadeOut 0.5s forwards;
-}
-
-@keyframes slideFromTop {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-</style>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -302,37 +226,94 @@ const updateUserTeam = (userId, teamNumber) => {
 
 
 
-// Toast function with HTML icon support
-const showToast = (message, type = 'info') => {
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.innerHTML = `
-    <span class="toast-message">${message}</span>
-     <span>${getIcon(type)}</span>
+
+
+
+  // Toast function to display notifications
+  const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.classList.add('toast', type);
+    toast.textContent = message;
+
+    // Append to the body
+    document.body.appendChild(toast);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  };
+
+  // CSS Styles for Toast notifications
+  const style = document.createElement('style');
+  style.textContent = `
+.toast {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    padding: 13px; /* Padding for spacing */
+    transform: translateX(-50%);
+    width: 100vw; /* Full width of the viewport */
+    height: 60px;
+    color: white;
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    text-align: center;
+    font-size: 14px;
+    opacity: 0;
+    z-index: 999999;
+    animation: slideFromTop 0.5s ease-out forwards;
+    border-left: 3px solid;
+}
+
+.toast.success {
+    border-left-color: green;
+    border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    background-color: white;
+    color: green;
+}
+
+
+.toast.error {
+    border-left-color: #f44336;
+    background-color: white;
+     border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    color: #f44336;
+}
+
+.toast.info {
+    border-left-color: blue;
+     border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    background-color: white;
+    color: blue;
+}
+
+.toast.warning {
+    border-left-color: #FF9800;
+     border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    background-color: white;
+    color: #FF9800;
+}
+
+/* Slide from top animation */
+@keyframes slideFromTop {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
   `;
-
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.classList.add('fade-out');
-    toast.addEventListener('animationend', () => toast.remove());
-  }, 3000);
-};
-
-const getIcon = (type) => {
-  switch (type) {
-    case 'error':
-      return '<i class="toast-icon ri-close-circle-line"></i>';
-    case 'warning':
-      return '<i class="toast-icon ri-error-warning-line"></i>';
-    default:
-      return '';
-  }
-};
-
-
- 
-
+  document.head.appendChild(style);
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
@@ -428,7 +409,8 @@ const displayPost = (post, container, isMyPost) => {
         <img src="${post.authorPhoto}" alt="User profile picture">
       </div>
       <div class="profile-details">
-        <div class="profile-name">${post.authorName}${code}</div>
+        <div class="profile-name">${post.authorName}</div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
       </div>
         <div class="post-options">
                 <i class="ri-more-fill"></i>
@@ -436,20 +418,19 @@ const displayPost = (post, container, isMyPost) => {
                   <ul>
                   ${isMyPost ? `<li class="edit-btn" data-id="${post.postId}">Edit The Post</li>` : ""}
                   <li class="toggle-comments" data-id="${post.postId}">View Post</li>
-  <li class="like-btn" data-id="${post.postId}">Like ${post.authorName} Post</li>
-                <li class="share-btn" data-id="${post.postId}" data-url="${shareUrl}">Share ${post.authorName} Post</li>
+  <li class="like-btn" data-id="${post.postId}">Like ${post.authorName}'s Post</li>
+                <li class="share-btn" data-id="${post.postId}" data-url="${shareUrl}">Share ${post.authorName}'s Post</li>
                   <li><span class="comment-count">Current comments ${commentCount}</span></li>
                     ${isMyPost ? `<li class="delete-post-btn" data-id="${post.postId}">Delete My Post</li>` : ""}
                   </ul>
                 </div>
               </div>
     </div>
-        
-    <div class="post-image>
+    <div class="post-image toggle-comments">
       <img src="${post.imageUrl}" alt="Post content">
     </div>
     <div class="caption">
-      <span class="username">${post.authorName}${code}</span> ${post.content}
+      <span class="username">${post.authorName}</span> ${post.content}
     </div>
   `;
 
@@ -468,8 +449,8 @@ const displayPost = (post, container, isMyPost) => {
 
   // Add event listener for opening the post in a new tab
   postElement.querySelector(".post-image img").addEventListener("click", () => {
-
-
+    showToast("Please wait for the shared post...", "info"); // Toast message
+    window.open(shareUrl, "_blank"); // Open the shared post in a new tab
   });
 
   if (isMyPost) {
@@ -507,7 +488,7 @@ const showCommentsPopup = (post) => {
     <div class="comments-popup-content">
  <div class="post-header">
       <div class="profile-details">
-        <div class="profile-name">${post.authorName} post</div>
+        <div class="profile-name">${post.authorName}'s post</div>
         <div class="post-time-2">Posted ${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
       </div>
 <span class="close-popup"><i class="ri-close-line"></i></span>
@@ -729,13 +710,13 @@ const displayUserDetails = () => {
   const userName = user.displayName || "Anonymous";
   const userEmail = user.email || "No email available";
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
-document.querySelectorAll('.user-name').forEach(element => {
-  element.innerHTML = userName;  // Set user name with HTML support
-});
 
+  document.querySelectorAll('.user-name').forEach(element => {
+    element.textContent = userName;  // Set user name
+  });
 
   document.querySelectorAll('.user-email').forEach(element => {
-    element.innerHTML = userEmail;  // Set user email
+    element.textContent = userEmail;  // Set user email
   });
 
   document.querySelectorAll('.profile-picture').forEach(element => {
@@ -843,7 +824,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     </div>
 
     <div class=icons style="margin-top: -17px">
-<div class="icon-container" style="margin-right: 0;border:1px solid #ddd;border-radius:5px;padding: 5px 5px 3px">
+<div class="icon-container" style="margin-right:5px;border:1px solid #ddd;border-radius:5px;padding: 5px 5px 3px">
   <i class="ri-notification-line" id="toggleNotify" style="font-size: 20px;"></i>
   <!--span class="badger">1</span-->
 </div>
@@ -925,7 +906,38 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     <div class="preloader-line"></div>
   </div>
 </div>
-
+<div class="card-preloader">
+  <div class="preloader-image"></div>
+  <div class="preloader-content">
+    <div class="preloader-title"></div>
+    <div class="preloader-line"></div>
+    <div class="preloader-line"></div>
+  </div>
+</div>
+<div class="card-preloader">
+  <div class="preloader-image"></div>
+  <div class="preloader-content">
+    <div class="preloader-title"></div>
+    <div class="preloader-line"></div>
+    <div class="preloader-line"></div>
+  </div>
+</div>
+<div class="card-preloader">
+  <div class="preloader-image"></div>
+  <div class="preloader-content">
+    <div class="preloader-title"></div>
+    <div class="preloader-line"></div>
+    <div class="preloader-line"></div>
+  </div>
+</div>
+<div class="card-preloader">
+  <div class="preloader-image"></div>
+  <div class="preloader-content">
+    <div class="preloader-title"></div>
+    <div class="preloader-line"></div>
+    <div class="preloader-line"></div>
+  </div>
+</div>
   </div>
  <!-- <section class=tabs>
     <div class=tab-header>
@@ -1299,7 +1311,7 @@ Please Wait.....
     </div>
 <br><br>
     <!-- User Posts Section -->
-    <h3 style="text-align: center">Posts Zangu (<span class="user-name">No data</span> Post)</h3><br>
+    <h3 style="text-align: center">Posts Zangu (<span class="user-name">No data</span>'s Post)</h3><br>
     
     <div id="myposts" class="post-grid">
     <div class="card-preloader">
@@ -1429,7 +1441,7 @@ Please Wait.....
       <span class="close-btn" onclick="closeCreateModal()"></span>
       <section class="hero" style="background:white" id="create-post">
           <div class="hero-content">
-        <h3 style="color: black;    margin-top: 10px;">Create Your New Post</h3><br>
+        <h3 style="color: black;    margin-top: 10px;">Create Your New <span class="user-name"></span>'s Post</h3><br>
         <input type="text" id="new-post-caption" placeholder="Write a caption...">
         <div class="file-upload-container">
   <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()" class="file-input">
@@ -1826,7 +1838,7 @@ function updateTimeAgo() {
     const timestamp = element.getAttribute("data-timestamp");
     if (timestamp) {
 const timeAgo = getTimeAgo(new Date(timestamp));
-element.innerHTML = timeAgo;
+element.textContent = timeAgo;
     }
   });
 }
@@ -1891,7 +1903,7 @@ notifyPopup.classList.add("hidden");
       const captions = document.querySelectorAll(".caption span");
 
       captions.forEach((caption) => {
-        const fullText = caption.innerHTML.trim();
+        const fullText = caption.textContent.trim();
         const words = fullText.split(" ");
         const maxWords = 10;
 
@@ -1902,16 +1914,16 @@ notifyPopup.classList.add("hidden");
           const toggleButton = document.createElement("button");
 
           // Set up elements
-          fullCaption.innerHTML = fullText;
-          ellipsis.innerHTML = "...";
-          toggleButton.innerHTML = "More";
+          fullCaption.textContent = fullText;
+          ellipsis.textContent = "...";
+          toggleButton.textContent = "More";
 
           fullCaption.className = "full-caption";
           ellipsis.className = "ellipsis";
           toggleButton.className = "toggle-button";
 
           // Clear and rebuild the caption container
-          caption.innerHTML = shortText;
+          caption.textContent = shortText;
           caption.parentNode.appendChild(ellipsis);
           caption.parentNode.appendChild(fullCaption);
           caption.parentNode.appendChild(toggleButton);
@@ -1921,7 +1933,7 @@ notifyPopup.classList.add("hidden");
             const isExpanded = fullCaption.style.display === "inline";
             fullCaption.style.display = isExpanded ? "none" : "inline";
             ellipsis.style.display = isExpanded ? "inline" : "none";
-            toggleButton.innerHTML = isExpanded ? "More" : "Less";
+            toggleButton.textContent = isExpanded ? "More" : "Less";
           });
         }
       });
@@ -1931,7 +1943,7 @@ notifyPopup.classList.add("hidden");
   <script>
   document.getElementById('create-post-button').addEventListener('click', function() {
   // Change text to "Uploading"
-  this.innerHTML = 'Uploading Please Wait';
+  this.textContent = 'Uploading Please Wait';
   
   // Add dynamic loading dots
   let loadingDots = document.createElement('span');
@@ -1940,7 +1952,7 @@ notifyPopup.classList.add("hidden");
   
   // Optionally, you can simulate some delay to change back after a while
   setTimeout(() => {
-    this.innerHTML = 'Upload Post Now';
+    this.textContent = 'Upload Post Now';
     this.removeChild(loadingDots);
   }, 1000000);  // Reset after 5 seconds (you can adjust this duration)
 });
@@ -1997,9 +2009,9 @@ notifyPopup.classList.add("hidden");
   const fileInput = document.getElementById('new-post-image');
   const fileNameDisplay = document.getElementById('file-name');
   if (fileInput.files.length > 0) {
-    fileNameDisplay.innerHTML = fileInput.files[0].name;
+    fileNameDisplay.textContent = fileInput.files[0].name;
   } else {
-    fileNameDisplay.innerHTML = 'Please add an image...';
+    fileNameDisplay.textContent = 'Please add an image...';
   }
 }
     </script>
@@ -2102,13 +2114,10 @@ video.addEventListener('loadedmetadata', () => {
   });
 });
   </script>
-<script>
-    document.addEventListener('input', function (e) {
+  <script>
+document.addEventListener('input', function (e) {
   if (e.target && e.target.value && typeof e.target.value === 'string') {
-    // Do not modify user input directly to HTML. Keep it as plain text.
-    if (e.target.value.includes('332004')) {
-      e.target.dataset.codeReference = e.target.value.replace(/332004/g, '${code}');
-    }
+    e.target.value = e.target.value.replace(/332004/g, '<i class="ri-vip-crown-fill" style="color: #0081FF; font-size: 15px; width: 15px; height: 15px; display: inline-block; vertical-align: middle;"></i>');
   }
 });
 
@@ -2119,30 +2128,22 @@ document.addEventListener('keyup', function (e) {
     let text = range.toString();
     
     if (text.includes('332004')) {
-      let codeReference = text.replace(/332004/g, '${code}'); // Mark it with a placeholder
-      let tempDiv = document.createElement('div');
-      tempDiv.textContent = codeReference; // Use textContent to avoid converting it to HTML
-
+      let replacementHTML = text.replace(/332004/g, '<i class="ri-vip-crown-fill" style="color: #0081FF; font-size: 15px; width: 15px; height: 15px; display: inline-block; vertical-align: middle;"></i>');
+      
       let fragment = document.createDocumentFragment();
-      while (tempDiv.firstChild) {
-        fragment.appendChild(tempDiv.firstChild);
-      }
+      let tempDiv = document.createElement('div');
+      tempDiv.innerHTML = replacementHTML;
 
+      while (tempDiv.firstChild) {
+        fragment.appendChild(tempDiv.firstChild);  // Move nodes into the fragment
+      }
+      
       range.deleteContents();
-      range.insertNode(fragment);  // Insert the plain text version with placeholder
+      range.insertNode(fragment);
     }
   }
 });
 
-// Example to move and dynamically apply the replacement later
-function applyCodeReplacement(targetElement) {
-  const referenceText = targetElement.dataset.codeReference || '';
-  if (referenceText) {
-    const finalHTML = referenceText.replace(/\${code}/g, '<img src="badge.svg" style="width: 17px; height: 17px;margin: 0;display: inline-block; vertical-align: middle;">');
-    targetElement.innerHTML = finalHTML;
-  }
-}
-
-</script>
+  </script>
   </body>
 </html>
