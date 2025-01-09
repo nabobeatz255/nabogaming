@@ -71,7 +71,7 @@
   const storage = getStorage(app);
 
   
-  let currentUser = null;
+let currentUser = null;
 // Define the list of premium users (add UIDs of premium users manually)
 const premiumUsers = [
     "YHEaohWk14M5V2zpJ0miMFDSxmA2",
@@ -111,28 +111,24 @@ const enablePremiumFeatures = () => {
     document.getElementById("premium-post-btn")?.classList.remove("hidden"); // Example button for premium users
 
     // Add "Premium" label or icon next to the user's name
-    const userNameElement = document.getElementById("user-name"); // Assumes user name is displayed in an element with ID "user-name"
-    if (userNameElement) {
-        const premiumLabel = document.createElement("span");
-        premiumLabel.textContent = "Premium"; // Add a text label or use an icon
-        premiumLabel.classList.add("premium-label"); // Optional: Add a class for styling
+    const userNameElements = document.querySelectorAll('.user-name'); // Select all elements with the class "user-name"
+    userNameElements.forEach(element => {
+        const premiumLabel = `<span class="premium-label">Premium</span>`; // HTML string for the premium label
 
-        userNameElement.appendChild(premiumLabel); // Append the premium label or icon next to the user's name
-    }
+        // Append the premium label after the username
+        element.innerHTML += premiumLabel; // Use innerHTML to insert HTML content
+    });
 };
 
 // Function to show a "Join Premium" button for non-premium users
 const showJoinPremiumButton = () => {
-    const userNameElement = document.getElementById("user-name");
-    if (userNameElement) {
-        const joinPremiumBtn = document.createElement("button");
-        joinPremiumBtn.textContent = "Join Premium"; // Button text
-        joinPremiumBtn.classList.add("join-premium-btn"); // Add any custom styles
-        userNameElement.appendChild(joinPremiumBtn); // Append the button to the user's name section
-    }
+    const userNameElements = document.querySelectorAll('.user-name');
+    userNameElements.forEach(element => {
+        const joinPremiumBtn = `<button class="join-premium-btn">Join Premium</button>`; // HTML for the join premium button
+        element.innerHTML += joinPremiumBtn; // Insert button HTML after the username
+    });
 };
 
-  
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -781,7 +777,7 @@ const displayUserDetails = () => {
   const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
 
   document.querySelectorAll('.user-name').forEach(element => {
-    element.textContent = userName;  // Set user name
+    element.innerHTML = userName;  // Set user name
   });
 
   document.querySelectorAll('.user-email').forEach(element => {
