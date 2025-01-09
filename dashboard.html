@@ -49,14 +49,13 @@
   const db = getDatabase(app);
   const storage = getStorage(app);
 
-  let currentUser = null;
+  
+  
+ let currentUser = null;
 // Define the list of premium users (add UIDs of premium users manually)
 const premiumUsers = [
     "YHEaohWk14M5V2zpJ0miMFDSxmA2",
 ];
-
-// Check if the current user is a premium user
-const isPremiumUser = premiumUsers.includes(currentUser?.uid);
 
 onAuthStateChanged(auth, (e) => {
     currentUser = e;
@@ -66,6 +65,9 @@ onAuthStateChanged(auth, (e) => {
         displayUserDetails();
         loadMessages();
         loadUserAndTeams();
+
+        // Check if the user is a premium user after the user has been set
+        const isPremiumUser = premiumUsers.includes(currentUser?.uid);
 
         // If the user is a premium user, enable premium features
         if (isPremiumUser) {
@@ -88,7 +90,6 @@ const enablePremiumFeatures = () => {
     document.getElementById("premium-post-btn")?.classList.remove("hidden"); // Example button for premium users
     // More features can be added here, such as unlocking special content, adding exclusive posts, etc.
 };
-
 
 
 
