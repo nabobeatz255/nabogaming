@@ -26,7 +26,14 @@
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
     <link rel=stylesheet href=remixicon.min.css>
+<style>
+    .premium-badge {
+    width: 20px; /* Adjust size */
+    height: auto;
+    margin-left: 5px; /* Space between name and badge */
+}
 
+</style>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -51,7 +58,7 @@
 
   
   
- let currentUser = null;
+let currentUser = null;
 // Define the list of premium users (add UIDs of premium users manually)
 const premiumUsers = [
     "YHEaohWk14M5V2zpJ0miMFDSxmA2",
@@ -88,8 +95,18 @@ const enablePremiumFeatures = () => {
 
     // Example: Enable specific buttons or features
     document.getElementById("premium-post-btn")?.classList.remove("hidden"); // Example button for premium users
-    // More features can be added here, such as unlocking special content, adding exclusive posts, etc.
+
+    // Add premium badge next to the user's name
+    const userNameElement = document.getElementById("user-name"); // Assumes user name is displayed in an element with ID "user-name"
+    if (userNameElement) {
+        const badgeImg = document.createElement("img");
+        badgeImg.src = "badge.svg"; // Path to your premium badge SVG
+        badgeImg.alt = "Premium User Badge";
+        badgeImg.classList.add("premium-badge"); // Optional: Add a class for styling
+        userNameElement.appendChild(badgeImg); // Append the badge image next to the user's name
+    }
 };
+
 
 
 
