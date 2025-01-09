@@ -225,9 +225,10 @@ const updateUserTeam = (userId, teamNumber) => {
 
 
 
+// Append styles to the document
+document.head.appendChild(style);
 
-
-// Toast function to display notifications
+// Updated toast function
 const showToast = (message, type = 'info', cta1 = { label: 'OK', action: () => {} }, cta2 = { label: 'Cancel', action: () => {} }) => {
   const toast = document.createElement('div');
   toast.classList.add('toast', type);
@@ -249,47 +250,32 @@ const showToast = (message, type = 'info', cta1 = { label: 'OK', action: () => {
     toast.remove();
   });
 
-  // Append to the body
   document.body.appendChild(toast);
+
+  // Optional: Automatically remove after 10 seconds if no action is taken
+  setTimeout(() => toast.remove(), 10000);
 };
 
-// CSS Styles for Toast buttons
-const style = document.createElement('style');
+// CSS animation must be included
 style.innerHTML += `
-.toast-buttons {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
+.toast {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px;
+  background: white;
+  border-left: 5px solid;
+  opacity: 0;
+  z-index: 9999;
+  animation: slideFromTop 0.5s forwards;
 }
 
-.toast-btn {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.toast.success .toast-btn {
-  background-color: green;
-  color: white;
-}
-
-.toast.error .toast-btn {
-  background-color: #f44336;
-  color: white;
-}
-
-.toast.info .toast-btn {
-  background-color: blue;
-  color: white;
-}
-
-.toast.warning .toast-btn {
-  background-color: #FF9800;
-  color: white;
-}
+.toast.success { border-left-color: green; }
+.toast.error { border-left-color: red; }
+.toast.info { border-left-color: blue; }
+.toast.warning { border-left-color: orange; }
+/* Slide from top animation */
 @keyframes slideFromTop {
     from {
         opacity: 0;
@@ -300,7 +286,11 @@ style.innerHTML += `
         transform: translateX(-50%) translateY(0);
     }
 }
+
 `;
+
+
+
 
 
 
@@ -440,9 +430,11 @@ const displayPost = (post, container, isMyPost) => {
 
   // Add event listener for opening the post in a new tab
   postElement.querySelector(".post-image img").addEventListener("click", () => {
-   showToast('This is an info toast', 'info', 
-  { label: 'Retry', action: () => alert('Retry clicked!') }, 
-  { label: 'Dismiss', action: () => console.log('Dismissed') }
+
+// Example usage
+showToast('Example notification with buttons!', 'info', 
+  { label: 'Confirm', action: () => alert('Confirmed!') }, 
+  { label: 'Close', action: () => console.log('Closed') }
 );
 
   });
