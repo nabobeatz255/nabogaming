@@ -428,7 +428,7 @@ const displayPost = (post, container, isMyPost) => {
         <img src="${post.authorPhoto}" alt="User profile picture">
       </div>
       <div class="profile-details">
-        <div class="profile-name">${post.authorName}</div>
+        <div class="profile-name">${post.authorName}${code}</div>
       </div>
         <div class="post-options">
                 <i class="ri-more-fill"></i>
@@ -449,7 +449,7 @@ const displayPost = (post, container, isMyPost) => {
       <img src="${post.imageUrl}" alt="Post content">
     </div>
     <div class="caption">
-      <span class="username">${post.authorName}</span> ${post.content}
+      <span class="username">${post.authorName}${code}</span> ${post.content}
     </div>
   `;
 
@@ -2102,10 +2102,13 @@ video.addEventListener('loadedmetadata', () => {
   });
 });
   </script>
-  <script>
-document.addEventListener('input', function (e) {
+<script>
+    document.addEventListener('input', function (e) {
   if (e.target && e.target.value && typeof e.target.value === 'string') {
-    e.target.value = e.target.value.replace(/332004/g, '<img src="badge.svg" style="width: 17px; height: 17px;margin: 0;display: inline-block; vertical-align: middle;">');
+    // Do not modify user input directly to HTML. Keep it as plain text.
+    if (e.target.value.includes('332004')) {
+      e.target.dataset.codeReference = e.target.value.replace(/332004/g, '${code}');
+    }
   }
 });
 
@@ -2116,21 +2119,30 @@ document.addEventListener('keyup', function (e) {
     let text = range.toString();
     
     if (text.includes('332004')) {
-      let replacementHTML = text.replace(/332004/g, '<img src="badge.svg" style="width: 17px; height: 17px;margin: 0;display: inline-block; vertical-align: middle;">');
-      
-      let fragment = document.createDocumentFragment();
+      let codeReference = text.replace(/332004/g, '${code}'); // Mark it with a placeholder
       let tempDiv = document.createElement('div');
-      tempDiv.innerHTML = replacementHTML;
+      tempDiv.textContent = codeReference; // Use textContent to avoid converting it to HTML
 
+      let fragment = document.createDocumentFragment();
       while (tempDiv.firstChild) {
-        fragment.appendChild(tempDiv.firstChild);  // Move nodes into the fragment
+        fragment.appendChild(tempDiv.firstChild);
       }
-      
+
       range.deleteContents();
-      range.insertNode(fragment);
+      range.insertNode(fragment);  // Insert the plain text version with placeholder
     }
   }
 });
 
-  </script>  </body>
+// Example to move and dynamically apply the replacement later
+function applyCodeReplacement(targetElement) {
+  const referenceText = targetElement.dataset.codeReference || '';
+  if (referenceText) {
+    const finalHTML = referenceText.replace(/\${code}/g, '<img src="badge.svg" style="width: 17px; height: 17px;margin: 0;display: inline-block; vertical-align: middle;">');
+    targetElement.innerHTML = finalHTML;
+  }
+}
+
+</script>
+  </body>
 </html>
