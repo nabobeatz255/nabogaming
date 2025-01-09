@@ -74,7 +74,8 @@ position: fixed;
 .toast-icon {
   font-size: 18px;
   border: 1px solid #ccc;
-  margin-left: 0 auto;
+  right: 0;
+  border-radius: 10px;
 }
 
 .fade-out {
@@ -306,8 +307,8 @@ const showToast = (message, type = 'info') => {
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.innerHTML = `
-    <span class="toast-icon">${getIcon(type)}</span>
     <span class="toast-message">${message}</span>
+     <span>${getIcon(type)}</span>
   `;
 
   document.body.appendChild(toast);
