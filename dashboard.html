@@ -50,19 +50,47 @@
   const storage = getStorage(app);
 
   let currentUser = null;
- onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-  if (user) {
-    loadPosts();  // Load posts after successful login
-    loadLikedPosts();  // Load liked posts
-    displayUserDetails(); 
-    loadMessages();
-    loadUserAndTeams();
-  } else {
-    showToast("You are not signed in. Redirecting to login...", 'error');
-    window.location.href = "index.html";
-  }
+// Define the list of premium users (add UIDs of premium users manually)
+const premiumUsers = [
+    "Sw9hx2GrwMYPkmzimgOMsTEbKK53", // replace with the UID of the first premium user
+    "uid456", // replace with the UID of the second premium user
+    // Add more UIDs as needed
+];
+
+// Check if the current user is a premium user
+const isPremiumUser = premiumUsers.includes(currentUser?.uid);
+
+onAuthStateChanged(auth, (e) => {
+    currentUser = e;
+    if (currentUser) {
+        loadPosts();
+        loadLikedPosts();
+        displayUserDetails();
+        loadMessages();
+        loadUserAndTeams();
+
+        // If the user is a premium user, enable premium features
+        if (isPremiumUser) {
+            enablePremiumFeatures();
+        } else {
+            showToast("You are not a premium user. Some features may be unavailable.", "info");
+        }
+    } else {
+        showToast("You are not signed in. Redirecting to login...", "error");
+        window.location.href = "index.html";
+    }
 });
+
+// Function to enable premium features
+const enablePremiumFeatures = () => {
+    // Example: Show a message for premium users
+    showToast("Welcome Premium User! Enjoy exclusive features.", "success");
+
+    // Example: Enable specific buttons or features
+    document.getElementById("premium-post-btn")?.classList.remove("hidden"); // Example button for premium users
+    // More features can be added here, such as unlocking special content, adding exclusive posts, etc.
+};
+
 
 
 
