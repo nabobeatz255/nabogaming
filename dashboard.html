@@ -225,56 +225,77 @@ const updateUserTeam = (userId, teamNumber) => {
 
 
 
-// Append styles to the document
-document.head.appendChild(style);
+  // Toast function to display notifications
+  const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.classList.add('toast', type);
+    toast.textContent = message;
 
-// Updated toast function
-const showToast = (message, type = 'info', cta1 = { label: 'OK', action: () => {} }, cta2 = { label: 'Cancel', action: () => {} }) => {
-  const toast = document.createElement('div');
-  toast.classList.add('toast', type);
-  toast.innerHTML = `
-    <div>${message}</div>
-    <div class="toast-buttons">
-      <button class="toast-btn cta1">${cta1.label}</button>
-      <button class="toast-btn cta2">${cta2.label}</button>
-    </div>
-  `;
+    // Append to the body
+    document.body.appendChild(toast);
 
-  // Add button click handlers
-  toast.querySelector('.cta1').addEventListener('click', () => {
-    cta1.action();
-    toast.remove();
-  });
-  toast.querySelector('.cta2').addEventListener('click', () => {
-    cta2.action();
-    toast.remove();
-  });
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  };
 
-  document.body.appendChild(toast);
-
-  // Optional: Automatically remove after 10 seconds if no action is taken
-  setTimeout(() => toast.remove(), 10000);
-};
-
-// CSS animation must be included
-style.innerHTML += `
+  // CSS Styles for Toast notifications
+  const style = document.createElement('style');
+  style.textContent = `
 .toast {
-  position: fixed;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 10px;
-  background: white;
-  border-left: 5px solid;
-  opacity: 0;
-  z-index: 9999;
-  animation: slideFromTop 0.5s forwards;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    padding: 13px; /* Padding for spacing */
+    transform: translateX(-50%);
+    width: 100vw; /* Full width of the viewport */
+    height: 60px;
+    color: white;
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    text-align: center;
+    font-size: 14px;
+    opacity: 0;
+    z-index: 999999;
+    animation: slideFromTop 0.5s ease-out forwards;
+    border-left: 3px solid;
 }
 
-.toast.success { border-left-color: green; }
-.toast.error { border-left-color: red; }
-.toast.info { border-left-color: blue; }
-.toast.warning { border-left-color: orange; }
+.toast.success {
+    border-left-color: green;
+    border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    background-color: white;
+    color: green;
+}
+
+
+.toast.error {
+    border-left-color: #f44336;
+    background-color: white;
+     border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    color: #f44336;
+}
+
+.toast.info {
+    border-left-color: blue;
+     border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    background-color: white;
+    color: blue;
+}
+
+.toast.warning {
+    border-left-color: #FF9800;
+     border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    background-color: white;
+    color: #FF9800;
+}
+
 /* Slide from top animation */
 @keyframes slideFromTop {
     from {
@@ -287,7 +308,8 @@ style.innerHTML += `
     }
 }
 
-`;
+  `;
+  document.head.appendChild(style);
 
 
 
