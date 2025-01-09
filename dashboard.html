@@ -321,14 +321,10 @@ const showToast = (message, type = 'info') => {
 
 const getIcon = (type) => {
   switch (type) {
-    case 'success':
-      return '<i class="toast-icon ri-checkbox-circle-line"></i>';  
     case 'error':
       return '<i class="toast-icon ri-close-circle-line"></i>';
     case 'warning':
       return '<i class="toast-icon ri-error-warning-line"></i>';
-    case 'info':
-      return '<i class="toast-icon ri-notification-line"></i>';
     default:
       return '';
   }
@@ -448,11 +444,11 @@ const displayPost = (post, container, isMyPost) => {
                 </div>
               </div>
     </div>
-    <div class="post-image toggle-comments" data-id="${post.postId}">
-      <img src="${post.imageUrl}" alt="Post content">
-    </div>
-    <div class="caption">
+        <div class="caption">
       <span class="username">${post.authorName}</span> ${post.content}
+    </div>
+    <div class="post-image>
+      <img src="${post.imageUrl}" alt="Post content">
     </div>
   `;
 
