@@ -227,92 +227,74 @@ const updateUserTeam = (userId, teamNumber) => {
 
 
 
-
-
-  // Toast function to display notifications
-  const showToast = (message, type = 'info') => {
-    const toast = document.createElement('div');
-    toast.classList.add('toast', type);
-    toast.innerHTML = message;
-
-    // Append to the body
-    document.body.appendChild(toast);
-
-    // Remove toast after 3 seconds
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  };
-
-  // CSS Styles for Toast notifications
-  const style = document.createElement('style');
-  style.innerHTML = `
-.toast {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    padding: 13px; /* Padding for spacing */
-    transform: translateX(-50%);
-    width: 100vw; /* Full width of the viewport */
-    height: 60px;
-    color: white;
-    display: flex; /* Use flexbox for centering */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
-    text-align: center;
-    font-size: 14px;
-    opacity: 0;
-    z-index: 999999;
-    animation: slideFromTop 0.5s ease-out forwards;
-    border-left: 3px solid;
-}
-
-.toast.success {
-    border-left-color: green;
-    border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    background-color: white;
-    color: green;
-}
-
-
-.toast.error {
-    border-left-color: #f44336;
-    background-color: white;
-     border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    color: #f44336;
-}
-
-.toast.info {
-    border-left-color: blue;
-     border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    background-color: white;
-    color: blue;
-}
-
-.toast.warning {
-    border-left-color: #FF9800;
-     border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    background-color: white;
-    color: #FF9800;
-}
-
-/* Slide from top animation */
-@keyframes slideFromTop {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-}
-
+// Toast function to display notifications
+const showToast = (message, type = 'info', cta1 = { label: 'OK', action: () => {} }, cta2 = { label: 'Cancel', action: () => {} }) => {
+  const toast = document.createElement('div');
+  toast.classList.add('toast', type);
+  toast.innerHTML = `
+    <div>${message}</div>
+    <div class="toast-buttons">
+      <button class="toast-btn cta1">${cta1.label}</button>
+      <button class="toast-btn cta2">${cta2.label}</button>
+    </div>
   `;
+
+  // Add button click handlers
+  toast.querySelector('.cta1').addEventListener('click', () => {
+    cta1.action();
+    toast.remove();
+  });
+  toast.querySelector('.cta2').addEventListener('click', () => {
+    cta2.action();
+    toast.remove();
+  });
+
+  // Append to the body
+  document.body.appendChild(toast);
+};
+
+// CSS Styles for Toast buttons
+const style = document.createElement('style');
+style.innerHTML += `
+.toast-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.toast-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.toast.success .toast-btn {
+  background-color: green;
+  color: white;
+}
+
+.toast.error .toast-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.toast.info .toast-btn {
+  background-color: blue;
+  color: white;
+}
+
+.toast.warning .toast-btn {
+  background-color: #FF9800;
+  color: white;
+}
+`;
+
+
+
+
   document.head.appendChild(style);
 
   const formatTimestamp = (timestamp) => {
@@ -448,7 +430,11 @@ const displayPost = (post, container, isMyPost) => {
 
   // Add event listener for opening the post in a new tab
   postElement.querySelector(".post-image img").addEventListener("click", () => {
-    showToast("loading....", "info"); 
+   showToast('This is an info toast', 'info', 
+  { label: 'Retry', action: () => alert('Retry clicked!') }, 
+  { label: 'Dismiss', action: () => console.log('Dismissed') }
+);
+
   });
 
   if (isMyPost) {
