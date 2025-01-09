@@ -49,34 +49,30 @@ position: fixed;
 
 .toast-success {
   border-left: 5px solid green;
-  background-color: #f0fff4;
+  background-color: white;
   color: green;
 }
 
 .toast-error {
   border-left: 5px solid #f44336;
-  background-color: #ffeded;
+  background-color: white;
   color: #f44336;
 }
 
 .toast-warning {
   border-left: 5px solid #ff9800;
-  background-color: #fff4e0;
+  background-color: white;
   color: #ff9800;
 }
 
 .toast-info {
   border-left: 5px solid blue;
-  background-color: #e0f4ff;
+  background-color: white;
   color: blue;
 }
 
 .toast-icon {
   font-size: 18px;
-}
-
-.toast-message {
-  flex-grow: 1;
 }
 
 .fade-out {
@@ -302,7 +298,8 @@ const updateUserTeam = (userId, teamNumber) => {
 
 
 
- // Toast function with dynamic icons and modern fade-out
+
+// Toast function with HTML icon support
 const showToast = (message, type = 'info') => {
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
@@ -319,16 +316,21 @@ const showToast = (message, type = 'info') => {
   }, 3000);
 };
 
-// Function to return appropriate icons for each type
 const getIcon = (type) => {
   switch (type) {
-    case 'success': return '✔️';
-    case 'error': return '❌';
-    case 'warning': return '⚠️';
-    case 'info': return '<i class="ri-notification-line></i>';
-    default: return '';
+    case 'success':
+      return '<i class="ri-checkbox-circle-line"></i>';  // Example HTML icon (requires icon library)
+    case 'error':
+      return '<i class="ri-close-circle-line"></i>';
+    case 'warning':
+      return '<i class="ri-error-warning-line"></i>';
+    case 'info':
+      return '<i class="ri-notification-line"></i>';
+    default:
+      return '';
   }
 };
+
 
  
 
@@ -467,11 +469,6 @@ const displayPost = (post, container, isMyPost) => {
   // Add event listener for opening the post in a new tab
   postElement.querySelector(".post-image img").addEventListener("click", () => {
 
-// Example usage
-showToast('Example notification with buttons!', 'info', 
-  { label: 'Confirm', action: () => alert('Confirmed!') }, 
-  { label: 'Close', action: () => console.log('Closed') }
-);
 
   });
 
