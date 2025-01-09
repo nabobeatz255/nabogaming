@@ -71,9 +71,7 @@
   const storage = getStorage(app);
 
   
-  
-
-let currentUser = null;
+  let currentUser = null;
 // Define the list of premium users (add UIDs of premium users manually)
 const premiumUsers = [
     "YHEaohWk14M5V2zpJ0miMFDSxmA2",
@@ -112,14 +110,14 @@ const enablePremiumFeatures = () => {
     // Example: Enable specific buttons or features
     document.getElementById("premium-post-btn")?.classList.remove("hidden"); // Example button for premium users
 
-    // Add premium badge next to the user's name
+    // Add "Premium" label or icon next to the user's name
     const userNameElement = document.getElementById("user-name"); // Assumes user name is displayed in an element with ID "user-name"
     if (userNameElement) {
-        const badgeImg = document.createElement("img");
-        badgeImg.src = "badge.svg"; // Path to your premium badge SVG
-        badgeImg.alt = "Premium User Badge";
-        badgeImg.classList.add("premium-badge"); // Optional: Add a class for styling
-        userNameElement.appendChild(badgeImg); // Append the badge image next to the user's name
+        const premiumLabel = document.createElement("span");
+        premiumLabel.textContent = "Premium"; // Add a text label or use an icon
+        premiumLabel.classList.add("premium-label"); // Optional: Add a class for styling
+
+        userNameElement.appendChild(premiumLabel); // Append the premium label or icon next to the user's name
     }
 };
 
@@ -134,7 +132,7 @@ const showJoinPremiumButton = () => {
     }
 };
 
-
+  
 
 
 document.addEventListener('DOMContentLoaded', () => {
