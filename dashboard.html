@@ -2211,10 +2211,18 @@ video.addEventListener('loadedmetadata', () => {
 <script>
     let progressElement = document.getElementById('progress');
 let progress = 1;
-let interval = 5000 / 97; // Dividing 5000 ms by 97 to account for pauses
+let interval = 5000 / 97; // Adjust to split the time over 97 steps for pauses
 
-// Pause points at random percentages
-const pausePoints = [27, 60, 95]; // Add or change these values as needed
+// Generate random pause points between 10% and 90% (three unique points)
+let pausePoints = [];
+while (pausePoints.length < 3) {
+    let point = Math.floor(Math.random() * 81) + 10; // Random between 10 and 90
+    if (!pausePoints.includes(point)) {
+        pausePoints.push(point);
+    }
+}
+pausePoints.sort((a, b) => a - b); // Sort the pause points for smooth progression
+pausePoints.push(95); // Final pause point at 95%
 
 let timer = setInterval(() => {
     if (progress < 100) {
@@ -2222,7 +2230,7 @@ let timer = setInterval(() => {
         
         if (pausePoints.includes(progress)) {
             clearInterval(timer);
-            let delay = progress === 95 ? 2000 : 500; // 2-second delay at 95%, 500ms at other pause points
+            let delay = progress === 95 ? 2000 : 500; // 2-second delay at 95%, 500ms at other points
             setTimeout(() => {
                 timer = setInterval(step, interval);
             }, delay);
