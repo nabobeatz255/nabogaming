@@ -322,13 +322,13 @@ const showToast = (message, type = 'info') => {
 const getIcon = (type) => {
   switch (type) {
     case 'success':
-      return '<i class="ri-checkbox-circle-line"></i>';  // Example HTML icon (requires icon library)
+      return '<i class="toast-icon ri-checkbox-circle-line"></i>';  
     case 'error':
-      return '<i class="ri-close-circle-line"></i>';
+      return '<i class="toast-icon ri-close-circle-line"></i>';
     case 'warning':
-      return '<i class="ri-error-warning-line"></i>';
+      return '<i class="toast-icon ri-error-warning-line"></i>';
     case 'info':
-      return '<i class="ri-notification-line"></i>';
+      return '<i class="toast-icon ri-notification-line"></i>';
     default:
       return '';
   }
