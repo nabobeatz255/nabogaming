@@ -2098,23 +2098,19 @@ document.getElementById('close-btn').addEventListener('click', () => {
     <script>
         // Function to navigate to a specific section
 function navigateTo(pageId) {
-  // Hide all sections
-  document.querySelectorAll(".main-content > div").forEach((div) => {
-    div.classList.add("hidden");
-    div.classList.remove("visible");
-  });
-
-  // Show the target section
   const target = document.getElementById(pageId);
+  
   if (target) {
-    target.classList.remove("hidden");
-    target.classList.add("visible");
-    
-    // Reset scroll position to the top of the section
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth", // Optional: Adds smooth scrolling effect
+    // Hide all sections
+    document.querySelectorAll(".main-content > div").forEach((div) => {
+      div.style.display = "none";
     });
+
+    // Show the target section
+    target.style.display = "block"; // Instead of adding/removing classes
+
+    // Reset scroll position to the top of the section
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
 
@@ -2283,55 +2279,8 @@ notifyPopup.classList.add("hidden");
   setTimeout(() => {
     this.textContent = 'Upload Post Now';
     this.removeChild(loadingDots);
-  }, 1000000);  // Reset after 5 seconds (you can adjust this duration)
+  }, 10000);  // Reset after 5 seconds (you can adjust this duration)
 });
-</script>
-  <script>
-    // Sample data for search suggestions with HTML included
-    const searchableItems = [
-        '<span onclick='navigateTo("profile")'>Pubg Nobile 1v1 room</span>',  // Adding HTML  the item
-        'League of Legends'
-    ];
-
-    function showSuggestions() {
-        const input = document.getElementById("search-input").value.toLowerCase();
-        const suggestionsList = document.getElementById("suggestions-list");
-
-        // Clear previous suggestions
-        suggestionsList.innerHTML = '';
-
-        // Filter suggestions based on input
-        if (input) {
-            const filteredItems = searchableItems.filter(item => item.toLowerCase().includes(input));
-
-            // If there are matching items, show them
-            if (filteredItems.length > 0) {
-                suggestionsList.style.display = 'block';
-                filteredItems.forEach(item => {
-                    const div = document.createElement('div');
-                    div.classList.add('suggestion-item');
-                    div.innerHTML = item;  // Use innerHTML to render HTML content like <strong> tags
-                    
-                    // Set up the onclick event
-                    div.onclick = () => selectSuggestion(item);
-                    suggestionsList.appendChild(div);
-                });
-            } else {
-                suggestionsList.style.display = 'none';
-            }
-        } else {
-            suggestionsList.style.display = 'none';
-        }
-    }
-
-    function selectSuggestion(item) {
-        // Set the input value to the selected suggestion
-        document.getElementById("search-input").value = item;
-        document.getElementById("suggestions-list").style.display = 'none';
-        
-        // Optionally, perform additional actions when a suggestion is selected.
-        console.log("Selected suggestion:", item);
-    }
 </script>
     <script>
      function checkImage() {
