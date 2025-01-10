@@ -56,7 +56,145 @@
 
 
 </style>
+<style>
+  #tournament {
+      background-color: #ffffff;
+    color: #333;
+ }
 
+  .user-list {
+    display: flex;
+    gap: 1em;margin-top: 20px;
+    overflow-x: auto;
+    padding-bottom: 1em;
+  }
+
+  .user-card {
+    flex: 0 0 auto;
+    width: 150px;
+    padding: 1em;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 8px;
+    color: #000;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .user-card img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-bottom: 0.5em;
+  }
+
+.tournament-table {
+  width: 100%;
+  border-collapse: separate; /* Use separate to allow border-radius */
+  border-spacing: 3; /* Remove gaps between cells */
+  margin-top: 1em;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden; /* Clip content within border-radius */
+}
+
+.tournament-table th, .tournament-table td {
+  padding: 10px;border-radius: 8px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.tournament-table th:first-child {
+  border: none;
+}
+.tournament-table td:first-child {
+  background-color: #ccc;
+}
+.tournament-table th:nth-child(2) {
+  border: none; 
+}
+
+.tournament-table th:last-child {
+  border: none;
+}
+
+.cards-section {
+  margin-top: 1em;
+  display: flex;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+
+.card {
+  flex: 1 1 calc(33.333% - 1em);
+  background: #fff;
+  padding: 1.5em;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-weight: bold;
+}
+
+.team-name {
+  font-size: 1.2em;
+  color: #3aafa9;
+}
+
+.vs {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+
+.card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.5em;
+}
+
+.team-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #ddd;
+}
+
+.match-time {
+  margin-top: 1em;
+  font-size: 0.9em;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .card {
+    flex: 1 1 calc(50% - 1em);
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    flex: 1 1 100%;
+  }
+}
+
+
+</style>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -123,7 +261,7 @@ const enablePremiumFeatures = () => {
             const premiumLabel = `<span class="premium-label">Premium</span>`;
             element.innerHTML += premiumLabel;
         }
-        element.style.color = "goldenrod";
+        element.style.color = "black";
         element.style.fontWeight = "bold";
     });
 };
@@ -892,9 +1030,9 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
 
  </head>
   <body>
-      <div id="preloader">
+      <!--div id="preloader">
         <span id="progress">0%</span>
-    </div>
+    </div-->
 
     <div class=dashboard  id="app">
     <nav class="sidebar desktop-sidebar">
@@ -921,7 +1059,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
   <!--span class="badger">1</span-->
 </div>
 <div id="premium-post-btn" style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
- <i class=ri-vip-line  style="	font-size: 20px;margin-top:17px"></i></div>
+ <i class=ri-vip-line onclick='navigateTo("tournament")'  style="	font-size: 20px;margin-top:17px"></i></div>
 <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
  <i class=ri-dashboard-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div>
  <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
@@ -1439,7 +1577,95 @@ Please Wait.....
 </div> <img src="notfound.png" height="580" width="350">
   </div>
 </div>
+
+
+<div id="tournament" class="hidden">
+<div class="header" style="z-index:9999;padding: 20px">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+<span class="badge premium">OWNED BY JumaJux</span>
+    </div>
+   <div><span class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </span></div> 
+  </div>
+
 </div>
+  <div class="user-list">
+    <div class="user-card">
+      <img src="https://via.placeholder.com/60" alt="User">
+      <p>User 1</p>
+    </div>
+    <div class="user-card">
+      <img src="https://via.placeholder.com/60" alt="User">
+      <p>User 2</p>
+    </div>
+    <div class="user-card">
+      <img src="https://via.placeholder.com/60" alt="User">
+      <p>User 3</p>
+    </div>
+    <!-- Add more user cards as needed -->
+  </div>
+
+  <table class="tournament-table">
+    <thead>
+      <tr>
+        <th>Position</th>
+        <th>Team</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Team A</td>
+        <td>25</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Team B</td>
+        <td>20</td>
+      </tr>
+      <!-- Add more rows as needed -->
+    </tbody>
+  </table>
+
+<div class="cards-section">
+  <div class="card">
+    <div class="card-header">
+      <span class="team-name">Team A</span>
+      <span class="vs">VS</span>
+      <span class="team-name">Team B</span>
+    </div>
+    <div class="card-body">
+      <div class="team-logo"></div>
+      <div class="team-logo"></div>
+    </div>
+    <div class="match-time">Date: 12 Jan 2025 | Time: 16:00</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="team-name">Team X</span>
+      <span class="vs">VS</span>
+      <span class="team-name">Team Y</span>
+    </div>
+    <div class="card-body">
+      <div class="team-logo"></div>
+      <div class="team-logo"></div>
+    </div>
+    <div class="match-time">Date: 14 Jan 2025 | Time: 18:30</div>
+  </div>
+</div>
+
+
+  
+</div>
+
+
+</div>
+
 
 
 
@@ -1870,7 +2096,7 @@ document.getElementById('close-btn').addEventListener('click', () => {
     }
 </script>
     <script>
-// Function to navigate to a specific section
+        // Function to navigate to a specific section
 function navigateTo(pageId) {
   // Hide all sections
   document.querySelectorAll(".main-content > div").forEach((div) => {
@@ -1886,11 +2112,20 @@ function navigateTo(pageId) {
     
     // Reset scroll position to the top of the section
     window.scrollTo({
-top: 0,
-behavior: "smooth", // Optional: Adds smooth scrolling effect
+      top: 0,
+      behavior: "smooth", // Optional: Adds smooth scrolling effect
     });
   }
 }
+
+// Read the 'section' parameter from the URL and navigate to it
+window.onload = function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const section = urlParams.get('section');
+  if (section) {
+    navigateTo(section);
+  }
+};
 
 // Optional: Function to handle mobile navigation by listening to links
 document.querySelectorAll('.sidebar a').forEach(link => {
