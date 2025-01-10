@@ -359,7 +359,7 @@ const handleBoxClick = (box) => {
       const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
       get(teamMembersRef).then(snapshot => {
         if (snapshot.exists() && Object.keys(snapshot.val()).length > 0) {
-          showToast(`Player ${teamNumber} is already taken. Please choose another number.`, 'warning');
+          showToast(`Player ${teamNumber} is already taken.`, 'warning');
         } else {
           const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
 // Inside handleBoxClick function where the player is successfully added
@@ -1744,8 +1744,8 @@ PUBG MOBILE TOURNAMENT    </div>
     <i class="ri-trophy-line"></i>
   </div>
   <div class="notify-content">
-    <h3>Usahili Tournaments <span class="notify-time"  data-timestamp=2024-12-25T11:37:00></span></h3>
-    <p>Usahili utafunguliwa hivi karibuni</p>
+    <h3>PUBG Tournament <span class="notify-time"  data-timestamp=2025-01-10T18:29:00></span></h3>
+    <p>Mashindano haya yataanza kesho tukiwa na wachezaji wanne...kaa tayari</p>
   </div>
 </li>
     </ul>
