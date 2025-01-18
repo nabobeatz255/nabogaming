@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang=en>
+  <head>
+    <meta charset=UTF-8> 
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <meta name="description" content="Nabogaming - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming, Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+    <meta name="author" content="Nabogaming">
+    <meta property="og:title" content="Nabogaming">
+    <meta property="og:description" content="Nabogaming furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
+    <meta property="og:image" content="https://nabogaming.com/1.png">
+    <meta property="og:url" content="https://nabogaming.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nabogaming">
+    <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:image" content="https://nabogaming.com/logo.png">
+    <link rel="canonical" href="https://nabogaming.com">
+    <link rel="icon" href="logo.png" type="image/x-icon">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="logo.png" sizes="192x192">
+  <link rel="icon" href="logo.png" sizes="512x512">
+  
+  <title>Nabogaming 2.5</title>
+    <link rel=stylesheet href=app.css>
+    <link rel=stylesheet href=2.css>
+    <link rel=stylesheet href=remixicon.min.css>
+<style>
+    .popup {
+         outline: none;
+    -webkit-tap-highlight-color: transparent;
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        z-index: 1000;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+    .popup.show {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .popup-content {
+        width: 100vw;
+        height: 99.5vh;
+        background-color: #121212;
+        padding: 10px;overflow-x: hidden;
+        border-radius: 8px 8px 0 0;
+        overflow-y: auto; /* Enable vertical scrolling */
+    }
+    .close-btn {
+        margin-top: 15px;
+        padding: 5px;
+        z-index: 999999;
+        background: white;
+        font-size: 17px;
+        color: red;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+.getlogo {
+    border: none;
+    border-radius: 10px;
+    background: #242424;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+    margin-left: 10px;
+    margin-bottom: 10px;
+    padding:6px 5px 1px;
+    align-items: center;
+    justify-content: center;
+}
+.getlogo img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+}
+
+</style>
+<style>
+  .battle-card {
+    border: 1px solid;
+    border-color:rgba(255,255,255,.1);
+    border-radius: 15px;
+    padding: 20px;
+    width: 100%;color:black;
+    max-width: 600px;
+    margin: auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    background: #242424;
+    position: relative;
+  }
+
+  .team {
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .team img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .team-name {
+    margin: 8px 0;
+    font-weight: bold;
+    font-size: 16px;color: white;
+  }
+
+  .vs {
+    font-size: 32px;
+    font-weight: bold;
+    color: #ccc;
+    margin: 0 15px;
+  }
+
+  .timer {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 15px;color: white;
+  }
+
+  .timer .countdown {
+    font-size: 15px;
+    font-weight: bold;
+    color: #ccc;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 30px;
+    background-color: #3aafa9;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .btn:hover {
+    background-color: #329e96;
+    transform: scale(1.05);
+  }
+
+  .watch-btn {
+    text-align: center;
+  }
+
+ .popupi {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 300px;height: auto;
+    transform: translateX(-50%);
+    padding: 9px 6px 0 0;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    text-align: left;
+    backdrop-filter: blur(4px);
+}
+
+.popupi.active {
+    display: block;
+}
+.battle-card, .popupi, .popupi-close-btn {
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.popupi-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;padding: 0 2px;
+    text-align: right;border-radius: 50%;
+    margin:10px 10px 6px;
+  
+
+}
+
+
+</style>
+<style>
+  .follow-button {
+    font-size: 14px;
+    border-radius: 6px;
+    padding: 6px 9px;
+    color: white;
+    background-color: #121212;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .following-button {
+    font-size: 14px;
+    border-radius: 6px;
+    padding: 6px 9px;
+    color: #242424;
+    font-weight: bold;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+</style>
+
+
+    </head>
+    
+<body>
+
+<div class=dashboard  id="app">
+     <nav class="sidebar desktop-sidebar">
+<h2>Dashboard</h2>
+<ul>
+  <li><a onclick='navigateTo("home")'>Home</a></li>
+  <li><a onclick='navigateTo("games")'>Events</a></li>
+  <li><a onclick='navigateTo("shop")'>Shop</a></li>
+  <li><a onclick='navigateTo("policy")'>Sheria</a></li>
+  <li><a onclick='navigateTo("profile")'>Profile</a></li>
+
+</ul>
+
+    </nav>
+    <div class=main-content>
+        <header class=header>
+    <div class=logo>
+<img src=logo.png alt=Logo>
+    </div>
+
+    <div class=icons style="margin-top: -17px">
+<div class="icon-container" style="margin-right:0;border:1px solid #ddd;border-radius:5px;padding: 5px 5px 3px">
+  <i class="ri-notification-line" id="toggleNotify" style="font-size: 20px;"></i>
+  <span class="badger">1</span>
+</div>
+
+<!--div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
+ <i class=ri-dashboard-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div-->
+ <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
+ <i class=ri-rocket-line onclick="openModale()" style="	font-size: 20px;margin-top:17px"></i></div>
+ <div style="margin-top:17px;">
+<i style="color: black;	font-size: 33px;" onclick="openCreateModal()" class="ri-add-circle-fill"></i></div>
+<div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding:5px 5px 3px">
+<i class=ri-bookmark-line   onclick='navigateTo("saved")' style="	font-size: 20px;"></i></div>
+    </div>
+  </header>
+    <div class=post-grid>
+    <div class="instagram-post-2">
+
+<div class="post-image">
+  <img src="mtaawelcome.png" alt="Post content">
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Karibu Nabogaming Game On v1.5, Ungana Na Mtaa Wa Game Unalocheza Na Ushindane Mashindano Husika</span>
+</div>
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+      <div class="instagram-post-2">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Maelekezo
+    </div>
+    <div class="post-time" style="line-height: 1.1">
+Toleo hili jipya limeboreshwa ili kukuletea uzoefu wa ndani zaidi katika game lako pendwa la online. Jiunge na wachezaji wengine wa game unalocheza, shiriki kwenye mashindano ya mtaa wa game unalocheza, na onyesha umahiri wako unapopanda viwango. Haijalishi kama wewe ni mchezaji wa kawaida au bingwa wa ushindani, Nabogaming Game On ni mahali sahihi pa kuunganisha, kushindana, na kushinda. Ungana na mtaa wa game unalocheza na ushindane mashindano husika!
+   </div>
+  </div>
+</div>
+<div class="post-actions">
+  <div class="actions-left">
+  <div class="action-item">
+  <span class="count" onclick="togglePopup('popup1')">PUBGMOBILE</span>
+</div>
+
+    <div class="action-item">
+      <span class="count" onclick="togglePopup('popup2')">FREEFIRE</span>
+    </div>
+  </div>
+  <div class="actions-right">
+    <div class="action-item">
+               <span class="count">EFOOTBALL</span>
+    </div>
+  </div>
+</div>
+ </div>
+ 
+ 
+  <div class="instagram-post-2">
+<div class="post-header">
+    <div class="profile-picture">
+        <img src="pubg.jpg" alt="User profile picture">
+      </div>
+  <div class="profile-details">
+    <div class="profile-name">
+PUBGM
+    </div>
+    <div class="post-time">
+0 Followers
+    </div>
+
+  </div>
+  <div class="post-options">
+<span class="follow-button" onclick="toggleFollow(this)">Follow</span>
+<span style="font-size: 14px;border-radius:6px;padding: 6px 9px;background-color:#3aafa9;color:white" onclick="togglePopup('popup1')">Visit Now</span>
+  </div>
+</div>
+<div class="post-image">
+  <img src="pubgpost.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>1#</strong></span>
+  </div>
+ <div class="bottom-left-icon" style="margin-right:10px">
+   <span>New Version Pubg Mobile</span> 
+</div>
+</div>
+
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+    <div class="instagram-post-2">
+<div class="post-header">
+    <div class="profile-picture">
+        <img src=freefire.jpg alt="User profile picture">
+      </div>
+  <div class="profile-details">
+    <div class="profile-name">
+FREEFIRE
+    </div>
+    <div class="post-time">
+0 Followers
+    </div>
+
+  </div>
+  <div class="post-options">
+<span class="follow-button" onclick="toggleFollow(this)">Follow</span>
+<span style="font-size: 14px;border-radius:6px;padding: 6px 9px;background-color:#3aafa9;color:white" onclick="togglePopup('popup2')">Visit Now</span>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>1#</strong></span>
+  </div>
+ <div class="bottom-left-icon" style="margin-right:10px">
+    <span>New Version pubg mobile</span> 
+</div>
+</div>
+
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+<div class="instagram-post-2">
+<div class="post-header">
+    <div class="profile-picture">
+        <img src="cod.jpg" alt="User profile picture">
+      </div>
+  <div class="profile-details">
+    <div class="profile-name">
+COD MOBILE
+    </div>
+    <div class="post-time">
+0 Followers
+    </div>
+
+  </div>
+  <div class="post-options">
+<span class="follow-button" onclick="toggleFollow(this)">Follow</span>
+<span style="font-size: 14px;border-radius:6px;padding: 6px 9px;background-color:#3aafa9;color:white">Visit Now</span>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>1#</strong></span>
+  </div>
+ <div class="bottom-left-icon" style="margin-right:10px">
+    <marquee>New Version pubg mobile gameplay na battles zitakujia hivi karibuni, efootball tournment pia inakujia hivi karibuni</marquee>
+</div>
+</div>
+
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+<div class="instagram-post-2">
+<div class="post-header">
+    <div class="profile-picture">
+        <img src="pes.jpg" alt="User profile picture">
+      </div>
+  <div class="profile-details">
+    <div class="profile-name">
+eFOOTBALL
+    </div>
+    <div class="post-time">
+0 Followers
+    </div>
+
+  </div>
+  <div class="post-options">
+<span class="follow-button" onclick="toggleFollow(this)">Follow</span>
+<span style="font-size: 14px;border-radius:6px;padding: 6px 9px;background-color:#3aafa9;color:white">Visit Now</span>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>1#</strong></span>
+  </div>
+ <div class="bottom-left-icon" style="margin-right:10px">
+    <marquee>New Version pubg mobile gameplay na battles zitakujia hivi karibuni, efootball tournment pia inakujia hivi karibuni</marquee>
+</div>
+</div>
+
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+
+  </div>
+  </div>
+  </div>
+  
+  
+  
+  
+    <div id="popup1" class="popup">
+        <div class="popup-content">
+<header class=header style="margin-top: 0px;background:transparent">
+    <div class="getlogo">
+<img src=logo.png alt=Logo>
+<img src=pubg.jpg alt=Logo style="margin-left: -15px">
+<img src=blank.png alt=Logo style="margin-left: -15px">
+    </div>
+  </header>
+              <div class=post-grid>
+    <div class="instagram-post-2" style="border: none;background:#242424">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name" style="font-size: 21px;color:#fff"><br>
+KARIBU PUBG MOBILE
+    </div>
+    <div class="post-time" style="line-height: 1.2">
+PUBG Mobile ni toleo la mchezo maarufu wa vita mtandaoni lenye michoro ya hali ya juu na uwanja mkubwa wa wachezaji hadi 100 wakipambana kuwa mchezaji wa mwisho kusalia hai. PUBG Lite ni toleo jepesi lenye mahitaji madogo ya vifaa, linalotoa uzoefu wa msingi wa PUBG kwa vifaa vyenye uwezo mdogo, huku likihifadhi burudani ya vita ya Battle Royale. Toleo la 2023 linajumuisha maboresho ya ramani, silaha, na modi za kucheza kwa kushirikiana zaidi.
+    </div>
+  </div>
+</div>
+<div class="post-actions" style="color:white">
+  <div class="actions-left">
+  <div class="action-item"  style="border-color:rgba(255,255,255,.1)">
+  <i class="ri-heart-line like-button"></i>
+  <span class="count">0</span>
+</div>
+
+    <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+      <i class="ri-message-2-line"></i>
+      <span class="count">3</span>
+    </div>
+  </div>
+  <div class="actions-right">
+    <div class="action-item" style="background-color: #ccc;font-weight:bold">
+      <i class="ri-close-line" style="color: black"></i>
+       <span class="count" onclick="togglePopup('popup1')" style="color:black">Ondoka
+       </span>
+    </div>
+  </div>
+</div>
+ </div>
+ 
+
+
+<div class="battle-card">
+<div class="timer">
+    <p>Match Will be On:</p>
+    <div class="countdown">12 Febr 2025 - 21:00 p.m</div>
+  </div>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="team" onclick="togglePopup('team1-popup')">
+      <img src="blank.png" alt="Team 1">
+      <div class="team-name">Team Alpha</div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="team" onclick="togglePopup('team2-popup')">
+      <img src="logo.png" alt="Team 2">
+      <div class="team-name">Team Beta</div>
+    </div>
+  </div>
+
+
+<div class="post-actions" style="margin-bottom: -20px">
+  <div class="actions-left">
+  <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+  <i class="ri-heart-line like-button"></i>
+  <span class="count">0</span>
+</div>
+
+    <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+      <i class="ri-message-2-line"></i>
+      <span class="count">3</span>
+    </div>
+  </div>
+  <div class="actions-right">
+    <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+      <i class="ri-share-line"></i>
+       <span class="count">113k</span>
+    </div>
+  </div>
+</div>
+
+  <div id="team1-popup" class="popupi">
+    <button class="popupi-close-btn" onclick="togglePopup('team1-popup')"><i class="ri-close-line"></i></button>
+    <div class="profile-details">
+    <div class="profile-name">
+Team Alpha
+    </div>
+    <div class="post-time" style="line-height: 1.2;">
+Best Add more team info as needed Add more team info as needed Add more team info as needed 
+    </div>
+  </div>
+    <!-- Add more team info as needed -->
+  </div>
+
+  <div id="team2-popup" class="popupi">
+    <button class="close-btn" onclick="togglePopup('team2-popup')">&times;</button>
+    <h3>Team Beta Details</h3>
+    <p>Player 1: BetaBlazer</p>
+    <p>Player 2: SniperLord</p>
+    <!-- Add more team info as needed -->
+  </div>
+</div>
+      <div class="instagram-post-2" style="background: #242424;border-color:rgba(255,255,255,.1)">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name" style="color:white">
+Admin 1.0
+    </div>
+    <div class="post-time" style="line-height: 1">
+Lorem ipsum <span class="username user-name"></span>username dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </div>
+  </div>
+</div>
+<div class="post-actions">
+  <div class="actions-left">
+  <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+  <i class="ri-heart-line like-button" data-post-id="postId1"></i>
+  <span class="count" id="like-count-postId1">0</span>
+</div>
+
+    <div class="action-item"  style="border-color:rgba(255,255,255,.1)">
+      <i class="ri-message-2-line"></i>
+      <span class="count">3</span>
+    </div>
+  </div>
+  <div class="actions-right">
+    <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+      <i class="ri-share-line"></i>
+       <span class="count">113k</span>
+    </div>
+  </div>
+</div>
+ </div>
+  <div class="instagram-post-2" style="background:#242424;border-color:rgba(255,255,255,.1)">
+<div class="post-header">
+    <div class="profile-picture">
+        <img src="blank.png" alt="User profile picture">
+      </div>
+  <div class="profile-details">
+    <div class="profile-name">
+PUBGM
+    </div>
+    <div class="post-time">
+0 Followers
+    </div>
+
+  </div>
+  <div class="post-options">
+<span class="follow-button" onclick="toggleFollow(this)">Follow</span>
+<span style="font-size: 14px;border-radius:6px;padding: 6px 9px;background-color:#3aafa9;color:white" onclick="togglePopup('popup1')">Visit Now</span>
+  </div>
+</div>
+<div class="post-image">
+  <img src="pubgpost.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>1#</strong></span>
+  </div>
+ <div class="bottom-left-icon" style="margin-right:10px">
+   <span>New Version Pubg Mobile</span> 
+</div>
+</div>
+
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+  
+  </div>
+
+        </div>
+    </div>
+
+  <div id="popup2" class="popup">
+        <div class="popup-content">
+<header class=header style="margin-top: 0px;background:transparent">
+    <div class="getlogo">
+<img src=logo.png alt=Logo>
+<img src=freefire.jpg alt=Logo style="margin-left: -15px">
+<img src=blank.png alt=Logo style="margin-left: -15px">
+    </div>
+  </header>
+              <div class=post-grid>
+    <div class="instagram-post-2" style="border: none;background:#242424">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name" style="font-size: 21px;color:#fff"><br>
+KARIBU FREEFIRE x NARUTO
+    </div>
+    <div class="post-time" style="line-height: 1.2">
+Free Fire x Naruto ni ushirikiano maalum unaoleta maudhui ya kipekee kwenye mchezo wa Garena Free Fire, ikiwemo mavazi na skins za wahusika maarufu kama Naruto, Sasuke, na Kakashi, pamoja na maboresho ya silaha na vitu vyenye mandhari ya Naruto. Pia, kuna changamoto na matukio maalum yanayochanganya vipengele vya hadithi ya Naruto na burudani ya Battle Royale, huku mbinu na athari za kivita zikiongeza uhalisia na msisimko kwa mashabiki wa michezo na anime.
+    </div>
+  </div>
+</div>
+<div class="post-actions" style="color:white">
+  <div class="actions-left">
+  <div class="action-item"  style="border-color:rgba(255,255,255,.1)">
+  <i class="ri-heart-line like-button"></i>
+  <span class="count">0</span>
+</div>
+
+    <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+      <i class="ri-message-2-line"></i>
+      <span class="count">3</span>
+    </div>
+  </div>
+  <div class="actions-right">
+    <div class="action-item" style="background-color: #ccc;font-weight:bold">
+      <i class="ri-close-line" style="color: black"></i>
+       <span class="count" onclick="togglePopup('popup2')" style="color:black">Ondoka
+       </span>
+    </div>
+  </div>
+</div>
+ </div>
+   <div class="instagram-post-2" style="background:#242424;border-color:rgba(255,255,255,.1)">
+<div class="post-header">
+    <div class="profile-picture">
+        <img src="freefire.jpg" alt="User profile picture">
+      </div>
+  <div class="profile-details">
+    <div class="profile-name" style="color:#ff">
+FREEFIRE x NARUTO
+    </div>
+    <div class="post-time">
+21 hrs ago
+    </div>
+
+  </div>
+  <div class="post-options">
+<i class="ri-more-line"></i>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post2.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>1#</strong></span>
+  </div>
+ <div class="bottom-left-icon" style="margin-right:10px">
+   <span>New Version Pubg Mobile</span> 
+</div>
+</div>
+
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+
+<div class="battle-card">
+<div class="timer">
+    <p>Match Will be On:</p>
+    <div class="countdown">12 Febr 2025 - 21:00 p.m</div>
+  </div>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="team" onclick="togglePopup('team1-popup')">
+      <img src="blank.png" alt="Team 1">
+      <div class="team-name">Team Alpha</div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="team" onclick="togglePopup('team2-popup')">
+      <img src="logo.png" alt="Team 2">
+      <div class="team-name">Team Beta</div>
+    </div>
+  </div>
+
+
+<div class="post-actions" style="margin-bottom: -20px">
+  <div class="actions-left">
+  <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+  <i class="ri-heart-line like-button"></i>
+  <span class="count">0</span>
+</div>
+
+    <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+      <i class="ri-message-2-line"></i>
+      <span class="count">3</span>
+    </div>
+  </div>
+  <div class="actions-right">
+    <div class="action-item" style="border-color:rgba(255,255,255,.1)">
+      <i class="ri-share-line"></i>
+       <span class="count">113k</span>
+    </div>
+  </div>
+</div>
+
+  <div id="team1-popup" class="popupi">
+    <button class="popupi-close-btn" onclick="togglePopup('team1-popup')"><i class="ri-close-line"></i></button>
+    <div class="profile-details">
+    <div class="profile-name">
+Team Alpha
+    </div>
+    <div class="post-time" style="line-height: 1.2;">
+Best Add more team info as needed Add more team info as needed Add more team info as needed 
+    </div>
+  </div>
+    <!-- Add more team info as needed -->
+  </div>
+
+  <div id="team2-popup" class="popupi">
+    <button class="close-btn" onclick="togglePopup('team2-popup')">&times;</button>
+    <h3>Team Beta Details</h3>
+    <p>Player 1: BetaBlazer</p>
+    <p>Player 2: SniperLord</p>
+    <!-- Add more team info as needed -->
+  </div>
+</div>
+
+  
+  </div>
+
+        </div>
+    </div>
+
+    <div id="popup3" class="popup">
+
+    </div>
+
+    <div id="popup4" class="popup">
+
+    </div>
+
+
+    <div id="popup5" class="popup">
+        
+</div>
+
+<script>
+        function togglePopup(popupId) {
+            var popup = document.getElementById(popupId);
+            if (popup.classList.contains('show')) {
+                popup.classList.remove('show');
+                setTimeout(() => { popup.style.display = 'none'; }, 400); // Matches transition duration
+            } else {
+                popup.style.display = 'flex';
+                setTimeout(() => { popup.classList.add('show'); }, 10); // Small delay to trigger animation
+            }
+        }
+    </script>
+<script>
+  function toggleFollow(button) {
+    if (button.classList.contains('follow-button')) {
+      button.classList.remove('follow-button');
+      button.classList.add('following-button');
+      button.textContent = 'Following';
+    } else {
+      button.classList.remove('following-button');
+      button.classList.add('follow-button');
+      button.textContent = 'Follow';
+    }
+  }
+</script>
+<script>
+    const sendBtn = document.getElementById("sendBtn");
+const messageInput = document.getElementById("messageInput");
+const chatBody = document.querySelector(".chat-body");
+
+sendBtn.addEventListener("click", () => {
+    const messageText = messageInput.value.trim();
+    if (messageText !== "") {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "sent");
+        messageElement.innerHTML = `<span class="username">You:</span> ${messageText}`;
+        chatBody.appendChild(messageElement);
+        messageInput.value = ""; // Clear input field
+        chatBody.scrollTop = chatBody.scrollHeight; // Scroll to the bottom
+    }
+});
+
+</script>
+</body>
+</html>

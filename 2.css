@@ -1,0 +1,1201 @@
+/* Profile Overview Card */
+.profile-overview {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;  margin-top: 20px;
+  border: 1px solid #f0f0f0;
+  margin-bottom: 20px;
+}
+
+.profile-photo img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  align-self: center;
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-details h2 {
+  margin: 0;
+  font-size: 24px;
+  color: black;
+}
+
+.profile-details p {
+  margin: 5px 0 15px;
+  color: #777;
+  font-size: 14px;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.profile-stats div {
+  text-align: center;
+}
+
+.profile-stats h3 {
+  margin: 0;
+  font-size: 20px;
+  color: black;
+}
+
+.profile-stats p {
+  margin: 5px 0 0;
+  color: #555;
+  font-size: 12px;
+}
+
+/* Header */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  margin-left: -10px;
+  background-color: #fff;
+  position: fixed;
+  top: 0;width: 100%;
+  z-index: 1000;
+}
+
+.page-header i {
+  font-size: 24px;
+  color: black;
+  cursor: pointer;
+}
+
+.page-header h1 {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
+}
+
+.header-icons i {
+  margin-left: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Profile Container */
+.profile-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+/* Settings Cards */
+.profile-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.settings-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #f0f0f0;
+}
+
+.settings-card h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: black;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;background-color: #f0f0f0;
+  font-size: 14px;
+}
+
+.form-group input:focus {
+  outline: none;
+}
+.form-group input:hover {
+      background-color: white;
+}
+/* Save Button */
+.save-btn {
+  background-color: black;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.save-btn:hover {
+  background-color: white;color: black;
+}
+@media (max-width: 768px) {
+  .profile-overview {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-photo {
+    margin-bottom: 15px;
+  }
+
+  .profile-settings {
+    grid-template-columns: 1fr;
+  }
+}
+
+.headec {
+    height: 70px;
+    width: 107%;   /* box-shadow: 0 6px 5px rgba(0, 0, 0, 0.1);*/
+    margin-bottom: 10px;
+}
+.headec-nav {
+	padding: 5px;
+	border-radius: 10px;
+	text-decoration: none;
+	background-color: black;
+	font-weight: 500;margin-right: 2vh;
+}
+.headec-nav a {
+    font-size: 13px;
+    text-decoration: none;
+    	color: white;
+    	display: inline-flex;;
+}
+.headec-nav i {
+    margin-left: 0;
+	display: inline-block;
+	color: white;
+}
+
+  .full-caption {
+      display: none;
+      transition: ease-in-out 2s;
+    }
+    .toggle-button {
+      color: black;outline: none;
+      padding-left: 5px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      background: none;
+      border: none;
+      font-size: 14px;opacity: .7;
+    }
+    
+    
+.shop {
+	width: 100%;
+	border-radius: 12px;
+	max-width:400px;
+	-webkit-tap-highlight-color: transparent;
+	outline: none;
+	overflow: hidden;
+}
+.shop img {
+    object-fit: cover;
+    height: auto;width: 100%;
+}
+
+
+/* Modal background */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  	-webkit-tap-highlight-color: transparent;
+	outline: none;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* Modal content */
+.modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 400px;
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+/* Smooth open animation */
+.modal.show .modal-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Title */
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Body */
+.modal-body {
+  font-size: 14px;
+  margin-bottom: 20px;
+  color: #555;
+}
+.modal-body a {
+    color: black;
+    font-weight: 800;
+}
+
+/* Buttons */
+.modal-buttons {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 10px;
+}
+
+.modal-btn {
+  flex: 1;
+  margin: 0 5px;
+  padding: 10px 0;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.cancel-btn {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background-color: none;
+  color: black;
+}
+
+.ok-btn {
+  background-color: black;
+  color: white;
+}
+
+.ok-btn:hover {
+  background-color: white;
+  color: black;
+}
+  main {
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    .fanq ul {
+      padding-left: 20px;
+      list-style-type: none;
+    }
+    .fanq ul li {
+      margin-bottom: 10px;
+    }
+    .faq {
+      margin-top: 30px;
+      padding: 10px;
+      background: #f1f1f1;
+      border-left: 4px solid #0077cc;
+      border-radius: 5px;
+    }
+    .riri {
+        display: flex;margin:0;
+        padding: 5px;
+        margin-right: 2vh;
+    }
+    .riri i {
+       padding: 7px;
+       border-radius: 10%;
+       border: 1px solid #e0e0e0;;
+    }
+    
+    
+    
+    
+.post-image2 img {
+  width: 100%; /* Make the image take the full width of the container */
+  height: auto; /* Automatically adjust height to maintain aspect ratio */
+  object-fit: cover; /* Ensure it fills the container while maintaining aspect ratio */
+  display: block; /* Prevent inline gaps */
+}
+
+  .comment-input-container {
+	position: sticky;
+	width: 94%;bottom: 16px;
+	background: transparent;
+	padding: 10px;margin-top: auto;
+}
+ .coment-h3 {
+     text-align: center;
+     padding-bottom: 10px;
+     border-bottom: 1px solid #ddd;
+ }
+ .comments-popup {
+  position: fixed;overflow: auto;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  box-sizing: border-box; /* Ensure padding does not affect width/height */
+}
+
+
+.comments-popup-content {
+  position: relative;
+  overflow: auto;
+  animation: fadein .8s ease-in-out;
+  color: white;
+}
+
+.comments-popup .close-popup {
+  position: absolute;
+  margin-top: -2px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.comments-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 10px;border-top: 1px solid #ccc;
+  margin-top: 10px;
+}
+ 
+  /* modali */
+    .modali {
+      display: none;position: absolute;
+      overflow: auto;
+      z-index: 10000;
+      left: 0;padding-bottom: 120px;
+      top: 0;padding-top: 20px;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(4px);
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* modali Content */
+    .modali-content {
+      border-radius: 8px;
+      width: 100%;
+    }
+
+    .modali-content .grid-modali-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 20px;
+    }
+
+    .grid-modali-item {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      padding-bottom: 80%; /* Makes the height equal to the width for square */
+      display: flex;text-align: center;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+    }
+
+    .plus-box {
+      position: absolute;
+      bottom: 20px;
+      left: 18%;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      background-color: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .grid-modali-item h5 {
+      font-size: 13px;
+      color: #333;overflow-x: hidden;
+      padding: 20px 0;
+    }
+
+    /* Close button */
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: transparent;
+      border: none;
+      color: #333;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* Responsive layout adjustments */
+    @media (max-width: 600px) {
+      .grid-modali-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+      .grid-modali-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 901px) and (max-width: 1200px) {
+      .grid-modali-container {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (min-width: 1201px) {
+      .grid-modali-container {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+  
+  
+
+
+.icon-container {
+  position: relative;
+  display: inline-block;margin: 17px 0 0 0;
+}
+
+.icon-container .badger {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #3aafa9;
+  color: white;
+  font-size: 10px;
+  padding: 3px 7px;
+  border-radius: 50%;
+  font-weight: bold;
+}
+.notify-icon {
+    padding: 10px;background-color: none;margin-right: 10px;
+    border-right: 1px solid #ccc;
+}
+/* Popup styles */
+#install-popup {
+  position: fixed;
+  background-color: rgba(255,255,255);
+  color: black;width: 100%;
+  padding: 25px;bottom: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: none;
+  z-index: 1000;
+}
+
+#install-popup .popup-content {
+  text-align: center;
+}
+
+#install-popup h2 {
+  margin-bottom: 10px;
+}
+
+#install-popup p { 
+  margin-bottom: 20px;
+}
+
+#install-btn {
+  background-color: #000;
+  border: none;
+  padding: 10px 50px;
+  margin: 5px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#close-btn {
+  background-color: #3AAFA9;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#install-btn:hover, #close-btn:hover {
+  background-color: white;color: black;
+}
+.getNow {
+    padding: 2px;
+}
+/* Modal styles */
+.modale {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 30px 20px;border-radius: 10px;
+    overflow: auto; /* Allow scrolling if content overflows */
+    -ms-overflow-style: none; /* Hides scrollbar in IE and Edge */
+    scrollbar-width: none; /* Hides scrollbar in Firefox */
+}
+
+.modale::-webkit-scrollbar {
+    display: none; /* Hides scrollbar in Webkit browsers (Chrome, Safari) */
+}
+/* Chat container */
+.chat-container {
+    width: 100%;
+    max-width: 800px;
+    background: #fff;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    max-height: 80vh; /* Ensure the chat container is scrollable if too tall */
+    overflow-y: auto; /* Allow scrolling inside the chat container */
+}
+
+/* Chat Header */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.close {
+    cursor: pointer;
+    font-size: 28px;
+    color: #333;
+}
+
+/* Instagram Post Section */
+.post-container {
+    margin-bottom: 4px;
+}
+
+.post-video {
+    width: 100%;
+    position: relative;
+    background: #eaeaea;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.post-badges {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.post-info {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.video-controls {
+    position: absolute;
+    left: 10px;top: 10px;
+}
+
+.play-button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+/* Chat Box and Input */
+.chat-box-container {
+    position: sticky;
+    flex-direction: column;
+    margin-top: 0;   margin-bottom: 10px;
+}
+
+.entry {
+    margin-bottom: 25px;
+    font-size: 15px;
+    color: #555;text-align: center;
+}
+
+.chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 4px;
+    font-size: 14px;
+    color: #333;
+    max-height: 50vh; /* Allow chat box to scroll if messages are too long */
+}
+
+.chat-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#chat-message-input {
+    width: 80%;
+    padding: 10px;
+    background: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.send-btn {
+    background-color: #ff0000; /* Red like YouTube's button */
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.send-btn:hover {
+    background-color: #cc0000;
+}
+.message-header {
+    display: flex;
+}
+        .message {
+            padding: 6px 8px;
+        }
+
+        .message.right {
+            align-self: flex-start;
+        }
+
+        .message.left {
+            align-self: flex-start;
+        }
+
+/* Responsiveness */
+@media screen and (max-width: 768px) {
+    .chat-container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .post-video {
+        height: auto;
+    }
+
+    .chat-input {
+        flex-direction: column;
+    }
+
+    #chat-message-input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .send-btn {
+        width: 100%;
+    }
+}
+/* Preloader Card Styles */
+.card-preloader {
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 15px;
+}
+.card-preloader.hide {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.preloader-image {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(90deg, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  border-radius: 50%;
+  animation: loading 1.5s infinite;
+}
+
+.preloader-content {
+  flex-grow: 1;
+}
+
+.preloader-title {
+  width: 70%;
+  height: 20px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: loading 1.5s infinite;
+}
+
+.preloader-line {
+  width: 100%;
+  height: 12px;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+
+
+/* Container Styling */
+.profile-container {
+    padding: 5px;
+    text-align: center;
+}
+
+/* Heading */
+.section-title {
+    color: black;
+    margin-top: 10px;
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+/* Profile Picture */
+.profile-photo-2 {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 20px 0;
+}
+
+/* Username Input */
+.username-input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* File Upload Container */
+.file-upload-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.file-input {
+    display: none;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    cursor: pointer;
+    color: #5d5d5d;
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.file-name {
+    font-size: 1rem;
+    color: #5d5d5d;
+}
+
+/* Update Button */
+.update-profile-btn {
+    background-color: black;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-top: 30px;
+    width: 100%;
+}
+
+.update-profile-btn:hover {
+    background-color: #45a049;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 15px;
+    }
+
+    .profile-photo {
+        width: 100px;
+        height: 100px;
+    }
+
+    .section-title {
+        font-size: 1.5em;
+    }
+
+    .username-input {
+        font-size: 0.9rem;
+    }
+
+    .update-profile-btn {
+        font-size: 1rem;
+    }
+
+    .custom-file-upload {
+        font-size: 1.2rem;
+    }
+
+    .file-name {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-photo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .section-title {
+        font-size: 1.3em;
+    }
+
+    .username-input {
+        font-size: 0.85rem;
+    }
+
+    .update-profile-btn {
+        font-size: 0.95rem;
+    }
+
+    .file-name {
+        font-size: 0.85rem;
+    }
+}
+.create-modal {
+  display: none;
+  position: fixed;
+  z-index: 99999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(4px);
+  background-color: rgba(255,255,255,.8);
+  overflow: auto;
+  padding-top: 50px;
+  text-align: center;
+}
+
+/* Modal content box */
+.create-modal-content {
+  margin: 40% auto;
+  width: 320px;
+  border-radius: 8px;
+  animation: fad 1s forwards;
+}
+    @keyframes fad {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+/* Close button */
+.close-btn {
+  color: #000;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+  color: black;
+  text-decoration: none;
+}
+
+.caption2 {
+	padding: 10px 15px;
+	font-size: 14px;
+	color: #555;
+}
+    #suggestions-list {
+        display: none;
+        position: fixed;
+        text-align: left;
+        right: 15px;
+        top: 60px;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: auto;
+        width: 183px;
+    }
+
+    .suggestion-item {
+        padding: 8px;
+        border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+    }
+
+    .suggestion-item:hover {
+        background-color: #f0f0f0;
+    }
+@keyframes dots {
+  0% { content: '.'; }
+  33% { content: '..'; }
+  55% { content: '...'; }
+  66% { content: '....'; }
+  77% { content: '.....'; }
+  100% { content: '.'; }
+}
+
+#loading-dots::after {
+  content: '';
+  animation: dots 1.5s infinite;
+}
+.heading {
+    margin-bottom: 15px;padding: 10px;
+}
+    #create-post {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  max-width: 100%; /* Ensure responsiveness */
+  box-sizing: border-box;  
+  gap: 10px;
+}
+
+#new-post-caption {
+  width: 100%;
+  padding: 0 8px 3px;height: 80px;
+  border-radius: 10px;
+  font-size: 14px;
+   border: 1px solid #ddd;
+   margin-bottom: 10px;
+}
+#new-post-caption:hover {
+    outline: none;
+}
+#new-post-caption::placeholder {
+  color: #999;padding: 0;margin: 0;
+}
+
+/* Container for file input */
+.file-upload-container {
+  position: relative;
+  display: inline-block;
+  width: 233px;border-radius: 10px;
+  margin-bottom: 10px;overflow: hidden;
+}
+
+/* Hide the default file input */
+.file-input {
+  display: none;
+}
+
+/* Custom file upload button */
+.custom-file-upload {
+    overflow: hidden;
+  background-color: white;
+  color: white;
+  padding: 25px 20px 10px;color: grey;
+  font-size: 50px;
+  border-radius: 5px; width: 233px;height: 80px;
+  display: inline-block;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+
+/* Display the selected file name */
+.file-name {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;overflow: hidden;
+  color: #555;
+}
+
+#create-post-button {
+  padding: 8px 15px;
+  background-color: black; /* Facebook-style blue */
+  color: #fff;    width: 100%;max-width: 490px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#create-post-button:hover {
+  background-color: white;color: black;
+}
+
+@media (max-width: 600px) {
+  #create-post {
+    flex-wrap: wrap; /* Stack items on smaller screens */
+    gap: 8px;
+  }
+
+  #new-post-caption,
+  #new-post-image,
+  {
+    flex: 1;
+  }
+
+  #create-post-button {
+    text-align: center;
+  }
+}.post-time-2 {
+	font-size: 13px;
+	color: #888;
+	margin-top: 6px;
+}
+.post-time-3 {
+    line-height: 1.2;
+	font-size: 13px;
+	margin-top: 6px;
+}
+.instagram-post-2 {
+	width: 100%;
+	max-width: 600px;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	background-color: #fff;	border-radius: 12px;
+	-webkit-tap-highlight-color: transparent;
+	outline: none;
+	overflow: hidden;margin-bottom: 6px;
+}/* Preloader styles */
+.preloader {
+  width: 30px;
+  height: 30px;
+  border: 4px solid white;
+  border-top: 4px solid black; /* Primary color */
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: auto;align-items: center;justify-content: center;
+}
+
+/* Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.delete-post-btn {
+    background-color: #ccc;
+	cursor: pointer;
+	outline: none;color: white;
+}

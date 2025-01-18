@@ -1,0 +1,2361 @@
+<!doctype html>
+<html lang=en>
+  <head>
+    <meta charset=UTF-8> 
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <meta name="description" content="Nabogaming - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming, Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+    <meta name="author" content="Nabogaming">
+    <meta property="og:title" content="Nabogaming">
+    <meta property="og:description" content="Nabogaming furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
+    <meta property="og:image" content="https://nabogaming.com/1.png">
+    <meta property="og:url" content="https://nabogaming.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nabogaming">
+    <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:image" content="https://nabogaming.com/logo.png">
+    <link rel="canonical" href="https://nabogaming.com">
+    <link rel="icon" href="logo.png" type="image/x-icon">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="logo.png" sizes="192x192">
+  <link rel="icon" href="logo.png" sizes="512x512">
+  
+  <title>Nabogaming 2.5</title>
+    <link rel=stylesheet href=app.css>
+    <link rel=stylesheet href=2.css>
+    <link rel=stylesheet href=remixicon.min.css>
+<script type="module"> 
+    function refreshData() {
+  if (currentUser) {
+    loadPosts();
+    loadLikedPosts();
+    loadUserAndTeams();
+  }
+}
+setInterval(refreshData, 30000);
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getDatabase, ref, push, update, set, onValue, remove, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+  import { updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+    authDomain: "register-71bde.firebaseapp.com",
+    projectId: "register-71bde",
+    storageBucket: "register-71bde.appspot.com",
+    messagingSenderId: "412548441298",
+    appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getDatabase(app);
+  const storage = getStorage(app);
+
+let currentUser = null;
+const premiumUsers = ["Sw9hx2GrwMYPkmzimgOMsTEbKK53"];
+
+onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    if (currentUser) {
+        loadPosts();
+        loadLikedPosts();
+        displayUserDetails();
+        loadMessages();
+        loadUserAndTeams();
+
+        const isPremiumUser = premiumUsers.includes(currentUser?.uid);
+
+        if (isPremiumUser) {
+            await enablePremiumFeatures();
+        } else {
+            await enableFreeUserFeatures();
+        }
+    } else {
+        showToast("You are not signed in. Redirecting to login...", "error");
+        window.location.href = "index.html";
+    }
+});
+const enablePremiumFeatures = async () => {
+    showToast("Welcome Premium User! Enjoy exclusive features.", "success");
+    const premiumButton = document.getElementById("premium-post-btn");
+    if (premiumButton) {
+        premiumButton.classList.remove("hidden");
+    }
+    const premiumOnlyElement = document.getElementById("premium-only-element");
+    if (premiumOnlyElement) {
+        premiumOnlyElement.style.display = 'block';
+    }
+};
+const enableFreeUserFeatures = async () => {
+    showToast("New Version 3.0 Coming 14th February...Get Ready", "info");
+    const freeUserAdsElement = document.getElementById("free-user-ads");
+    if (freeUserAdsElement) {
+        freeUserAdsElement.style.display = 'block';
+    }
+    const premiumButton = document.getElementById("premium-post-btn");
+    if (premiumButton) {
+        premiumButton.classList.add("hidden");
+    }
+    const currentUserPremiumMessage = document.getElementById("current-user-premium");
+    if (currentUserPremiumMessage) {
+        currentUserPremiumMessage.style.display = 'block';
+    }
+};
+document.addEventListener('DOMContentLoaded', () => {
+  if (currentUser) {
+    const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+    get(userTeamsRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const teamNumber = snapshot.val().team;
+        const selectedBox = document.querySelector(`[data-team="${teamNumber}"]`);
+        if (selectedBox) {
+          const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+          const userName = currentUser.displayName || "Anonymous";
+          selectedBox.querySelector('.plus-box').innerHTML = `<img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+          selectedBox.querySelector('h5').textContent = userName;
+        }
+      }
+    }).catch(error => {
+      console.error("Error loading user team:", error);
+    });
+
+    const allTeamsRef = ref(db, `teams`);
+    get(allTeamsRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const teamsData = snapshot.val();
+        Object.keys(teamsData).forEach(teamNumber => {
+          const members = teamsData[teamNumber].members;
+          const teamBox = document.querySelector(`[data-team="${teamNumber}"]`);
+          if (teamBox) {
+            const firstMember = Object.values(members)[0];
+            if (firstMember) {
+              teamBox.querySelector('.plus-box').innerHTML = `<img src="${firstMember.photo}" alt="${firstMember.name}" style="width: 60px; height: 60px; border-radius: 50%;">`;
+              teamBox.querySelector('h5').textContent = firstMember.name;
+            }
+          }
+        });
+      }
+    }).catch(error => {
+      console.error("Error loading team members:", error);
+    });
+  }
+});
+
+document.querySelectorAll('.grid-modali-item').forEach(item => {
+  item.addEventListener('click', () => handleBoxClick(item));
+});
+
+const handleBoxClick = (box) => {
+  const teamNumber = box.dataset.team;
+
+  if (!currentUser) {
+    showToast('Please wait a moment...', 'info');
+    return;
+  }
+
+  const userName = currentUser.displayName || "Anonymous";
+  const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+
+
+  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+  get(userTeamsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const existingTeam = snapshot.val().team;
+      showToast(`You are already a player ${existingTeam}. You cannot join another number.`, 'warning');
+    } else {
+      const teamMembersRef = ref(db, `teams/${teamNumber}/members`);
+      get(teamMembersRef).then(snapshot => {
+        if (snapshot.exists() && Object.keys(snapshot.val()).length > 0) {
+          showToast(`Player ${teamNumber} is already taken.`, 'warning');
+        } else {
+          const teamRef = ref(db, `teams/${teamNumber}/members/${currentUser.uid}`);
+
+set(teamRef, {
+  name: userName,
+  photo: userPhoto
+}).then(() => {
+  showToast(`Welcome player ${teamNumber}!`, 'success');
+
+box.querySelector('.plus-box').innerHTML = `
+  <img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">
+  <div class="player-number" style="position: absolute; bottom: 5px; right: 5px;z-index:99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
+    #${teamNumber}
+  </div>`;
+ 
+  box.querySelector('h5').textContent = userName;
+  updateUserTeam(currentUser.uid, teamNumber);
+}).catch(error => {
+  console.error("Error joining team:", error);
+  showToast("Failed to join as a player. Please try again.", 'error');
+ });
+        }
+      }).catch(error => {
+        console.error("Error checking team box:", error);
+      });
+    }
+  }).catch(error => {
+    console.error("Error checking user team:", error);
+  });
+};
+
+
+function loadUserAndTeams() {
+  const userTeamsRef = ref(db, `teams/${currentUser.uid}`);
+  get(userTeamsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const teamNumber = snapshot.val().team;
+      const selectedBox = document.querySelector(`[data-team="${teamNumber}"]`);
+      if (selectedBox) {
+        const userPhoto = currentUser.photoURL || "default-profile-pic.jpg";
+        const userName = currentUser.displayName || "Anonymous";
+        selectedBox.querySelector('.plus-box').innerHTML = `
+          <img src="${userPhoto}" alt="${userName}" style="width: 60px; height: 60px; border-radius: 50%;">
+          <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; z-index: 99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
+            #${teamNumber}
+          </div>`;
+        selectedBox.querySelector('h5').textContent = userName;
+      }
+    }
+  }).catch(error => {
+    console.error("Error loading user team:", error);
+  });
+
+  const allTeamsRef = ref(db, `teams`);
+  get(allTeamsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const teamsData = snapshot.val();
+      Object.keys(teamsData).forEach(teamNumber => {
+        const members = teamsData[teamNumber]?.members;
+        const teamBox = document.querySelector(`[data-team="${teamNumber}"]`);
+        if (teamBox && members) {
+          const firstMember = Object.values(members)[0];
+          if (firstMember) {
+            teamBox.querySelector('.plus-box').innerHTML = `
+              <img src="${firstMember.photo}" alt="${firstMember.name}" style="width: 60px; height: 60px; border-radius: 50%;">
+              <div class="player-number" style="position: absolute; bottom: 5px; right: 5px; z-index: 99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
+                #${teamNumber}
+              </div>`;
+            teamBox.querySelector('h5').textContent = firstMember.name;
+          }
+        }
+      });
+    }
+  }).catch(error => {
+    console.error("Error loading team members:", error);
+  });
+}
+
+
+
+const updateUserTeam = (userId, teamNumber) => {
+  const userTeamsRef = ref(db, `teams/${userId}`);
+  set(userTeamsRef, {
+    team: teamNumber
+  });
+};
+
+
+  const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.classList.add('toast', type);
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  };
+
+  const style = document.createElement('style');
+  style.textContent = `
+.toast {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    padding: 13px; /* Padding for spacing */
+    transform: translateX(-50%);
+    width: 100vw; /* Full width of the viewport */
+    height: 60px;
+    color: white;
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    text-align: center;
+    font-size: 14px;
+    opacity: 0;
+    z-index: 999999;
+    animation: slideFromTop 0.5s ease-out forwards;
+    border-left: 3px solid;
+}
+
+.toast.success {
+    border-left-color: green;
+    border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    background-color: white;
+    color: green;
+}
+
+
+.toast.error {
+    border-left-color: #f44336;
+    background-color: white;
+     border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    color: #f44336;
+}
+
+.toast.info {
+    border-left-color: blue;
+     border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    background-color: white;
+    color: blue;
+}
+
+.toast.warning {
+    border-left-color: #FF9800;
+     border-left-width: 7px; /* Adjust the width as needed */
+    border-left-style: solid; /* Ensure the border is visible */
+    background-color: white;
+    color: #FF9800;
+}
+
+/* Slide from top animation */
+@keyframes slideFromTop {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+  `;
+  document.head.appendChild(style);
+
+  const formatTimestamp = (timestamp) => {
+    const now = new Date();
+    const timeDiff = now - new Date(timestamp);
+    const seconds = Math.floor(timeDiff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(months / 12);
+
+    if (seconds < 60) return `Just now`;
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}hr ago`;
+    if (days < 30) return `${days}d ago`;
+    if (months < 12) return `${months}mo ago`;
+    return `${years}yr `;
+  };
+
+
+const loadPosts = () => {
+  const allPostsContainer = document.getElementById("allposts");
+  const myPostsContainer = document.getElementById("myposts");
+
+  if (!allPostsContainer || !myPostsContainer) return;
+
+  allPostsContainer.innerHTML = "";
+  myPostsContainer.innerHTML = "";
+
+  const postsRef = ref(db, "posts");
+  onValue(postsRef, (snapshot) => {
+    const posts = [];
+    snapshot.forEach((childSnapshot) => {
+      const post = childSnapshot.val();
+      const postId = childSnapshot.key;
+      posts.push({ postId, ...post });
+    });
+
+
+    posts.sort((a, b) => b.timestamp - a.timestamp);
+
+
+    const myPosts = posts.filter(post => post.authorName === currentUser.displayName);
+    const allPosts = posts;
+
+
+    myPosts.forEach(post => displayPost(post, myPostsContainer, true));
+
+    allPosts.forEach(post => displayPost(post, allPostsContainer, false));
+
+
+    insertRandomContent();
+  });
+};
+
+
+function insertRandomContent() {
+  const allPostsContainer = document.getElementById("allposts");
+  const randomContent = document.getElementById("myRandomContent"); // External content
+
+  if (allPostsContainer && randomContent) {
+    // Clone the random content to make it reusable
+    const contentClone = randomContent.cloneNode(true);
+    contentClone.style.display = "block"; // Make sure it's visible
+
+    // Get all child elements of the posts container
+    const allPostsChildren = Array.from(allPostsContainer.children);
+
+    // Calculate the middle index
+    const middleIndex = Math.floor(allPostsChildren.length / 2);
+
+    // Insert the cloned content at the middle index
+    if (allPostsChildren.length > 0) {
+      allPostsContainer.insertBefore(contentClone, allPostsChildren[middleIndex]);
+    } else {
+      allPostsContainer.appendChild(contentClone);
+    }
+  }
+}
+
+
+
+  const loadLikedPosts = () => {
+    const likedPostsContainer = document.getElementById("likedposts");
+    if (!likedPostsContainer) return;
+
+    likedPostsContainer.innerHTML = "";
+
+    const postsRef = ref(db, "posts");
+    onValue(postsRef, (snapshot) => {
+      const posts = [];
+      snapshot.forEach((childSnapshot) => {
+        const post = childSnapshot.val();
+        const postId = childSnapshot.key;
+        posts.push({ postId, ...post });
+      });
+
+      posts.sort((a, b) => b.timestamp - a.timestamp);
+
+      // Filter liked posts (exclude posts by the current user)
+      const likedPosts = posts.filter(post => post.likes && post.likes[currentUser.uid] && post.authorName !== currentUser.displayName);
+      likedPosts.forEach(post => displayPost(post, likedPostsContainer, false));  // No delete button for liked posts
+    });
+  };
+
+const displayPost = (post, container, isMyPost) => {
+  const existingPost = container.querySelector(`[data-post-id="${post.postId}"]`);
+  if (existingPost) return;
+
+  const commentCount = post.comments ? Object.keys(post.comments).length : 0;
+
+  const postElement = document.createElement("div");
+  postElement.className = "instagram-post-2";
+  postElement.setAttribute("data-post-id", post.postId);
+
+  const shareUrl = `${window.location.origin}/dashboard.html?postId=${post.postId}`;
+
+  postElement.innerHTML = `
+    <div class="post-header">
+      <div class="profile-picture">
+        <img src="${post.authorPhoto}" alt="User profile picture">
+      </div>
+      <div class="profile-details">
+        <div class="profile-name">${post.authorName}</div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count"> Public</span></div>
+      </div>
+        <div class="post-options">
+                <i class="ri-more-fill"></i>
+                <div class="options-menu">
+                  <ul>
+                  ${isMyPost ? `<li class="edit-btn" data-id="${post.postId}">Edit The Post</li>` : ""}
+                  <li class="toggle-comments" data-id="${post.postId}">View Post</li>
+                    ${isMyPost ? `<li class="delete-post-btn" data-id="${post.postId}">Delete My Post</li>` : ""}
+                  </ul>
+                </div>
+              </div>
+    </div>
+    <div class="post-image">
+      <img src="${post.imageUrl}" alt="Post content">
+    </div>
+           <div class="caption">
+     <span class=username>${post.authorName}</span>
+     ${post.content}
+    </div>
+<div class="post-actions">
+  <div class="actions-left">
+    <div class="action-item like-btn" data-id="${post.postId}">
+      <i class="ri-heart-line"></i>
+      <span class="count">${Object.keys(post.likes || {}).length}</span>
+    </div> 
+    <div class="action-item toggle-comments" data-id="${post.postId}">
+      <i class="ri-message-2-line"></i>
+      <span class="count">${commentCount}</span>
+    </div>
+  </div>
+  <div class="actions-right">
+    <div class="action-item share-btn" data-id="${post.postId}" data-url="${shareUrl}">
+      <i class="ri-share-line"></i>
+    </div>
+  </div>
+</div>
+ 
+  `;
+
+  container.appendChild(postElement);
+
+  postElement.querySelector(".like-btn").addEventListener("click", () => likePost(post.postId));
+  postElement.querySelector(".toggle-comments").addEventListener("click", () => showCommentsPopup(post));
+  postElement.querySelector(".share-btn").addEventListener("click", () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast("Link copied to clipboard!", "success");
+    }).catch((err) => {
+      console.error("Failed to copy link: ", err);
+      showToast("Failed to copy link", "error");
+    });
+  });
+
+  // Add event listener for opening the post in a new tab
+  postElement.querySelector(".post-image img").addEventListener("click", () => {
+    showToast("Please wait for the shared post...", "info"); // Toast message
+    window.open(shareUrl, "_blank"); // Open the shared post in a new tab
+  });
+
+  if (isMyPost) {
+    postElement.querySelector(".delete-post-btn").addEventListener("click", () => deletePost(post.postId));
+    postElement.querySelector(".edit-btn").addEventListener("click", () => editPost(post));
+  }
+};
+
+
+const urlParams = new URLSearchParams(window.location.search);
+const postIdFromUrl = urlParams.get('postId');
+
+if (postIdFromUrl) {
+  const postsRef = ref(db, `posts/${postIdFromUrl}`);
+  get(postsRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const post = snapshot.val();
+      post.postId = postIdFromUrl;
+      showCommentsPopup(post);
+    } else {
+      showToast("Pole! Post Hiyo Inawezekana Imefutwa Au Haipo.", "error");
+    }
+  }).catch(error => {
+    console.error("Error loading post: ", error);
+    showToast("Error loading post.", "error");
+  });
+}
+
+
+const showCommentsPopup = (post) => {
+  const popup = document.createElement('div');
+  popup.className = 'comments-popup';
+
+  popup.innerHTML = `
+    <div class="comments-popup-content">
+ <div class="post-header">
+      <div class="profile-details">
+        <div class="profile-name">${post.authorName}'s post</div>
+        <div class="post-time-2">Posted ${formatTimestamp(post.timestamp)} • <span class="like-count">${Object.keys(post.likes || {}).length} likes</span></div>
+      </div>
+<span class="close-popup"><i class="ri-close-line"></i></span>
+</div>
+     <div class="post-image2">
+      <img src="${post.imageUrl}" alt="Post content">
+    </div>
+    <div class="caption">
+      <span class="username">${post.authorName}</span> ${post.content}
+    </div>
+      <div class="comments-list">${renderComments(post.comments)}</div>
+      <div class="comment-input-container" >
+        <input class="comment-input" placeholder="Write a comment...">
+        <button class="submit-comment" data-post-id="${post.postId}">Send</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  popup.querySelector('.close-popup').addEventListener('click', () => popup.remove());
+  popup.querySelector('.submit-comment').addEventListener('click', () => {
+    const commentInput = popup.querySelector('.comment-input');
+    const commentText = commentInput.value.trim();
+    if (commentText !== "") {
+      submitComment(post.postId, commentText);
+      commentInput.value = "";
+    }
+  });
+};
+
+
+  const renderComments = (comments) => {
+    if (!comments) return "";
+    return Object.keys(comments).map(commentId => {
+      const comment = comments[commentId];
+      return `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+        </div>
+      `;
+    }).join("");
+  };
+
+  const likePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+    const snapshot = await get(postRef);
+    if (snapshot.exists()) {
+      await remove(postRef);  // Remove like
+      showToast("unliked", 'info');
+    } else {
+      await set(postRef, true);  // Add like
+      showToast("you liked the post", 'success');
+    }
+    loadPosts();  // Reload to reflect the changes
+  };
+
+  const submitComment = async (postId, commentText) => {
+    const commentData = {
+      username: currentUser.displayName,
+      message: commentText,
+    };
+
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    showToast("comment added", 'success');
+    loadPosts();  // Reload posts to show the new comment
+  };
+
+  const deletePost = async (postId) => {
+    const postRef = ref(db, `posts/${postId}`);
+    await remove(postRef);  // Delete the post
+    loadPosts();  // Reload posts to remove the deleted post
+    showToast("post imefutwa", 'success');
+  };
+
+  const editPost = (post) => {
+    const newContent = prompt("Edit your post content:", post.content);
+    if (newContent !== null) {
+      const postRef = ref(db, `posts/${post.postId}`);
+      update(postRef, { content: newContent });
+      showToast("post imeupdatiwa", 'success');
+      loadPosts();  // Reload posts to show updated content
+    }
+  };
+
+  const createNewPost = async () => {
+    const caption = document.getElementById("new-post-caption")?.value;
+    const fileInput = document.getElementById("new-post-image");
+    const file = fileInput?.files[0];
+
+    if (!caption && !file) {
+      showToast("tafadhari weka caption na image.", 'warning');
+      return;
+    }
+
+    try {
+      let imageUrl = "";
+      showToast("Uploading post yako...Tafadhari subiri", 'info');
+
+      if (file) {
+        // Upload image to Firebase Storage
+        const storageReference = storageRef(storage, `post_images/${currentUser.uid}/${file.name}`);
+        await uploadBytes(storageReference, file);
+        imageUrl = await getDownloadURL(storageReference);
+        showToast("ukaguzi wa post umekamilika", 'info');
+      }
+
+      const postId = push(ref(db, "posts")).key;
+      await set(ref(db, `posts/${postId}`), {
+        authorName: currentUser.displayName || "Anonymous",
+        authorPhoto: currentUser.photoURL || "default.jpg",
+        content: caption,
+        imageUrl,
+        timestamp: serverTimestamp(),
+        likes: {},
+        comments: {},
+      });
+
+      showToast("Post yako imetengenezwa tayari...reloading!", 'success');
+      window.location.reload();  // Reload the page after successful upload
+    } catch (error) {
+      console.error("Error creating post:", error);
+      showToast("Error creating post", 'error');
+    }
+  };
+
+const updateUserProfile = async () => {
+  const newUsername = document.getElementById('username')?.value.trim();
+  const profilePictureInput = document.getElementById('profile-picture-input');
+  const newProfilePicture = profilePictureInput?.files[0];
+
+  // Check if both username and profile picture are empty
+  if (!newUsername && !newProfilePicture) {
+    showToast("Please provide a new username or profile picture.", 'warning');
+    return;
+  }
+
+  try {
+    // Get the currently authenticated user
+    const user = auth.currentUser;
+    console.log("Authenticated user:", user);
+
+    if (!user) {
+      showToast("User not authenticated. Please log in.", 'error');
+      return; // Exit if the user is not authenticated
+    }
+
+    // Update the username if provided
+    if (newUsername && newUsername !== user.displayName) {
+      try {
+        console.log("Updating username to:", newUsername);
+        // Using updateProfile from firebase/auth
+        await updateProfile(user, {
+          displayName: newUsername,
+        });
+        showToast("Username updated successfully!", 'success');
+      } catch (profileError) {
+        console.error("Error updating username:", profileError);
+        showToast("Error updating username. Please try again.", 'error');
+      }
+    }
+
+    // Upload new profile picture if provided
+    if (newProfilePicture) {
+      console.log("New profile picture:", newProfilePicture);
+
+      const storageReference = storageRef(storage, `profile_pictures/${user.uid}/${newProfilePicture.name}`);
+      console.log("Storage reference:", storageReference);
+
+      try {
+        // Upload the picture to Firebase Storage
+        await uploadBytes(storageReference, newProfilePicture);
+        console.log("Profile picture uploaded successfully.");
+
+        // Get the download URL for the uploaded picture
+        const newProfilePictureUrl = await getDownloadURL(storageReference);
+        console.log("New profile picture URL:", newProfilePictureUrl);
+
+        // Update the user's profile with the new picture
+        await updateProfile(user, {
+          photoURL: newProfilePictureUrl,
+        });
+        showToast("Profile picture updated successfully!", 'success');
+      } catch (uploadError) {
+        console.error("Error uploading profile picture:", uploadError);
+        showToast("Error uploading profile picture. Please try again.", 'error');
+      }
+    }
+
+    // Reload the page to reflect updated details
+    window.location.reload();
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    showToast("Error updating profile. Please try again.", 'error');
+  }
+};
+// Add event listener to the update profile button
+document.getElementById('update-profile-button')?.addEventListener('click', updateUserProfile);
+
+// Update profile picture preview when file is selected
+document.getElementById('profile-picture-input')?.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      document.getElementById('profile-picture').src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Display user details
+const displayUserDetails = () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const userName = user.displayName || "Anonymous";
+  const userEmail = user.email || "No email available";
+  const userProfilePic = user.photoURL || "default-profile-pic.jpg";  // Default profile picture if none exists
+
+  document.querySelectorAll('.user-name').forEach(element => {
+    element.innerHTML = userName;  // Set user name
+  });
+
+  document.querySelectorAll('.user-email').forEach(element => {
+    element.textContent = userEmail;  // Set user email
+  });
+
+  document.querySelectorAll('.profile-picture').forEach(element => {
+    element.src = userProfilePic;  // Set user profile picture
+  });
+};
+
+// Initialize the profile with user details
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    displayUserDetails();  // Display user details when logged in
+  }
+});
+  document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
+  
+const loadMessages = () => {
+  const messagesRef = ref(db, "messages");
+  const chatBox = document.getElementById("chat-box");
+
+  // Listen for new messages in real-time
+  onValue(messagesRef, (snapshot) => {
+    const messages = [];
+    snapshot.forEach((childSnapshot) => {
+      const message = childSnapshot.val();
+      messages.push(message);
+    });
+
+    // Clear chat box before displaying new messages
+    chatBox.innerHTML = '';
+
+    // Display all messages
+    messages.forEach(message => {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message', message.senderId === currentUser.uid ? 'right' : 'left');
+
+      // Create the profile picture element
+      const profilePicture = message.senderPhotoURL || 'default-profile-picture.jpg'; // Use a default picture if none is available
+
+      messageElement.innerHTML = `
+      
+       <div class="post-header getNow">
+      <div class="profile-picture">
+        <img src="${profilePicture}" alt="${message.senderName}'s profile picture" >
+      </div>
+      <div class="profile-details">
+        <div class="profile-name">${message.senderName}</div>
+        <div class="post-time-3">${message.text}</span></div> 
+      </div>
+    </div>
+      `;
+      chatBox.appendChild(messageElement);
+    });
+
+    // Scroll to the bottom to show the latest message
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+};
+const sendMessage = async () => {
+  const messageInput = document.getElementById("chat-message-input");
+  const messageText = messageInput.value.trim();
+
+  if (!messageText) {
+    showToast("Please enter a message.", 'warning');
+    return;
+  }
+
+  const messagesRef = ref(db, "messages");
+  const newMessageRef = push(messagesRef);
+  await set(newMessageRef, {
+    senderId: currentUser.uid,
+    senderName: currentUser.displayName || "Anonymous",
+    senderPhotoURL: currentUser.photoURL || 'default-profile-picture.jpg', // Include photoURL here
+    text: messageText,
+    timestamp: serverTimestamp(),
+  });
+
+  // Clear the input field after sending the message
+  messageInput.value = '';
+  showToast("Message sent!", 'success');
+};
+document.getElementById('send-message-button')?.addEventListener('click', sendMessage);
+</script>
+<style>
+  #preloader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            background-color: #fff;
+            color: #000;
+            font-size: 2rem;
+            position: fixed;font-weight: bold;
+            top: 0;
+            left: 0;
+            z-index: 9999999;
+        }
+.join-premium-btn {
+    background-color: #3aafa9;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.join-premium-btn:hover {
+    background-color: #2b8f8a;
+}
+
+
+
+</style>
+
+ </head>
+  <body>
+      <div id="preloader">
+        <span id="progress">0%   <p class="preloader"></p></span>
+    </div>
+
+    <div class=dashboard  id="app">
+    <nav class="sidebar desktop-sidebar">
+<h2>Dashboard</h2>
+<ul>
+  <li><a onclick='navigateTo("home")'>Home</a></li>
+  <li><a onclick='navigateTo("games")'>Events</a></li>
+  <li><a onclick='navigateTo("shop")'>Shop</a></li>
+  <li><a onclick='navigateTo("policy")'>Sheria</a></li>
+  <li><a onclick='navigateTo("profile")'>Profile</a></li>
+
+</ul>
+
+    </nav>
+    <div class=main-content>
+<div id=home class=visible>
+  <header class=header>
+    <div class=logo>
+<img src=logo.png alt=Logo>
+    </div>
+
+    <div class=icons style="margin-top: -17px">
+<div class="icon-container" style="margin-right:0;border:1px solid #ddd;border-radius:5px;padding: 5px 5px 3px">
+  <i class="ri-notification-line" id="toggleNotify" style="font-size: 20px;"></i>
+  <span class="badger">1</span>
+</div>
+
+<div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
+ <i class=ri-trophy-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div>
+ <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
+ <i class=ri-rocket-line onclick="openModale()" style="	font-size: 20px;margin-top:17px"></i></div>
+ <div style="margin-top:17px;">
+<i style="color: black;	font-size: 33px;" onclick="openCreateModal()" class="ri-add-circle-fill"></i></div>
+<div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding:5px 5px 3px">
+<i class=ri-bookmark-line   onclick='navigateTo("saved")' style="	font-size: 20px;"></i></div>
+    </div>
+  </header>
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+<li>
+  <a onclick='navigateTo("games")'>
+  <i class=ri-gamepad-line></i>
+  <span>Events</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("shop")'>
+  <i class=ri-shopping-cart-line></i>
+  <span>Shop</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("home")'>
+  <i class="ri-home-6-fill add"></i>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("policy")'>
+  <i class=ri-file-line></i>
+  <span>Sheria</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("profile")'>
+  <i class=ri-user-4-line></i>
+  <span>Akaunti</span>
+  </a>
+</li>
+    </ul>
+  </nav>
+  <div class=post-base>
+    <section class=hero style="background: linear-gradient(135deg, #3aafa9, #2b8a85);">
+        
+<div class=hero-content>
+  <h1>Esport Tournament 2025 Reborn</h1>
+  <p><span class="user-name"></span> ungana na mechi zote zitazochezwa hapahapa nabogaming kuelekea uchaguzi wa washiriki wa tournment inayokujia hivi karibuni</p>
+  <!--a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a-->
+  <!--a href="tournament.html"   class=btn-primary style="background-color:#3aafa9;color:white">Learn More  <i class=ri-arrow-right-line></i></a-->
+</div>
+    </section>
+      <section class=hero style="background: white; color:black;box-shadow:none;border:1px solid #ddd;">
+<div class=hero-content>
+  <h1>Usahili Nabogaming Tournaments </h1>
+  <p>Hivi Karibuni Tunazindua Usahili Wa Nabogaming Tournaments Utakaofanyika Hivi Karibuni, Get Ready.</p>
+</div>
+    </section>
+
+  </div>
+        <div id="allposts" class="post-grid">
+            
+<div class="card-preloader">
+  <div class="preloader-image"></div>
+  <div class="preloader-content">
+    <div class="preloader-title"></div>
+    <div class="preloader-line"></div>
+    <div class="preloader-line"></div>
+  </div>
+</div>
+<div class="card-preloader">
+  <div class="preloader-image"></div>
+  <div class="preloader-content">
+    <div class="preloader-title"></div>
+    <div class="preloader-line"></div>
+    <div class="preloader-line"></div>
+  </div>
+</div>
+
+  </div>
+ <!-- <section class=tabs>
+    <div class=tab-header>
+<button onclick='showTab("trending")'>Trending</button>
+<button onclick='showTab("latest")'>Latest</button>
+<button onclick='showTab("popular")'>Popular</button>
+    </div>
+    <div class=tab-content id=trending>
+<p>Trending games will appear here.</p>
+    </div>
+    <div class="tab-content hidden" id=latest>
+<p>Latest games will appear here.</p>
+    </div>
+    <div class="tab-content hidden" id=popular>
+<p>Popular games will appear here.</p>
+    </div>
+  </section>-->
+</div>
+
+
+<div id="shop" class="hidden">
+        <header class="header headec">
+        <div class="logo"><h1>ShopMall</h1></div>
+        <div class="post-cta-buttons">
+          <a href="https://wa.me/message/NOIJWFTQCZNBO1?text=Habari%20Nabobeatz%20Ninarequest%20Kuuza%20Bidhaa%20Yangu%20(taja%20bidhaa%20yako)%20Kwenye%20ShopMall" target="_blank">
+  <button class="cta-btn primary">Request Selling</button>
+</a>
+
+        </div>
+      
+    </header>
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+<li>
+  <a onclick='navigateTo("games")'>
+  <i class=ri-gamepad-line></i>
+  <span>Events</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("shop")'>
+  <i class=ri-shopping-cart-fill></i>
+  <span>In-Shop</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("home")'>
+  <i class="ri-home-6-line add"></i>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("policy")'>
+  <i class=ri-file-line></i>
+  <span>Sheria</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("profile")'>
+  <i class=ri-user-4-line></i>
+  <span>Akaunti</span>
+  </a>
+</li>
+    </ul>
+  </nav>
+
+ <div class=post-grid>
+    <div class="shop">
+        <img src="shopmall.png">
+    </div>
+    
+       <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+
+    </div>
+ <span class="post-time">
+Trusted Seller
+    </span>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+  </div>
+</div>
+<div class="caption2">
+  <span style="font-weight:bold">Admin 1.0</span> <span>Habari <span class="user-name" style="font-weight:bold"></span> Karibu kwenye ShopMall! Hapa utapata fursa ya kuuza na kununua akaunti zako za PUBG, Freefire, na magemu mengine maarufu, pamoja na skin za mabasi, silaha, na vitu vya michezo. Tunatoa jukwaa rahisi na salama kwa biashara ya vitu vya dijitali. Jiunge na jamii yetu leo na anza kuuza bidhaa zako au pata bidhaa unazozipenda kwa bei nafuu.
+
+</span>
+</div>
+    </div>
+</div>
+
+ <!--div class=post-grid>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+<span class="badge premium">OWNED BY JumaJux</span>
+    </div>
+   <div><span class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </span></div> 
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Call Seller</li>
+  <li>Report Seller</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Call</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+<span class="badge premium">OWNED BY JumaJux</span>
+    </div>
+   <div><span class="post-time" data-timestamp="2024-10-20T11:48:00">
+Please Wait.....
+    </span></div> 
+  </div>
+  <div class="post-options">
+    <i class="ri-more-fill"></i>
+    <div class="options-menu">
+<ul>
+  <li>Call Seller</li>
+  <li>Report Seller</li>
+</ul>
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="1.jpeg" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new">PUBGM</span>
+  </div>
+  <div class="bottom-left-icon">
+  </div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.This is an example caption for the Instagram post.</span>
+</div>
+<div class="post-cta-buttons">
+  <button class="cta-btn primary">Call</button>
+  <button class="cta-btn secondary">Buy Now</button>
+</div>
+    </div>
+
+  </div-->
+</div>
+
+
+<div id="policy" class="hidden">
+      <header class="header headec">
+        <div class="logo"><h1>Sheria</h1></div>
+        <!--div class="btn-primary riri" style="font-weight:500">&nbsp; 
+         <i class="ri-phone-line ri-xl"></i>&nbsp; <i class="ri-whatsapp-line ri-xl"></i>&nbsp;
+        </div-->
+    </header>
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+<li>
+  <a onclick='navigateTo("games")'>
+  <i class=ri-gamepad-line></i>
+  <span>Events</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("shop")'>
+  <i class=ri-shopping-cart-line></i>
+  <span>Shop</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("home")'>
+  <i class="ri-home-6-line add"></i>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("policy")'>
+  <i class=ri-file-fill></i>
+  <span>In-Sheria</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("profile")'>
+  <i class=ri-user-4-line></i>
+  <span>Akaunti</span>
+  </a>
+</li>
+    </ul>
+  </nav>
+ <main class="fanq">
+    <h2>1. Masharti ya Jumla</h2>
+    <ul>
+      <li>Kwa kutumia NaboGaming, unakubali kufuata sheria na masharti yaliyowekwa.</li>
+      <li>Watumiaji lazima wawe na utii wa sheria zaidi ili kujiandikisha na kutumia huduma zetu.</li>
+      <li>Ni marufuku kutumia lugha chafu, matusi, au vitendo vyovyote vya udanganyifu, Hii Itapelekea akaunti yako <span id="user-name" style="font-weight:bold"></span> na email <span id="user-email"style="font-weight:bold"></span>kufungiwa.</li>
+    </ul>
+
+    <h2>2. Faragha</h2>
+    <ul>
+      <li>Habari zako za kibinafsi zitalindwa kulingana na sera yetu ya faragha.</li>
+      <li>Tunatumia auto enabled cookies (AEC) kuboresha uzoefu wako mtandaoni.</li>
+      <li>Tunza Namba Siri (OTP) na Namba ziada zozote utazopewa, Usimpe Mtu yeyote kwa maana muhusika ni wewe pekee.</li>
+    </ul>
+
+    <h2>3. Matumizi ya Akaunti</h2>
+    <ul>
+      <li>Unawajibika kwa usalama wa akaunti yako na nywila.</li>
+      <li>Akaunti yoyote itakayobainika ikivunja sheria zetu itafungwa mara moja.</li>
+    </ul>
+     <h2>4. Wachezaji</h2>
+    <ul>
+      <li>Weka Taarifa Kamilifu Kuhusu Wewe Mahala Sahihi, Iwe Kwenye Tournament Ama Shindano Lolote Lile
+    </ul>
+
+    <h2>FAQs (Maswali Yanayoulizwa Mara kwa Mara)</h2>
+    <div class="faq">
+      <h3>1. Je, NaboGaming ni nini?</h3>
+      <p>NaboGaming ni jukwaa la michezo ya mtandaoni linalowapa watumiaji fursa ya kushindana na kushirikiana na wachezaji wengine hapahapa nchini.</p>
+    </div>
+ 
+  </main>
+</div>
+
+
+<div id="games" class="hidden">
+    <header class="header headec">
+        <div class="logo"><h1>Events</h1></div>
+    </header>
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+<li>
+  <a onclick='navigateTo("games")'>
+  <i class=ri-gamepad-fill></i>
+  <span>In-Events</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("shop")'>
+  <i class=ri-shopping-cart-line></i>
+  <span>Shop</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("home")'>
+  <i class="ri-home-6-line add"></i>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("policy")'>
+  <i class=ri-file-line></i>
+  <span>Sheria</span>
+  </a>
+</li>
+<li>
+  <a onclick='navigateTo("profile")'>
+  <i class=ri-user-4-line></i>
+  <span>Akaunti</span>
+  </a>
+</li>
+    </ul>
+  </nav>
+   <div class=post-grid>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+    </div>
+    <div class="post-time" data-timestamp="2025-01-05T21:29:59">
+Please Wait.....
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>PUBGM</strong></span>
+  </div>
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
+</div>
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+    </div>
+    <div class="post-time" data-timestamp="2025-01-05T21:29:59">
+Please Wait.....
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>PUBGM</strong></span>
+  </div>
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
+</div>
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+
+  </div>
+</div>
+
+
+<div id="profile" class="hidden">
+  <!-- Profile Header -->
+  <header class="page-header">
+    <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
+    <h1>Profile (<span class="user-name">No data</span>)</h1>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar mobile-sidebar">
+    <ul>
+      <li>
+        <a onclick='navigateTo("shop")'>
+          <i class="ri-shopping-cart-line"></i>
+          <span>Shop</span>
+        </a>
+      </li>
+      <li>
+        <a>
+          <i class="ri-settings-fill add" id="call-modal"></i>
+        </a>
+      </li>
+      <li>
+        <a onclick='navigateTo("policy")'>
+          <i class="ri-file-line"></i>
+          <span>Sheria</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Profile Container -->
+ 
+    <!-- Profile Overview -->
+    <div class="profile-overview" style="margin-bottom:-10px;margin-top:50px;border: none">
+      <!-- Profile Photo -->
+      <div class="profile-photo">
+        <img src="blank.png" alt="User Profile Picture" class="profile-picture" style="margin-left:-10px;margin-right: 10px">
+      </div>
+<br>
+      <!-- Profile Details -->
+      <div class="profile-details">
+        <h2 class="user-name">No User Found</h2>
+        <p class="user-email">Email Not Registered | <a href="index.html">Jiunge Sasa</a></p>
+      </div>
+
+    </div>
+<br><br>
+    <!-- User Posts Section -->
+    <h3 style="text-align: center">Posts Zangu (<span class="user-name">No data</span>'s Post)</h3><br>
+    
+    <div id="myposts" class="post-grid">
+    <div class="card-preloader">
+  <div class="preloader-image"></div>
+  <div class="preloader-content">
+    <div class="preloader-title"></div>
+    <div class="preloader-line"></div>
+    <div class="preloader-line"></div>
+  </div>
+</div>
+    </div>
+    
+  </div>
+
+
+<div id="saved" class="hidden">
+  <header class="page-header">
+    <i class="ri-arrow-left-line" onclick='navigateTo("home")'></i>
+    <h1>Saved Posts (<span class="user-name"> No data </span>)</h1>
+  </header>
+  <br><br><br>
+  <div class="post-grid" id="likedposts">
+     
+     <div class="card-preloader">
+  <div class="preloader-image"></div>
+  <div class="preloader-content">
+    <div class="preloader-title"></div>
+    <div class="preloader-line"></div>
+    <div class="preloader-line"></div>
+  </div>
+</div> <img src="notfound.png" height="580" width="350">
+  </div>
+</div>
+
+
+</div>
+
+
+
+
+<!-- Modal -->
+<div id="profile-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;backdrop-filter:blur(4px); background: rgba(255,255,255, 0.8); z-index: 1000; justify-content: center; align-items: center; transition: all 0.3s ease-in-out;">
+    <div class="profile-container" style="background: #fff; border-radius: 10px; padding: 20px; max-width: 350px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        <span id="close-modal" style="position: absolute; top: 10px; right: 16px; font-size: 2em; cursor: pointer; color: #000;">&times;</span>
+        <h3 class="section-title" style="font-size: 1.2em; font-weight: bold; color: #333; text-align: center; margin-bottom: 10px;">Profile Updates</h3>
+        <div class="profile-content" style="text-align: center;">
+            <img id="profile-picture" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; margin-bottom: 15px;" src="blank.png" alt="Profile Picture">
+            <div style="position: relative; margin-bottom: 15px;">
+                <input type="text" id="username" placeholder="Enter Username" style="width: 100%; padding: 8px 40px 8px 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.9em;outline-color: #3aafa9;">
+                <label for="profile-picture-input" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer; color: #007bff;">
+                    <i class="ri-upload-cloud-2-fill" style="color: #000;font-size: 1.2em;"></i>
+                </label>
+                <input type="file" id="profile-picture-input" style="display: none;" accept="image/*" onchange="uploadFile()">
+            </div>
+            <div id="progress-bar-container" style="display: none; margin-bottom: 15px; height: 6px; background: none; border-radius: 3px; overflow: hidden;">
+                <div id="progress-bar" style="width: 0%; height: 100%; background:  #3aafa9; transition: width 0.3s;"></div>
+            </div>
+            <button id="update-profile-button" style="width: 100%; background: #000; color: white; padding: 8px; border: none; border-radius: 5px; font-size: 0.9em; cursor: pointer;">Update Profile</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Open modal
+    document.getElementById('call-modal').addEventListener('click', function() {
+        document.getElementById('profile-modal').style.display = 'flex';
+    });
+
+    // Close modal when the close button is clicked
+    document.getElementById('close-modal').addEventListener('click', function() {
+        document.getElementById('profile-modal').style.display = 'none';
+    });
+
+    // Close modal when clicking outside the modal content
+    window.addEventListener('click', function(event) {
+        if (event.target === document.getElementById('profile-modal')) {
+            document.getElementById('profile-modal').style.display = 'none';
+        }
+    });
+
+    function uploadFile() {
+        const progressBar = document.getElementById('progress-bar');
+        const progressBarContainer = document.getElementById('progress-bar-container');
+        
+        progressBarContainer.style.display = 'block';
+        progressBar.style.width = '0%';
+
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 20;
+            progressBar.style.width = `${progress}%`;
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    progressBarContainer.style.display = 'none';
+                }, 500);
+            }
+        }, 300);
+    }
+</script>
+
+<!-- Notification -->
+<div class="hidden" id="notifyPopup">
+  <div class="header-2" style="background:white;color:black;border-bottom:1px solid #ccc">
+    <div class="logo">
+    </div>
+    <div class="title-center">
+<h2>Notifications</h2>
+    </div>
+  </div>
+  <section class="notify">
+    <ul class="notify-list">
+
+<li class="notify-item">
+  <div class="notify-icon">
+    <i class="ri-trophy-line"></i>
+  </div>
+  <div class="notify-content">
+    <h3>Nabogaming Tournament <span class="notify-time"  data-timestamp=2025-01-15T10:29:00></span></h3>
+    <p>Coming soon....</p>
+  </div>
+</li>
+    </ul>
+  </section>
+</div>
+   
+  <div id="createModal" class="create-modal">
+    <div class="create-modal-content">
+      <span class="close-btn" onclick="closeCreateModal()"></span>
+      <section class="hero" style="background:white" id="create-post">
+          <div class="hero-content">
+        <h3 style="color: black;    margin-top: 10px;">Create Your New <span class="user-name"></span>'s Post</h3><br>
+        <input type="text" id="new-post-caption" placeholder="Write a caption...">
+        <div class="file-upload-container">
+  <input type="file" id="new-post-image" accept="image/*" onchange="checkImage()" class="file-input">
+  <label for="new-post-image" class="custom-file-upload">
+   <i class="ri-add-circle-fill ri-2xl"></i>
+  </label>
+  <span id="file-name" class="file-name"> add photo</span>
+</div>
+        <button id="create-post-button">Upload Post Now</button>
+      </div></section>
+      <div id="progress-bar-container" style="width: 100%; background-color: #f3f3f3; height: 25px; display: none;">
+  <!-- Progress Bar -->
+  <div id="progress-bar" style="height: 100%; width: 0%; background-color: #4caf50; text-align: center; color: white;">
+    0%
+  </div>
+</div>
+    </div>
+  </div>
+  <!-- Modal for Group Chat -->
+
+  <div id="chatModal" class="modale">
+    <div class="chat-container" id="chat-container">
+      <!-- Chat Header -->
+      <div class="chat-header" style="padding:20px">
+        <span class="title">Game-On</span>
+        <i class="ri-close-line close" onclick="closeModale()"></i>
+      </div>
+      
+      <!-- Instagram Post Section -->
+      <div class="post-container">
+        <div class="post-video">
+          <video id="post-video" src="1.mp4" width="100%" height="auto" preload="metadata">
+            Your browser does not support the video tag.
+          </video>
+
+          <!-- Post Badges 
+          <div class="post-badges">
+            <span class="badge new">
+              <div class="post-options">
+                <i class="ri-more-fill"></i>
+                <div class="options-menu">
+                  <ul style="border-color:#ddd; background:#121212">
+                    <li style="color:white;">Call Seller</li>
+                    <li style="color:white;">Report Seller</li>
+                  </ul>
+                </div>
+              </div>
+            </span>
+          </div>-->
+
+          <!-- Post Info -->
+          <div class="post-info">
+            <span>Werenoi - Location</span>
+          </div>
+
+          <!-- Video Controls -->
+          <div class="video-controls">
+            <button id="play-pause" class="play-button ri-play-fill"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Box and Input -->
+      <div class="chat-box-container">
+        <span class="entry">
+          Karibu Katika GameOn <code>[ BETA ]</code> Fuatilia Yanayojili Hapa Nabogaming Na Ushiriki Mawazo Yako Sasa
+        , Tukutakie Siku Njema.</span>
+
+        <div class="chat-box" id="chat-box">
+         <div class="preloader"></div>
+        </div>
+
+        <div class="chat-input">
+          <input type="text" id="chat-message-input" placeholder="Type a message..." />
+          <button id="send-message-button" class="send-btn">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Install Popup -->
+<div id="install-popup" style="display:none;">
+  <div class="popup-content">
+    <h2>Pakua Nabogaming App </h2>
+    <p><span id="user-name"></span> Kwa Experience Ya Kisasa Zaidi Nasi, Pakua App Ya Nabogaming (Pregressive Web Application) Na Uweze Kuitumia Moja Kwa Moja Katika Simu Yako Sasa. <a href="tel:0614003543" style="color:black;font-weight:bold;text-decoration:none">Bofya Hapa Kwa Msaada Zaidi</a></p>
+    <button id="install-btn">Pakua</button>
+    <button id="close-btn">Close</button>
+  </div>
+</div>
+    </div>
+    
+<!-- modali -->
+  <div id="modali" class="modali" style="background:white">
+    <div class="modali-content">
+      <!-- Close button -->
+      <button class="close-btn" onclick="closemodali()">×</button>
+<br>
+<div class="grid-modali-container">
+    <div class="post-header">
+  <div class="profile-details" style="text-align:left;line-height:1.2;">
+    <div class="profile-name">
+PUBG MOBILE
+    </div>
+    <div class="post-time">
+Vote hapa <br>Player 1-13
+    </div>
+  </div>
+</div>
+    <div class="grid-modali-item" data-team="1">
+        <div class="plus-box">+</div>
+        <h5>Player 1</h5>
+    </div>
+    <div class="grid-modali-item" data-team="2">
+        <div class="plus-box">+</div>
+        <h5>Player 2</h5>
+    </div>
+    <div class="grid-modali-item" data-team="3">
+        <div class="plus-box">+</div>
+        <h5>Player 3</h5>
+    </div>
+    <div class="grid-modali-item" data-team="4">
+        <div class="plus-box">+</div>
+        <h5>Player 4</h5>
+    </div>
+    <div class="grid-modali-item" data-team="5">
+        <div class="plus-box">+</div>
+        <h5>Player 5</h5>
+    </div>
+        <div class="grid-modali-item" data-team="6">
+        <div class="plus-box">+</div>
+        <h5>Player 6</h5>
+    </div>
+    <div class="grid-modali-item" data-team="7">
+        <div class="plus-box">+</div>
+        <h5>Player 7</h5>
+    </div>
+    <div class="grid-modali-item" data-team="8">
+        <div class="plus-box">+</div>
+        <h5>Player 8</h5>
+    </div>
+    <div class="grid-modali-item" data-team="9">
+        <div class="plus-box">+</div>
+        <h5>Player 9</h5>
+    </div>
+    <div class="grid-modali-item" data-team="10">
+        <div class="plus-box">+</div>
+        <h5>Player 10</h5>
+    </div>
+        <div class="grid-modali-item" data-team="11">
+        <div class="plus-box">+</div>
+        <h5>Player 11</h5>
+    </div>
+    <div class="grid-modali-item" data-team="12">
+        <div class="plus-box">+</div>
+        <h5>Player 12</h5>
+    </div>
+    <div class="grid-modali-item" data-team="13">
+        <div class="plus-box">+</div>
+        <h5>Player 13</h5>
+    </div>
+    <div class="post-header">
+  <div class="profile-details" style="text-align:left;line-height:1.2;">
+    <div class="profile-name">
+FREEFIRE
+    </div>
+    <div class="post-time">
+Vote hapa <br>Player 14-27
+    </div>
+  </div>
+</div>
+    <div class="grid-modali-item" data-team="14">
+        <div class="plus-box">+</div>
+        <h5>Player 14</h5>
+    </div>
+    <div class="grid-modali-item" data-team="15">
+        <div class="plus-box">+</div>
+        <h5>Player 15</h5>
+    </div>
+        <div class="grid-modali-item" data-team="16">
+        <div class="plus-box">+</div>
+        <h5>Player 16</h5>
+    </div>
+    <div class="grid-modali-item" data-team="17">
+        <div class="plus-box">+</div>
+        <h5>Player 17</h5>
+    </div>
+    <div class="grid-modali-item" data-team="18">
+        <div class="plus-box">+</div>
+        <h5>Player 18</h5>
+    </div>
+    <div class="grid-modali-item" data-team="19">
+        <div class="plus-box">+</div>
+        <h5>Player 19</h5>
+    </div>
+    <div class="grid-modali-item" data-team="20">
+        <div class="plus-box">+</div>
+        <h5>Player 20</h5>
+    </div>
+        <div class="grid-modali-item" data-team="21">
+        <div class="plus-box">+</div>
+        <h5>Player 21</h5>
+    </div>
+    <div class="grid-modali-item" data-team="22">
+        <div class="plus-box">+</div>
+        <h5>Player 22</h5>
+    </div>
+    <div class="grid-modali-item" data-team="23">
+        <div class="plus-box">+</div>
+        <h5>Player 23</h5>
+    </div>
+    <div class="grid-modali-item" data-team="24">
+        <div class="plus-box">+</div>
+        <h5>Player 24</h5>
+    </div>
+    <div class="grid-modali-item" data-team="25">
+        <div class="plus-box">+</div>
+        <h5>Player 25</h5>
+    </div>
+        <div class="grid-modali-item" data-team="26">
+        <div class="plus-box">+</div>
+        <h5>Player 26</h5>
+    </div>
+    <div class="grid-modali-item" data-team="27">
+        <div class="plus-box">+</div>
+        <h5>Player 27</h5>
+    </div>
+    <div class="post-header">
+  <div class="profile-details" style="text-align:left;line-height:1.2;">
+    <div class="profile-name">
+eFOOTBALL  </div>
+    <div class="post-time">
+Vote hapa <br>Player 28-41
+    </div>
+  </div>
+</div>
+
+    <div class="grid-modali-item" data-team="28">
+        <div class="plus-box">+</div>
+        <h5>Player 28</h5>
+    </div>
+    <div class="grid-modali-item" data-team="29">
+        <div class="plus-box">+</div>
+        <h5>Player 29</h5>
+    </div>
+    <div class="grid-modali-item" data-team="30">
+        <div class="plus-box">+</div>
+        <h5>Player 30</h5>
+    </div>
+        <div class="grid-modali-item" data-team="31">
+        <div class="plus-box">+</div>
+        <h5>Player 31</h5>
+    </div>
+    <div class="grid-modali-item" data-team="32">
+        <div class="plus-box">+</div>
+        <h5>Player 32</h5>
+    </div>
+    <div class="grid-modali-item" data-team="33">
+        <div class="plus-box">+</div>
+        <h5>Player 33</h5>
+    </div>
+    <div class="grid-modali-item" data-team="34">
+        <div class="plus-box">+</div>
+        <h5>Player 34</h5>
+    </div>
+    <div class="grid-modali-item" data-team="35">
+        <div class="plus-box">+</div>
+        <h5>Player 35</h5>
+    </div>
+        <div class="grid-modali-item" data-team="36">
+        <div class="plus-box">+</div>
+        <h5>Player 36</h5>
+    </div>
+    <div class="grid-modali-item" data-team="37">
+        <div class="plus-box">+</div>
+        <h5>Player 37</h5>
+    </div>
+    <div class="grid-modali-item" data-team="38">
+        <div class="plus-box">+</div>
+        <h5>Player 38</h5>
+    </div>
+    <div class="grid-modali-item" data-team="39">
+        <div class="plus-box">+</div>
+        <h5>Player 39</h5>
+    </div>
+    <div class="grid-modali-item" data-team="40">
+        <div class="plus-box">+</div>
+        <h5>Player 40</h5>
+    </div>
+    <div class="grid-modali-item" data-team="41">
+        <div class="plus-box">+</div>
+        <h5>Player 41</h5>
+    </div>
+    <div class="post-header">
+  <div class="profile-details" style="text-align:left;line-height:1.2;">
+    <div class="profile-name">
+COD MOBILE
+    </div>
+    <div class="post-time">
+Vote hapa <br>Player 42-55
+    </div>
+  </div>
+</div>
+        <div class="grid-modali-item" data-team="42">
+        <div class="plus-box">+</div>
+        <h5>Player 42</h5>
+    </div>
+    <div class="grid-modali-item" data-team="43">
+        <div class="plus-box">+</div>
+        <h5>Player 43</h5>
+    </div>
+    <div class="grid-modali-item" data-team="44">
+        <div class="plus-box">+</div>
+        <h5>Player 44</h5>
+    </div>
+    <div class="grid-modali-item" data-team="45">
+        <div class="plus-box">+</div>
+        <h5>Player 45</h5>
+    </div>
+    <div class="grid-modali-item" data-team="46">
+        <div class="plus-box">+</div>
+        <h5>Player 46</h5>
+    </div>
+        <div class="grid-modali-item" data-team="47">
+        <div class="plus-box">+</div>
+        <h5>Player 47</h5>
+    </div>
+    <div class="grid-modali-item" data-team="48">
+        <div class="plus-box">+</div>
+        <h5>Player 48</h5>
+    </div>
+    <div class="grid-modali-item" data-team="49">
+        <div class="plus-box">+</div>
+        <h5>Player 49</h5>
+    </div>
+    <div class="grid-modali-item" data-team="50">
+        <div class="plus-box">+</div>
+        <h5>Player 50</h5>
+    </div>
+    <div class="grid-modali-item" data-team="51">
+        <div class="plus-box">+</div>
+        <h5>Player 51</h5>
+    </div>
+    <div class="grid-modali-item" data-team="52">
+        <div class="plus-box">+</div>
+        <h5>Player 52</h5>
+    </div>
+     <div class="grid-modali-item" data-team="53">
+        <div class="plus-box">+</div>
+        <h5>Player 53</h5>
+    </div>
+     <div class="grid-modali-item" data-team="54">
+        <div class="plus-box">+</div>
+        <h5>Player 54</h5>
+    </div>
+     <div class="grid-modali-item" data-team="55">
+        <div class="plus-box">+</div>
+        <h5>Player 55</h5>
+    </div>
+</div>
+
+
+     <!--div style="display:flex; align-items:center; justify-content:center; text-align:center; gap:10px;">
+    <button style="padding:10px 50px; font-size:16px; background-color:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer;">Pakua</button>
+    <button style="padding:10px 50px; font-size:16px; background-color:#f44336; color:white; border:none; border-radius:5px; cursor:pointer;">Close</button>
+</div-->
+      </div>
+  </div>
+<div id="myRandomContent" style="display: none;">
+<div class="instagram-post" style="border: none;box-shadow:none;">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+    </div>
+    <div class="post-time">
+Sponsored
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post3.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>PUBGM</strong></span>
+  </div>
+ <div class="bottom-left-icon" style="margin-right:10px">
+    <marquee>New Version pubg mobile gameplay na battles zitakujia hivi karibuni, efootball tournment pia inakujia hivi karibuni</marquee>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
+</div> 
+</div>
+</div>
+  <script>
+    // Function to open the modali
+    function openmodali() {
+      document.getElementById('modali').style.display = 'flex';
+    }
+
+    // Function to close the modali
+    function closemodali() {
+      document.getElementById('modali').style.display = 'none';
+    }
+
+    // Close modali when clicking outside of the modali content
+    window.onclick = function(event) {
+      if (event.target === document.getElementById('modali')) {
+        closemodali();
+      }
+    }
+  </script>   
+    <script>
+        let installPromptEvent;
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  // Prevent the default installation prompt
+  event.preventDefault();
+  // Save the event for later use
+  installPromptEvent = event;
+  // Show the custom install popup
+  document.getElementById('install-popup').style.display = 'block';
+});
+
+document.getElementById('install-btn').addEventListener('click', () => {
+  if (installPromptEvent) {
+    // Show the install prompt
+    installPromptEvent.prompt();
+    installPromptEvent.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      // Hide the install popup after the user choice
+      document.getElementById('install-popup').style.display = 'none';
+    });
+  }
+});
+
+document.getElementById('close-btn').addEventListener('click', () => {
+  // Close the install popup
+  document.getElementById('install-popup').style.display = 'none';
+});
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then((registration) => {
+        console.log('Service Worker registered with scope:', registration.scope);
+      })
+      .catch((error) => {
+        console.log('Service Worker registration failed:', error);
+      });
+  });
+}
+
+    </script>
+      <script>
+    // Function to open the modal
+    function openModale() {
+        document.getElementById('chatModal').style.display = 'flex';
+    }
+
+    // Function to close the modal when clicked outside
+    window.onclick = function(event) {
+        var modal = document.getElementById('chatModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Optional: Function to close the modal using a close button inside the modal
+    function closeModale() {
+        document.getElementById('chatModal').style.display = 'none';
+    }
+</script>
+    <script>
+        // Function to navigate to a specific section
+function navigateTo(pageId) {
+  const target = document.getElementById(pageId);
+  
+  if (target) {
+    // Hide all sections
+    document.querySelectorAll(".main-content > div").forEach((div) => {
+      div.style.display = "none";
+    });
+
+    // Show the target section
+    target.style.display = "block"; // Instead of adding/removing classes
+
+    // Reset scroll position to the top of the section
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+// Read the 'section' parameter from the URL and navigate to it
+window.onload = function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const section = urlParams.get('section');
+  if (section) {
+    navigateTo(section);
+  }
+};
+
+// Optional: Function to handle mobile navigation by listening to links
+document.querySelectorAll('.sidebar a').forEach(link => {
+  link.addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default link behavior
+    const targetId = this.getAttribute('onclick').match(/navigateTo\("(\w+)"\)/)[1];
+    navigateTo(targetId);
+  });
+});
+
+    </script>
+    <script>function showTab(e){document.querySelectorAll(".tab-content").forEach((e=>{e.classList.add("hidden"),e.classList.remove("visible")})),document.getElementById(e).classList.add("visible")}</script>
+<script>document.addEventListener("DOMContentLoaded", function() {
+  // Select all toggle comments buttons
+  const toggleCommentsButtons = document.querySelectorAll(".toggle-comments");
+
+  // Add event listeners for each button
+  toggleCommentsButtons.forEach((button) => {
+    button.addEventListener("click", function() {
+      // Get the target element ID from the data-target attribute
+      const targetId = this.getAttribute("data-target");
+      const targetElement = document.getElementById(targetId);
+
+      // Toggle the display of the target element
+      if (targetElement.style.display === "flex") {
+        targetElement.style.display = "none";
+        this.innerHTML = '<i class="ri-arrow-down-s-line"></i> View Comments';
+      } else {
+        targetElement.style.display = "flex";
+        this.innerHTML = '<i class="ri-arrow-up-s-line"></i> Hide Comments';
+      }
+    });
+  });
+});</script>
+    <script>
+function updateTimeAgo() {
+  // Find all elements with a data-timestamp attribute
+  document.querySelectorAll("[data-timestamp]").forEach((element) => {
+    const timestamp = element.getAttribute("data-timestamp");
+    if (timestamp) {
+const timeAgo = getTimeAgo(new Date(timestamp));
+element.textContent = timeAgo;
+    }
+  });
+}
+
+function getTimeAgo(date) {
+  const now = new Date();
+  const secondsElapsed = Math.floor((now - date) / 1000);
+
+  if (secondsElapsed < 60) {
+    return `${secondsElapsed}s ago`; // Seconds
+  }
+
+  const minutesElapsed = Math.floor(secondsElapsed / 60);
+  if (minutesElapsed < 60) {
+    return `${minutesElapsed}m ago`; // Minutes
+  }
+
+  const hoursElapsed = Math.floor(minutesElapsed / 60);
+  if (hoursElapsed < 24) {
+    return `${hoursElapsed}h ago`; // Hours
+  }
+
+  const daysElapsed = Math.floor(hoursElapsed / 24);
+  if (daysElapsed < 30) {
+    return `${daysElapsed}d ago`; // Days
+  }
+
+  const monthsElapsed = Math.floor(daysElapsed / 30);
+  if (monthsElapsed < 12) {
+    return `${monthsElapsed}mo ago`; // Months
+  }
+
+  const yearsElapsed = Math.floor(monthsElapsed / 12);
+  return `${yearsElapsed}y ago`; // Years
+}
+
+// Update all timestamps every 10 seconds
+setInterval(updateTimeAgo, 10000);
+
+// Initial update when the DOM is loaded
+document.addEventListener("DOMContentLoaded", updateTimeAgo);
+    </script>
+    <script>
+// Select the notification icon and popup
+const toggleNotify = document.getElementById("toggleNotify");
+const notifyPopup = document.getElementById("notifyPopup");
+
+// Toggle visibility of the notification popup
+toggleNotify.addEventListener("click", () => {
+notifyPopup.classList.toggle("hidden");
+});
+
+// Close the popup when clicking outside
+document.addEventListener("click", (event) => {
+if (!toggleNotify.contains(event.target) && !notifyPopup.contains(event.target)) {
+notifyPopup.classList.add("hidden");
+}
+});
+    </script>
+     <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const captions = document.querySelectorAll(".caption span");
+
+      captions.forEach((caption) => {
+        const fullText = caption.textContent.trim();
+        const words = fullText.split(" ");
+        const maxWords = 10;
+
+        if (words.length > maxWords) {
+          const shortText = words.slice(0, maxWords).join(" ");
+          const fullCaption = document.createElement("span");
+          const ellipsis = document.createElement("span");
+          const toggleButton = document.createElement("button");
+
+          // Set up elements
+          fullCaption.textContent = fullText;
+          ellipsis.textContent = "...";
+          toggleButton.textContent = "More";
+
+          fullCaption.className = "full-caption";
+          ellipsis.className = "ellipsis";
+          toggleButton.className = "toggle-button";
+
+          // Clear and rebuild the caption container
+          caption.textContent = shortText;
+          caption.parentNode.appendChild(ellipsis);
+          caption.parentNode.appendChild(fullCaption);
+          caption.parentNode.appendChild(toggleButton);
+
+          // Add toggle functionality
+          toggleButton.addEventListener("click", () => {
+            const isExpanded = fullCaption.style.display === "inline";
+            fullCaption.style.display = isExpanded ? "none" : "inline";
+            ellipsis.style.display = isExpanded ? "inline" : "none";
+            toggleButton.textContent = isExpanded ? "More" : "Less";
+          });
+        }
+      });
+    });
+  </script>
+
+  <script>
+  document.getElementById('create-post-button').addEventListener('click', function() {
+  // Change text to "Uploading"
+  this.textContent = 'Uploading Please Wait';
+  
+  // Add dynamic loading dots
+  let loadingDots = document.createElement('span');
+  loadingDots.id = 'loading-dots';
+  this.appendChild(loadingDots);
+  
+  // Optionally, you can simulate some delay to change back after a while
+  setTimeout(() => {
+    this.textContent = 'Upload Post Now';
+    this.removeChild(loadingDots);
+  }, 10000);  // Reset after 5 seconds (you can adjust this duration)
+});
+</script>
+    <script>
+     function checkImage() {
+  const fileInput = document.getElementById('new-post-image');
+  const fileNameDisplay = document.getElementById('file-name');
+  if (fileInput.files.length > 0) {
+    fileNameDisplay.textContent = fileInput.files[0].name;
+  } else {
+    fileNameDisplay.textContent = 'Please add an image...';
+  }
+}
+    </script>
+ <script>
+      // Open the Create Modal
+function openCreateModal() {
+  document.getElementById("createModal").style.display = "block";
+}
+
+// Close the Create Modal
+function closeCreateModal() {
+  document.getElementById("createModal").style.display = "none";
+}
+
+// Close the modal if the user clicks outside the modal content
+window.onclick = function(event) {
+  var modal = document.getElementById("createModal");
+  if (event.target == modal) {
+    closeCreateModal();
+  }
+}
+  </script>
+  <script>
+      function startCountdown() {
+    const countdownElement = document.getElementById("countdown");
+    
+    // Set the date we're counting down to
+    const countDownDate = new Date("Jan 02, 2025 20:59:59").getTime();
+
+    // Update the countdown every 1 second
+    const x = setInterval(function() {
+
+        // Get the current time
+        const now = new Date().getTime();
+        
+        // Find the time remaining
+        const distance = countDownDate - now;
+        
+        // Time calculations for days, hours, minutes, and seconds
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Display the result
+        countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+        // If the countdown is over
+        if (distance < 0) {
+            clearInterval(x);
+            countdownElement.innerHTML = "EVENT IMEANZA";
+        }
+    }, 1000);
+}
+
+// Call the function to start the countdown
+startCountdown();
+  </script>
+  <script>
+const video = document.getElementById('post-video');
+const playPauseButton = document.getElementById('play-pause');
+const progressBar = document.getElementById('progress-bar');
+
+// Toggle play/pause
+playPauseButton.addEventListener('click', () => {
+  if (video.paused) {
+    video.play();
+    playPauseButton.classList.remove('ri-play-fill');
+    playPauseButton.classList.add('ri-pause-fill');
+  } else {
+    video.pause();
+    playPauseButton.classList.remove('ri-pause-fill');
+    playPauseButton.classList.add('ri-play-fill');
+  }
+});
+
+
+// Create a canvas element to capture the first frame
+const canvas = document.createElement('canvas');
+const context = canvas.getContext('2d');
+
+// When the video metadata is loaded, capture the first frame
+video.addEventListener('loadedmetadata', () => {
+  // Set canvas size to video dimensions
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  // Draw the first frame of the video onto the canvas
+  video.currentTime = 0; // Set the video time to 0 to capture the first frame
+
+  // Once the video has loaded the first frame, draw it to the canvas
+  video.addEventListener('seeked', () => {
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Convert the canvas to a data URL (base64 image)
+    const posterImage = canvas.toDataURL();
+
+    // Set the 'poster' attribute of the video element to the image
+    video.setAttribute('poster', posterImage);
+  });
+});
+  </script>
+<script>
+    let progressElement = document.getElementById('progress');
+let progress = 1;
+let interval = 5000 / 97; // Adjust to split the time over 97 steps for pauses
+
+// Generate random pause points between 10% and 90% (three unique points)
+let pausePoints = [];
+while (pausePoints.length < 3) {
+    let point = Math.floor(Math.random() * 81) + 10; // Random between 10 and 90
+    if (!pausePoints.includes(point)) {
+        pausePoints.push(point);
+    }
+}
+pausePoints.sort((a, b) => a - b); // Sort the pause points for smooth progression
+pausePoints.push(95); // Final pause point at 95%
+
+let timer = setInterval(() => {
+    if (progress < 100) {
+        progressElement.textContent = progress + '%';
+        
+        if (pausePoints.includes(progress)) {
+            clearInterval(timer);
+            let delay = progress === 95 ? 2000 : 500; // 2-second delay at 95%, 500ms at other points
+            setTimeout(() => {
+                timer = setInterval(step, interval);
+            }, delay);
+        } else {
+            progress++;
+        }
+    } else {
+        clearInterval(timer);
+        document.getElementById('preloader').style.display = 'none';
+    }
+}, interval);
+
+function step() {
+    if (progress < 100) {
+        progressElement.textContent = progress + '%';
+        progress++;
+    } else {
+        clearInterval(timer);
+        document.getElementById('preloader').style.display = 'none';
+    }
+}
+
+</script>
+  </body>
+</html>
