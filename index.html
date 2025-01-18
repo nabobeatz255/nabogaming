@@ -1,87 +1,469 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NaboGaming - Exciting Improvements Ahead</title>
-    <style>
-        body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;padding-right: 20px;padding-left: 20px;
-}
-
-.maintenance-banner {
-    text-align: center;
-    background: linear-gradient(135deg, #3aafa9, #2b8a85);
-    color: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    width: 80%;
-    max-width: 600px;
-}
-
-.logo {
-    width: 100px;
-    border-radius: 50%;
-    margin-bottom: 20px;
-}
-
-.maintenance-banner h1 {
-    font-size: 2.8em;
-    margin-bottom: 15px;
-}
-
-.maintenance-banner p {
-    font-size: 1.1em;
-    margin-bottom: 20px;
-    line-height: 1.5;
-}
-
-.button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #fff;
-    color: #3aafa9;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 6px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.button:hover {
-    background-color: #2b8a85;
-    color: #fff;
-}
-
-@media (max-width: 600px) {
-    .maintenance-banner h1 {
-        font-size: 2em;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nabogaming - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
+    <meta name="keywords" content="Nabogaming, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
+    <meta name="author" content="Nabogaming">
+    <meta property="og:title" content="Nabogaming">
+    <meta property="og:description" content="Gundua furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
+    <meta property="og:image" content="https://nabogaming.com/logo.png">
+    <meta property="og:url" content="https://nabogaming.com">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Nabogaming">
+    <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
+    <meta name="twitter:image" content="https://nabogaming.com/logo.png">
+    <link rel="canonical" href="https://nabogaming.com">
+    <link rel="icon" href="logo.png" type="image/x-icon">
+  <title>Nabogaming 2.5</title>
+    <link rel=stylesheet href=remixicon.min.css>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .maintenance-banner p {
-        font-size: 1em;
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1;
+      background-color: #fff;
+      color: #121212;
+      outline: none;
+      max-width: 700px;
+      margin: 0 auto;
+        -webkit-tap-highlight-color: transparent;
+    }
+    /* Fixed Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+       background-color: white;
+      width: 100%;
+      padding: .6rem 1.23rem;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .logo {
-        width: 80px;
+    header img {
+      height: 40px;border-radius: 50%;margin-left: -7px;
     }
+
+    header .nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    header .nav a {
+      color: #121212;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+.super {
+      color:  #3aafa9;
+}
+    header .nav a:hover {
+      color:  #3aafa9;
+    }
+
+    /* Hero Section */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 2rem 2rem;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      line-height: 1;
+      text-align: left;
+    }
+
+    .hero p {
+      margin: 1rem 0;
+      font-size: 1rem;
+    }
+
+ .hero .btn {
+  background:  #121212;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center; /* Aligns icon and text vertically */
+  justify-content: center; /* Ensures both text and icon are horizontally aligned */
 }
 
-    </style>
+.hero .btn i {
+  margin-left: 0.3rem; /* Space between icon and text */
+  font-size: 1.2rem;
+}
+
+    .hero .btn:hover {
+      background: none;
+      color: white;
+    }
+
+/* Features Section */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Flexible grid for responsiveness */
+  gap: 2rem;
+  padding: 2rem 2rem 1rem;
+  text-align: center;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+/* Individual Feature Cards */
+.feature {
+  background: #121212;
+  padding: 2rem 2rem 1rem;color: white;
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.feature:hover {
+  transform: translateZ(-10px);
+  background-color: #fff;
+  color: black;
+}
+
+/* Icon Styling */
+.feature i {
+  font-size: 4rem;  /* Larger icon size */
+  color: white;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.feature:hover i {
+  transform: scale(1.1);  /* Slightly enlarge icon on hover */
+  color: black;  /* Color change on hover */
+}
+
+/* Feature Title */
+.feature h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Feature Description */
+.feature p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+/* CTA Button */
+.cta-btn {
+  background: #3aafa9;
+  color: #121212;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.cta-btn:hover {
+  background: none;
+  transform: translateY(-2px);  /* Slight lift on hover */
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .features {
+    padding: 2rem;
+  }
+
+  .feature h3 {
+    font-size: 1.6rem;
+  }
+
+  .feature p {
+    font-size: 1rem;
+  }
+
+  .cta-btn {
+    font-size: 0.9rem;
+  }
+}
+
+    /* Testimonials Section */
+    .testimonials {
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .testimonial {
+      margin: 1rem 0;
+      font-style: italic;
+      color: #ccc;
+    }
+
+    .testimonial span {
+      display: block;
+      margin-top: 0.5rem;
+      font-weight: bold;
+      color: #3aafa9;
+    }
+
+    /* FAQ Section */
+    .faq {
+      padding: 2rem;
+      background: #1e1e1e;text-align: center;
+    }
+
+    .faq-item {
+      margin-bottom: 0rem;
+    }
+
+    .faq-question {
+      cursor: pointer;
+      font-weight: bold;
+      color: #3aafa9;
+      margin-top: 1rem;
+    }
+
+    .faq-answer {
+      display: none;
+      color: #ccc;
+    }
+
+    .faq-question:hover {
+      color: white;
+    }
+
+/* Scroll to Top Button */
+.scroll-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: none;
+  color: #121212;
+  padding: 10px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 2rem;
+  display: none;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  line-height: 50px;
+}
+
+/* Icon inside Scroll to Top Button */
+.scroll-top i {
+  font-size: 2rem; /* Adjust size of the icon inside */
+  color: #fff; /* Icon color */
+  vertical-align: middle; /* Align the icon in the center */
+}
+    .scroll-top:hover {
+      background: none;
+    }
+  </style>
+     <!-- Firebase SDK -->
+ <script type="module" defer>
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+      authDomain: "register-71bde.firebaseapp.com",
+      projectId: "register-71bde",
+      storageBucket: "register-71bde.appspot.com",
+      messagingSenderId: "412548441298",
+      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+
+    // Check if the user is already signed in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, redirect to dashboard
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    // Handle the result after the redirect
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          // User signed in successfully, redirect to dashboard
+          window.location.href = "dashboard.html";
+        }
+      })
+      .catch((error) => {
+        console.error("Error during sign-in:", error);
+        alert("Sign-in failed. Please try again.");
+      });
+
+    // Google Sign-In button click event
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("google-sign-in").addEventListener("click", () => {
+        // Trigger the Google Sign-In redirect
+        signInWithRedirect(auth, provider);
+      });
+    });
+  </script>
 </head>
 <body>
-    <div class="maintenance-banner">
-        <img src="logo.png" alt="NaboGaming Logo" class="logo">
-        <h1>We're Leveling Up!</h1>
-       <p>Maboresho yanakuja ili kufanya <strong>NaboGaming</strong> kuwa kituo chako bora cha michezo. Endelea kufuatilia kwa vipengele vya kusisimua na uzoefu mpya wa kipekee! v2.8</p>
-        <a href="tel:+255614003543" class="button"> Contact Us</a>
-    </div>
+    <div class="main">
+  <!-- Header -->
+  <header>
+    <img src="logo.png" alt="Logo">
+    <nav class="nav">
+      <a href="#hero">Home</a>
+      <a href="#features">About</a>
+      <a href="#faq">FAQ</a>
+      <a href="dashboard.html">Sign-in</a>
+    </nav>
+  </header>
+
+ <!-- Hero Section -->
+<section class="hero" id="hero">
+  <h1>Karibu Ulimwenguni<span class="super"> Nabogaming </span> 2.5</h1>
+  <p>Ungana Na Wachezaji Wa Simu Wa Tanzania, Shindana Na Ushinde Zawadi Kibao. Tumia Akaunti Yako Ya Google Kujiunga Na Kuanzisha Safari Yako Ya Michezo.</p>
+  <button class="btn" id="google-sign-in">Tumia Akaunti Ya Google <i class="ri-google-line"></i></button>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+  <div class="feature">
+    <i class="ri-speed-line"></i> <!-- Remix Icon for Speed -->
+    <h3>Cheza Zaidi</h3>
+    <p>Shindana Na Wachezaji Wa Kitaifa Na Kimataifa Katika Michezo Mbalimbali. Kila Mechi Ina Zawadi Za Kipekee Kwa Washindi.</p>
+  </div>
+  <div class="feature">
+    <i class="ri-device-line"></i> <!-- Remix Icon for Responsiveness -->
+    <h3>Responsive</h3>
+    <p>Furahia Uzoefu Bora Katika Vifaa Vyote, Popote Ulipo. Hakuna Hali Ya Kuchelewa!</p>
+  </div>
+  <div class="feature">
+    <i class="ri-lock-line"></i> <!-- Remix Icon for Security -->
+    <h3>Salama</h3>
+    <p>Madaraja Ya Usalama Ya Kisasa Yaliyojengwa Ili Kulinda Taarifa Zako Na Kukupeleka Kwa Usalama Katika Ulimwengu Wa Michezo.</p>
+   <!-- <button class="cta-btn">Jifunze Zaidi</button>-->
+  </div>
+</section>
+
+
+<!-- FAQ Section -->
+<section class="faq" id="faq" style="color:white">
+  <h2>Maswali Yanayoulizwa Mara Kwa Mara</h2>
+
+  <div class="faq-item">
+    <div class="faq-question">NaboGaming ni nini?</div>
+    <div class="faq-answer">NaboGaming ni jukwaa la michezo ya simu la Tanzania, ambapo wachezaji wanaweza kushindana na wengine katika michezo maarufu na kushinda zawadi. Hapa, wachezaji wa simu wa Tanzania wana nafasi ya kushiriki kwenye mashindano ya kipekee na kupata zawadi.
+     .</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">Jinsi ya kujiandikisha kwa NaboGaming?</div>
+    <div class="faq-answer">Ili kujiandikisha kwenye NaboGaming, bonyeza kitufe cha "Tumia Akaunti ya Google" kilichopo kwenye sehemu ya kujiandikisha. Baada ya hapo, utaweza kuingia kwa kutumia akaunti yako ya Google na kuanza safari yako ya michezo.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">Je, NaboGaming inatumiaje salama data yangu?</div>
+    <div class="faq-answer">NaboGaming inahakikisha usalama wa taarifa zako kwa kutumia teknolojia ya kisasa ya usalama. Data yako inahifadhiwa salama na inatumika tu kwa madhumuni ya kuboresha uzoefu wako wa michezo.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">Jinsi ya kushinda zawadi?</div>
+    <div class="faq-answer">Unaposhiriki kwenye mashindano ya NaboGaming, zawadi hutolewa kwa washindi wa nafasi za juu. Zawadi ni pamoja na pesa, vifaa vya michezo, na zawadi nyingine za kipekee.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-question">NaboGaming inapatikana wapi?</div>
+    <div class="faq-answer">NaboGaming inapatikana kwa wachezaji wote nchini Tanzania kupitia kivinjari cha simu kwenye tovuti nabogaming.com</div>
+  </div>
+</section>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-top" id="scroll-top"><i class="ri-arrow-up-line"></i></button>
+</div>
+  <!-- JavaScript -->
+  <script>
+    // FAQ Toggle
+    document.querySelectorAll('.faq-question').forEach(item => {
+      item.addEventListener('click', () => {
+        const answer = item.nextElementSibling;
+        answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+
+    // Scroll to Top Button
+    const scrollTopBtn = document.getElementById('scroll-top');
+    window.addEventListener('scroll', () => {
+      scrollTopBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
+    });
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Smooth Scrolling for Navigation
+    document.querySelectorAll('.nav a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelector(link.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  </script>
+
+
+
+  <!-- Carousel JavaScript -->
+  <script>
+    const carousel = document.querySelector('.carousel');
+    const leftBtn = document.querySelector('.carousel-btn.left');
+    const rightBtn = document.querySelector('.carousel-btn.right');
+    let index = 0;
+
+    const updateCarousel = () => {
+      const slides = carousel.children.length;
+      carousel.style.transform = `translateX(-${index * 100}%)`;
+    };
+
+        leftBtn.addEventListener('click', () => {
+      index = (index === 0) ? carousel.children.length - 1 : index - 1;
+      updateCarousel();
+    });
+
+    rightBtn.addEventListener('click', () => {
+      index = (index === carousel.children.length - 1) ? 0 : index + 1;
+      updateCarousel();
+    });
+
+    // Initialize carousel
+    updateCarousel();
+  </script>
 </body>
 </html>
