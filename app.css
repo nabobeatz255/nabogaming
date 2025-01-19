@@ -730,16 +730,15 @@ a:focus {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: auto;
+        height: 220px;
         background-size: 100%;
-    object-fit: cover;
-        background-image: url('start.png');
-        color: white;
+        object-fit: cover;
+        color: black;
+        background-image: url('banner.png');
         text-align: center;
         position: relative;
         padding: 20px;
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.7);
 }
 
 .hero-content h1 {
