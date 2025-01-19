@@ -741,6 +741,21 @@ a:focus {
         border-radius: 10px;
 }
 
+.hero-create {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: auto;
+        background-size: 100%;
+        object-fit: cover;
+        color: black;
+        background-image: url('banner.png');
+        text-align: center;
+        position: relative;
+        padding: 20px;
+        border-radius: 10px;
+}
+
 .hero-content h1 {
         font-size: 2rem;
         margin-bottom: 15px;
