@@ -941,13 +941,11 @@ a:focus {
 /* Notification Popup */
 #notifyPopup {
   position: absolute;
-  top: 63px;
-  right: 7px;
-  width: 300px;
-  background: rgba(255,255,255,.9);
-  backdrop-filter: blur(4px);
+  top: 60px;left: 5px;
+  width: 96%;
+  height: 100vh;
+  background: rgba(255,255,255);
   border-radius: 8px;
-  overflow: hidden;box-shadow: 0 4px 10px rgba(0,0,0,0.6);
   z-index: 1000;
 }
 
