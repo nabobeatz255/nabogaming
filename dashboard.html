@@ -589,24 +589,19 @@ const showCommentsPopup = (post) => {
   });
 };
 
-
 renderComments = (comments, postId) => {
-    if (!comments) return "";
-    const currentUserId = currentUser?.uid;
-    return Object.keys(comments).map(commentId => {
-        const comment = comments[commentId];
-        const isOwnComment = comment.userId === currentUserId;
-        const timestamp = new Date(comment.timestamp).toLocaleString();
-        return `
-          <div class="comment">
-            <span class="comment-username">${comment.username}</span>
-            <span class="comment-time">${timestamp}</span>
-            <p class="comment-sms">${comment.message}</p>
-            ${isOwnComment ? `<button onclick="deleteComment('${postId}', '${commentId}')">Delete</button>` : ""}
-            <button onclick="replyToComment('${postId}', '${commentId}')">Reply</button>
-          </div>
-        `;
-    }).join("");
+  if (!comments) return "";
+  return Object.keys(comments).map((commentId) => {
+    const commentData = comments[commentId];
+    const formattedTime = new Date(commentData.timestamp).toLocaleString();
+    return `
+      <div class="comment">
+        <span class="comment-username">${commentData.username}</span>
+        <span class="comment-time">${formattedTime}</span>
+        <p class="comment-sms">${commentData.message}</p>
+      </div>
+    `;
+  }).join("");
 };
 
 
@@ -624,24 +619,7 @@ const submitComment = async (postId, commentText) => {
   loadPosts();  // Reload posts to show the new comment
 };
 
-deleteComment = async (postId, commentId) => {
-    try {
-        await remove(ref(db, `posts/${postId}/comments/${commentId}`));
-        showToast("Comment deleted", "success");
-        loadPosts();
-    } catch (error) {
-        console.error("Error deleting comment:", error);
-        showToast("Error deleting comment", "error");
-    }
-};
 
-
-replyToComment = (postId, commentId) => {
-    const reply = prompt("Enter your reply:");
-    if (reply) {
-        submitComment(postId, reply); // Pass the postId directly
-    }
-};
 
 
 
