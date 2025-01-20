@@ -602,30 +602,55 @@ const showCommentsPopup = (post) => {
     }).join("");
   };
 
-  const likePost = async (postId) => {
-    const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
-    const snapshot = await get(postRef);
-    if (snapshot.exists()) {
-      await remove(postRef);  // Remove like
-      showToast("unliked", 'info');
-    } else {
-      await set(postRef, true);  // Add like
-      showToast("you liked the post", 'success');
+const likePost = async (postId) => {
+  const postRef = ref(db, `posts/${postId}`);
+  const likeRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+  const postData = (await get(postRef)).val();
+
+  if ((await get(likeRef)).exists()) {
+    await remove(likeRef);
+    showToast("unliked", "info");
+  } else {
+    await set(likeRef, true);
+    showToast("you liked the post", "success");
+    if (postData.authorName !== currentUser.displayName) {
+      notifyUserInteraction(postData.authorName, "liked your post");
     }
-    loadPosts();  // Reload to reflect the changes
-  };
+  }
+  loadPosts();
+};
 
-  const submitComment = async (postId, commentText) => {
-    const commentData = {
-      username: currentUser.displayName,
-      message: commentText,
-    };
 
-    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-    showToast("comment added", 'success');
-    loadPosts();  // Reload posts to show the new comment
-  };
+const submitComment = async (postId, message) => {
+  const commentRef = ref(db, `posts/${postId}/comments`);
+  const commentKey = push(commentRef).key;
+  const postRef = ref(db, `posts/${postId}`);
+  const postData = (await get(postRef)).val();
+  
+  const commentData = { username: currentUser.displayName, message };
+  await set(ref(commentRef, commentKey), commentData);
+  showToast("comment added", "success");
+  
+  if (postData.authorName !== currentUser.displayName) {
+    notifyUserInteraction(postData.authorName, "commented on your post");
+  }
+  loadPosts();
+};
+
+function notifyUserInteraction(user, action) {
+  const notification = document.getElementById("interaction-notification");
+  const message = document.getElementById("notification-message");
+  
+  message.textContent = `${user} ${action}`;
+  notification.classList.remove("hidden");
+  notification.classList.add("show");
+
+  setTimeout(() => {
+    notification.classList.remove("show");
+    setTimeout(() => notification.classList.add("hidden"), 500);
+  }, 3000);
+}
+
 
   const deletePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}`);
@@ -898,7 +923,27 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
 
 
 </style>
-
+<style>
+  .notification {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px;
+    background-color: #3aafa9;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    transition: bottom 0.5s ease;
+  }
+  .notification.show {
+    bottom: 20px;
+  }
+  .hidden {
+    display: none;
+  }
+</style>
  </head>
   <body>
       <!--div id="preloader">
@@ -974,6 +1019,12 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
 </li>
     </ul>
   </nav>
+  <div id="interaction-notification" class="notification hidden">
+  <span id="notification-message"></span>
+</div>
+
+
+
   <div class=post-base>
     <section class=hero>
     </section>
