@@ -20,7 +20,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="logo.png" sizes="192x192">
   <link rel="icon" href="logo.png" sizes="512x512">
-  
+
   <title>Nabogaming 2.5</title>
     <link rel=stylesheet href=app.css>
     <link rel=stylesheet href=2.css>
@@ -91,7 +91,7 @@ const enablePremiumFeatures = async () => {
     }
 };
 const enableFreeUserFeatures = async () => {
-    showToast("New Version 3.0 Coming Soon ...Get Ready", "info");
+    showToast("New Version 3.0 Coming 14th February...Get Ready", "info");
     const freeUserAdsElement = document.getElementById("free-user-ads");
     if (freeUserAdsElement) {
         freeUserAdsElement.style.display = 'block';
@@ -185,7 +185,7 @@ box.querySelector('.plus-box').innerHTML = `
   <div class="player-number" style="position: absolute; bottom: 5px; right: 5px;z-index:99999; background: #3aafa9; color: white; padding: 2px 5px; border-radius: 3px; font-size: 12px;">
     #${teamNumber}
   </div>`;
- 
+
   box.querySelector('h5').textContent = userName;
   updateUserTeam(currentUser.uid, teamNumber);
 }).catch(error => {
@@ -589,39 +589,18 @@ const showCommentsPopup = (post) => {
   });
 };
 
-renderComments = (comments, postId) => {
-  if (!comments) return "";
-  return Object.keys(comments).map((commentId) => {
-    const commentData = comments[commentId];
-    const formattedTime = new Date(commentData.timestamp).toLocaleString();
-    return `
-      <div class="comment">
-        <span class="comment-username">${commentData.username}</span>
-        <span class="comment-time">${formattedTime}</span>
-        <p class="comment-sms">${commentData.message}</p>
-      </div>
-    `;
-  }).join("");
-};
 
-
-const submitComment = async (postId, commentText) => {
-  const commentData = {
-    username: currentUser.displayName,
-    userId: currentUser.uid,  // Save user ID for ownership checks
-    message: commentText,
-    timestamp: Date.now(),  // Save the current timestamp
+  const renderComments = (comments) => {
+    if (!comments) return "";
+    return Object.keys(comments).map(commentId => {
+      const comment = comments[commentId];
+      return `
+        <div class="comment">
+          <span class="comment-username">${comment.username}</span><br><span class="comment-sms">${comment.message}</span>
+        </div>
+      `;
+    }).join("");
   };
-
-  const commentId = push(ref(db, `posts/${postId}/comments`)).key;
-  await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
-  showToast("Comment added", 'success');
-  loadPosts();  // Reload posts to show the new comment
-};
-
-
-
-
 
   const likePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
@@ -636,6 +615,17 @@ const submitComment = async (postId, commentText) => {
     loadPosts();  // Reload to reflect the changes
   };
 
+  const submitComment = async (postId, commentText) => {
+    const commentData = {
+      username: currentUser.displayName,
+      message: commentText,
+    };
+
+    const commentId = push(ref(db, `posts/${postId}/comments`)).key;
+    await set(ref(db, `posts/${postId}/comments/${commentId}`), commentData);
+    showToast("comment added", 'success');
+    loadPosts();  // Reload posts to show the new comment
+  };
 
   const deletePost = async (postId) => {
     const postRef = ref(db, `posts/${postId}`);
@@ -810,7 +800,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
   document.getElementById("create-post-button")?.addEventListener("click", createNewPost);
-  
+
 const loadMessages = () => {
   const messagesRef = ref(db, "messages");
   const chatBox = document.getElementById("chat-box");
@@ -911,6 +901,10 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
 
  </head>
   <body>
+      <!--div id="preloader">
+        <span id="progress">0%   <p class="preloader"></p></span>
+    </div-->
+
     <div class=dashboard  id="app">
     <nav class="sidebar desktop-sidebar">
 <h2>Dashboard</h2>
@@ -937,13 +931,14 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
   <span class="badger">1</span>
 </div>
 
-<div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
- <i class=ri-trophy-line onclick="openmodali()" style="	font-size: 20px;margin-top:17px"></i></div>
-
+<!--div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
+ <i class=ri-dashboard-line onclick="openmodali()" style="        font-size: 20px;margin-top:17px"></i></div-->
+ <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding: 5px 5px 3px">
+ <i class=ri-rocket-line onclick="openModale()" style="        font-size: 20px;margin-top:17px"></i></div>
  <div style="margin-top:17px;">
-<i style="color: black;	font-size: 33px;" onclick="openCreateModal()" class="ri-add-circle-fill"></i></div>
+<i style="color: black;        font-size: 33px;" onclick="openCreateModal()" class="ri-add-circle-fill"></i></div>
 <div style="border:1px solid #ddd;border-radius:5px;margin-top:17px;padding:5px 5px 3px">
-<i class=ri-bookmark-line   onclick='navigateTo("saved")' style="	font-size: 20px;"></i></div>
+<i class=ri-bookmark-line   onclick='navigateTo("saved")' style="        font-size: 20px;"></i></div>
     </div>
   </header>
   <nav class="sidebar mobile-sidebar">
@@ -980,25 +975,25 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     </ul>
   </nav>
   <div class=post-base>
-    <section class=hero onclick="openmodali()">
-        
+    <section class=hero style="background: linear-gradient(135deg, #3aafa9, #2b8a85);">
+
 <div class=hero-content>
-  <h1></h1>
-  <p></p>
+  <h1>Esport Tournament 2025 Reborn</h1>
+  <p><span class="user-name"></span> ungana na mechi zote zitazochezwa hapahapa nabogaming kuelekea uchaguzi wa washiriki wa tournment inayokujia hivi karibuni</p>
   <!--a class=btn-primary>Jisajili Sasa <i class=ri-arrow-right-line></i></a-->
   <!--a href="tournament.html"   class=btn-primary style="background-color:#3aafa9;color:white">Learn More  <i class=ri-arrow-right-line></i></a-->
 </div>
     </section>
       <section class=hero style="background: white; color:black;box-shadow:none;border:1px solid #ddd;">
 <div class=hero-content>
-  <h1>Nabogaming 3.0 Updates Soon!</h1>
-  <p>Jiandae kwa update ya website yetu itayokujia ndani ya mwisho wa mwezi januari na mwanzo wa mwezi february, kaa tayari!!</p>
+  <h1>Usahili Nabogaming Tournaments </h1>
+  <p>Hivi Karibuni Tunazindua Usahili Wa Nabogaming Tournaments Utakaofanyika Hivi Karibuni, Get Ready.</p>
 </div>
     </section>
 
   </div>
         <div id="allposts" class="post-grid">
-            
+
 <div class="card-preloader">
   <div class="preloader-image"></div>
   <div class="preloader-content">
@@ -1045,7 +1040,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
 </a>
 
         </div>
-      
+
     </header>
   <nav class="sidebar mobile-sidebar">
     <ul>
@@ -1085,7 +1080,7 @@ document.getElementById('send-message-button')?.addEventListener('click', sendMe
     <div class="shop">
         <img src="shopmall.png">
     </div>
-    
+
        <div class="instagram-post">
 <div class="post-header">
   <div class="profile-details">
@@ -1261,7 +1256,7 @@ Please Wait.....
       <h3>1. Je, NaboGaming ni nini?</h3>
       <p>NaboGaming ni jukwaa la michezo ya mtandaoni linalowapa watumiaji fursa ya kushindana na kushirikiana na wachezaji wengine hapahapa nchini.</p>
     </div>
- 
+
   </main>
 </div>
 
@@ -1304,7 +1299,7 @@ Please Wait.....
     </ul>
   </nav>
    <div class=post-grid>
-    <div class="instagram-post-2">
+    <div class="instagram-post">
 <div class="post-header">
   <div class="profile-details">
     <div class="profile-name">
@@ -1329,6 +1324,32 @@ Please Wait.....
 </div>
 <!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
     </div>
+    <div class="instagram-post">
+<div class="post-header">
+  <div class="profile-details">
+    <div class="profile-name">
+Admin 1.0
+    </div>
+    <div class="post-time" data-timestamp="2025-01-05T21:29:59">
+Please Wait.....
+    </div>
+  </div>
+</div>
+<div class="post-image">
+  <img src="post1.png" alt="Post content">
+  <div class="post-badges">
+    <span class="badge new"><strong>PUBGM</strong></span>
+  </div>
+ <div class="bottom-left-icon">
+    <div id="countdown"></div>
+</div>
+</div>
+<div class="caption">
+  <span class="username">Admin 1.0</span> <span>Pubg Mobile 1v1 Inakujia Hivi Karibuni Uko Tayari?!</span>
+</div>
+<!--button class="join"  onclick='navigateTo("jisajili")'>Jiunge Sasa</button-->
+    </div>
+
   </div>
 </div>
 
@@ -1364,7 +1385,7 @@ Please Wait.....
   </nav>
 
   <!-- Profile Container -->
- 
+
     <!-- Profile Overview -->
     <div class="profile-overview" style="margin-bottom:-10px;margin-top:50px;border: none">
       <!-- Profile Photo -->
@@ -1382,7 +1403,7 @@ Please Wait.....
 <br><br>
     <!-- User Posts Section -->
     <h3 style="text-align: center">Posts Zangu (<span class="user-name">No data</span>'s Post)</h3><br>
-    
+
     <div id="myposts" class="post-grid">
     <div class="card-preloader">
   <div class="preloader-image"></div>
@@ -1393,7 +1414,7 @@ Please Wait.....
   </div>
 </div>
     </div>
-    
+
   </div>
 
 
@@ -1404,7 +1425,7 @@ Please Wait.....
   </header>
   <br><br><br>
   <div class="post-grid" id="likedposts">
-     
+
      <div class="card-preloader">
   <div class="preloader-image"></div>
   <div class="preloader-content">
@@ -1465,7 +1486,7 @@ Please Wait.....
     function uploadFile() {
         const progressBar = document.getElementById('progress-bar');
         const progressBarContainer = document.getElementById('progress-bar-container');
-        
+
         progressBarContainer.style.display = 'block';
         progressBar.style.width = '0%';
 
@@ -1508,11 +1529,11 @@ Please Wait.....
     </ul>
   </section>
 </div>
-   
+
   <div id="createModal" class="create-modal">
     <div class="create-modal-content">
       <span class="close-btn" onclick="closeCreateModal()"></span>
-      <section class="hero-create" style="background:white" id="create-post">
+      <section class="hero" style="background:white" id="create-post">
           <div class="hero-content">
         <h3 style="color: black;    margin-top: 10px;">Create Your New <span class="user-name"></span>'s Post</h3><br>
         <input type="text" id="new-post-caption" placeholder="Write a caption...">
@@ -1542,7 +1563,7 @@ Please Wait.....
         <span class="title">Game-On</span>
         <i class="ri-close-line close" onclick="closeModale()"></i>
       </div>
-      
+
       <!-- Instagram Post Section -->
       <div class="post-container">
         <div class="post-video">
@@ -1605,24 +1626,14 @@ Please Wait.....
   </div>
 </div>
     </div>
-    
+
 <!-- modali -->
-  <div id="modali" class="modali" style="background:white">
+  <div id="modali" class="modali">
     <div class="modali-content">
       <!-- Close button -->
       <button class="close-btn" onclick="closemodali()">×</button>
 <br>
 <div class="grid-modali-container">
-    <div class="post-header">
-  <div class="profile-details" style="text-align:left;line-height:1.2;">
-    <div class="profile-name">
-PUBG MOBILE
-    </div>
-    <div class="post-time">
-Vote hapa <br>Player 1-13
-    </div>
-  </div>
-</div>
     <div class="grid-modali-item" data-team="1">
         <div class="plus-box">+</div>
         <h5>Player 1</h5>
@@ -1642,236 +1653,6 @@ Vote hapa <br>Player 1-13
     <div class="grid-modali-item" data-team="5">
         <div class="plus-box">+</div>
         <h5>Player 5</h5>
-    </div>
-        <div class="grid-modali-item" data-team="6">
-        <div class="plus-box">+</div>
-        <h5>Player 6</h5>
-    </div>
-    <div class="grid-modali-item" data-team="7">
-        <div class="plus-box">+</div>
-        <h5>Player 7</h5>
-    </div>
-    <div class="grid-modali-item" data-team="8">
-        <div class="plus-box">+</div>
-        <h5>Player 8</h5>
-    </div>
-    <div class="grid-modali-item" data-team="9">
-        <div class="plus-box">+</div>
-        <h5>Player 9</h5>
-    </div>
-    <div class="grid-modali-item" data-team="10">
-        <div class="plus-box">+</div>
-        <h5>Player 10</h5>
-    </div>
-        <div class="grid-modali-item" data-team="11">
-        <div class="plus-box">+</div>
-        <h5>Player 11</h5>
-    </div>
-    <div class="grid-modali-item" data-team="12">
-        <div class="plus-box">+</div>
-        <h5>Player 12</h5>
-    </div>
-    <div class="grid-modali-item" data-team="13">
-        <div class="plus-box">+</div>
-        <h5>Player 13</h5>
-    </div>
-    <div class="post-header">
-  <div class="profile-details" style="text-align:left;line-height:1.2;">
-    <div class="profile-name">
-FREEFIRE
-    </div>
-    <div class="post-time">
-Vote hapa <br>Player 14-27
-    </div>
-  </div>
-</div>
-    <div class="grid-modali-item" data-team="14">
-        <div class="plus-box">+</div>
-        <h5>Player 14</h5>
-    </div>
-    <div class="grid-modali-item" data-team="15">
-        <div class="plus-box">+</div>
-        <h5>Player 15</h5>
-    </div>
-        <div class="grid-modali-item" data-team="16">
-        <div class="plus-box">+</div>
-        <h5>Player 16</h5>
-    </div>
-    <div class="grid-modali-item" data-team="17">
-        <div class="plus-box">+</div>
-        <h5>Player 17</h5>
-    </div>
-    <div class="grid-modali-item" data-team="18">
-        <div class="plus-box">+</div>
-        <h5>Player 18</h5>
-    </div>
-    <div class="grid-modali-item" data-team="19">
-        <div class="plus-box">+</div>
-        <h5>Player 19</h5>
-    </div>
-    <div class="grid-modali-item" data-team="20">
-        <div class="plus-box">+</div>
-        <h5>Player 20</h5>
-    </div>
-        <div class="grid-modali-item" data-team="21">
-        <div class="plus-box">+</div>
-        <h5>Player 21</h5>
-    </div>
-    <div class="grid-modali-item" data-team="22">
-        <div class="plus-box">+</div>
-        <h5>Player 22</h5>
-    </div>
-    <div class="grid-modali-item" data-team="23">
-        <div class="plus-box">+</div>
-        <h5>Player 23</h5>
-    </div>
-    <div class="grid-modali-item" data-team="24">
-        <div class="plus-box">+</div>
-        <h5>Player 24</h5>
-    </div>
-    <div class="grid-modali-item" data-team="25">
-        <div class="plus-box">+</div>
-        <h5>Player 25</h5>
-    </div>
-        <div class="grid-modali-item" data-team="26">
-        <div class="plus-box">+</div>
-        <h5>Player 26</h5>
-    </div>
-    <div class="grid-modali-item" data-team="27">
-        <div class="plus-box">+</div>
-        <h5>Player 27</h5>
-    </div>
-    <div class="post-header">
-  <div class="profile-details" style="text-align:left;line-height:1.2;">
-    <div class="profile-name">
-eFOOTBALL  </div>
-    <div class="post-time">
-Vote hapa <br>Player 28-41
-    </div>
-  </div>
-</div>
-
-    <div class="grid-modali-item" data-team="28">
-        <div class="plus-box">+</div>
-        <h5>Player 28</h5>
-    </div>
-    <div class="grid-modali-item" data-team="29">
-        <div class="plus-box">+</div>
-        <h5>Player 29</h5>
-    </div>
-    <div class="grid-modali-item" data-team="30">
-        <div class="plus-box">+</div>
-        <h5>Player 30</h5>
-    </div>
-        <div class="grid-modali-item" data-team="31">
-        <div class="plus-box">+</div>
-        <h5>Player 31</h5>
-    </div>
-    <div class="grid-modali-item" data-team="32">
-        <div class="plus-box">+</div>
-        <h5>Player 32</h5>
-    </div>
-    <div class="grid-modali-item" data-team="33">
-        <div class="plus-box">+</div>
-        <h5>Player 33</h5>
-    </div>
-    <div class="grid-modali-item" data-team="34">
-        <div class="plus-box">+</div>
-        <h5>Player 34</h5>
-    </div>
-    <div class="grid-modali-item" data-team="35">
-        <div class="plus-box">+</div>
-        <h5>Player 35</h5>
-    </div>
-        <div class="grid-modali-item" data-team="36">
-        <div class="plus-box">+</div>
-        <h5>Player 36</h5>
-    </div>
-    <div class="grid-modali-item" data-team="37">
-        <div class="plus-box">+</div>
-        <h5>Player 37</h5>
-    </div>
-    <div class="grid-modali-item" data-team="38">
-        <div class="plus-box">+</div>
-        <h5>Player 38</h5>
-    </div>
-    <div class="grid-modali-item" data-team="39">
-        <div class="plus-box">+</div>
-        <h5>Player 39</h5>
-    </div>
-    <div class="grid-modali-item" data-team="40">
-        <div class="plus-box">+</div>
-        <h5>Player 40</h5>
-    </div>
-    <div class="grid-modali-item" data-team="41">
-        <div class="plus-box">+</div>
-        <h5>Player 41</h5>
-    </div>
-    <div class="post-header">
-  <div class="profile-details" style="text-align:left;line-height:1.2;">
-    <div class="profile-name">
-COD MOBILE
-    </div>
-    <div class="post-time">
-Vote hapa <br>Player 42-55
-    </div>
-  </div>
-</div>
-        <div class="grid-modali-item" data-team="42">
-        <div class="plus-box">+</div>
-        <h5>Player 42</h5>
-    </div>
-    <div class="grid-modali-item" data-team="43">
-        <div class="plus-box">+</div>
-        <h5>Player 43</h5>
-    </div>
-    <div class="grid-modali-item" data-team="44">
-        <div class="plus-box">+</div>
-        <h5>Player 44</h5>
-    </div>
-    <div class="grid-modali-item" data-team="45">
-        <div class="plus-box">+</div>
-        <h5>Player 45</h5>
-    </div>
-    <div class="grid-modali-item" data-team="46">
-        <div class="plus-box">+</div>
-        <h5>Player 46</h5>
-    </div>
-        <div class="grid-modali-item" data-team="47">
-        <div class="plus-box">+</div>
-        <h5>Player 47</h5>
-    </div>
-    <div class="grid-modali-item" data-team="48">
-        <div class="plus-box">+</div>
-        <h5>Player 48</h5>
-    </div>
-    <div class="grid-modali-item" data-team="49">
-        <div class="plus-box">+</div>
-        <h5>Player 49</h5>
-    </div>
-    <div class="grid-modali-item" data-team="50">
-        <div class="plus-box">+</div>
-        <h5>Player 50</h5>
-    </div>
-    <div class="grid-modali-item" data-team="51">
-        <div class="plus-box">+</div>
-        <h5>Player 51</h5>
-    </div>
-    <div class="grid-modali-item" data-team="52">
-        <div class="plus-box">+</div>
-        <h5>Player 52</h5>
-    </div>
-     <div class="grid-modali-item" data-team="53">
-        <div class="plus-box">+</div>
-        <h5>Player 53</h5>
-    </div>
-     <div class="grid-modali-item" data-team="54">
-        <div class="plus-box">+</div>
-        <h5>Player 54</h5>
-    </div>
-     <div class="grid-modali-item" data-team="55">
-        <div class="plus-box">+</div>
-        <h5>Player 55</h5>
     </div>
 </div>
 
@@ -1997,7 +1778,7 @@ document.getElementById('close-btn').addEventListener('click', () => {
         // Function to navigate to a specific section
 function navigateTo(pageId) {
   const target = document.getElementById(pageId);
-  
+
   if (target) {
     // Hide all sections
     document.querySelectorAll(".main-content > div").forEach((div) => {
@@ -2167,12 +1948,12 @@ notifyPopup.classList.add("hidden");
   document.getElementById('create-post-button').addEventListener('click', function() {
   // Change text to "Uploading"
   this.textContent = 'Uploading Please Wait';
-  
+
   // Add dynamic loading dots
   let loadingDots = document.createElement('span');
   loadingDots.id = 'loading-dots';
   this.appendChild(loadingDots);
-  
+
   // Optionally, you can simulate some delay to change back after a while
   setTimeout(() => {
     this.textContent = 'Upload Post Now';
@@ -2213,7 +1994,7 @@ window.onclick = function(event) {
   <script>
       function startCountdown() {
     const countdownElement = document.getElementById("countdown");
-    
+
     // Set the date we're counting down to
     const countDownDate = new Date("Jan 02, 2025 20:59:59").getTime();
 
@@ -2222,10 +2003,10 @@ window.onclick = function(event) {
 
         // Get the current time
         const now = new Date().getTime();
-        
+
         // Find the time remaining
         const distance = countDownDate - now;
-        
+
         // Time calculations for days, hours, minutes, and seconds
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -2309,7 +2090,7 @@ pausePoints.push(95); // Final pause point at 95%
 let timer = setInterval(() => {
     if (progress < 100) {
         progressElement.textContent = progress + '%';
-        
+
         if (pausePoints.includes(progress)) {
             clearInterval(timer);
             let delay = progress === 95 ? 2000 : 500; // 2-second delay at 95%, 500ms at other points
