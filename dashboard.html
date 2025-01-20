@@ -590,25 +590,25 @@ const showCommentsPopup = (post) => {
 };
 
 
-const renderComments = (comments, postId) => {
-  if (!comments) return "";
-  const currentUserId = currentUser.uid;  // Assume you have the current user's ID
-  return Object.keys(comments).map(commentId => {
-    const comment = comments[commentId];
-    const isOwner = comment.userId === currentUserId;
-    const formattedTime = new Date(comment.timestamp).toLocaleString();
-    return `
-      <div class="comment">
-        <span class="comment-username">${comment.username}</span>
-        <span class="comment-time">${formattedTime}</span>
-        <br>
-        <span class="comment-sms">${comment.message}</span>
-        ${isOwner ? `<button onclick="deleteComment('${postId}', '${commentId}')">Delete</button>` : ""}
-        <button onclick="replyToComment('${postId}', '${commentId}')">Reply</button>
-      </div>
-    `;
-  }).join("");
+renderComments = (comments, postId) => {
+    if (!comments) return "";
+    const currentUserId = currentUser?.uid;
+    return Object.keys(comments).map(commentId => {
+        const comment = comments[commentId];
+        const isOwnComment = comment.userId === currentUserId;
+        const timestamp = new Date(comment.timestamp).toLocaleString();
+        return `
+          <div class="comment">
+            <span class="comment-username">${comment.username}</span>
+            <span class="comment-time">${timestamp}</span>
+            <p class="comment-sms">${comment.message}</p>
+            ${isOwnComment ? `<button onclick="deleteComment('${postId}', '${commentId}')">Delete</button>` : ""}
+            <button onclick="replyToComment('${postId}', '${commentId}')">Reply</button>
+          </div>
+        `;
+    }).join("");
 };
+
 
 const submitComment = async (postId, commentText) => {
   const commentData = {
@@ -624,18 +624,25 @@ const submitComment = async (postId, commentText) => {
   loadPosts();  // Reload posts to show the new comment
 };
 
-const deleteComment = async (postId, commentId) => {
-  await remove(ref(db, `posts/${postId}/comments/${commentId}`));
-  showToast("Comment deleted", 'success');
-  loadPosts();
+deleteComment = async (postId, commentId) => {
+    try {
+        await remove(ref(db, `posts/${postId}/comments/${commentId}`));
+        showToast("Comment deleted", "success");
+        loadPosts();
+    } catch (error) {
+        console.error("Error deleting comment:", error);
+        showToast("Error deleting comment", "error");
+    }
 };
 
-const replyToComment = (postId, parentCommentId) => {
-  const replyText = prompt("Enter your reply:");
-  if (replyText) {
-    submitComment(postId, replyText);  // You may modify this to link replies to the parent comment
-  }
+
+replyToComment = (postId, commentId) => {
+    const reply = prompt("Enter your reply:");
+    if (reply) {
+        submitComment(postId, reply); // Pass the postId directly
+    }
 };
+
 
 
   const likePost = async (postId) => {
