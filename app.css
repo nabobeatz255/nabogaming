@@ -277,10 +277,10 @@ a:focus {
 .profile-picture img {
     width: 35px;
     height: 35px;
-    padding: 3px; /* Add space between the image and border */
+    padding: 1.54px;
     border-radius: 50%;
     border: 1px solid #ccc;
-    display: inline-block; /* Ensures the padding applies to the container */
+    display: inline-block; 
 }
 
 .profile-picture .pro {
@@ -318,14 +318,14 @@ a:focus {
 
 .post-image img {
     width: 100%;
-    height: 200px; /* Set your desired fixed height */
-    object-fit: cover; /* Ensures images zoom in to fill the container */
+    height: 320px; 
+    object-fit: cover; 
     display: block;
 }
 
 .post-image img.landscape {
-    object-fit: contain; /* Ensure landscape images fit within the container */
-    height: 100%; /* Set height to 100% to maintain aspect ratio */
+    object-fit: contain; 
+    height: 100%; 
 }
 
 .post-actions {
