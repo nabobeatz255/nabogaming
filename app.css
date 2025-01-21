@@ -277,9 +277,10 @@ a:focus {
 .profile-picture img {
     width: 35px;
     height: 35px;
-    margin-right: 8px;
+    padding: 3px; /* Add space between the image and border */
     border-radius: 50%;
     border: 1px solid #ccc;
+    display: inline-block; /* Ensures the padding applies to the container */
 }
 
 .profile-picture .pro {
