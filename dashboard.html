@@ -507,20 +507,13 @@ const displayPost = (post, container, isMyPost) => {
 
   postElement.innerHTML = `
     <div class="post-header">
-  <div class="profile-picture">
-    <img src="${post.authorPhoto || 'default-profile-pic.jpg'}" 
-         alt="User profile picture" 
-         class="${premiumUsers.includes(post.authorId) ? 'premium-profile' : 'free-profile'}">
-  </div>
-  <div class="profile-details">
-    <div class="profile-name">
-      ${premiumUsers.includes(post.authorId) 
-        ? `<span class="premium-username">${post.authorName} <i class="premium-icon">★</i></span>` 
-        : `<span class="free-username">${post.authorName}</span>`}
-    </div>
-    <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count"> Public</span></div>
-  </div>
-</div>
+      <div class="profile-picture">
+        <img src="${post.authorPhoto}" alt="User profile picture">
+      </div>
+      <div class="profile-details">
+        <div class="profile-name">${post.authorName}</div>
+        <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count"> Public</span></div>
+      </div>
         <div class="post-options">
                 <i class="ri-more-fill"></i>
                 <div class="options-menu">
