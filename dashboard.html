@@ -288,60 +288,87 @@ const updateUserTeam = (userId, teamNumber) => {
 };
 
 
+
 const showToast = (message, type = 'info') => {
-  const toast = document.createElement('div');
-  toast.classList.add('toast', type);
-  toast.textContent = message;
+  // Remove any existing toast/overlay
+  document.querySelector('.toast')?.remove();
+  document.querySelector('.overlay')?.remove();
 
   // Create background overlay
   const overlay = document.createElement('div');
   overlay.classList.add('overlay');
+
+  // Create toast
+  const toast = document.createElement('div');
+  toast.classList.add('toast', type);
+
+  // Add logo
+  const logo = document.createElement('img');
+  logo.src = 'logo.png'; // Replace with your logo URL
+  logo.classList.add('toast-logo');
+
+  // Message
+  const msg = document.createElement('div');
+  msg.classList.add('toast-message');
+  msg.textContent = message;
+
+  toast.appendChild(logo);
+  toast.appendChild(msg);
+
+  // Append elements
   document.body.appendChild(overlay);
-  
   document.body.appendChild(toast);
 
-  setTimeout(() => {
+  // Close on any click
+  const removeToast = () => {
     toast.remove();
     overlay.remove();
-  }, 3000);
+    overlay.removeEventListener('click', removeToast);
+    toast.removeEventListener('click', removeToast);
+  };
+
+  overlay.addEventListener('click', removeToast);
+  toast.addEventListener('click', removeToast);
+
+  // Auto remove after 3 seconds
+  setTimeout(removeToast, 3000);
 };
 
+// Inject CSS styles
 const style = document.createElement('style');
 style.textContent = `
 .toast {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 16px 24px;
-  color: white;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  background-color: white;
+  color: black;
+  padding: 20px 0;
   font-size: 16px;
-  border-radius: 8px;
   text-align: center;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
   z-index: 999999;
   animation: slideFromTop 0.5s ease-out forwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-.toast.success {
-  background-color: green;
-  color: white;
+.toast-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
 }
 
-.toast.error {
-  background-color: #f44336;
-  color: white;
+.toast-message {
+  font-weight: bold;
 }
 
-.toast.info {
-  background-color: blue;
-  color: white;
-}
-
-.toast.warning {
-  background-color: #FF9800;
-  color: white;
-}
+.toast.success { color: green; }
+.toast.error { color: #f44336; }
+.toast.info { color: blue; }
+.toast.warning { color: #FF9800; }
 
 .overlay {
   position: fixed;
@@ -349,25 +376,24 @@ style.textContent = `
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.3);
   z-index: 999998;
-  display: block;
 }
 
 @keyframes slideFromTop {
   from {
     opacity: 0;
-    transform: translate(-50%, -30px);
+    transform: translateY(-30px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%);
+    transform: translateY(0);
   }
 }
 `;
-
 document.head.appendChild(style);
-     
+
+
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
