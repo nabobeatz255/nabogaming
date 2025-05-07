@@ -288,86 +288,86 @@ const updateUserTeam = (userId, teamNumber) => {
 };
 
 
-  const showToast = (message, type = 'info') => {
-    const toast = document.createElement('div');
-    toast.classList.add('toast', type);
-    toast.textContent = message;
+const showToast = (message, type = 'info') => {
+  const toast = document.createElement('div');
+  toast.classList.add('toast', type);
+  toast.textContent = message;
 
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  };
+  // Create background overlay
+  const overlay = document.createElement('div');
+  overlay.classList.add('overlay');
+  document.body.appendChild(overlay);
+  
+  document.body.appendChild(toast);
 
-  const style = document.createElement('style');
-  style.textContent = `
+  setTimeout(() => {
+    toast.remove();
+    overlay.remove();
+  }, 3000);
+};
+
+const style = document.createElement('style');
+style.textContent = `
 .toast {
-    position: fixed;
-    top: 0;
-    left: 50%;
-    padding: 13px; /* Padding for spacing */
-    transform: translateX(-50%);
-    width: 100vw; /* Full width of the viewport */
-    height: 60px;
-    color: white;
-    display: flex; /* Use flexbox for centering */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
-    text-align: center;
-    font-size: 14px;
-    opacity: 0;
-    z-index: 999999;
-    animation: slideFromTop 0.5s ease-out forwards;
-    border-left: 3px solid;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 16px 24px;
+  color: white;
+  font-size: 16px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 999999;
+  animation: slideFromTop 0.5s ease-out forwards;
 }
 
 .toast.success {
-    border-left-color: green;
-    border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    background-color: white;
-    color: green;
+  background-color: green;
+  color: white;
 }
 
-
 .toast.error {
-    border-left-color: #f44336;
-    background-color: white;
-     border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    color: #f44336;
+  background-color: #f44336;
+  color: white;
 }
 
 .toast.info {
-    border-left-color: blue;
-     border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    background-color: white;
-    color: blue;
+  background-color: blue;
+  color: white;
 }
 
 .toast.warning {
-    border-left-color: #FF9800;
-     border-left-width: 7px; /* Adjust the width as needed */
-    border-left-style: solid; /* Ensure the border is visible */
-    background-color: white;
-    color: #FF9800;
+  background-color: #FF9800;
+  color: white;
 }
 
-/* Slide from top animation */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 999998;
+  display: block;
+}
+
 @keyframes slideFromTop {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translate(-50%, -30px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
+`;
 
-  `;
-  document.head.appendChild(style);
+document.head.appendChild(style);
+     
 
   const formatTimestamp = (timestamp) => {
     const now = new Date();
