@@ -361,10 +361,6 @@ style.textContent = `
   object-fit: contain;
 }
 
-.toast-message {
-  font-weight: bold;
-}
-
 .toast.success { color: green; }
 .toast.error { color: #f44336; }
 .toast.info { color: blue; }
@@ -376,7 +372,8 @@ style.textContent = `
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
+   backdrop-filter: blur(10px);
+  background-color: rgba(0, 0, 0, 0.7);
   z-index: 999998;
 }
 
