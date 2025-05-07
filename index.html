@@ -239,7 +239,6 @@
     <img src="logo.png" alt="Nabogaming Logo">
     <nav class="nav">
       <a href="#hero">Home</a>
-      <a href="#slider">Slider</a>
       <a href="dashboard.html">Sign-in</a>
     </nav>
   </header>
@@ -252,23 +251,7 @@
     </button>
   </section>
 
-  <section class="slider-section" id="slider">
-    <div class="slider">
-      <div class="slide">
-        <img src="1.png" alt="Player 1">
-        <p>Karibu Nabogaming, Ungana nasi leo ushindane mechi mbalimbali ukiwa hapa hapa.</p>
-      </div>
-      <div class="slide">
-        <img src="post1.png" alt="Player 2">
-        <p>Room Kadi PubgMobile kama zote! Karibu ucheze zaidi na ushinde kwa skills zako.</p>
-      </div>
-      <div class="slide">
-        <img src="post2.png" alt="Player 3">
-        <p>Freefire mpo! Tunajambo lenu pia. Kaa tayari kwa mashindano ya kipekee.</p>
-      </div>
-    </div>
-  </section>
-
+  
   <!-- Features Section -->
   <section class="features" id="features">
     <div class="feature">
@@ -323,6 +306,45 @@
   <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_VKdV-KsIzUiOb7jFLsYXdTsuGkLiS-Q",
+      authDomain: "register-71bde.firebaseapp.com",
+      projectId: "register-71bde",
+      storageBucket: "register-71bde.appspot.com",
+      messagingSenderId: "412548441298",
+      appId: "1:412548441298:web:e0fb2b6c5fbd4af7d0b90b",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const googleBtn = document.getElementById("google-sign-in");
+      if (googleBtn) {
+        googleBtn.addEventListener("click", async () => {
+          try {
+            const result = await signInWithPopup(auth, provider);
+            console.log("Sign-in successful:", result.user);
+            window.location.href = "dashboard.html";
+          } catch (error) {
+            console.error("Sign-in failed:", error);
+            alert("Sign-in failed: " + error.message);
+          }
+        });
+      }
+    });
+  </script>
   <script>
     $(document).ready(function(){
       $('.slider').slick({
