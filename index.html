@@ -2,94 +2,363 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Nabogaming - Ulimwengu bora wa online games, kushinda zawadi, na kufurahia burudani ya michezo mtandaoni. Jiunge nasi leo!">
-    <meta name="keywords" content="Nabogaming, Michezo, Games Mtandaoni, Zawadi, Michezo ya ushindani, Ushindi, Michezo ya Mtandaoni">
-    <meta name="author" content="Nabogaming">
-    <meta property="og:title" content="Nabogaming">
-    <meta property="og:description" content="Nabogaming furaha ya kushindana michezo ya online na kushinda zawadi kubwa kwenye Nabogaming. Usikose nafasi yako ya ushindi!">
-    <meta property="og:image" content="https://nabogaming.com/1.png">
-    <meta property="og:url" content="https://nabogaming.com">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Nabogaming">
-    <meta name="twitter:description" content="Jiunge na Nabogaming kwa uzoefu bora wa kushindana michezo mtandaoni. Furahia ushindi leo!">
-    <meta name="twitter:image" content="https://nabogaming.com/logo.png">
-    <link rel="canonical" href="https://nabogaming.com">
-    <link rel="icon" href="logo.png" type="image/x-icon">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="logo.png" sizes="192x192">
-  <link rel="icon" href="logo.png" sizes="512x512">
-
-  <title>NaboGaming - Coming Soon</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nabogaming 2.5</title>
+  <link rel="icon" href="logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
+  <link rel="stylesheet" href="remixicon.min.css">
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
       background-color: #000;
       color: #fff;
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: auto;
+    }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #121212;
+      padding: 0.75rem 1.25rem;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      justify-content: space-between;
+      z-index: 1000;
+    }
+    header img {
+      height: 40px;
+      border-radius: 50%;
+    }
+    .nav a {
+      color: #fff;
+      margin-left: 1rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav a:hover {
+      color: #3aafa9;
+    }
+    .hero {
+      padding: 6rem 2rem 2rem;
       text-align: center;
     }
-
-    img {
-      width: 120px;
-      height: auto;
-      margin-bottom: 20px;
-      filter: brightness(0) invert(1); /* Ensures black & white look */
+    .hero h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      margin-bottom: 1.5rem;
+    }
+    .btn {
+      background: white;
+      color: black;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+    }
+    .btn i {
+      margin-left: 0.5rem;
+    }
+    .slider-section {
+      padding: 2rem;
+    }
+    .slider {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+    }
+    .slide {
+      min-width: 200px;
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .slide img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+    }
+    .slide p {
+      font-size: 0.95rem;
     }
 
-    h1 {
-      font-size: 2.5em;
-      margin: 0.2em 0;
+    /* Features Section */
+    .features {
+      padding: 3rem 1.5rem;
+      background: #1e1e1e;
+      text-align: center;
+    }
+    .feature {
+      display: inline-block;
+      width: 30%;
+      background: #333;
+      margin: 1rem;
+      padding: 1.5rem;
+      border-radius: 10px;
+    }
+    .feature i {
+      font-size: 2.5rem;
+      color: #3aafa9;
+      margin-bottom: 1rem;
+    }
+    .feature h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+    .feature p {
+      font-size: 1rem;
+      color: #bbb;
     }
 
-    p {
-      font-size: 1.1em;
-      margin: 0.5em 0;
+    /* FAQ Section */
+    .faq {
+      background: #121212;
+      padding: 3rem 1.5rem;
+      text-align: center;
     }
-
-    #countdown {
-      font-size: 1.8em;
+    .faq h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .faq-item {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+    .faq-question {
       font-weight: bold;
-      margin-top: 1em;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+    .faq-answer {
+      font-size: 1rem;
+      color: #bbb;
+    }
+
+    /* Scroll to Top Button */
+    .scroll-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #3aafa9;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      padding: 1rem;
+      cursor: pointer;
+      display: none;
+    }
+    .scroll-top i {
+      font-size: 1.5rem;
+    }
+    .scroll-top.show {
+      display: inline-block;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      /* Adjust hero section text */
+      .hero h1 {
+        font-size: 1.5rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+
+      /* Adjust features section */
+      .feature {
+        width: 100%;
+        margin: 0.5rem 0;
+      }
+
+      /* Adjust slider */
+      .slider {
+        display: block;
+      }
+      .slide {
+        min-width: 100%;
+      }
+
+      /* Adjust FAQ section */
+      .faq h2 {
+        font-size: 1.5rem;
+      }
+      .faq-question {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      /* Adjust the header and navigation */
+      header {
+        padding: 1rem;
+      }
+      .nav a {
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+      }
+
+      /* Adjust hero text */
+      .hero h1 {
+        font-size: 1.2rem;
+      }
+      .hero p {
+        font-size: 0.9rem;
+      }
+
+      /* Adjust button size */
+      .btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+      }
+
+      /* Adjust the FAQ section */
+      .faq h2 {
+        font-size: 1.3rem;
+      }
+      .faq-question {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Nabogaming</h1>
-  <p>Our website is currently under development.</p>
-  <p>Launching in:</p>
-  <div id="countdown">Loading countdown...</div>
+  <header>
+    <img src="logo.png" alt="Nabogaming Logo">
+    <nav class="nav">
+      <a href="#hero">Home</a>
+      <a href="#slider">Slider</a>
+      <a href="dashboard.html">Sign-in</a>
+    </nav>
+  </header>
 
+  <section class="hero" id="hero">
+    <h1>Karibu Nabogaming Version 2.7</h1>
+    <p>Ungana na wachezaji wa simu wa Tanzania, shindana na ushinde zawadi kibao.</p>
+    <button class="btn" id="google-sign-in">
+      Tumia Akaunti Ya Google <i class="ri-google-line"></i>
+    </button>
+  </section>
+
+  <section class="slider-section" id="slider">
+    <div class="slider">
+      <div class="slide">
+        <img src="1.png" alt="Player 1">
+        <p>Karibu Nabogaming, Ungana nasi leo ushindane mechi mbalimbali ukiwa hapa hapa.</p>
+      </div>
+      <div class="slide">
+        <img src="post1.png" alt="Player 2">
+        <p>Room Kadi PubgMobile kama zote! Karibu ucheze zaidi na ushinde kwa skills zako.</p>
+      </div>
+      <div class="slide">
+        <img src="post2.png" alt="Player 3">
+        <p>Freefire mpo! Tunajambo lenu pia. Kaa tayari kwa mashindano ya kipekee.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="feature">
+      <i class="ri-speed-line"></i>
+      <h3>Cheza Zaidi</h3>
+      <p>Shindana Na Wachezaji Wa Kitaifa Na Kimataifa Katika Michezo Mbalimbali. Kila Mechi Ina Zawadi Za Kipekee Kwa Washindi.</p>
+    </div>
+    <div class="feature">
+      <i class="ri-device-line"></i>
+      <h3>Responsive</h3>
+      <p>Furahia Uzoefu Bora Katika Vifaa Vyote, Popote Ulipo. Hakuna Hali Ya Kuchelewa!</p>
+    </div>
+    <div class="feature">
+      <i class="ri-lock-line"></i>
+      <h3>Salama</h3>
+      <p>Madaraja Ya Usalama Ya Kisasa Yaliyojengwa Ili Kulinda Taarifa Zako Na Kukupeleka Kwa Usalama Katika Ulimwengu Wa Michezo.</p>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq" id="faq">
+    <h2>Maswali Yanayoulizwa Mara Kwa Mara</h2>
+    <div class="faq-item">
+      <div class="faq-question">NaboGaming ni nini?</div>
+      <div class="faq-answer">NaboGaming ni jukwaa la michezo ya simu la Tanzania, ambapo wachezaji wanaweza kushindana na wengine katika michezo maarufu na kushinda zawadi.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Jinsi ya kujiandikisha kwa NaboGaming?</div>
+      <div class="faq-answer">Bonyeza "Tumia Akaunti ya Google" ili kujiandikisha kwa kutumia akaunti yako ya Google.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Je, NaboGaming inatumiaje salama data yangu?</div>
+      <div class="faq-answer">Inatumia teknolojia ya kisasa ya usalama ili kulinda taarifa zako.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Jinsi ya kushinda zawadi?</div>
+      <div class="faq-answer">Zawadi hutolewa kwa washindi wa nafasi za juu kwenye mashindano.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">NaboGaming inapatikana wapi?</div>
+      <div class="faq-answer">Inapatikana kwa wachezaji wote nchini Tanzania kupitia tovuti nabogaming.com</div>
+    </div>
+  </section>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-top" id="scroll-top"><i class="ri-arrow-up-line"></i></button>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
   <script>
-    const countdownEl = document.getElementById("countdown");
-    const targetDate = new Date("2025-07-01T00:00:00").getTime();
+    $(document).ready(function(){
+      $('.slider').slick({
+        infinite: true,
+        slidesToShow: 2,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        arrows: true,
+        dots: true,
+        responsive: [
+          {
+            breakpoint: 768,
+            settings: {
+              slidesToShow: 1,
+              arrows: false
+            }
+          }
+        ]
+      });
 
-    function updateCountdown() {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
+      // Scroll to Top button visibility
+      $(window).scroll(function() {
+        if ($(this).scrollTop() > 100) {
+          $('#scroll-top').addClass('show');
+        } else {
+          $('#scroll-top').removeClass('show');
+        }
+      });
 
-      if (distance < 0) {
-        countdownEl.innerHTML = "We're live!";
-        return;
-      }
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      countdownEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+      // Scroll to Top on click
+      $('#scroll-top').click(function() {
+        $('html, body').animate({ scrollTop: 0 }, '300');
+        return false;
+      });
+    });
   </script>
 </body>
 </html>
