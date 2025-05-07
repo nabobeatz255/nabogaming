@@ -537,8 +537,8 @@ const displayPost = (post, container, isMyPost) => {
         <div class="profile-name">${post.authorName}</div>
         <div class="post-time-2">${formatTimestamp(post.timestamp)} • <span class="like-count"> Public</span></div>
       </div>
-        <div class="post-options">
-                <i class="ri-more-fill"></i>
+        ${isMyPost ? `<div class="post-options">
+                <i class="ri-more-line></i>
                 <div class="options-menu">
                   <ul>
                   ${isMyPost ? `<li class="edit-btn" data-id="${post.postId}">Edit The Post</li>` : ""}
@@ -546,7 +546,7 @@ const displayPost = (post, container, isMyPost) => {
                     ${isMyPost ? `<li class="delete-post-btn" data-id="${post.postId}">Delete My Post</li>` : ""}
                   </ul>
                 </div>
-              </div>
+              </div>` : ""}
     </div>
     <div class="post-image">
       <img src="${post.imageUrl}" alt="Post content">
